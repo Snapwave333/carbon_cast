@@ -90,6 +90,7 @@ export const DEFAULT_SETTINGS = {
     showExternalPlaybackBar: true,
     stripCountryPrefix: false,
     theme: Theme.SystemTheme,
+    mirrorLayout: false,
     mpvPlayerPath: '',
     mpvPlayerArguments: '',
     mpvReuseInstance: false,

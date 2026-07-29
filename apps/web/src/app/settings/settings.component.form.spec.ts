@@ -99,18 +99,6 @@ describe('SettingsComponent form', () => {
     });
 
     describe('Section outputs', () => {
-        it('updates the selected theme through the general section and marks the form dirty', () => {
-            const darkThemeButton = (
-                fixture.nativeElement as HTMLElement
-            ).querySelector('[data-test-id="DARK_THEME"]') as HTMLButtonElement;
-
-            darkThemeButton.click();
-            fixture.detectChanges();
-
-            expect(component.settingsForm.value.theme).toBe(Theme.DarkTheme);
-            expect(component.settingsForm.dirty).toBeTruthy();
-        });
-
         it('updates cover size through the general section output', () => {
             const largeCoverButton = (
                 fixture.nativeElement as HTMLElement

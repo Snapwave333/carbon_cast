@@ -2,7 +2,6 @@ import {
     CoverSize,
     EpgViewMode,
     StartupBehavior,
-    Theme,
     VideoPlayer,
 } from '@iptvnator/shared/interfaces';
 import {
@@ -11,26 +10,7 @@ import {
     SettingsPlayerOption,
     SettingsSection,
     StartupBehaviorOption,
-    ThemeOption,
 } from './settings.models';
-
-export const SETTINGS_THEME_OPTIONS: ThemeOption[] = [
-    {
-        value: Theme.LightTheme,
-        icon: 'light_mode',
-        labelKey: 'THEMES.LIGHT_THEME',
-    },
-    {
-        value: Theme.DarkTheme,
-        icon: 'dark_mode',
-        labelKey: 'THEMES.DARK_THEME',
-    },
-    {
-        value: Theme.SystemTheme,
-        icon: 'desktop_windows',
-        labelKey: 'THEMES.SYSTEM_THEME',
-    },
-];
 
 export const SETTINGS_COVER_SIZE_OPTIONS: CoverSizeOption[] = [
     {

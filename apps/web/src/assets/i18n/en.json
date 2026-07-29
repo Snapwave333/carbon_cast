@@ -317,6 +317,8 @@
         "STREAM_FORMAT_DESCRIPTION": "Select default stream format (xtream)",
         "LANGUAGE_DESCRIPTION": "Select language of the application",
         "THEME_DESCRIPTION": "Select visual theme of the application",
+        "MIRROR_LAYOUT": "Mirror layout",
+        "MIRROR_LAYOUT_DESCRIPTION": "Put the player on the left and the channel/category rail on the right. Applies to the playlist player and Xtream/Stalker live views.",
         "COVER_SIZE": "Cover size",
         "COVER_SIZE_DESCRIPTION": "Adjust the size of poster cards across grids and rails. Larger sizes are easier to see on TVs; smaller sizes show more content per row on big monitors.",
         "COVER_SIZE_SMALL": "Small",

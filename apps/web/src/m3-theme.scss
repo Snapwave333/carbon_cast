@@ -123,23 +123,51 @@ html {
     .dark-theme {
         @include mat.all-component-colors($dark-theme);
 
-        // ── Dark graphite theme ────────────────────────────────────────────
-        // Inspired by both Slack (sidebar distinction) and GitButler (data density)
-        // Key principle: clearly distinct surface layers using graphite steps
-        // Darkest → lightest: #0d0f12 → #141720 → #1c2030 → #222840
+        // ── Carbon fiber theme ─────────────────────────────────────────────
+        // The app ships a single dark theme: a near-black carbon-fiber weave
+        // with a red primary accent and orange + cyan as the secondary
+        // accents. There is no light mode; `.dark-theme` is always applied.
 
-        // App shell & navigation
-        --app-shell-bg: #0d0f12;
-        --app-rail-bg: #111318;
-        --app-header-bg: #111318;
-        --app-content-bg: #161a22;
+        // Fine twill weave: a bright diagonal hatch (sheen) crossed with a
+        // dark one (shadow), tiled over the near-black surfaces below. Kept in
+        // one variable and layered ahead of a solid base color via the
+        // `background` shorthand consumers (rail/header/content).
+        --app-carbon-weave: repeating-linear-gradient(
+                45deg,
+                rgba(255, 255, 255, 0.028) 0,
+                rgba(255, 255, 255, 0.028) 1px,
+                transparent 1px,
+                transparent 3px
+            ),
+            repeating-linear-gradient(
+                -45deg,
+                rgba(0, 0, 0, 0.4) 0,
+                rgba(0, 0, 0, 0.4) 1px,
+                transparent 1px,
+                transparent 3px
+            );
+
+        // App shell & navigation. `--app-shell-bg` stays a solid color because
+        // some components feed it to color-mix(); the woven surfaces are only
+        // consumed via the `background` shorthand.
+        --app-shell-bg: #08090c;
+        --app-rail-bg: var(--app-carbon-weave), #0a0c10;
+        --app-header-bg: var(--app-carbon-weave), #0a0c10;
+        --app-content-bg: var(--app-carbon-weave), #0d0f14;
         --app-rail-border: transparent;
         --app-on-surface: #e6e1e5;
         --app-hover-overlay: rgba(255, 255, 255, 0.08);
         --app-search-bg: rgba(255, 255, 255, 0.05);
         --app-search-border: rgba(255, 255, 255, 0.09);
-        --app-selection-color: #78adff;
-        --app-selection-on-color: #071225;
+
+        // Red drives the primary "active/selection" accent; the
+        // surface/border/glow tokens below derive from it via color-mix, so
+        // they follow automatically. Material primary is re-pointed to the
+        // same red so buttons and checkboxes match.
+        --app-selection-color: #ff3b3b;
+        --app-selection-on-color: #ffffff;
+        --mat-sys-primary: #ff3b3b;
+        --mat-sys-on-primary: #240404;
         --app-selection-surface: color-mix(
             in srgb,
             var(--app-selection-color) 18%,
@@ -162,20 +190,21 @@ html {
         );
 
         // Live / on-air accent (broadcast indicator)
-        --app-live-color: #ff8f8f;
+        --app-live-color: #ff4d4d;
 
         // Content area
         --app-content-shadow: -4px 8px 20px rgba(0, 0, 0, 0.18);
 
-        // Widget surfaces — NO border, surface contrast does the work
-        // Widgets sit on content-bg (#161a22), so widget-bg is notably lighter
-        --app-widget-bg: #1e2330;
-        --app-widget-header-bg: #232840;
+        // Widget surfaces — NO border, surface contrast does the work.
+        // Widgets sit on the carbon content surface, so widget-bg is a
+        // slightly raised graphite.
+        --app-widget-bg: #14171e;
+        --app-widget-header-bg: #191d26;
         --app-widget-border: transparent;
         --app-widget-shadow: none;
-        --app-widget-header-border: rgba(255, 255, 255, 0.05);
-        --app-card-hover-bg: #252b3a;
-        --app-separator: rgba(255, 255, 255, 0.14);
+        --app-widget-header-border: rgba(255, 255, 255, 0.06);
+        --app-card-hover-bg: #1c2029;
+        --app-separator: rgba(255, 255, 255, 0.1);
 
         // Typography — NOT pure white. Warm graphite-tinted whites
         --app-heading-color: #d8dce8;       // soft off-white, not #fff
@@ -183,18 +212,19 @@ html {
         --app-muted-color: #5c6478;         // dimmed
         --app-eyebrow-color: #6b7494;       // eyebrow labels
 
-        // Provider accents (slightly brighter for dark bg)
-        --app-provider-xtream: #78adff;
-        --app-provider-stalker: #34d399;
-        --app-provider-m3u: #fbbf24;
+        // Provider accents — spread across the secondary cyan/orange and the
+        // primary red so the three source types stay distinguishable.
+        --app-provider-xtream: #22d3ee;
+        --app-provider-stalker: #ff8c1a;
+        --app-provider-m3u: #ff5252;
 
-        // Hero section
+        // Hero section — red bleeding into orange over the carbon surface.
         --app-accent-gradient: linear-gradient(
             135deg,
-            rgba(120, 173, 255, 0.12) 0%,
-            rgba(92, 214, 255, 0.07) 100%
+            rgba(255, 59, 59, 0.18) 0%,
+            rgba(255, 140, 26, 0.1) 100%
         );
-        --app-hero-surface: rgba(30, 35, 48, 0.9);
+        --app-hero-surface: rgba(16, 18, 24, 0.92);
     }
 }
 

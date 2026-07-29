@@ -3,12 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormArray, FormBuilder } from '@angular/forms';
 import { EpgRuntimeBridgeService } from '@iptvnator/epg/data-access';
 import { RuntimeCapabilitiesService } from '@iptvnator/services';
-import {
-    CoverSize,
-    EpgViewMode,
-    Language,
-    Theme,
-} from '@iptvnator/shared/interfaces';
+import { CoverSize, EpgViewMode, Language } from '@iptvnator/shared/interfaces';
 import { TranslateService } from '@ngx-translate/core';
 import { SettingsSnackbarService } from './settings-snackbar.service';
 import { SettingsStore } from '../services/settings-store.service';
@@ -90,15 +85,6 @@ export class SettingsFormFacade {
             );
     }
 
-    selectTheme(theme: Theme): void {
-        if (this.form.value.theme === theme) {
-            return;
-        }
-
-        this.patchAndMarkDirty({ theme }, 'theme');
-        this.settingsService.changeTheme(theme);
-    }
-
     selectCoverSize(coverSize: CoverSize): void {
         if (this.form.value.coverSize === coverSize) {
             return;
@@ -176,13 +162,11 @@ export class SettingsFormFacade {
         }
     }
 
-    /** Applies the saved language/theme and resets the dirty state */
+    /** Applies the saved language and resets the dirty state */
     applySavedSettings(): void {
         this.form.markAsPristine();
         this.translate.use(this.form.value.language ?? Language.ENGLISH);
-        this.settingsService.changeTheme(
-            this.form.value.theme ?? Theme.SystemTheme
-        );
+        this.settingsService.changeTheme();
     }
 
     private patchAndMarkDirty(

@@ -23,7 +23,6 @@ import {
     Language,
     Settings,
     STORE_KEY,
-    Theme,
     createDevLogger,
 } from '@iptvnator/shared/interfaces';
 import { SettingsService } from './services/settings.service';
@@ -84,6 +83,13 @@ export class AppComponent implements OnInit {
             document.documentElement.dataset.coverSize = size;
         });
 
+        // Body-level class (like the theme classes) so the mirrored live
+        // layout also reaches component hosts via :host-context().
+        effect(() => {
+            const mirrored = this.settingsStore.mirrorLayout?.() ?? false;
+            document.body.classList.toggle('layout-mirrored', mirrored);
+        });
+
         if (this.runtime.isElectron) {
             document.addEventListener('keydown', (event) => {
                 if (event.ctrlKey || event.metaKey) {
@@ -141,22 +147,11 @@ export class AppComponent implements OnInit {
                         this.fetchStaleEpgData(settings.epgUrl);
                     }
 
-                    if (settings.theme) {
-                        this.settingsService.changeTheme(settings.theme);
-                    } else {
-                        this.detectDarkMode();
-                    }
+                    this.settingsService.changeTheme();
                 } else {
-                    this.detectDarkMode();
+                    this.settingsService.changeTheme();
                 }
             });
-    }
-
-    /**
-     * Applies the operating system color scheme when no explicit theme is set
-     */
-    detectDarkMode(): void {
-        this.settingsService.changeTheme(Theme.SystemTheme);
     }
 
     /**

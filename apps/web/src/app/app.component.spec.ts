@@ -182,7 +182,7 @@ describe('AppComponent', () => {
         expect(router.navigateByUrl).toHaveBeenCalledWith(route);
     });
 
-    it('should apply system theme when no settings are stored', () => {
+    it('should apply the theme when no settings are stored', () => {
         jest.spyOn(settingsService, 'changeTheme');
 
         component.initSettings();
@@ -190,9 +190,7 @@ describe('AppComponent', () => {
         expect(settingsService.getValueFromLocalStorage).toHaveBeenCalledWith(
             STORE_KEY.Settings
         );
-        expect(settingsService.changeTheme).toHaveBeenCalledWith(
-            Theme.SystemTheme
-        );
+        expect(settingsService.changeTheme).toHaveBeenCalled();
     });
 
     it('should apply saved settings and fetch stale epg data only', async () => {
@@ -214,9 +212,7 @@ describe('AppComponent', () => {
         await fixture.whenStable();
 
         expect(translateService.use).toHaveBeenCalledWith(Language.SPANISH);
-        expect(settingsService.changeTheme).toHaveBeenCalledWith(
-            Theme.DarkTheme
-        );
+        expect(settingsService.changeTheme).toHaveBeenCalled();
         expect(epgBridge.checkFreshness).toHaveBeenCalledWith(
             settings.epgUrl,
             12

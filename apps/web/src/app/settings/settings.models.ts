@@ -2,7 +2,6 @@ import {
     CoverSize,
     EpgViewMode,
     StartupBehavior,
-    Theme,
     VideoPlayer,
 } from '@iptvnator/shared/interfaces';
 
@@ -16,12 +15,6 @@ export interface SettingsSection {
 export interface ObservedSettingsSection {
     id: string;
     element: HTMLElement;
-}
-
-export interface ThemeOption {
-    value: Theme;
-    icon: string;
-    labelKey: string;
 }
 
 export interface StartupBehaviorOption {

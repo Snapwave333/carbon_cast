@@ -108,6 +108,12 @@ export interface Settings {
     /** Strip country/group prefixes like "US | " or "UK - " from channel names */
     stripCountryPrefix?: boolean;
     theme: Theme;
+    /**
+     * Mirror the live layout so the player sits on the left and the
+     * channel/category rail on the right. Off by default; affects the M3U
+     * player page and the Xtream/Stalker live-stream layouts.
+     */
+    mirrorLayout?: boolean;
     mpvPlayerPath: string;
     /**
      * Extra MPV CLI arguments entered one argument per line. Applied only when

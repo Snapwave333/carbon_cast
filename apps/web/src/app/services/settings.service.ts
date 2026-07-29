@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { StorageMap } from '@ngx-pwa/local-storage';
 import { catchError, map, Observable } from 'rxjs';
-import { STORE_KEY, Theme } from '@iptvnator/shared/interfaces';
+import { STORE_KEY } from '@iptvnator/shared/interfaces';
 
 const PRERELEASE_KEYWORDS = [
     'beta',
@@ -20,11 +20,6 @@ interface ParsedVersion {
     patch: number;
     prerelease: boolean;
 }
-
-type LegacyMediaQueryList = MediaQueryList & {
-    addListener?: (listener: (event: MediaQueryListEvent) => void) => void;
-    removeListener?: (listener: (event: MediaQueryListEvent) => void) => void;
-};
 
 function parseVersion(input: string): ParsedVersion | null {
     const normalized = input.trim().replace(/^v/i, '');
@@ -65,84 +60,13 @@ function compareVersions(a: ParsedVersion, b: ParsedVersion): number {
 export class SettingsService {
     private http = inject(HttpClient);
     private storage = inject(StorageMap);
-    private readonly systemThemeMediaQuery =
-        typeof window !== 'undefined' && 'matchMedia' in window
-            ? window.matchMedia('(prefers-color-scheme: dark)')
-            : null;
-    private readonly systemThemeChangeHandler = (
-        event: MediaQueryListEvent
-    ): void => {
-        this.applyResolvedTheme(
-            event.matches ? Theme.DarkTheme : Theme.LightTheme
-        );
-    };
-    private isSystemThemeSyncActive = false;
 
     /**
-     * Changes the visual theme of the application
-     * @param selectedTheme theme to set
+     * Applies the application's single carbon-fiber theme. The app no longer
+     * exposes a light/dark/system switch, so the carbon classes are always set.
      */
-    changeTheme(selectedTheme: Theme): void {
-        this.stopSystemThemeSync();
-
-        if (selectedTheme === Theme.SystemTheme) {
-            this.startSystemThemeSync();
-            this.applyResolvedTheme(
-                this.systemThemeMediaQuery?.matches
-                    ? Theme.DarkTheme
-                    : Theme.LightTheme
-            );
-            return;
-        }
-
-        this.applyResolvedTheme(selectedTheme);
-    }
-
-    private applyResolvedTheme(selectedTheme: Theme): void {
-        if (selectedTheme === Theme.DarkTheme) {
-            document.body.classList.add('dark-theme');
-            return;
-        }
-
-        document.body.classList.remove('dark-theme');
-    }
-
-    private startSystemThemeSync(): void {
-        if (!this.systemThemeMediaQuery || this.isSystemThemeSyncActive) {
-            return;
-        }
-
-        const mediaQuery = this.systemThemeMediaQuery as LegacyMediaQueryList;
-
-        if (mediaQuery.addEventListener) {
-            mediaQuery.addEventListener(
-                'change',
-                this.systemThemeChangeHandler
-            );
-        } else {
-            mediaQuery.addListener?.(this.systemThemeChangeHandler);
-        }
-
-        this.isSystemThemeSyncActive = true;
-    }
-
-    private stopSystemThemeSync(): void {
-        if (!this.systemThemeMediaQuery || !this.isSystemThemeSyncActive) {
-            return;
-        }
-
-        const mediaQuery = this.systemThemeMediaQuery as LegacyMediaQueryList;
-
-        if (mediaQuery.removeEventListener) {
-            mediaQuery.removeEventListener(
-                'change',
-                this.systemThemeChangeHandler
-            );
-        } else {
-            mediaQuery.removeListener?.(this.systemThemeChangeHandler);
-        }
-
-        this.isSystemThemeSyncActive = false;
+    changeTheme(): void {
+        document.body.classList.add('dark-theme', 'carbon-theme');
     }
 
     /**

@@ -176,4 +176,29 @@
             width: 100% !important;
         }
     }
+
+    // ─── Mirrored layout (player left, rail right) ───────────────────────────
+    // Driven by the body-level `layout-mirrored` class (toggled from the
+    // settings store). Only flips on wide screens — the narrow media queries
+    // below still stack the rail as a bottom drawer. Guarded by min-width so
+    // `:host-context()`'s higher specificity does not defeat that stacking.
+    @media (min-width: 600px) {
+        :host-context(.layout-mirrored) {
+            flex-direction: row-reverse;
+        }
+
+        :host-context(.layout-mirrored) .sidebar {
+            border-right: none;
+            border-left: 1px solid var(--app-separator);
+        }
+
+        :host-context(.layout-mirrored) .sidebar.sidebar-collapsed {
+            border-left-color: transparent;
+        }
+
+        :host-context(.layout-mirrored) .sidebar-restore {
+            left: auto;
+            right: 6px;
+        }
+    }
 }

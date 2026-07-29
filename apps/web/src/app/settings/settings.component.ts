@@ -38,7 +38,6 @@ import {
     SETTINGS_COVER_SIZE_OPTIONS,
     SETTINGS_EPG_VIEW_MODE_OPTIONS,
     SETTINGS_STARTUP_BEHAVIOR_OPTIONS,
-    SETTINGS_THEME_OPTIONS,
 } from './settings-options';
 import { SettingsPlaybackSectionComponent } from './settings-playback-section.component';
 import { SettingsRemoteControlFacade } from './settings-remote-control.facade';
@@ -147,7 +146,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
     /** Git commit the app was built from (CI builds only) */
     readonly buildCommit = BUILD_COMMIT;
 
-    readonly themeOptions = SETTINGS_THEME_OPTIONS;
     readonly coverSizeOptions = SETTINGS_COVER_SIZE_OPTIONS;
     readonly startupBehaviorOptions = SETTINGS_STARTUP_BEHAVIOR_OPTIONS;
     readonly epgViewModeOptions = SETTINGS_EPG_VIEW_MODE_OPTIONS;

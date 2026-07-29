@@ -59,6 +59,7 @@ export function createSettingsForm(
         showExternalPlaybackBar: true,
         stripCountryPrefix: false,
         theme: Theme.SystemTheme,
+        mirrorLayout: false,
         mpvPlayerPath: '',
         mpvPlayerArguments: '',
         mpvReuseInstance: false,
@@ -131,6 +132,7 @@ export function createSettingsFromFormValue(
         showExternalPlaybackBar: value.showExternalPlaybackBar ?? true,
         stripCountryPrefix: value.stripCountryPrefix ?? false,
         theme: value.theme ?? Theme.SystemTheme,
+        mirrorLayout: value.mirrorLayout ?? false,
         mpvPlayerPath: normalizeExternalPlayerPath(value.mpvPlayerPath),
         mpvPlayerArguments: normalizeExternalPlayerArguments(
             value.mpvPlayerArguments
