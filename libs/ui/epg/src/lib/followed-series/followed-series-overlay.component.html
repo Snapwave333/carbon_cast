@@ -1,0 +1,66 @@
+@if (followed.pendingConflict(); as conflict) {
+    <aside
+        class="switch-overlay switch-overlay--conflict"
+        role="alertdialog"
+        aria-label="Automatic switch conflict"
+    >
+        <div class="switch-overlay__icon"><mat-icon svgIcon="warning" /></div>
+        <div class="switch-overlay__copy">
+            <strong>Two followed episodes overlap</strong>
+            <span>Choose which broadcast should play automatically.</span>
+            <div
+                class="switch-overlay__actions switch-overlay__actions--stacked"
+            >
+                @for (schedule of conflictSchedules(); track schedule.id) {
+                    <button type="button" (click)="choose(schedule.id)">
+                        {{ summary(schedule) }}
+                    </button>
+                }
+            </div>
+        </div>
+    </aside>
+}
+
+@if (followed.countdown(); as countdown) {
+    <aside
+        class="switch-overlay"
+        role="status"
+        aria-live="assertive"
+        aria-label="Automatic channel switch countdown"
+    >
+        <div class="switch-overlay__timer" aria-hidden="true">
+            {{ remainingSeconds() }}
+        </div>
+        <div class="switch-overlay__copy">
+            <strong>
+                Switching to {{ countdown.seriesTitle }} in
+                {{ remainingSeconds() }} seconds
+            </strong>
+            <span
+                >{{ countdown.episodeTitle }} ·
+                {{ countdown.channelName }}</span
+            >
+        </div>
+        <div class="switch-overlay__actions">
+            <button
+                type="button"
+                class="switch-overlay__primary"
+                (click)="followed.switchNow(countdown.scheduleId)"
+            >
+                Switch now
+            </button>
+            <button
+                type="button"
+                (click)="followed.cancelCountdown(countdown.scheduleId)"
+            >
+                Cancel
+            </button>
+            <button
+                type="button"
+                (click)="disableEpisode(countdown.scheduleId)"
+            >
+                Disable auto-switch for this episode
+            </button>
+        </div>
+    </aside>
+}

@@ -101,6 +101,13 @@ export const routes: Routes = [
                     ),
             },
             {
+                path: 'followed-series',
+                loadComponent: () =>
+                    import('./followed-series-route.component').then(
+                        (component) => component.FollowedSeriesRouteComponent
+                    ),
+            },
+            {
                 path: 'search',
                 canActivate: [electronOnlyGlobalSearchGuard],
                 data: {

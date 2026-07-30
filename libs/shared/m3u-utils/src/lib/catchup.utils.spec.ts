@@ -321,7 +321,7 @@ describe('catchup.utils', () => {
             ],
         });
 
-        expect(playlist.playlist?.items[0]).toEqual(
+        expect((playlist.playlist as { items: unknown[] }).items[0]).toEqual(
             expect.objectContaining({
                 catchup: {
                     type: 'shift',

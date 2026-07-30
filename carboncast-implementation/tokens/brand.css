@@ -1,0 +1,55 @@
+:root {
+  color-scheme: dark;
+  --cc-carbon-black: #07090c;
+  --cc-carbon-panel: #11161b;
+  --cc-carbon-lifted: #171e25;
+  --cc-racing-red: #e10d1a;
+  --cc-hot-red: #ff2233;
+  --cc-deep-red: #850912;
+  --cc-signal-orange: #ff6a00;
+  --cc-electric-cyan: #00d8ff;
+  --cc-paper-white: #f4f7fa;
+  --cc-steel: #8c98a5;
+  --cc-border: #26313c;
+
+  --cc-bg: var(--cc-carbon-black);
+  --cc-surface: var(--cc-carbon-panel);
+  --cc-surface-raised: var(--cc-carbon-lifted);
+  --cc-text: var(--cc-paper-white);
+  --cc-text-muted: var(--cc-steel);
+  --cc-brand: var(--cc-racing-red);
+  --cc-live: var(--cc-racing-red);
+  --cc-upcoming: var(--cc-signal-orange);
+  --cc-connected: var(--cc-electric-cyan);
+  --cc-focus: var(--cc-electric-cyan);
+
+  --cc-radius-sm: 12px;
+  --cc-radius-md: 16px;
+  --cc-radius-lg: 22px;
+  --cc-radius-panel: 28px;
+  --cc-shadow-panel: 0 18px 50px rgb(0 0 0 / 0.35);
+  --cc-ease: cubic-bezier(.2,.8,.2,1);
+  --cc-fast: 120ms;
+  --cc-normal: 180ms;
+  --cc-slow: 280ms;
+}
+
+.cc-carbon-shell {
+  color: var(--cc-text);
+  background-color: var(--cc-bg);
+  background-image: url('../assets/patterns/carbon-fiber-tile.svg');
+}
+
+.cc-focus-ring:focus-visible {
+  outline: 2px solid var(--cc-focus);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 1ms !important;
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

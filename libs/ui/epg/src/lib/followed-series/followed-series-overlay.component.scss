@@ -1,0 +1,132 @@
+:host {
+    position: fixed;
+    z-index: 1200;
+    right: clamp(0.75rem, 2vw, 1.5rem);
+    bottom: clamp(0.75rem, 2vw, 1.5rem);
+    width: min(520px, calc(100vw - 1.5rem));
+    display: grid;
+    gap: 0.65rem;
+    pointer-events: none;
+}
+
+.switch-overlay {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.9rem;
+    padding: 0.9rem;
+    border: 1px solid
+        color-mix(in srgb, var(--accent-cyan, #5cd6ff) 45%, transparent);
+    border-radius: 16px;
+    background: color-mix(in srgb, var(--surface-1, #0f141c) 94%, transparent);
+    color: var(--text-primary, #edf2f8);
+    box-shadow: 0 22px 70px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(18px);
+    pointer-events: auto;
+}
+
+.switch-overlay--conflict {
+    grid-template-columns: auto minmax(0, 1fr);
+    border-color: rgba(255, 184, 92, 0.5);
+}
+
+.switch-overlay__timer,
+.switch-overlay__icon {
+    width: 48px;
+    height: 48px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: rgba(92, 214, 255, 0.12);
+    color: var(--accent-cyan, #5cd6ff);
+    font-size: 1.25rem;
+    font-weight: 850;
+    font-variant-numeric: tabular-nums;
+}
+
+.switch-overlay__icon {
+    color: #ffb85c;
+    background: rgba(255, 184, 92, 0.12);
+}
+
+.switch-overlay__copy {
+    min-width: 0;
+
+    strong,
+    span {
+        display: block;
+    }
+
+    span {
+        margin-top: 0.2rem;
+        overflow: hidden;
+        color: var(--text-secondary, #a5afbe);
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+}
+
+.switch-overlay__actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.4rem;
+
+    button {
+        min-height: 36px;
+        padding: 0 0.7rem;
+        border: 1px solid var(--line-strong, rgba(255, 255, 255, 0.12));
+        border-radius: 9px;
+        background: var(--surface-2, #161d28);
+        color: inherit;
+        cursor: pointer;
+    }
+
+    button:hover,
+    button:focus-visible {
+        border-color: var(--accent-cyan, #5cd6ff);
+    }
+
+    .switch-overlay__primary {
+        border-color: transparent;
+        background: var(--accent-blue, #4f8eff);
+        color: #fff;
+    }
+}
+
+.switch-overlay__actions--stacked {
+    display: grid;
+    justify-content: stretch;
+    margin-top: 0.65rem;
+
+    button {
+        text-align: left;
+    }
+}
+
+@media (max-width: 680px) {
+    .switch-overlay {
+        grid-template-columns: auto minmax(0, 1fr);
+    }
+
+    .switch-overlay__actions {
+        grid-column: 1 / -1;
+        justify-content: stretch;
+
+        button {
+            flex: 1;
+        }
+    }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .switch-overlay__timer {
+        animation: timer-pulse 1s ease-in-out infinite;
+    }
+}
+
+@keyframes timer-pulse {
+    50% {
+        box-shadow: 0 0 0 7px rgba(92, 214, 255, 0.06);
+    }
+}

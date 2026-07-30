@@ -8,7 +8,7 @@
     (click)="onPlaylistClick()"
 >
     @if (isDraggable()) {
-        <mat-icon cdkDragHandle class="drag-icon">drag_indicator</mat-icon>
+        <mat-icon cdkDragHandle class="drag-icon" svgIcon="drag_indicator"></mat-icon>
     }
     <div class="playlist-icon">
         @if (item.url) {
@@ -20,16 +20,14 @@
                         ' ' +
                         item.url
                     "
-                    >cloud</mat-icon
-                >
+                     svgIcon="cloud"></mat-icon>
                 @if (item.autoRefresh) {
                     <mat-icon
                         class="auto-refresh-indicator"
                         [matTooltip]="
                             'HOME.PLAYLISTS.AUTO_REFRESH_ENABLED' | translate
                         "
-                        >autorenew</mat-icon
-                    >
+                         svgIcon="autorenew"></mat-icon>
                 }
             </div>
         }
@@ -38,16 +36,14 @@
                 <mat-icon
                     class="upload-type-icon"
                     [matTooltip]="'HOME.PLAYLISTS.ADDED_VIA_FILE' | translate"
-                    >folder</mat-icon
-                >
+                     svgIcon="folder"></mat-icon>
                 @if (item.autoRefresh) {
                     <mat-icon
                         class="auto-refresh-indicator"
                         [matTooltip]="
                             'HOME.PLAYLISTS.AUTO_REFRESH_ENABLED' | translate
                         "
-                        >autorenew</mat-icon
-                    >
+                         svgIcon="autorenew"></mat-icon>
                 }
             </div>
         }
@@ -56,8 +52,7 @@
                 <mat-icon
                     class="upload-type-icon"
                     [matTooltip]="'HOME.PLAYLISTS.XTREAM_PLAYLIST' | translate"
-                    >public</mat-icon
-                >
+                     svgIcon="public"></mat-icon>
                 <span
                     class="status-dot"
                     [class]="getStatusClass()"
@@ -70,8 +65,7 @@
             <mat-icon
                 class="upload-type-icon"
                 [matTooltip]="'HOME.PLAYLISTS.STALKER_PORTAL' | translate"
-                >dashboard</mat-icon
-            >
+                 svgIcon="dashboard"></mat-icon>
         }
     </div>
     <div class="playlist-content">
@@ -102,8 +96,7 @@
                                 | translate
                         "
                         [inline]="true"
-                        >warning</mat-icon
-                    >
+                         svgIcon="warning"></mat-icon>
                 }
             } @else {
                 @if (item.macAddress) {
@@ -163,8 +156,11 @@
                     [matTooltip]="
                         'WORKSPACE.SHELL.XTREAM_IMPORT_CANCEL' | translate
                     "
+                    [attr.aria-label]="
+                        'WORKSPACE.SHELL.XTREAM_IMPORT_CANCEL' | translate
+                    "
                 >
-                    <mat-icon>close</mat-icon>
+                    <mat-icon svgIcon="close"></mat-icon>
                 </button>
             }
             @if (item.url || (item.filePath && supportsPlaylistRefresh)) {
@@ -176,6 +172,7 @@
                     "
                     [disabled]="isBusy()"
                     [matTooltip]="'HOME.PLAYLISTS.REFRESH' | translate"
+                    [attr.aria-label]="'HOME.PLAYLISTS.REFRESH' | translate"
                 >
                     @if (isRefreshing()) {
                         <mat-spinner
@@ -184,7 +181,7 @@
                             strokeWidth="3"
                         />
                     } @else {
-                        <mat-icon>sync</mat-icon>
+                        <mat-icon svgIcon="sync"></mat-icon>
                     }
                 </button>
             }
@@ -197,6 +194,7 @@
                     "
                     [disabled]="isBusy()"
                     [matTooltip]="'HOME.PLAYLISTS.REFRESH_XTREAM' | translate"
+                    [attr.aria-label]="'HOME.PLAYLISTS.REFRESH_XTREAM' | translate"
                 >
                     @if (isRefreshing()) {
                         <mat-spinner
@@ -205,7 +203,7 @@
                             strokeWidth="3"
                         />
                     } @else {
-                        <mat-icon>sync</mat-icon>
+                        <mat-icon svgIcon="sync"></mat-icon>
                     }
                 </button>
             }
@@ -218,8 +216,9 @@
                 "
                 [disabled]="isBusy()"
                 [matTooltip]="'HOME.PLAYLISTS.SHOW_DETAILS' | translate"
+                [attr.aria-label]="'HOME.PLAYLISTS.SHOW_DETAILS' | translate"
             >
-                <mat-icon>edit</mat-icon>
+                <mat-icon svgIcon="edit"></mat-icon>
             </button>
 
             <button
@@ -228,6 +227,7 @@
                 (click)="$event.stopPropagation(); removeClicked.emit(item._id)"
                 [disabled]="isBusy()"
                 [matTooltip]="'HOME.PLAYLISTS.REMOVE' | translate"
+                [attr.aria-label]="'HOME.PLAYLISTS.REMOVE' | translate"
             >
                 @if (isDeleting()) {
                     <mat-spinner
@@ -236,7 +236,7 @@
                         strokeWidth="3"
                     />
                 } @else {
-                    <mat-icon>delete</mat-icon>
+                    <mat-icon svgIcon="delete"></mat-icon>
                 }
             </button>
         </div>

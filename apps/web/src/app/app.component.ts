@@ -10,6 +10,7 @@ import {
 } from '@iptvnator/epg/data-access';
 import { WORKSPACE_SHELL_ACTIONS } from '@iptvnator/workspace/shell/util';
 import { EpgProgressPanelComponent } from '@iptvnator/ui/epg/progress-panel';
+import { FollowedSeriesOverlayComponent } from '@iptvnator/ui/epg';
 import { WindowControlsComponent } from '@iptvnator/ui/components';
 import { PlaylistActions, selectAllPlaylistsMeta } from '@iptvnator/m3u-state';
 import { filter, take } from 'rxjs';
@@ -28,6 +29,8 @@ import {
 import { SettingsService } from './services/settings.service';
 import { PlaylistOpenRequestService } from './services/playlist-open-request.service';
 import { AppUpdateNotificationPanelComponent } from './app-update-notification-panel.component';
+import { FollowedSeriesRuntimeService } from './services/followed-series-runtime.service';
+import { AgentControlRuntimeService } from './services/agent-control-runtime.service';
 
 const debugAppComponent = createDevLogger('AppComponent');
 
@@ -37,6 +40,7 @@ const debugAppComponent = createDevLogger('AppComponent');
     imports: [
         AppUpdateNotificationPanelComponent,
         EpgProgressPanelComponent,
+        FollowedSeriesOverlayComponent,
         RouterOutlet,
         WindowControlsComponent,
     ],
@@ -60,6 +64,8 @@ export class AppComponent implements OnInit {
     private settingsStore = inject(SettingsStore);
     private playlistOpenRequests = inject(PlaylistOpenRequestService);
     private runtime = inject(RuntimeCapabilitiesService);
+    private followedSeriesRuntime = inject(FollowedSeriesRuntimeService);
+    private agentControl = inject(AgentControlRuntimeService);
     private readonly workspaceShellActions = inject(WORKSPACE_SHELL_ACTIONS);
 
     /** Default language as fallback */
@@ -86,7 +92,7 @@ export class AppComponent implements OnInit {
         // Body-level class (like the theme classes) so the mirrored live
         // layout also reaches component hosts via :host-context().
         effect(() => {
-            const mirrored = this.settingsStore.mirrorLayout?.() ?? false;
+            const mirrored = this.settingsStore.mirrorLayout?.() ?? true;
             document.body.classList.toggle('layout-mirrored', mirrored);
         });
 
@@ -104,6 +110,8 @@ export class AppComponent implements OnInit {
 
     ngOnInit() {
         this.store.dispatch(PlaylistActions.loadPlaylists());
+        this.followedSeriesRuntime.start();
+        this.agentControl.start();
         this.translate.setDefaultLang(this.DEFAULT_LANG);
 
         this.initSettings();

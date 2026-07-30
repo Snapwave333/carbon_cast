@@ -25,6 +25,7 @@ import { ControlsTimeline } from './controls-timeline';
 import { ControlsVisibility } from './controls-visibility';
 import { createControlsViewModel } from './controls-view-model';
 import { ControlsVolume } from './controls-volume';
+import { PLAYER_CONTROLS_SETTINGS } from './web-player-controls.flag';
 import { formatTime, speedLabel } from './controls-format.utils';
 import type {
     PlayerController,
@@ -40,11 +41,18 @@ import type {
     host: {
         class: 'player-controls-host',
         '[class.player-controls-host--cursor-hidden]': 'hideCursor()',
+        '[class.player-controls-host--compact]':
+            'preferences.density === "compact"',
+        '[class.player-controls-host--solid]':
+            'preferences.opacity === "solid"',
+        '[class.player-controls-host--small]': 'preferences.size === "small"',
+        '[class.player-controls-host--large]': 'preferences.size === "large"',
     },
 })
 export class PlayerControlsComponent implements OnDestroy {
     private readonly host = inject(ElementRef<HTMLElement>).nativeElement;
     private readonly translate = inject(TranslateService);
+    readonly preferences = inject(PLAYER_CONTROLS_SETTINGS);
     readonly controller = input.required<PlayerController>();
     readonly playerSurface = input<HTMLElement | null>(null);
     readonly showControls = input(true);
@@ -58,7 +66,10 @@ export class PlayerControlsComponent implements OnDestroy {
     readonly feedback = new ControlsFeedback();
     readonly anyMenuOpen = this.menus.anyOpen;
     private readonly shortcuts = new ControlsShortcuts();
-    private readonly visibility = new ControlsVisibility(() => this.canHide());
+    private readonly visibility = new ControlsVisibility(
+        () => this.canHide(),
+        this.preferences.autoHideDelayMs
+    );
     private readonly fullscreen = new ControlsFullscreen(
         () => this.playerSurface(),
         () => this.reveal()
@@ -99,11 +110,14 @@ export class PlayerControlsComponent implements OnDestroy {
 
     readonly displayVolume = this.volume.value;
     readonly isFullscreen = this.fullscreen.isFullscreen;
+    readonly resolvedShowControls = computed(
+        () => this.showControls() && this.preferences.visible
+    );
 
     // The page around the player already names the content; the overlay only
     // fills that gap in fullscreen, where no other chrome is visible.
     readonly fullscreenMediaTitle = computed<PlayerMediaTitle | null>(() => {
-        if (!this.showControls() || !this.isFullscreen()) {
+        if (!this.resolvedShowControls() || !this.isFullscreen()) {
             return null;
         }
         const mediaTitle = this.mediaTitle();
@@ -116,7 +130,7 @@ export class PlayerControlsComponent implements OnDestroy {
         volume: this.volume.value,
         isFullscreen: this.isFullscreen,
         canFullscreenNative: () => this.fullscreen.canFullscreen(),
-        showControls: this.showControls,
+        showControls: this.resolvedShowControls,
         autoHideVisible: this.visibility.visible,
         anyMenuOpen: this.menus.anyOpen,
     });
@@ -139,7 +153,8 @@ export class PlayerControlsComponent implements OnDestroy {
     readonly hideCursor = this.vm.hideCursor;
     constructor() {
         this.shortcuts.attach({
-            isAvailable: () => this.shortcutsEnabled() && this.showControls(),
+            isAvailable: () =>
+                this.shortcutsEnabled() && this.resolvedShowControls(),
             canTogglePaused: () => this.canTogglePlay(),
             canSeek: () => this.capabilities().seek && this.state().canSeek,
             canAdjustVolume: () => this.capabilities().volume,
@@ -153,7 +168,7 @@ export class PlayerControlsComponent implements OnDestroy {
         });
         effect((onCleanup) => {
             const playerSurface = this.playerSurface();
-            const surface = this.showControls() ? playerSurface : null;
+            const surface = this.resolvedShowControls() ? playerSurface : null;
             this.fullscreen.sync();
             onCleanup(this.surface.attachSurface(surface));
         });
@@ -194,7 +209,7 @@ export class PlayerControlsComponent implements OnDestroy {
         });
         effect(() => {
             const state = this.state();
-            const showControls = this.showControls();
+            const showControls = this.resolvedShowControls();
             const capabilities = this.capabilities();
             untracked(() => {
                 if (!capabilities.seek || !state.canSeek) {

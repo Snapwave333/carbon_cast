@@ -75,7 +75,7 @@ const PRESETS: Record<
         @if (activePreset) {
             <div class="epg-empty">
                 <div class="epg-empty__icon" [class]="'tone-' + activePreset.tone">
-                    <mat-icon>{{ activePreset.icon }}</mat-icon>
+                    <mat-icon [svgIcon]="activePreset.icon"></mat-icon>
                 </div>
                 <div class="epg-empty__title">
                     {{ activePreset.titleKey | translate }}
@@ -93,7 +93,7 @@ const PRESETS: Record<
                                 type="button"
                                 (click)="jumpToday.emit()"
                             >
-                                <mat-icon>my_location</mat-icon>
+                                <mat-icon svgIcon="my_location"></mat-icon>
                                 {{ 'EPG.TIMELINE.JUMP_TODAY' | translate }}
                             </button>
                             @if (hasOtherDays()) {
@@ -115,7 +115,7 @@ const PRESETS: Record<
                                 type="button"
                                 (click)="openSettings.emit()"
                             >
-                                <mat-icon>settings</mat-icon>
+                                <mat-icon svgIcon="settings"></mat-icon>
                                 {{ 'EPG.TIMELINE.OPEN_EPG_SETTINGS' | translate }}
                             </button>
                         </div>
@@ -128,7 +128,7 @@ const PRESETS: Record<
                                 type="button"
                                 (click)="retry.emit()"
                             >
-                                <mat-icon>refresh</mat-icon>
+                                <mat-icon svgIcon="refresh"></mat-icon>
                                 {{ 'EPG.TIMELINE.RETRY' | translate }}
                             </button>
                         </div>

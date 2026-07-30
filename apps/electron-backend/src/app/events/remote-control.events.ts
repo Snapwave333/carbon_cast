@@ -149,7 +149,7 @@ export class RemoteControlEvents {
         }
 
         this.readJsonBody(req, res, (body) => {
-            const value = Number(body?.number);
+            const value = Number((body as { number?: unknown })?.number);
             if (!Number.isFinite(value) || value < 1) {
                 res.writeHead(400, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify({ error: 'Invalid channel number' }));
@@ -269,7 +269,7 @@ export class RemoteControlEvents {
     private readJsonBody(
         req: http.IncomingMessage,
         res: http.ServerResponse,
-        callback: (body: any) => void
+        callback: (body: unknown) => void
     ): void {
         let data = '';
         let totalSize = 0;

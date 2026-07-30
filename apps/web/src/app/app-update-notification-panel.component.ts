@@ -27,7 +27,7 @@ import { AppUpdateReleaseNotesDialogComponent } from './settings/app-update-rele
             >
                 <header class="app-update-notification__header">
                     <span>
-                        <mat-icon>system_update</mat-icon>
+                        <mat-icon svgIcon="system_update"></mat-icon>
                         {{ 'SETTINGS.APP_UPDATE_TITLE' | translate }}
                     </span>
                     <button
@@ -36,7 +36,7 @@ import { AppUpdateReleaseNotesDialogComponent } from './settings/app-update-rele
                         (click)="dismiss()"
                         [attr.aria-label]="'CLOSE' | translate"
                     >
-                        <mat-icon>close</mat-icon>
+                        <mat-icon svgIcon="close"></mat-icon>
                     </button>
                 </header>
 
@@ -67,7 +67,7 @@ import { AppUpdateReleaseNotesDialogComponent } from './settings/app-update-rele
                         (click)="openReleaseNotes()"
                         data-test-id="app-update-notification-release-notes"
                     >
-                        <mat-icon>article</mat-icon>
+                        <mat-icon svgIcon="article"></mat-icon>
                         {{ 'SETTINGS.APP_UPDATE_RELEASE_NOTES' | translate }}
                     </button>
 
@@ -78,7 +78,7 @@ import { AppUpdateReleaseNotesDialogComponent } from './settings/app-update-rele
                             (click)="installUpdate()"
                             data-test-id="app-update-notification-install"
                         >
-                            <mat-icon>restart_alt</mat-icon>
+                            <mat-icon svgIcon="restart_alt"></mat-icon>
                             {{ 'SETTINGS.APP_UPDATE_INSTALL' | translate }}
                         </button>
                     } @else {
@@ -92,7 +92,7 @@ import { AppUpdateReleaseNotesDialogComponent } from './settings/app-update-rele
                             (click)="downloadUpdate()"
                             data-test-id="app-update-notification-download"
                         >
-                            <mat-icon>{{ primaryActionIcon() }}</mat-icon>
+                            <mat-icon [svgIcon]="primaryActionIcon()"></mat-icon>
                             {{ primaryActionLabelKey() | translate }}
                         </button>
                     }

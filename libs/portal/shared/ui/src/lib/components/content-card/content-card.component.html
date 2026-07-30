@@ -5,9 +5,10 @@
                 mat-icon-button
                 class="remove-button"
                 [matTooltip]="removeTooltip()"
+                [attr.aria-label]="removeTooltip()"
                 (click)="onRemoveClick($event)"
             >
-                <mat-icon>close</mat-icon>
+                <mat-icon svgIcon="close"></mat-icon>
             </button>
         }
 
@@ -22,7 +23,7 @@
             />
         } @else if (showPlaceholder()) {
             <div class="poster-placeholder">
-                <mat-icon>{{ getPlaceholderIcon() }}</mat-icon>
+                <mat-icon [svgIcon]="getPlaceholderIcon()"></mat-icon>
             </div>
         } @else {
             <img

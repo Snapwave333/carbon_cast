@@ -1,7 +1,7 @@
 @if (selectedFile(); as file) {
     <div class="file-selected">
         <div class="file-selected__icon">
-            <mat-icon>description</mat-icon>
+            <mat-icon svgIcon="description"></mat-icon>
         </div>
         <div class="file-selected__meta">
             <div class="file-selected__name" [title]="file.name">
@@ -15,7 +15,7 @@
             (click)="clearSelection()"
             [attr.aria-label]="'CLEAR' | translate"
         >
-            <mat-icon>close</mat-icon>
+            <mat-icon svgIcon="close"></mat-icon>
         </button>
     </div>
 } @else {
@@ -30,7 +30,7 @@
         (click)="openPicker(fileField)"
     >
         <span class="file-drop__icon">
-            <mat-icon>file_download</mat-icon>
+            <mat-icon svgIcon="file_download"></mat-icon>
         </span>
         <span class="file-drop__title">
             {{ 'HOME.FILE_UPLOAD.DRAG_DROP' | translate }}

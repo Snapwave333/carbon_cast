@@ -344,11 +344,6 @@
         "LINK_BLOG": "Blog",
         "LINK_GITHUB_DESCRIPTION": "Jelölje csillaggal a GitHub-adattárat, nyisson hibajegyet, vagy járuljon hozzá a fejlesztéshez",
         "LINK_BLOG_DESCRIPTION": "Kiadási hírek, tippek és projektfrissítések",
-        "LINK_TELEGRAM_DESCRIPTION": "Bejelentések, közösség és támogatás",
-        "SUPPORT_TITLE": "A projekt támogatása",
-        "SUPPORT_DESCRIPTION": "Az IPTVnator ingyenes és nyílt forráskódú alkalmazás, amelynek fejlesztése is nyilvánosan zajlik. Ha a mindennapjai részévé vált, egy kisebb hozzájárulás is segít életben tartani a projektet és alakítani a jövőjét – köszönjük.",
-        "SUPPORT_SPONSORS_HINT": "Rendszeres vagy egyszeri támogatás",
-        "SUPPORT_KOFI_HINT": "Hívjon meg egy kávéra",
         "EPG_NOTE": "Az EPG jelenleg csak az IPTVnator Electron-alapú változatában érhető el.",
         "EPG_NOTE_URL_TEXT": "Megnyitás",
         "IMPORT_EXPORT_DATA": "Lejátszási listák biztonsági mentéseinek importálása és exportálása",
@@ -451,7 +446,11 @@
         "APP_UPDATE_RELEASE_NOTES": "Újdonságok",
         "EMBEDDED_MPV_FRAME_COPY": "Beágyazott MPV: képkocka-másolásos megjelenítés (kísérleti)",
         "EMBEDDED_MPV_FRAME_COPY_DESCRIPTION": "A videó megjelenítése az alkalmazás rajzfelületén, hogy a menük és párbeszédpanelek fölötte jelenhessenek meg.",
-        "EMBEDDED_MPV_FRAME_COPY_RESTART": "Az alkalmazás újraindítása után lép érvénybe."
+        "EMBEDDED_MPV_FRAME_COPY_RESTART": "Az alkalmazás újraindítása után lép érvénybe.",
+        "ATTRIBUTION": "Attribution",
+        "ATTRIBUTION_DESCRIPTION": "CarbonCast IPTV is a fork of IPTVnator (github.com/4gray/iptvnator). The upstream project and its contributors are credited under the original license. CarbonCast IPTV is an independent fork and is not endorsed by the upstream maintainers.",
+        "MIRROR_LAYOUT": "Mirror layout",
+        "MIRROR_LAYOUT_DESCRIPTION": "Put the player on the left and the channel/category rail on the right. Applies to the playlist player and Xtream/Stalker live views."
     },
     "THEMES": {
         "DARK_THEME": "Sötét",
@@ -611,6 +610,7 @@
             "NAME": "Név",
             "CHANNEL_ID": "Csatornaazonosító",
             "STREAM_URL": "Adatfolyam URL-címe",
+            "COPY_URL": "Copy stream URL",
             "GROUP": "Csoport",
             "RADIO": "Rádió",
             "CATCHUP_AVAILABLE": "Visszanézés elérhető",
@@ -654,8 +654,10 @@
         "ZOOM_OUT": "Kicsinyítés",
         "FILTER_CHANNELS": "Csatornák szűrése",
         "CLOSE_FILTER": "Szűrő bezárása",
+        "CLEAR_FILTER": "Clear filter",
         "SEARCH_PROGRAMS": "Műsorok keresése",
         "CLOSE_PROGRAM_SEARCH": "Műsorkeresés bezárása",
+        "CLEAR_PROGRAM_SEARCH": "Clear program search",
         "LIVE_STREAM": "Élő adás",
         "ARCHIVE_PLAYBACK_UNAVAILABLE_TITLE": "A műsor visszanézése nem érhető el",
         "ARCHIVE_PLAYBACK_UNAVAILABLE_DESCRIPTION": "A szolgáltató elérhetővé teszi a csatorna korábbi műsorrendjét, de lejátszható archív vagy visszanézhető műsort nem biztosít.",
@@ -965,6 +967,7 @@
         },
         "SEARCH_VIEW": {
             "INITIAL_TITLE": "Tartalom keresése",
+            "CLEAR": "Clear search",
             "INITIAL_DESCRIPTION": "Adjon meg legalább 3 karaktert az élő csatornák, filmek és sorozatok közötti kereséshez.",
             "RESULTS_FOUND": "{{count}} találat",
             "NO_RESULTS_FOR": "Nincs találat a következőre: „{{term}}”",
@@ -1241,7 +1244,8 @@
             "XTREAM_REFRESH_DELETING_CATEGORIES": "Gyorsítótárazott kategóriák eltávolítása…",
             "XTREAM_REFRESH_DETAIL_LOCAL": "A kedvencek, a megtekintési előzmények, a rejtett kategóriák és a lejátszási előrehaladás megőrzése, hogy a szinkronizálás után visszaállíthatók legyenek.",
             "XTREAM_REFRESH_PROGRESS": "Feldolgozott helyi bejegyzések: {{current}} / {{total}}",
-            "RAIL_RADIO": "Rádió"
+            "RAIL_RADIO": "Rádió",
+            "RAIL_FOLLOWED_SERIES": "Followed series"
         },
         "SOURCES": {
             "TITLE": "Források",

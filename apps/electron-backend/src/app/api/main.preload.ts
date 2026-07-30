@@ -29,6 +29,9 @@ import type {
     EmbeddedMpvSession,
     EmbeddedMpvSupport,
     ElectronBridgeApi,
+    AgentControlRequest,
+    AgentControlResult,
+    AgentControlState,
     ElectronBridgeAppUpdateReleaseNotesRequest,
     ElectronBridgeAppUpdateStatus,
     ElectronBridgeDbOperationEvent,
@@ -45,6 +48,7 @@ import type {
     ElectronBridgeWindowState,
     ElectronBridgeXtreamContentStream,
     ExternalPlayerSession,
+    FollowedSeriesProgramQuery,
     GlobalSearchPaginationOptions,
     GlobalSearchResultSource,
     PlaybackPositionData,
@@ -282,6 +286,22 @@ const electronApi: ElectronBridgeApi = {
     },
     updateRemoteControlStatus: (status: ElectronBridgeRemoteControlStatus) => {
         ipcRenderer.send('REMOTE_CONTROL_STATUS_UPDATE', status);
+    },
+    onAgentControlCommand: (
+        callback: (request: AgentControlRequest & { correlationId: string }) => void
+    ) => {
+        const handler = (
+            _event: Electron.IpcRendererEvent,
+            request: AgentControlRequest & { correlationId: string }
+        ) => callback(request);
+        ipcRenderer.on('AGENT_CONTROL_COMMAND', handler);
+        return () => ipcRenderer.off('AGENT_CONTROL_COMMAND', handler);
+    },
+    updateAgentControlState: (state: Partial<AgentControlState>) => {
+        ipcRenderer.send('AGENT_CONTROL_STATE_UPDATE', state);
+    },
+    completeAgentControlCommand: (result: AgentControlResult) => {
+        ipcRenderer.send('AGENT_CONTROL_COMMAND_RESULT', result);
     },
     // Player error listener
     onPlayerError: (
@@ -616,6 +636,8 @@ const electronApi: ElectronBridgeApi = {
         ipcRenderer.invoke('EPG_CHECK_FRESHNESS', { urls, maxAgeHours }),
     searchEpgPrograms: (searchTerm: string, limit?: number) =>
         ipcRenderer.invoke('EPG_DB_SEARCH_PROGRAMS', searchTerm, limit),
+    getFollowedSeriesPrograms: (request: FollowedSeriesProgramQuery) =>
+        ipcRenderer.invoke('EPG_DB_FOLLOWED_SERIES_PROGRAMS', request),
     getEpgMapping: (channelKey: string) =>
         ipcRenderer.invoke('EPG_MAPPING_GET', { channelKey }),
     getEpgMappingsBatch: (channelKeys: string[]) =>

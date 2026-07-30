@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="3840" height="2160" viewBox="0 0 3840 2160">
+  <defs>
+    <pattern id="carbon" width="32" height="32" patternUnits="userSpaceOnUse">
+      <rect width="32" height="32" fill="#07090C"/>
+      <path d="M-8 8 L8 -8 M0 16 L16 0 M8 24 L24 8 M16 32 L32 16 M24 40 L40 24" stroke="#171E25" stroke-width="7" opacity=".8"/>
+      <path d="M-8 24 L24 -8 M0 32 L32 0 M8 40 L40 8" stroke="#0C1116" stroke-width="7" opacity=".92"/>
+    </pattern>
+    <radialGradient id="glow" cx="50%" cy="48%" r="60%"><stop offset="0" stop-color="#171E25"/><stop offset="1" stop-color="#07090C" stop-opacity="0"/></radialGradient>
+    <linearGradient id="bar" x1="0" x2="1"><stop stop-color="#E10D1A"/><stop offset=".58" stop-color="#FF6A00"/><stop offset="1" stop-color="#00D8FF"/></linearGradient>
+  </defs>
+  <rect width="3840" height="2160" fill="url(#carbon)"/>
+  <rect width="3840" height="2160" fill="url(#glow)"/>
+  <path d="M0 388.8 L345.59999999999997 388.8 L614.4 583.2" fill="none" stroke="#E10D1A" stroke-width="4" opacity=".7"/>
+  <path d="M3840 1771.1999999999998 L3494.4 1771.1999999999998 L3225.6 1576.8" fill="none" stroke="#E10D1A" stroke-width="4" opacity=".7"/>
+  <path d="M0 1944.0 H883.2" stroke="#00D8FF" stroke-width="4" opacity=".85"/>
+  <path d="M2956.8 216.0 H3840" stroke="#FF6A00" stroke-width="4" opacity=".8"/>
+  <g transform="translate(1693.5 367.20000000000005) scale(0.884765625)">
+  <rect x="20" y="20" width="472" height="472" rx="92" fill="none"/>
+  <g>
+    <path d="M82 142 L142 82 H370 L430 142 V342 L370 402 H142 L82 342 Z" fill="none" stroke="#E10D1A" stroke-width="36" stroke-linejoin="round"/>
+    <path d="M210 174 L344 256 L210 338 Z" fill="#F4F7FA"/>
+      <path d="M364 166 C394 182 412 209 416 240" fill="none" stroke="#00D8FF" stroke-width="24" stroke-linecap="round"/>
+      <path d="M380 116 C435 146 466 194 470 250" fill="none" stroke="#00D8FF" stroke-width="18" stroke-linecap="round" opacity=".78"/>
+    <circle cx="140" cy="348" r="18" fill="#FF6A00"/>
+  </g>
+</g>
+  <text x="1920.0" y="917.4000000000001" text-anchor="middle" fill="#F4F7FA" font-family="Arial, Helvetica, sans-serif" font-size="162.0" font-weight="900" letter-spacing="2">CARBON<tspan fill="#E10D1A">CAST</tspan></text>
+  <text x="1920.0" y="1079.4" text-anchor="middle" fill="#00D8FF" font-family="Arial, Helvetica, sans-serif" font-size="82.08" font-weight="700" letter-spacing="51">IPTV</text>
+  <text x="1920.0" y="1204.68" text-anchor="middle" fill="#8C98A5" font-family="Arial, Helvetica, sans-serif" font-size="51.84" font-weight="600" letter-spacing="12">LIVE CHANNELS. FAST ACCESS.</text>
+  <circle cx="2803.2" cy="1189.5600000000002" r="12" fill="#FF6A00"/>
+  <text x="1920.0" y="1587.6" text-anchor="middle" fill="#F4F7FA" font-family="Arial, Helvetica, sans-serif" font-size="38.879999999999995" letter-spacing="13">LOADING</text>
+  <rect x="1075.2" y="1641.6" width="1689.6" height="12.96" rx="8" fill="#26313C"/>
+  <rect x="1075.2" y="1641.6" width="1113.6" height="12.96" rx="8" fill="url(#bar)"/>
+  <circle cx="2188.7999999999997" cy="1648.08" r="11" fill="#00D8FF"/>
+</svg>

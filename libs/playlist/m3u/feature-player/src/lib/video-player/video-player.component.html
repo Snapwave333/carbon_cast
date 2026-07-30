@@ -20,7 +20,7 @@
             [attr.aria-pressed]="isSidebarCollapsed()"
             (click)="toggleSidebar()"
         >
-            <mat-icon>chevron_left</mat-icon>
+            <mat-icon svgIcon="chevron_left"></mat-icon>
         </button>
     }
     @defer {
@@ -54,7 +54,7 @@
             [attr.aria-pressed]="isSidebarCollapsed()"
             (click)="toggleSidebar()"
         >
-            <mat-icon>chevron_right</mat-icon>
+            <mat-icon svgIcon="chevron_right"></mat-icon>
         </button>
     }
     @if (activeChannel(); as activeChannel) {

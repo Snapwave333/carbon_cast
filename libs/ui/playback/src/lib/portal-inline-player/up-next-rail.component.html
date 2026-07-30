@@ -21,12 +21,11 @@
                         />
                     } @else {
                         <mat-icon class="up-next__thumb-fallback"
-                            >smart_display</mat-icon
-                        >
+                             svgIcon="smart_display"></mat-icon>
                     }
                     @if (item.isPlaying) {
                         <span class="up-next__playing-badge">
-                            <mat-icon>equalizer</mat-icon>
+                            <mat-icon svgIcon="equalizer"></mat-icon>
                         </span>
                     }
                     @if (item.progressPercent !== null) {

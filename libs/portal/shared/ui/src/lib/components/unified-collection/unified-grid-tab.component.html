@@ -1,8 +1,6 @@
 @if (filteredItems().length === 0) {
     <div class="empty-state">
-        <mat-icon class="empty-icon">{{
-            contentType() === 'movie' ? 'movie' : 'tv'
-        }}</mat-icon>
+        <mat-icon class="empty-icon" [svgIcon]="contentType() === 'movie' ? 'movie' : 'tv'"></mat-icon>
         <p class="empty-title">
             @if (searchTerm()) {
                 {{ 'WORKSPACE.GLOBAL_FAVORITES.NO_RESULTS' | translate }}

@@ -1,6 +1,10 @@
 import { and, asc, desc, eq, inArray, or, sql, type SQL } from 'drizzle-orm';
 import * as schema from '@iptvnator/shared/database/schema';
 import {
+    canonicalCategoryKey,
+    expandChannelCategories,
+} from '@iptvnator/shared/m3u-utils';
+import {
     Channel,
     GLOBAL_SEARCH_CONTENT_TYPES,
     GLOBAL_SEARCH_RESULT_SOURCES,
@@ -582,9 +586,21 @@ function buildScoredM3uGlobalSearchResults(
             continue;
         }
 
-        const hiddenGroups = new Set(asStringArray(payload.hiddenGroupTitles));
+        // Stored hidden titles may be raw (legacy) values, so coerce them to
+        // canonical keys and expand each channel's group into its canonical
+        // buckets — hiding "Animation" also hides an "Animation;Kids" channel.
+        const hiddenKeys = new Set(
+            asStringArray(payload.hiddenGroupTitles).map((title) =>
+                canonicalCategoryKey(title)
+            )
+        );
         for (const channel of getM3uPayloadChannels(payload)) {
-            if (excludeHidden && hiddenGroups.has(channel.group.title)) {
+            if (
+                excludeHidden &&
+                expandChannelCategories(channel.group.title).some((category) =>
+                    hiddenKeys.has(category.key)
+                )
+            ) {
                 continue;
             }
 

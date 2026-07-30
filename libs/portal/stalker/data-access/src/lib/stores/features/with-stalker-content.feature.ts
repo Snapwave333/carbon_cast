@@ -10,6 +10,7 @@ import {
 import { TranslateService } from '@ngx-translate/core';
 import { createLogger } from '@iptvnator/portal/shared/util';
 import { DataService } from '@iptvnator/services';
+import { canonicalizeCategoryLabel } from '@iptvnator/shared/m3u-utils';
 import {
     StalkerCategoryItem,
     StalkerContentItem,
@@ -271,7 +272,9 @@ export function withStalkerContent() {
 
                                 const normalizedCategories = response.js.map(
                                     (item): StalkerCategoryItem => ({
-                                        category_name: item.title ?? '',
+                                        category_name: canonicalizeCategoryLabel(
+                                            item.title ?? ''
+                                        ),
                                         category_id: String(item.id),
                                         censored:
                                             item.censored === 1 ||

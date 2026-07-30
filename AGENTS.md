@@ -164,6 +164,13 @@ Key files:
   links, before this snapshot can occur. Saving applies to the next host without
   an application restart; an existing session never changes controls mode in
   place.
+- Shared controls are bottom-docked; the top fullscreen title is informational
+  only. `Settings.playerControls` captures visibility, auto-hide delay (zero
+  means never hide), compact/expanded density, solid/translucent backdrop, and
+  small/medium/large size when `WebPlayerViewComponent` creates a new host.
+  The configuration crosses the UI boundary through the immutable
+  `PLAYER_CONTROLS_SETTINGS` token. Fresh profiles default `mirrorLayout` to
+  player-left/channel-rail-right, but an explicit stored layout is preserved.
 - `Settings.showCaptions` is deliberately outside this rollout gate: it is
   engine state, not controls UI. HTML5, Video.js, and ArtPlayer apply it in both
   modes — shared controls through their controls bridge, the preference-off
@@ -263,6 +270,22 @@ Key files:
   keyboard shortcut, and Embedded MPV popup/native support are out of scope.
 - Canonical docs: `docs/architecture/player-controls-contract.md` and
   `docs/architecture/embedded-mpv-native.md`
+
+## Agent Control
+
+- `apps/electron-backend/src/app/events/agent-control.events.ts` owns the
+  authenticated `/api/agent-control/v1` bridge. It forwards named commands to
+  the renderer and only resolves the HTTP request after an
+  `AGENT_CONTROL_COMMAND_RESULT` with the matching correlation ID.
+- `apps/web/src/app/services/agent-control-runtime.service.ts` executes safe
+  requests against the real router, NgRx state, `SettingsStore`, followed-series
+  service, and active built-in media element; no raw stream URLs, credentials,
+  filesystem paths, or portal payloads can cross this boundary.
+- `apps/agent-control/src/client.mjs` is the shared client for
+  `apps/mcp-server` and `apps/iptvctl`. Tokens are SHA-256 hashes with scopes,
+  expiry/revocation, per-token rate limits, redacted NDJSON audit records, and
+  SSE state/command events. Canonical contract:
+  `docs/architecture/agent-control.md`.
 
 ## Linux Embedded MPV Packaging
 

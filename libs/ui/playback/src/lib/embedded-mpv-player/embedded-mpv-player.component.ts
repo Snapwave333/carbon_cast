@@ -71,6 +71,7 @@ const RECORDING_MESSAGE_DISMISS_DELAY_MS = 5000;
     changeDetection: ChangeDetectionStrategy.OnPush,
     host: {
         class: 'embedded-mpv-player-host',
+        '[attr.data-recording-active]': 'isRecording() ? "true" : null',
     },
 })
 export class EmbeddedMpvPlayerComponent implements OnDestroy {

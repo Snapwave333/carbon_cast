@@ -33,6 +33,10 @@ export class ControlsVisibility {
     }
 
     scheduleHide(): void {
+        if (this.delayMs <= 0) {
+            this.clear();
+            return;
+        }
         if (!this.canHide()) {
             this.clear();
             return;

@@ -38,7 +38,7 @@ import { XtreamCachedOfflineNoticeComponent } from './xtream-cached-offline-noti
                         type="button"
                         (click)="retryContentInitialization()"
                     >
-                        <mat-icon>refresh</mat-icon>
+                        <mat-icon svgIcon="refresh"></mat-icon>
                         {{ 'DOWNLOADS.RETRY' | translate }}
                     </button>
                 </div>

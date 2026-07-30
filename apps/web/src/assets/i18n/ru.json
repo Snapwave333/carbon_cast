@@ -344,11 +344,6 @@
         "LINK_BLOG": "Блог",
         "LINK_GITHUB_DESCRIPTION": "Звезда, issues и возможность поучаствовать",
         "LINK_BLOG_DESCRIPTION": "Новости релизов, советы и обновления проекта",
-        "LINK_TELEGRAM_DESCRIPTION": "Анонсы, сообщество и поддержка",
-        "SUPPORT_TITLE": "Поддержать проект",
-        "SUPPORT_DESCRIPTION": "IPTVnator — бесплатный open source проект, разработка ведётся открыто. Если он стал частью вашего дня, небольшая поддержка помогает продолжать развитие — спасибо!",
-        "SUPPORT_SPONSORS_HINT": "Регулярно или однократно",
-        "SUPPORT_KOFI_HINT": "Купить кофе",
         "EPG_NOTE": "На данный момент EPG доступен только в нативной версии IPTVnator.",
         "EPG_NOTE_URL_TEXT": "Подробнее здесь",
         "IMPORT_EXPORT_DATA": "Импорт/экспорт плейлистов",
@@ -451,7 +446,11 @@
         "APP_UPDATE_RELEASE_NOTES": "Что нового",
         "EMBEDDED_MPV_FRAME_COPY": "Embedded MPV: движок frame-copy (экспериментально)",
         "EMBEDDED_MPV_FRAME_COPY_DESCRIPTION": "Видео рисуется на канвасе приложения, поэтому меню и диалоги отображаются поверх него.",
-        "EMBEDDED_MPV_FRAME_COPY_RESTART": "Вступит в силу после перезапуска приложения."
+        "EMBEDDED_MPV_FRAME_COPY_RESTART": "Вступит в силу после перезапуска приложения.",
+        "ATTRIBUTION": "Attribution",
+        "ATTRIBUTION_DESCRIPTION": "CarbonCast IPTV is a fork of IPTVnator (github.com/4gray/iptvnator). The upstream project and its contributors are credited under the original license. CarbonCast IPTV is an independent fork and is not endorsed by the upstream maintainers.",
+        "MIRROR_LAYOUT": "Mirror layout",
+        "MIRROR_LAYOUT_DESCRIPTION": "Put the player on the left and the channel/category rail on the right. Applies to the playlist player and Xtream/Stalker live views."
     },
     "THEMES": {
         "DARK_THEME": "Тёмная",
@@ -611,6 +610,7 @@
             "NAME": "Название",
             "CHANNEL_ID": "ID канала",
             "STREAM_URL": "URL потока",
+            "COPY_URL": "Copy stream URL",
             "GROUP": "Группа",
             "RADIO": "Радио",
             "CATCHUP_AVAILABLE": "Catchup доступен",
@@ -654,8 +654,10 @@
         "ZOOM_OUT": "Уменьшить",
         "FILTER_CHANNELS": "Фильтровать каналы",
         "CLOSE_FILTER": "Закрыть фильтр",
+        "CLEAR_FILTER": "Clear filter",
         "SEARCH_PROGRAMS": "Поиск программ",
         "CLOSE_PROGRAM_SEARCH": "Закрыть поиск программ",
+        "CLEAR_PROGRAM_SEARCH": "Clear program search",
         "LIVE_STREAM": "Прямая трансляция",
         "ARCHIVE_PLAYBACK_UNAVAILABLE_TITLE": "Воспроизведение архива недоступно",
         "ARCHIVE_PLAYBACK_UNAVAILABLE_DESCRIPTION": "Этот провайдер предоставляет историю программы для канала, но не предоставляет воспроизводимый архив/catch-up.",
@@ -965,6 +967,7 @@
         },
         "SEARCH_VIEW": {
             "INITIAL_TITLE": "Поиск контента",
+            "CLEAR": "Clear search",
             "INITIAL_DESCRIPTION": "Введите минимум 3 символа для поиска по Live TV, фильмам и сериалам.",
             "RESULTS_FOUND": "Найдено {{count}} результатов",
             "NO_RESULTS_FOR": "Нет результатов по запросу \"{{term}}\"",
@@ -1241,7 +1244,8 @@
             "XTREAM_REFRESH_DELETING_CATEGORIES": "Удаляем кэшированные категории...",
             "XTREAM_REFRESH_DETAIL_LOCAL": "Избранное, история просмотра, скрытые категории и прогресс воспроизведения будут подготовлены для восстановления после синхронизации.",
             "XTREAM_REFRESH_PROGRESS": "Обработано локальных записей: {{current}} / {{total}}",
-            "RAIL_RADIO": "Радио"
+            "RAIL_RADIO": "Радио",
+            "RAIL_FOLLOWED_SERIES": "Followed series"
         },
         "SOURCES": {
             "TITLE": "Источники",

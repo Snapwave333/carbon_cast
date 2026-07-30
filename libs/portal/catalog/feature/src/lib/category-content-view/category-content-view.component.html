@@ -22,7 +22,7 @@
                                     (activeSortLabelKey() | translate)
                                 "
                             >
-                                <mat-icon>sort</mat-icon>
+                                <mat-icon svgIcon="sort"></mat-icon>
                                 <span
                                     class="refinement-chip-label refinement-chip-label-full"
                                 >
@@ -47,7 +47,7 @@
                                         | translate: { value: rating }
                                 "
                             >
-                                <mat-icon>star</mat-icon>
+                                <mat-icon svgIcon="star"></mat-icon>
                                 <span
                                     class="refinement-chip-label refinement-chip-label-full"
                                 >
@@ -59,7 +59,7 @@
                                 >
                                     {{ rating }}.0+
                                 </span>
-                                <mat-icon>close</mat-icon>
+                                <mat-icon svgIcon="close"></mat-icon>
                             </button>
                         }
                     </div>
@@ -72,7 +72,7 @@
                         [matTooltip]="'WORKSPACE.REFINE_ACTION' | translate"
                         [attr.aria-label]="'WORKSPACE.REFINE_ACTION' | translate"
                     >
-                        <mat-icon>tune</mat-icon>
+                        <mat-icon svgIcon="tune"></mat-icon>
                         <span>{{ 'WORKSPACE.REFINE_ACTION' | translate }}</span>
                         @if (activeRefinementCount() > 0) {
                             <span class="refine-count">{{
@@ -93,7 +93,7 @@
                                     'WORKSPACE.SORT_DATE_DESC' | translate
                                 }}</span>
                                 @if (contentSortMode() === 'date-desc') {
-                                    <mat-icon>check</mat-icon>
+                                    <mat-icon svgIcon="check"></mat-icon>
                                 }
                             </button>
                             <button
@@ -104,7 +104,7 @@
                                     'WORKSPACE.SORT_DATE_ASC' | translate
                                 }}</span>
                                 @if (contentSortMode() === 'date-asc') {
-                                    <mat-icon>check</mat-icon>
+                                    <mat-icon svgIcon="check"></mat-icon>
                                 }
                             </button>
                             <button
@@ -115,7 +115,7 @@
                                     'WORKSPACE.SORT_NAME_ASC' | translate
                                 }}</span>
                                 @if (contentSortMode() === 'name-asc') {
-                                    <mat-icon>check</mat-icon>
+                                    <mat-icon svgIcon="check"></mat-icon>
                                 }
                             </button>
                             <button
@@ -126,7 +126,7 @@
                                     'WORKSPACE.SORT_NAME_DESC' | translate
                                 }}</span>
                                 @if (contentSortMode() === 'name-desc') {
-                                    <mat-icon>check</mat-icon>
+                                    <mat-icon svgIcon="check"></mat-icon>
                                 }
                             </button>
                             @if (supportsRatingSort()) {
@@ -138,7 +138,7 @@
                                         'WORKSPACE.SORT_TOP_RATED' | translate
                                     }}</span>
                                     @if (contentSortMode() === 'rating-desc') {
-                                        <mat-icon>check</mat-icon>
+                                        <mat-icon svgIcon="check"></mat-icon>
                                     }
                                 </button>
                                 <button
@@ -150,7 +150,7 @@
                                             | translate
                                     }}</span>
                                     @if (contentSortMode() === 'rating-asc') {
-                                        <mat-icon>check</mat-icon>
+                                        <mat-icon svgIcon="check"></mat-icon>
                                     }
                                 </button>
                             }
@@ -170,7 +170,7 @@
                                     'WORKSPACE.FILTER_RATING_ANY' | translate
                                 }}</span>
                                 @if (minRating() === null) {
-                                    <mat-icon>check</mat-icon>
+                                    <mat-icon svgIcon="check"></mat-icon>
                                 }
                             </button>
                             @for (threshold of ratingThresholds; track threshold) {
@@ -183,7 +183,7 @@
                                             | translate: { value: threshold }
                                     }}</span>
                                     @if (minRating() === threshold) {
-                                        <mat-icon>check</mat-icon>
+                                        <mat-icon svgIcon="check"></mat-icon>
                                     }
                                 </button>
                             }

@@ -26,7 +26,10 @@ export function aggregateFavoriteChannels(playlists: Playlist[]): Channel[] {
             continue;
         }
 
-        for (const channel of playlist.playlist?.items ?? []) {
+        const parsedItems =
+            (playlist.playlist as { items?: Channel[] } | undefined)?.items ??
+            [];
+        for (const channel of parsedItems) {
             if (favoriteIds.has(channel.id) || favoriteIds.has(channel.url)) {
                 favorites.push(channel);
             }

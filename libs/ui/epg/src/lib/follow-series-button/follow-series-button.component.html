@@ -1,0 +1,19 @@
+<button
+    type="button"
+    class="follow-series-button"
+    [class.follow-series-button--active]="followed()"
+    [class.follow-series-button--compact]="compact()"
+    [attr.aria-pressed]="!!followed()"
+    [attr.aria-label]="
+        followed()
+            ? 'Stop following ' + seriesTitle()
+            : 'Follow ' + seriesTitle()
+    "
+    [matTooltip]="followed() ? 'Unfollow series' : 'Follow series'"
+    (click)="toggle()"
+>
+    <mat-icon [svgIcon]="followed() ? 'check_circle' : 'calendar_month'" />
+    @if (!compact()) {
+        <span>{{ followed() ? 'Following' : 'Follow Series' }}</span>
+    }
+</button>

@@ -8,6 +8,7 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { differenceInMinutes } from 'date-fns';
 import { startWith } from 'rxjs';
 import { EpgProgram } from '@iptvnator/shared/interfaces';
+import { FollowSeriesButtonComponent } from '../follow-series-button/follow-series-button.component';
 
 export type EpgItemDialogAction = 'live' | 'timeshift';
 
@@ -27,7 +28,13 @@ export type EpgItemDialogData = EpgProgram & {
     selector: 'app-epg-item-description',
     templateUrl: './epg-item-description.component.html',
     styleUrls: ['./epg-item-description.component.scss'],
-    imports: [DatePipe, MatDialogModule, MatIcon, TranslatePipe],
+    imports: [
+        DatePipe,
+        FollowSeriesButtonComponent,
+        MatDialogModule,
+        MatIcon,
+        TranslatePipe,
+    ],
 })
 export class EpgItemDescriptionComponent {
     dialogData = inject<EpgItemDialogData>(MAT_DIALOG_DATA);
@@ -58,10 +65,11 @@ export class EpgItemDescriptionComponent {
     constructor() {
         this.epgProgram = this.dialogData;
         // Check multiple possible field names for channel name
-        this.channelName = this.dialogData.channelName
-            || this.dialogData.channel_name
-            || this.dialogData.display_name
-            || null;
+        this.channelName =
+            this.dialogData.channelName ||
+            this.dialogData.channel_name ||
+            this.dialogData.display_name ||
+            null;
         // Prefer the channel logo; fall back to the programme/EPG icon
         // (M3U playlists without tvg-logo still get an icon from the EPG feed).
         this.channelLogo =
@@ -90,7 +98,9 @@ export class EpgItemDescriptionComponent {
             }
             const hours = Math.floor(mins / 60);
             const remainingMins = mins % 60;
-            return remainingMins > 0 ? `${hours}h ${remainingMins}m` : `${hours}h`;
+            return remainingMins > 0
+                ? `${hours}h ${remainingMins}m`
+                : `${hours}h`;
         } catch {
             return null;
         }

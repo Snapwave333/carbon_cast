@@ -1,4 +1,3 @@
-import { TitleCasePipe } from '@angular/common';
 import {
     ChangeDetectionStrategy,
     Component,
@@ -15,10 +14,12 @@ import {
 } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslatePipe } from '@ngx-translate/core';
+import { canonicalCategoryKey } from '@iptvnator/shared/m3u-utils';
 
 export interface GroupManagementDialogGroup {
     readonly count: number;
     readonly key: string;
+    readonly label: string;
 }
 
 export interface GroupManagementDialogData {
@@ -37,7 +38,6 @@ interface GroupWithSelection extends GroupManagementDialogGroup {
         MatButtonModule,
         MatCheckboxModule,
         MatIconModule,
-        TitleCasePipe,
         TranslatePipe,
     ],
     templateUrl: './group-management-dialog.component.html',
@@ -52,11 +52,23 @@ export class GroupManagementDialogComponent {
 
     readonly searchTerm = signal('');
     readonly groups = signal<GroupWithSelection[]>(
-        this.data.groups.map((group) => ({
-            ...group,
-            selected: !this.data.hiddenGroupTitles.includes(group.key),
-        }))
+        this.buildInitialGroups()
     );
+
+    private buildInitialGroups(): GroupWithSelection[] {
+        // Stored hidden titles may be raw (legacy) values, so coerce both sides
+        // to canonical keys before deciding which groups start hidden.
+        const hiddenKeys = new Set(
+            this.data.hiddenGroupTitles.map((title) =>
+                canonicalCategoryKey(title)
+            )
+        );
+
+        return this.data.groups.map((group) => ({
+            ...group,
+            selected: !hiddenKeys.has(group.key),
+        }));
+    }
 
     readonly filteredGroups = computed(() => {
         const term = this.searchTerm().trim().toLowerCase();
@@ -66,7 +78,7 @@ export class GroupManagementDialogComponent {
         }
 
         return this.groups().filter((group) =>
-            group.key.toLowerCase().includes(term)
+            group.label.toLowerCase().includes(term)
         );
     });
 

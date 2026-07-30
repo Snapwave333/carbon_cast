@@ -45,17 +45,22 @@ export class EpgDatabase {
 
         this.insertProgramStmt = this.db.prepare(
             dedupIndexReady
-                ? `INSERT INTO epg_programs (channel_id, start, stop, title, description, category, icon_url, rating, episode_num, source_url)
-                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ? `INSERT INTO epg_programs (channel_id, start, stop, title, description, category, icon_url, rating, episode_num, source_url, program_id, series_id, episode_title, is_new, previously_shown)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                    ON CONFLICT(channel_id, start, title, source_url) DO UPDATE SET
                        stop = excluded.stop,
                        description = excluded.description,
                        category = excluded.category,
                        icon_url = excluded.icon_url,
                        rating = excluded.rating,
-                       episode_num = excluded.episode_num`
-                : `INSERT INTO epg_programs (channel_id, start, stop, title, description, category, icon_url, rating, episode_num, source_url)
-                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+                       episode_num = excluded.episode_num,
+                       program_id = excluded.program_id,
+                       series_id = excluded.series_id,
+                       episode_title = excluded.episode_title,
+                       is_new = excluded.is_new,
+                       previously_shown = excluded.previously_shown`
+                : `INSERT INTO epg_programs (channel_id, start, stop, title, description, category, icon_url, rating, episode_num, source_url, program_id, series_id, episode_title, is_new, previously_shown)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
         );
 
         this.deleteOrphanChannelsForSourceStmt = this.db.prepare(`
@@ -129,6 +134,7 @@ export class EpgDatabase {
                 const iconUrl = program.icon?.[0]?.src || null;
                 const rating = program.rating?.[0]?.value || null;
                 const episodeNum = program.episodeNum?.[0]?.value || null;
+                const episodeTitle = program.subTitle?.[0]?.value || null;
 
                 try {
                     this.insertProgramStmt.run(
@@ -141,7 +147,12 @@ export class EpgDatabase {
                         iconUrl,
                         rating,
                         episodeNum,
-                        sourceUrl
+                        sourceUrl,
+                        program.programId || null,
+                        program.seriesId || null,
+                        episodeTitle,
+                        program.isNew ? 1 : 0,
+                        program.previouslyShown ? 1 : 0
                     );
                     insertedCount++;
                 } catch {

@@ -72,7 +72,7 @@ function decorateReleaseNotesHtml(html: string): string {
                     (click)="load('previous')"
                     data-test-id="release-notes-previous"
                 >
-                    <mat-icon>chevron_left</mat-icon>
+                    <mat-icon svgIcon="chevron_left"></mat-icon>
                 </button>
 
                 <div class="release-notes-dialog__version">
@@ -89,7 +89,7 @@ function decorateReleaseNotesHtml(html: string): string {
                     (click)="load('next')"
                     data-test-id="release-notes-next"
                 >
-                    <mat-icon>chevron_right</mat-icon>
+                    <mat-icon svgIcon="chevron_right"></mat-icon>
                 </button>
             </div>
 
@@ -111,7 +111,7 @@ function decorateReleaseNotesHtml(html: string): string {
         <mat-dialog-actions align="end">
             @if (notes()?.htmlUrl; as htmlUrl) {
                 <button mat-button type="button" (click)="openRelease(htmlUrl)">
-                    <mat-icon>open_in_new</mat-icon>
+                    <mat-icon svgIcon="open_in_new"></mat-icon>
                     {{ 'SETTINGS.APP_UPDATE_OPEN_RELEASE' | translate }}
                 </button>
             }

@@ -46,7 +46,6 @@ $font-mono: var(--font-mono, ui-monospace, 'SF Mono', Menlo, monospace);
             transparent 55%
         ),
         #0b0e16;
-
 }
 
 .epg-dialog__hero-glyph {
@@ -207,6 +206,7 @@ $font-mono: var(--font-mono, ui-monospace, 'SF Mono', Menlo, monospace);
 .epg-dialog__actions {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
     gap: 10px;
 }
 

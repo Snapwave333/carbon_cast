@@ -19,7 +19,7 @@
             @for (item of summaryItems(); track item.id) {
                 <div class="settings-delete-dialog__summary-item">
                     <div class="settings-delete-dialog__summary-label">
-                        <mat-icon aria-hidden="true">{{ item.icon }}</mat-icon>
+                        <mat-icon aria-hidden="true" [svgIcon]="item.icon"></mat-icon>
                         <span>{{ item.labelKey | translate }}</span>
                     </div>
                     <strong>{{ item.count }}</strong>

@@ -6,7 +6,7 @@
 >
     @if (enrichedChannels().length === 0) {
         <div class="empty-state">
-            <mat-icon class="empty-icon">star_border</mat-icon>
+            <mat-icon class="empty-icon" svgIcon="star_border"></mat-icon>
             @if (hasSearchTerm()) {
                 <p class="empty-title">
                     {{ 'WORKSPACE.GLOBAL_FAVORITES.NO_RESULTS' | translate }}
@@ -63,19 +63,19 @@
 <mat-menu #channelContextMenu="matMenu">
     @if (supportsEpgMapping) {
         <button mat-menu-item (click)="openEpgMapping()">
-            <mat-icon>settings_remote</mat-icon>
+            <mat-icon svgIcon="settings_remote"></mat-icon>
             <span>{{ 'CHANNELS.MAP_EPG' | translate }}</span>
         </button>
     }
     @if (contextMenuChannel()?.m3uChannel) {
         <button mat-menu-item (click)="openChannelDetails()">
-            <mat-icon>info</mat-icon>
+            <mat-icon svgIcon="info"></mat-icon>
             <span>{{ 'CHANNELS.SHOW_DETAILS' | translate }}</span>
         </button>
     }
     @if (mode() === 'recent') {
         <button mat-menu-item (click)="removeContextMenuChannel()">
-            <mat-icon>delete</mat-icon>
+            <mat-icon svgIcon="delete"></mat-icon>
             <span>
                 {{
                     'WORKSPACE.DASHBOARD.REMOVE_FROM_HISTORY' | translate

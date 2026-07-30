@@ -5,7 +5,7 @@
         (click)="backClicked.emit()"
         [attr.aria-label]="'BACK' | translate"
     >
-        <mat-icon>arrow_back</mat-icon>
+        <mat-icon svgIcon="arrow_back"></mat-icon>
     </button>
 
     @if (isLoading()) {
@@ -109,7 +109,7 @@
                 </div>
             } @else if (visibleItems().length === 0) {
                 <div class="actor-view__empty">
-                    <mat-icon>search_off</mat-icon>
+                    <mat-icon svgIcon="search_off"></mat-icon>
                     <p>{{ 'XTREAM.ACTOR_NO_RESULTS' | translate }}</p>
                 </div>
             }
@@ -145,21 +145,21 @@
                         }
                         @if (item.available && item.availableIn) {
                             <span class="actor-view__badge">
-                                <mat-icon>check_circle</mat-icon>
+                                <mat-icon svgIcon="check_circle"></mat-icon>
                                 {{ item.availableIn }}
                             </span>
                         } @else if (
                             item.available && filterMode() !== 'available'
                         ) {
                             <span class="actor-view__badge">
-                                <mat-icon>check_circle</mat-icon>
+                                <mat-icon svgIcon="check_circle"></mat-icon>
                                 {{ 'XTREAM.ACTOR_IN_LIBRARY' | translate }}
                             </span>
                         } @else if (!item.available) {
                             <span
                                 class="actor-view__badge actor-view__badge--search"
                             >
-                                <mat-icon>search</mat-icon>
+                                <mat-icon svgIcon="search"></mat-icon>
                                 {{
                                     'XTREAM.ACTOR_SEARCH_IN_PORTAL' | translate
                                 }}

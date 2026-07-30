@@ -449,6 +449,73 @@ describe('content.operations', () => {
         ]);
     });
 
+    it('excludes hidden M3U groups by canonical key, covering variants and multi-group channels', () => {
+        const baseChannel = {
+            tvg: {
+                id: 'anime',
+                name: 'Anime',
+                url: '',
+                logo: '',
+                rec: '',
+            },
+            http: {
+                referrer: '',
+                'user-agent': '',
+                origin: '',
+            },
+            radio: '',
+        };
+        const animationChannel = {
+            ...baseChannel,
+            id: 'anim-1',
+            url: 'https://stream.test/anim-1.m3u8',
+            name: 'Anime One',
+            group: { title: 'animation' },
+        };
+        const multiGroupChannel = {
+            ...baseChannel,
+            id: 'anim-multi',
+            url: 'https://stream.test/anim-multi.m3u8',
+            name: 'Anime Multi',
+            group: { title: 'Animation;Kids' },
+        };
+        const keptChannel = {
+            ...baseChannel,
+            id: 'anim-kept',
+            url: 'https://stream.test/anim-kept.m3u8',
+            name: 'Anime Kept',
+            group: { title: 'Movies' },
+        };
+
+        const results = buildM3uGlobalSearchResults(
+            [
+                {
+                    id: 'm3u-1',
+                    name: 'M3U One',
+                    payload: JSON.stringify({
+                        // Raw, differently-cased stored title still matches the
+                        // canonical 'animation' key, and the multi-group channel
+                        // is excluded because one of its groups is hidden.
+                        hiddenGroupTitles: ['ANIMATION'],
+                        playlist: {
+                            items: [
+                                animationChannel,
+                                multiGroupChannel,
+                                keptChannel,
+                            ],
+                        },
+                    }),
+                },
+            ],
+            'anime',
+            true
+        );
+
+        expect(results.map((result) => result.channel_id)).toEqual([
+            'anim-kept',
+        ]);
+    });
+
     it('scores flexible search matches while keeping short first tokens anchored', () => {
         const prefixScore = scoreSearchTextMatch('TV Sport News', 'tv');
         const trailingScore = scoreSearchTextMatch('Test TV', 'tv');

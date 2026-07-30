@@ -344,11 +344,6 @@
         "LINK_BLOG": "Blog",
         "LINK_GITHUB_DESCRIPTION": "Mettez une étoile au dépôt, ouvrez un ticket ou contribuez",
         "LINK_BLOG_DESCRIPTION": "Notes de version, astuces et actualités du projet",
-        "LINK_TELEGRAM_DESCRIPTION": "Annonces, communauté et support",
-        "SUPPORT_TITLE": "Soutenir le projet",
-        "SUPPORT_DESCRIPTION": "IPTVnator est libre et open source, développé en toute transparence. S'il fait partie de votre quotidien, une petite contribution aide à maintenir le projet en vie et à façonner la suite — merci.",
-        "SUPPORT_SPONSORS_HINT": "Récurrent ou ponctuel",
-        "SUPPORT_KOFI_HINT": "Offrez-moi un café",
         "EPG_NOTE": "Actuellement, l'EPG n'est disponible que dans la version Electron d'IPTVnator.",
         "EPG_NOTE_URL_TEXT": "Vérifiez-le ici",
         "IMPORT_EXPORT_DATA": "Importer/exporter des listes de lecture",
@@ -451,7 +446,11 @@
         "APP_UPDATE_RELEASE_NOTES": "What's new",
         "EMBEDDED_MPV_FRAME_COPY": "Embedded MPV : moteur frame-copy (expérimental)",
         "EMBEDDED_MPV_FRAME_COPY_DESCRIPTION": "La vidéo est rendue sur le canevas de l'application, les menus et boîtes de dialogue s'affichent donc au-dessus.",
-        "EMBEDDED_MPV_FRAME_COPY_RESTART": "Prend effet après le redémarrage de l'application."
+        "EMBEDDED_MPV_FRAME_COPY_RESTART": "Prend effet après le redémarrage de l'application.",
+        "ATTRIBUTION": "Attribution",
+        "ATTRIBUTION_DESCRIPTION": "CarbonCast IPTV is a fork of IPTVnator (github.com/4gray/iptvnator). The upstream project and its contributors are credited under the original license. CarbonCast IPTV is an independent fork and is not endorsed by the upstream maintainers.",
+        "MIRROR_LAYOUT": "Mirror layout",
+        "MIRROR_LAYOUT_DESCRIPTION": "Put the player on the left and the channel/category rail on the right. Applies to the playlist player and Xtream/Stalker live views."
     },
     "THEMES": {
         "DARK_THEME": "Sombre",
@@ -611,6 +610,7 @@
             "NAME": "Nom",
             "CHANNEL_ID": "ID de la chaîne",
             "STREAM_URL": "URL du flux",
+            "COPY_URL": "Copy stream URL",
             "GROUP": "Groupe",
             "RADIO": "Radio",
             "CATCHUP_AVAILABLE": "Catchup disponible",
@@ -654,8 +654,10 @@
         "ZOOM_OUT": "Zoom arrière",
         "FILTER_CHANNELS": "Filtrer les chaînes",
         "CLOSE_FILTER": "Fermer le filtre",
+        "CLEAR_FILTER": "Clear filter",
         "SEARCH_PROGRAMS": "Rechercher des programmes",
         "CLOSE_PROGRAM_SEARCH": "Fermer la recherche de programmes",
+        "CLEAR_PROGRAM_SEARCH": "Clear program search",
         "LIVE_STREAM": "Diffusion en direct",
         "ARCHIVE_PLAYBACK_UNAVAILABLE_TITLE": "Lecture des archives indisponible",
         "ARCHIVE_PLAYBACK_UNAVAILABLE_DESCRIPTION": "Ce fournisseur expose l'historique des programmes pour la chaîne, mais n'expose pas la lecture archive/catch-up.",
@@ -965,6 +967,7 @@
         },
         "SEARCH_VIEW": {
             "INITIAL_TITLE": "Rechercher du contenu",
+            "CLEAR": "Clear search",
             "INITIAL_DESCRIPTION": "Saisissez au moins 3 caractères pour effectuer une recherche dans la TV en direct, les films et les séries.",
             "RESULTS_FOUND": "{{count}} résultats trouvés",
             "NO_RESULTS_FOR": "Aucun résultat trouvé pour \"{{term}}\"",
@@ -1241,7 +1244,8 @@
             "XTREAM_REFRESH_DELETING_CATEGORIES": "Suppression des catégories en cache...",
             "XTREAM_REFRESH_DETAIL_LOCAL": "Les favoris, l’historique de lecture, les catégories masquées et la progression sont préparés pour être restaurés après la synchronisation.",
             "XTREAM_REFRESH_PROGRESS": "Enregistrements locaux traités : {{current}} / {{total}}",
-            "RAIL_RADIO": "Radio"
+            "RAIL_RADIO": "Radio",
+            "RAIL_FOLLOWED_SERIES": "Followed series"
         },
         "SOURCES": {
             "TITLE": "Sources",

@@ -102,7 +102,7 @@ export const EPISODE_INFO_PLAY = 'play' as const;
                 data-testid="episode-info-play"
                 (click)="play()"
             >
-                <mat-icon>play_arrow</mat-icon>
+                <mat-icon svgIcon="play_arrow"></mat-icon>
                 {{ 'XTREAM.PLAY' | translate }}
             </button>
         </div>

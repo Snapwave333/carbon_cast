@@ -929,8 +929,8 @@ export class DashboardDataService {
                     playlist: {
                         _id: item.playlist_id,
                         recentlyViewed: updatedPlaylist?.recentlyViewed ?? [],
-                    } as unknown as PlaylistMeta,
-                }) as any
+                    },
+                })
             );
             return;
         }
@@ -948,8 +948,8 @@ export class DashboardDataService {
                     playlist: {
                         _id: item.playlist_id,
                         recentlyViewed: updatedPlaylist?.recentlyViewed ?? [],
-                    } as unknown as PlaylistMeta,
-                }) as any
+                    },
+                })
             );
         }
     }
@@ -1059,8 +1059,8 @@ export class DashboardDataService {
                     playlist: {
                         _id: item.playlist_id,
                         favorites: filteredFavorites,
-                    } as unknown as PlaylistMeta,
-                }) as any
+                    },
+                })
             );
         }
 

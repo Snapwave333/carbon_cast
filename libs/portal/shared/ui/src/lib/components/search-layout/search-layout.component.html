@@ -15,7 +15,7 @@
                                     [attr.aria-label]="'BACK' | translate"
                                     (click)="onBackClick()"
                                 >
-                                    <mat-icon>arrow_back</mat-icon>
+                                    <mat-icon svgIcon="arrow_back"></mat-icon>
                                 </button>
                             }
                             <h2>{{ title() | translate }}</h2>
@@ -38,7 +38,7 @@
                         }
                         @if (showCloseButton()) {
                             <button mat-icon-button (click)="onCloseClick()">
-                                <mat-icon>close</mat-icon>
+                                <mat-icon svgIcon="close"></mat-icon>
                             </button>
                         }
                         <!-- Extra header actions slot -->
@@ -72,7 +72,7 @@
                     <ng-content select="[results]" />
                 } @else if (showNoResults) {
                     <div class="no-items">
-                        <mat-icon>search_off</mat-icon>
+                        <mat-icon svgIcon="search_off"></mat-icon>
                         <div class="no-items-content">
                             <h3>
                                 {{
@@ -95,7 +95,7 @@
                     </div>
                 } @else if (showInitialState) {
                     <div class="no-items initial-state">
-                        <mat-icon>search</mat-icon>
+                        <mat-icon svgIcon="search"></mat-icon>
                         <div class="no-items-content">
                             <h3>
                                 {{

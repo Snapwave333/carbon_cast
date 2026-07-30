@@ -247,13 +247,16 @@ This is an Nx monorepo with the following structure:
 - **apps/electron-backend** - Electron main process
 - **apps/web-backend** - HTTP backend for the self-hosted PWA (`/parse`, `/parse-xml`, `/xtream`, `/stalker` CORS proxy endpoints)
 - **apps/remote-control-web** - Mobile remote-control web app served by the Electron backend
+- **apps/agent-control** - Shared authenticated bridge client used by local automation surfaces
+- **apps/mcp-server** - MCP stdio server for safe catalog reads and live bridge forwarding
+- **apps/iptvctl** - Scriptable CLI over the same live bridge client
 - **apps/web-e2e** - Playwright E2E tests against the web app
 - **apps/electron-backend-e2e** - Playwright E2E tests against the Electron app
 - **apps/stalker-mock-server** - Mock Stalker/Ministra portal for dev and E2E
 - **apps/xtream-mock-server** - Mock Xtream Codes API for dev and E2E
 - **apps/website** - Astro + Tailwind landing page and blog
 - **libs/** - Shared libraries:
-    - **epg/data-access** - EPG services, runtime bridge, program normalization
+    - **epg/data-access** - EPG services, runtime bridge, program normalization, followed-series matching, and auto-switch scheduling
     - **m3u-state** - NgRx state management for M3U playlists
     - **playlist/import/feature** - Playlist import flows (file/URL/text upload, Xtream and Stalker import dialogs)
     - **playlist/m3u/feature-player** - M3U video player page and `/workspace/playlists/:id` routes
@@ -271,7 +274,7 @@ This is an Nx monorepo with the following structure:
     - **shared/marketing-fixtures** - Provider-neutral fictional movie metadata shared by the Xtream and Stalker marketing mocks
     - **shared/testing** - Shared test helpers
     - **ui/components** - Reusable UI components (incl. channel list)
-    - **ui/epg** - EPG UI (timeline ribbon, multi-EPG, progress panel, program dialogs)
+    - **ui/epg** - EPG UI (timeline ribbon, multi-EPG, progress panel, program dialogs, followed-series schedule, and countdown overlay)
     - **ui/playback** - Player UI (video/audio players)
     - **ui/pipes** - Angular pipes
     - **ui/remote-control** - Remote-control UI pieces
@@ -672,12 +675,12 @@ with its own `mimeType`. Electron Builder derives all three platform
 registrations from it: macOS `CFBundleDocumentTypes` (which is what makes
 `open-file` fire from Finder), the NSIS registry entries, and, on Linux, the
 desktop entry's `MimeType` plus `/usr/share/mime/packages/iptvnator.xml` for
-deb/rpm/pacman. Two traps: it assigns the derived `MimeType` *after* spreading
+deb/rpm/pacman. Two traps: it assigns the derived `MimeType` _after_ spreading
 `linux.desktop.entry`, so declaring `MimeType` there is silently overwritten and
 must not be used; and it appends `%U` to `Exec`, so Linux file managers hand
 over percent-encoded `file://` URIs rather than paths —
 `createPlaylistOpenRequest` decodes them before the extension check. `%U` is
-also the *plural* exec code, so a multi-file selection arrives as one launch
+also the _plural_ exec code, so a multi-file selection arrives as one launch
 with one argument per file; `extractPlaylistOpenRequestsFromArgv` returns all
 of them and `enqueueAll` queues the batch, because stopping at the first match
 would silently drop the rest of the selection. Adding an exec code to
@@ -832,6 +835,8 @@ engine` (restart required) or
   contracts: `docs/architecture/embedded-mpv-native.md` and
   `tools/embedded-mpv/README.md`.
 - Shared player-controls layer: `libs/ui/playback/src/lib/player-controls/` exports the engine-neutral `PlayerController` contract, standalone `app-player-controls`, a generic web-video adapter/helper, and component-scoped `WEB_PLAYER_SHARED_CONTROLS` rollout token. In fullscreen, `app-player-controls` shows a pointer-transparent media-title overlay at the top while controls are revealed (`mediaTitle` input: movie/channel/series name, plus an `S01E03` second line for episodes; series names flow from the detail views through `PortalInlinePlayerComponent.seriesTitle` and `WebPlayerViewComponent.mediaTitle`). Persisted `Settings.webPlayerSharedControls` is default-off, and its checkbox appears only when HTML5, Video.js, or ArtPlayer is selected. `WebPlayerViewComponent` snapshots the preference into the immutable token for each new player host. The parent `/workspace` route awaits the initial `SettingsStore` load, including cold-start direct links, before this snapshot can occur. Saving applies to the next host without an application restart; an existing session never changes controls mode in place. Embedded MPV ignores the web-player preference: frame-copy always uses shared DOM controls through `EmbeddedMpvControlsAdapter`, native-view retains its compositor-safe legacy dock, and external MPV/VLC retain their own UI. The Embedded MPV host selects exactly one controls UI for its reported engine. `showControls=false` detaches the shared surface, modal overlays gate frame-copy playback shortcuts, fullscreen remains DOM-based with Embedded MPV bounds sync, and a playback/session transition key prevents engine or session handoff from presenting stale recording feedback while timers and pending commands are cancelled. Same-session IPC replies yield to a broadcast snapshot received while the command was pending, so a successful recording acknowledgement cannot be rolled back by a stale reply. The built-in HTML5/hls.js player is the second guarded consumer: `HtmlVideoPlayerComponent` provides a component-scoped `WebVideoControlsAdapter`, while its neutral `web-video-support` bridge is shared with ArtPlayer and owns HLS/Shaka(DASH)/native tracks, MPEG-TS VOD duration correction, caption preference, and source cleanup. `HtmlVideoElementSession` owns native video-event lifecycle, persisted volume, and start-time/time/ended propagation. Video.js is the third guarded consumer: `VjsPlayerComponent` provides a component-scoped `WebVideoControlsAdapter`; its bridge rebinds the current Tech video after `playerreset`, exposes source-stable audio/subtitle IDs, preserves caption preference and explicit subtitle-off state, and reads Video.js duration. Reset-driven raw MPEG-TS changes pause first, coalesce to the latest desired source, preserve actual volume across Video.js's reset, and restart when authoritative live/VOD metadata changes. In shared-controls mode, Video.js native controls, click/double-click/hotkey actions, and spatial navigation are disabled. ArtPlayer is the fourth guarded consumer: `ArtPlayerComponent` provides a component-scoped `WebVideoControlsAdapter`; `ArtPlayerSourceSession` owns HLS/DASH(Shaka)/MPEG-TS/native sources, the neutral web-video bridge, exact cleanup, and a destroyed-session guard for delayed `customType` callbacks, while `ArtPlayerVideoSession` owns native media/ArtPlayer events. Shared ArtPlayer mode uses authoritative live/VOD metadata, HLS/Shaka/native tracks and caption preference, MPEG-TS VOD duration correction, and reapplies app volume directly after ArtPlayer restores its own stored volume. Vendor chrome/hotkeys are disabled, and a transparent capture layer gives shared controls exclusive click and double-click ownership. `WebPlayerViewComponent.resolvedIsLive` supplies authoritative metadata; visible playback diagnostics disable shared pointer/keyboard ownership and exit only the active HTML5, Video.js, or ArtPlayer shell's own fullscreen so retry/fallback actions remain visible. On the preference-off path, all three web players retain their existing controls, source behavior, and legacy series navigation. `Settings.showCaptions` is deliberately outside this rollout gate: it is engine state, so the preference-off players apply it through the same helpers without an adapter (`WebVideoSourceTracks` for HTML5/ArtPlayer, `VjsLegacyTracks` for Video.js), re-applying it as the engine adds or switches text tracks. The two modes differ in how long it is enforced: shared controls are authoritative for the session (user intent arrives via `setSubtitleTrack`), while vendor chrome is source-default — the preference seeds each new source and is released once the media reports `playing`, so the engine's own caption menu keeps working. Mode selection is the optional `playbackStarted` probe the legacy owners pass to all three helpers (HLS, native text tracks, Shaka); in that mode the HLS helper deselects (`subtitleTrack = -1`) rather than hiding, since `subtitleDisplay` would override the vendor menu, and DASH is seeded by `ShakaVideoSession.start()` after the manifest loads. `WebPlayerViewComponent` reads it from `SettingsStore` instead of a host input so every host (M3U, Xtream/Stalker live layouts, portal detail inline player) inherits it. Contract: `docs/architecture/player-controls-contract.md`.
+- Shared controls are bottom-docked; the top fullscreen title is informational only. `Settings.playerControls` captures visibility, auto-hide delay (zero means never hide), compact/expanded density, solid/translucent backdrop, and small/medium/large size when `WebPlayerViewComponent` creates a new host through `PLAYER_CONTROLS_SETTINGS`. Fresh profiles default `mirrorLayout` to player-left/channel-rail-right, but an explicit stored layout is preserved.
+- Agent control: `AgentControlEvents` exposes authenticated `/api/agent-control/v1` endpoints and resolves live commands only after the renderer returns the matching correlation ID. `AgentControlRuntimeService` uses real renderer stores/media state; `apps/agent-control/src/client.mjs` is shared by MCP and `iptvctl`. Tokens are scoped hashed records with expiry/revocation, rate limits, redacted audit records, and SSE events. Canonical contract: `docs/architecture/agent-control.md`.
 - Shared web picture-in-picture stays inside that default-off rollout.
   `PlayerController` exposes capability `pictureInPicture`, state
   `pictureInPictureActive`/`canPictureInPicture`, and command
@@ -884,6 +889,7 @@ engine` (restart required) or
 - Background parsing in worker thread
 - Stored in database for quick lookup
 - Manual EPG mapping (Electron only): right-click a channel in any list (M3U views, Xtream portal list, Stalker ITV sidebar, global favorites) → "Map EPG channel" attaches it to an uploaded-XMLTV channel; stored in `epg_channel_mappings` keyed by the M3U lookup key or a playlist-scoped portal key (`xtream:{playlistId}:{id}` / `stalker:{playlistId}:{id}`, helpers in `libs/shared/interfaces/src/lib/epg-mapping-key.util.ts`); resolved on every EPG path (single + batch IPC lookups, portal detail views, preview queues); dialog: `libs/ui/components/src/lib/channel-list-container/epg-mapping-dialog/`
+- Followed Series: EPG programme dialogs and Xtream/Stalker series details feed a device-local, versioned schedule at `/workspace/followed-series`; a 14-day indexed EPG lookahead normalizes series/episode identity, groups alternative airings, reconciles schedule moves/cancellations, and arms a min-heap timer. The global countdown supports cancel/switch-now/disable, conflicts support prompt/priority/first-available, and the playback runtime uses bounded probes plus backup channels while respecting recording, casting, browser-background, and return-channel preferences. Canonical contract: `docs/architecture/followed-series-auto-switch.md`
 
 **TMDB Metadata Enrichment** (opt-in):
 

@@ -2,7 +2,7 @@
     <header class="shortcuts-dialog__header">
         <div class="shortcuts-dialog__title-block">
             <span class="shortcuts-dialog__hero-icon" aria-hidden="true">
-                <mat-icon>keyboard</mat-icon>
+                <mat-icon svgIcon="keyboard"></mat-icon>
             </span>
             <div>
                 <h2 mat-dialog-title>
@@ -13,7 +13,7 @@
         </div>
         <div class="shortcuts-dialog__header-actions">
             <span class="shortcuts-dialog__platform">
-                <mat-icon aria-hidden="true">{{ data.platformIcon }}</mat-icon>
+                <mat-icon aria-hidden="true" [svgIcon]="data.platformIcon"></mat-icon>
                 {{ data.platformLabelKey | translate }}
             </span>
             <button
@@ -23,7 +23,7 @@
                 [attr.aria-label]="'CLOSE' | translate"
                 (click)="close()"
             >
-                <mat-icon>close</mat-icon>
+                <mat-icon svgIcon="close"></mat-icon>
             </button>
         </div>
     </header>
@@ -37,7 +37,7 @@
                             class="shortcuts-dialog__group-icon"
                             aria-hidden="true"
                         >
-                            <mat-icon>{{ group.icon }}</mat-icon>
+                            <mat-icon [svgIcon]="group.icon"></mat-icon>
                         </span>
                         <h3>{{ group.labelKey | translate }}</h3>
                     </header>
@@ -49,7 +49,7 @@
                                     class="shortcuts-dialog__action-icon"
                                     aria-hidden="true"
                                 >
-                                    <mat-icon>{{ item.icon }}</mat-icon>
+                                    <mat-icon [svgIcon]="item.icon"></mat-icon>
                                 </span>
                                 <span class="shortcuts-dialog__label">
                                     {{ item.labelKey | translate }}

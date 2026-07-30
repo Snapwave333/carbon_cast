@@ -1,0 +1,41 @@
+{
+  "name": "CarbonCast IPTV",
+  "concept": "Signal Blade",
+  "tagline": "Stream more. Live better.",
+  "utilityLine": "Live channels. Fast access.",
+  "colors": {
+    "carbon_black": "#07090C",
+    "carbon_panel": "#11161B",
+    "carbon_lifted": "#171E25",
+    "racing_red": "#E10D1A",
+    "hot_red": "#FF2233",
+    "deep_red": "#850912",
+    "signal_orange": "#FF6A00",
+    "electric_cyan": "#00D8FF",
+    "paper_white": "#F4F7FA",
+    "steel": "#8C98A5",
+    "border": "#26313C"
+  },
+  "radii": {
+    "xs": "8px",
+    "sm": "12px",
+    "md": "16px",
+    "lg": "22px",
+    "xl": "28px",
+    "pill": "999px"
+  },
+  "motion": {
+    "fast": "120ms",
+    "normal": "180ms",
+    "slow": "280ms",
+    "ease": "cubic-bezier(.2,.8,.2,1)"
+  },
+  "semantic": {
+    "brand": "{colors.racing_red}",
+    "live": "{colors.racing_red}",
+    "upcoming": "{colors.signal_orange}",
+    "connected": "{colors.electric_cyan}",
+    "surface": "{colors.carbon_black}",
+    "panel": "{colors.carbon_panel}"
+  }
+}

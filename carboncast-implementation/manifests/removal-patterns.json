@@ -1,0 +1,50 @@
+{
+  "socialDomains": [
+    "twitter.com",
+    "x.com",
+    "facebook.com",
+    "instagram.com",
+    "tiktok.com",
+    "discord.gg",
+    "discord.com/invite",
+    "t.me",
+    "telegram.me",
+    "reddit.com/r/",
+    "mastodon.",
+    "matrix.to",
+    "youtube.com/@"
+  ],
+  "donationDomains": [
+    "buymeacoffee.com",
+    "ko-fi.com",
+    "patreon.com",
+    "paypal.me",
+    "opencollective.com",
+    "github.com/sponsors"
+  ],
+  "reviewTerms": [
+    "donate",
+    "donation",
+    "tip jar",
+    "support us",
+    "funding",
+    "sponsor",
+    "socialLinks",
+    "communityLink",
+    "donationUrl",
+    "fundingUrl"
+  ],
+  "neverBlindlyRemove": [
+    "clientId",
+    "userId",
+    "channelId",
+    "epgId",
+    "databaseId",
+    "subscription",
+    "billing",
+    "entitlement",
+    "license",
+    "copyright",
+    "upstream"
+  ]
+}

@@ -6,7 +6,7 @@
 >
     <header class="settings-group__header">
         <div class="settings-group__header-icon">
-            <mat-icon>list_alt</mat-icon>
+            <mat-icon svgIcon="list_alt"></mat-icon>
         </div>
         <div class="settings-group__header-text">
             <h3>{{ 'SETTINGS.EPG_SOURCES' | translate }}</h3>
@@ -40,7 +40,7 @@
                         role="radio"
                         (click)="selectEpgViewMode.emit(option.value)"
                     >
-                        <mat-icon>{{ option.icon }}</mat-icon>
+                        <mat-icon [svgIcon]="option.icon"></mat-icon>
                         <span>{{ option.labelKey | translate }}</span>
                     </button>
                 }
@@ -57,8 +57,7 @@
                         data-test-id="epg-sources-empty"
                     >
                         <mat-icon class="epg-sources-empty__icon"
-                            >event_busy</mat-icon
-                        >
+                             svgIcon="event_busy"></mat-icon>
                         <h4 class="epg-sources-empty__title">
                             {{ 'SETTINGS.EPG_EMPTY_TITLE' | translate }}
                         </h4>
@@ -103,7 +102,7 @@
                                     [disabled]="epgField.value === ''"
                                     (click)="refreshEpg.emit(epgUrl().value[i])"
                                 >
-                                    <mat-icon>refresh</mat-icon>
+                                    <mat-icon svgIcon="refresh"></mat-icon>
                                 </button>
                                 <button
                                     mat-icon-button
@@ -113,7 +112,7 @@
                                     type="button"
                                     (click)="removeEpgSource.emit(i)"
                                 >
-                                    <mat-icon>remove</mat-icon>
+                                    <mat-icon svgIcon="remove"></mat-icon>
                                 </button>
                             </div>
                         }
@@ -139,7 +138,7 @@
     <footer class="settings-group__footer">
         <div class="inline-actions">
             <button mat-button type="button" (click)="addEpgSource.emit()">
-                <mat-icon>add</mat-icon>
+                <mat-icon svgIcon="add"></mat-icon>
                 {{ 'SETTINGS.ADD_EPG_SOURCE' | translate }}
             </button>
             <button
@@ -148,7 +147,7 @@
                 [disabled]="epgUrl().length === 0 || isClearingEpgData()"
                 (click)="refreshAllEpg.emit()"
             >
-                <mat-icon>refresh</mat-icon>
+                <mat-icon svgIcon="refresh"></mat-icon>
                 {{ 'SETTINGS.REFRESH_ALL_EPG' | translate }}
             </button>
             <button

@@ -1,0 +1,14 @@
+.cc-splash {
+  min-height: 100dvh;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 24px;
+  color: #f4f7fa;
+  background: #07090c url('/branding/patterns/carbon-fiber-tile.svg');
+}
+.cc-splash__logo { width: min(560px, 78vw); height: auto; }
+.cc-splash__status { color: #8c98a5; letter-spacing: .08em; }
+.cc-splash__track { width: min(520px, 70vw); height: 6px; overflow: hidden; border-radius: 999px; background: #26313c; }
+.cc-splash__track > span { display: block; height: 100%; background: linear-gradient(90deg, #e10d1a, #ff6a00, #00d8ff); transition: width 180ms cubic-bezier(.2,.8,.2,1); }
+@media (prefers-reduced-motion: reduce) { .cc-splash__track > span { transition: none; } }

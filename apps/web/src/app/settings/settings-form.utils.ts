@@ -7,10 +7,12 @@ import {
 import {
     CoverSize,
     DEFAULT_DASHBOARD_RAILS_SETTINGS,
+    DEFAULT_PLAYER_CONTROLS_SETTINGS,
     DEFAULT_TMDB_SETTINGS,
     EpgViewMode,
     Language,
     normalizeDashboardRailsSettings,
+    normalizePlayerControlsSettings,
     normalizeExternalPlayerArguments,
     Settings,
     StartupBehavior,
@@ -32,6 +34,13 @@ export function createSettingsForm(
     return formBuilder.group({
         player: [VideoPlayer.VideoJs],
         webPlayerSharedControls: false,
+        playerControls: formBuilder.group({
+            visible: DEFAULT_PLAYER_CONTROLS_SETTINGS.visible,
+            autoHideDelayMs: DEFAULT_PLAYER_CONTROLS_SETTINGS.autoHideDelayMs,
+            density: DEFAULT_PLAYER_CONTROLS_SETTINGS.density,
+            opacity: DEFAULT_PLAYER_CONTROLS_SETTINGS.opacity,
+            size: DEFAULT_PLAYER_CONTROLS_SETTINGS.size,
+        }),
         playerAmbientMode: false,
         playerUpNextRail: true,
         ...(supportsEpg
@@ -59,7 +68,7 @@ export function createSettingsForm(
         showExternalPlaybackBar: true,
         stripCountryPrefix: false,
         theme: Theme.SystemTheme,
-        mirrorLayout: false,
+        mirrorLayout: true,
         mpvPlayerPath: '',
         mpvPlayerArguments: '',
         mpvReuseInstance: false,
@@ -120,6 +129,7 @@ export function createSettingsFromFormValue(
     return {
         player: value.player ?? VideoPlayer.VideoJs,
         webPlayerSharedControls: value.webPlayerSharedControls ?? false,
+        playerControls: normalizePlayerControlsSettings(value.playerControls),
         playerAmbientMode: value.playerAmbientMode ?? false,
         playerUpNextRail: value.playerUpNextRail ?? true,
         streamFormat: value.streamFormat ?? StreamFormat.AutoStreamFormat,
@@ -132,7 +142,7 @@ export function createSettingsFromFormValue(
         showExternalPlaybackBar: value.showExternalPlaybackBar ?? true,
         stripCountryPrefix: value.stripCountryPrefix ?? false,
         theme: value.theme ?? Theme.SystemTheme,
-        mirrorLayout: value.mirrorLayout ?? false,
+        mirrorLayout: value.mirrorLayout ?? true,
         mpvPlayerPath: normalizeExternalPlayerPath(value.mpvPlayerPath),
         mpvPlayerArguments: normalizeExternalPlayerArguments(
             value.mpvPlayerArguments

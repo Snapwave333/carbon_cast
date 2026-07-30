@@ -1,6 +1,6 @@
 {
     "appId": "com.fourgray.iptvnator",
-    "productName": "IPTVnator",
+    "productName": "CarbonCast IPTV",
     "artifactName": "${name}-${version}-${os}-${arch}.${ext}",
     "fileAssociations": [
         {
@@ -53,7 +53,7 @@
     ],
     "extraMetadata": {
         "name": "iptvnator",
-        "productName": "IPTVnator",
+        "productName": "CarbonCast IPTV",
         "main": "electron-backend/main.js"
     },
     "extraResources": ["dist/apps/electron-backend/workers"],

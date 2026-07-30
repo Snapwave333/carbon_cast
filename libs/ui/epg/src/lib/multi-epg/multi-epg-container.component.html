@@ -1,27 +1,30 @@
 <div id="epg-navigation">
   <button
     [matTooltip]="'CLOSE' | translate"
+    [attr.aria-label]="'CLOSE' | translate"
     mat-icon-button
     (click)="close()"
     >
-    <mat-icon>close</mat-icon>
+    <mat-icon svgIcon="close"></mat-icon>
   </button>
   <button
     [matTooltip]="'EPG.PREVIOUS_DAY' | translate"
+    [attr.aria-label]="'EPG.PREVIOUS_DAY' | translate"
     mat-icon-button
     (click)="switchDay('prev')"
     >
-    <mat-icon>chevron_left</mat-icon>
+    <mat-icon svgIcon="chevron_left"></mat-icon>
   </button>
   <div class="today-date">
     {{ selectedDayDate() | date: 'MMMM d, EEEE' : undefined : currentLocale() }}
   </div>
   <button
     [matTooltip]="'EPG.NEXT_DAY' | translate"
+    [attr.aria-label]="'EPG.NEXT_DAY' | translate"
     mat-icon-button
     (click)="switchDay('next')"
     >
-    <mat-icon>chevron_right</mat-icon>
+    <mat-icon svgIcon="chevron_right"></mat-icon>
   </button>
   <button
     mat-icon-button
@@ -30,7 +33,7 @@
     [matTooltip]="'EPG.ZOOM_OUT' | translate"
     [attr.aria-label]="'EPG.ZOOM_OUT' | translate"
   >
-    <mat-icon>remove</mat-icon>
+    <mat-icon svgIcon="remove"></mat-icon>
   </button>
   <button
     mat-icon-button
@@ -39,13 +42,13 @@
     [matTooltip]="'EPG.ZOOM_IN' | translate"
     [attr.aria-label]="'EPG.ZOOM_IN' | translate"
   >
-    <mat-icon>add</mat-icon>
+    <mat-icon svgIcon="add"></mat-icon>
   </button>
 
   <div class="search-container" [class.expanded]="isSearchExpanded()">
     @if (isSearchExpanded()) {
       <div class="channel-search">
-        <mat-icon class="search-icon">search</mat-icon>
+        <mat-icon class="search-icon" svgIcon="search"></mat-icon>
         <input
           type="text"
           [value]="channelFilter()"
@@ -55,8 +58,13 @@
           #searchInput
         />
         @if (channelFilter()) {
-          <button class="clear-btn" (click)="clearFilter()">
-            <mat-icon>clear</mat-icon>
+          <button
+            class="clear-btn"
+            (click)="clearFilter()"
+            [matTooltip]="'EPG.CLEAR_FILTER' | translate"
+            [attr.aria-label]="'EPG.CLEAR_FILTER' | translate"
+          >
+            <mat-icon svgIcon="clear"></mat-icon>
           </button>
         }
       </div>
@@ -74,7 +82,7 @@
           | translate
       "
       >
-      <mat-icon>{{ isSearchExpanded() ? 'filter_list_off' : 'filter_list' }}</mat-icon>
+      <mat-icon [svgIcon]="isSearchExpanded() ? 'filter_list_off' : 'filter_list'"></mat-icon>
     </button>
   </div>
 
@@ -82,7 +90,7 @@
   <div class="program-search-container" [class.open]="isProgramSearchOpen()">
     @if (isProgramSearchOpen()) {
       <div class="program-search-input">
-        <mat-icon class="search-icon">manage_search</mat-icon>
+        <mat-icon class="search-icon" svgIcon="manage_search"></mat-icon>
         <input
           type="text"
           [value]="programSearchQuery()"
@@ -92,8 +100,13 @@
           #programSearchInput
         />
         @if (programSearchQuery()) {
-          <button class="clear-btn" (click)="clearProgramSearch()">
-            <mat-icon>clear</mat-icon>
+          <button
+            class="clear-btn"
+            (click)="clearProgramSearch()"
+            [matTooltip]="'EPG.CLEAR_PROGRAM_SEARCH' | translate"
+            [attr.aria-label]="'EPG.CLEAR_PROGRAM_SEARCH' | translate"
+          >
+            <mat-icon svgIcon="clear"></mat-icon>
           </button>
         }
         @if (isSearchingPrograms()) {
@@ -117,14 +130,14 @@
                   </span>
                 </span>
               </div>
-              <mat-icon class="result-arrow">arrow_forward</mat-icon>
+              <mat-icon class="result-arrow" svgIcon="arrow_forward"></mat-icon>
             </button>
           }
         </div>
       }
       @if (programSearchQuery().length >= 2 && programSearchResults().length === 0 && !isSearchingPrograms()) {
         <div class="program-search-empty">
-          <mat-icon>search_off</mat-icon>
+          <mat-icon svgIcon="search_off"></mat-icon>
           <span>No programs found</span>
         </div>
       }
@@ -145,7 +158,7 @@
         ) | translate
       "
       >
-      <mat-icon>{{ isProgramSearchOpen() ? 'close' : 'manage_search' }}</mat-icon>
+      <mat-icon [svgIcon]="isProgramSearchOpen() ? 'close' : 'manage_search'"></mat-icon>
     </button>
   </div>
 </div>
@@ -270,7 +283,7 @@
 <!-- Empty state when no channels match filter -->
 @if (filteredChannels().length === 0 && channelFilter()) {
   <div class="no-results">
-    <mat-icon>search_off</mat-icon>
+    <mat-icon svgIcon="search_off"></mat-icon>
     <p>No channels match "{{ channelFilter() }}"</p>
     <button mat-button (click)="clearFilter()">Clear filter</button>
   </div>

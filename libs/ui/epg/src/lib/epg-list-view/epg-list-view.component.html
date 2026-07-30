@@ -17,7 +17,7 @@
                     | translate
             "
         >
-            <span class="cc"><mat-icon>keyboard_arrow_down</mat-icon></span>
+            <span class="cc"><mat-icon svgIcon="keyboard_arrow_down"></mat-icon></span>
             <span class="gt">
                 <b>{{ channelName() }}</b>
                 <span class="src">{{ sourceLabel() }}</span>
@@ -53,7 +53,7 @@
                     }
                 } @else {
                     <span class="cn-tag arch">
-                        <mat-icon>play_arrow</mat-icon>
+                        <mat-icon svgIcon="play_arrow"></mat-icon>
                         {{ 'EPG.ARCHIVE_PLAYBACK' | translate }}
                     </span>
                     <span class="cn-title">{{ summary()?.title }}</span>
@@ -86,7 +86,7 @@
                     (click)="jumpToNow()"
                     [matTooltip]="'EPG.TIMELINE.JUMP_NOW' | translate"
                 >
-                    <mat-icon>my_location</mat-icon>
+                    <mat-icon svgIcon="my_location"></mat-icon>
                     {{ 'EPG.TIMELINE.NOW' | translate }}
                 </button>
             }
@@ -98,7 +98,7 @@
                         [attr.aria-label]="'EPG.PREVIOUS_DAY' | translate"
                         (click)="stepDay('prev')"
                     >
-                        <mat-icon>chevron_left</mat-icon>
+                        <mat-icon svgIcon="chevron_left"></mat-icon>
                     </button>
                     <div class="d">
                         <span>
@@ -121,7 +121,7 @@
                         [attr.aria-label]="'EPG.NEXT_DAY' | translate"
                         (click)="stepDay('next')"
                     >
-                        <mat-icon>chevron_right</mat-icon>
+                        <mat-icon svgIcon="chevron_right"></mat-icon>
                     </button>
                 </div>
             }
@@ -132,7 +132,7 @@
         <!-- schedule-only notice (provider exposes history but no catch-up) -->
         @if (state === 'list' && !archivePlaybackAvailable()) {
             <div class="g-notice" role="note">
-                <mat-icon>info</mat-icon>
+                <mat-icon svgIcon="info"></mat-icon>
                 <span>{{ 'EPG.TIMELINE.SCHEDULE_ONLY_NOTICE' | translate }}</span>
             </div>
         }
@@ -178,7 +178,7 @@
                                 >
                             }
                             <span class="ns-jump">
-                                <mat-icon>arrow_upward</mat-icon>
+                                <mat-icon svgIcon="arrow_upward"></mat-icon>
                                 {{ 'EPG.TIMELINE.NOW' | translate }}
                             </span>
                         </button>

@@ -125,6 +125,48 @@ describe('SettingsStore dashboard rail settings', () => {
         expect(store.getSettings().webPlayerSharedControls).toBe(false);
     });
 
+    it('uses the left-player layout and bottom-control defaults for fresh profiles', async () => {
+        storedSettings = {};
+        const store = injector.get(SettingsStore);
+
+        await store.loadSettings();
+
+        expect(store.getSettings().mirrorLayout).toBe(true);
+        expect(store.getSettings().playerControls).toEqual({
+            visible: true,
+            autoHideDelayMs: 2500,
+            density: 'expanded',
+            opacity: 'translucent',
+            size: 'medium',
+        });
+    });
+
+    it('keeps an explicit saved right-rail layout preference', async () => {
+        storedSettings = { mirrorLayout: false };
+        const store = injector.get(SettingsStore);
+
+        await store.loadSettings();
+
+        expect(store.getSettings().mirrorLayout).toBe(false);
+    });
+
+    it('normalizes partial stored bottom-control preferences', async () => {
+        storedSettings = {
+            playerControls: { visible: false, autoHideDelayMs: 999_999 },
+        };
+        const store = injector.get(SettingsStore);
+
+        await store.loadSettings();
+
+        expect(store.getSettings().playerControls).toEqual({
+            visible: false,
+            autoHideDelayMs: 30_000,
+            density: 'expanded',
+            opacity: 'translucent',
+            size: 'medium',
+        });
+    });
+
     it('restores a persisted true shared web controls preference', async () => {
         storedSettings = {
             webPlayerSharedControls: true,

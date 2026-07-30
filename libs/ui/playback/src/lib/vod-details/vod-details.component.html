@@ -134,7 +134,7 @@
                 [class.play-btn--state-stop]="externalPrimaryButtonState() === 'stop'"
             >
                 <span class="play-btn__icon-shell" aria-hidden="true">
-                    <mat-icon class="play-btn__icon">{{ externalPrimaryIcon() }}</mat-icon>
+                    <mat-icon class="play-btn__icon" [svgIcon]="externalPrimaryIcon()"></mat-icon>
                 </span>
                 <span class="play-btn__label">
                     @if (externalPrimaryLabel(); as label) {
@@ -146,7 +146,7 @@
             </button>
             @if (!isExternalStopAction()) {
                 <button class="play-btn play-btn--restart" (click)="onPlay()">
-                    <mat-icon>replay</mat-icon>
+                    <mat-icon svgIcon="replay"></mat-icon>
                     {{ 'XTREAM.RESTART' | translate }}
                 </button>
             }
@@ -159,7 +159,7 @@
                 [class.play-btn--state-stop]="externalPrimaryButtonState() === 'stop'"
             >
                 <span class="play-btn__icon-shell" aria-hidden="true">
-                    <mat-icon class="play-btn__icon">{{ externalPrimaryIcon() }}</mat-icon>
+                    <mat-icon class="play-btn__icon" [svgIcon]="externalPrimaryIcon()"></mat-icon>
                 </span>
                 <span class="play-btn__label">
                     @if (externalPrimaryLabel(); as label) {
@@ -174,7 +174,7 @@
         <!-- Favorites button -->
         @if (!isFavorite()) {
             <button class="favorite-btn" (click)="toggleFavorite()">
-                <mat-icon>add</mat-icon>
+                <mat-icon svgIcon="add"></mat-icon>
                 {{ 'PORTALS.ADD_TO_FAVORITES' | translate }}
             </button>
         } @else {
@@ -182,7 +182,7 @@
                 class="favorite-btn favorite-btn--active"
                 (click)="toggleFavorite()"
             >
-                <mat-icon>check</mat-icon>
+                <mat-icon svgIcon="check"></mat-icon>
                 {{ 'PORTALS.REMOVE_FROM_FAVORITES' | translate }}
             </button>
         }
@@ -191,7 +191,7 @@
         @if (isElectron()) {
             @if (isDownloaded()) {
                 <button class="download-btn download-btn--completed" (click)="playFromLocal()">
-                    <mat-icon>play_circle</mat-icon>
+                    <mat-icon svgIcon="play_circle"></mat-icon>
                     {{ 'DOWNLOADS.PLAY_LOCAL' | translate }}
                 </button>
             } @else if (isPausedDownload()) {
@@ -199,17 +199,17 @@
                     class="download-btn download-btn--paused"
                     (click)="resumePausedDownload()"
                 >
-                    <mat-icon>play_arrow</mat-icon>
+                    <mat-icon svgIcon="play_arrow"></mat-icon>
                     {{ 'DOWNLOADS.RESUME' | translate }}
                 </button>
             } @else if (isDownloading()) {
                 <button class="download-btn download-btn--downloading" disabled>
-                    <mat-icon>downloading</mat-icon>
+                    <mat-icon svgIcon="downloading"></mat-icon>
                     {{ 'DOWNLOADS.STATUS.DOWNLOADING' | translate }}
                 </button>
             } @else {
                 <button class="download-btn" (click)="onDownload()">
-                    <mat-icon>download</mat-icon>
+                    <mat-icon svgIcon="download"></mat-icon>
                     {{ 'DOWNLOADS.DOWNLOAD' | translate }}
                 </button>
             }

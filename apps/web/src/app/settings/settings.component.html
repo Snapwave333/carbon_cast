@@ -129,7 +129,7 @@
                         (click)="backToHome()"
                         data-test-id="back-to-home"
                     >
-                        <mat-icon>close</mat-icon>
+                        <mat-icon svgIcon="close"></mat-icon>
                         {{ 'CLOSE' | translate }}
                     </button>
                 }
@@ -140,7 +140,7 @@
                     [disabled]="settingsForm.pristine || !settingsForm.valid"
                     data-test-id="save-settings"
                 >
-                    <mat-icon>save</mat-icon>
+                    <mat-icon svgIcon="save"></mat-icon>
                     {{ 'SETTINGS.SAVE_CHANGES' | translate }}
                 </button>
             </footer>

@@ -1,4 +1,5 @@
 export * from './lib/channel-drm.interface';
+export * from './lib/agent-control.interface';
 export * from './lib/channel.interface';
 export * from './lib/channel.model';
 export * from './lib/dev-logger.util';
@@ -12,6 +13,7 @@ export * from './lib/epg-mapping-key.util';
 export * from './lib/epg-program.model';
 export * from './lib/external-player-arguments.utils';
 export * from './lib/external-player-session.interface';
+export * from './lib/followed-series.model';
 export * from './lib/global-search-result.interface';
 export * from './lib/indexed-db.config';
 export * from './lib/ipc-command.class';

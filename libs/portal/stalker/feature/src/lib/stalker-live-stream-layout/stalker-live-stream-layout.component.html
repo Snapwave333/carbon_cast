@@ -36,7 +36,7 @@
                     [matTooltip]="'PORTALS.REFRESH_CHANNEL_LIST' | translate"
                     (click)="refreshChannels()"
                 >
-                    <mat-icon>refresh</mat-icon>
+                    <mat-icon svgIcon="refresh"></mat-icon>
                 </button>
             }
             <button
@@ -47,7 +47,7 @@
                 [attr.aria-pressed]="isSidebarCollapsed()"
                 (click)="toggleSidebar()"
             >
-                <mat-icon>chevron_left</mat-icon>
+                <mat-icon svgIcon="chevron_left"></mat-icon>
             </button>
         </div>
 
@@ -141,7 +141,7 @@
             [attr.aria-pressed]="isSidebarCollapsed()"
             (click)="toggleSidebar()"
         >
-            <mat-icon>chevron_right</mat-icon>
+            <mat-icon svgIcon="chevron_right"></mat-icon>
         </button>
     }
     @if (!stalkerStore.selectedItem() && !stalkerStore.selectedCategoryId()) {
@@ -268,7 +268,7 @@
 
 <mat-menu #channelContextMenu="matMenu">
     <button mat-menu-item (click)="openEpgMapping()">
-        <mat-icon>settings_remote</mat-icon>
+        <mat-icon svgIcon="settings_remote"></mat-icon>
         <span>{{ 'CHANNELS.MAP_EPG' | translate }}</span>
     </button>
 </mat-menu>

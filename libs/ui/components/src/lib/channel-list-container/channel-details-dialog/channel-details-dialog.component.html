@@ -54,7 +54,7 @@
         @for (stat of heroStats; track stat.labelKey) {
             <article class="channel-stat">
                 <div class="channel-stat__icon">
-                    <mat-icon>{{ stat.icon }}</mat-icon>
+                    <mat-icon [svgIcon]="stat.icon"></mat-icon>
                 </div>
                 <div class="channel-stat__label">
                     {{ stat.labelKey | translate }}
@@ -91,8 +91,14 @@
                     mat-icon-button
                     class="channel-dialog__copy-btn"
                     [cdkCopyToClipboard]="channel.url"
+                    [matTooltip]="
+                        'CHANNELS.DETAILS_DIALOG.COPY_URL' | translate
+                    "
+                    [attr.aria-label]="
+                        'CHANNELS.DETAILS_DIALOG.COPY_URL' | translate
+                    "
                 >
-                    <mat-icon>content_copy</mat-icon>
+                    <mat-icon svgIcon="content_copy"></mat-icon>
                 </button>
             </div>
 
@@ -229,7 +235,7 @@
 <mat-dialog-actions class="channel-dialog__actions">
     @if (supportsEpgMapping) {
         <button mat-stroked-button (click)="openEpgMapping()">
-            <mat-icon>settings_remote</mat-icon>
+            <mat-icon svgIcon="settings_remote"></mat-icon>
             {{ 'CHANNELS.MAP_EPG' | translate }}
         </button>
     }

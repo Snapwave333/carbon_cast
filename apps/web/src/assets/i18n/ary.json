@@ -344,11 +344,6 @@
         "LINK_BLOG": "المدونة",
         "LINK_GITHUB_DESCRIPTION": "حط نجمة على المستودع، حل مشكل، ولا ساهم",
         "LINK_BLOG_DESCRIPTION": "ملاحظات الإصدار، نصائح، وتحديثات المشروع",
-        "LINK_TELEGRAM_DESCRIPTION": "إعلانات، مجتمع، ودعم",
-        "SUPPORT_TITLE": "دعم المشروع",
-        "SUPPORT_DESCRIPTION": "IPTVnator مجاني ومفتوح المصدر، مبني بشكل مفتوح. إلى كان جزء من روتينك اليومي، مساهمة صغيرة كتعاون باش يبقى المشروع حي وتشكل اللي غادي يجي — شكرا.",
-        "SUPPORT_SPONSORS_HINT": "متكرر ولا مرة وحدة",
-        "SUPPORT_KOFI_HINT": "شري ليا قهوة",
         "EPG_NOTE": "EPG متوفر حالياً غير في الإصدار اللي مبني على electron ديال IPTVnator.",
         "EPG_NOTE_URL_TEXT": "شوف هنا",
         "IMPORT_EXPORT_DATA": "استورد/صدّر قوائم التشغيل",
@@ -451,7 +446,11 @@
         "APP_UPDATE_RELEASE_NOTES": "What's new",
         "EMBEDDED_MPV_FRAME_COPY": "MPV المدمج: محرك نسخ الإطارات (تجريبي)",
         "EMBEDDED_MPV_FRAME_COPY_DESCRIPTION": "الفيديو كيترسم على لوحة التطبيق باش القوائم والحوارات يبانو فوقو.",
-        "EMBEDDED_MPV_FRAME_COPY_RESTART": "غادي يخدم من بعد ما تعاود تشغل التطبيق."
+        "EMBEDDED_MPV_FRAME_COPY_RESTART": "غادي يخدم من بعد ما تعاود تشغل التطبيق.",
+        "ATTRIBUTION": "Attribution",
+        "ATTRIBUTION_DESCRIPTION": "CarbonCast IPTV is a fork of IPTVnator (github.com/4gray/iptvnator). The upstream project and its contributors are credited under the original license. CarbonCast IPTV is an independent fork and is not endorsed by the upstream maintainers.",
+        "MIRROR_LAYOUT": "Mirror layout",
+        "MIRROR_LAYOUT_DESCRIPTION": "Put the player on the left and the channel/category rail on the right. Applies to the playlist player and Xtream/Stalker live views."
     },
     "THEMES": {
         "DARK_THEME": "داكن",
@@ -611,6 +610,7 @@
             "NAME": "الاسم",
             "CHANNEL_ID": "ID ديال القناة",
             "STREAM_URL": "رابط البث",
+            "COPY_URL": "Copy stream URL",
             "GROUP": "المجموعة",
             "RADIO": "راديو",
             "CATCHUP_AVAILABLE": "Catchup متوفر",
@@ -654,8 +654,10 @@
         "ZOOM_OUT": "صغر",
         "FILTER_CHANNELS": "فلتر القنوات",
         "CLOSE_FILTER": "سد الفلتر",
+        "CLEAR_FILTER": "Clear filter",
         "SEARCH_PROGRAMS": "قلب على البرامج",
         "CLOSE_PROGRAM_SEARCH": "سد البحث على البرامج",
+        "CLEAR_PROGRAM_SEARCH": "Clear program search",
         "LIVE_STREAM": "بث مباشر",
         "ARCHIVE_PLAYBACK_UNAVAILABLE_TITLE": "تشغيل الأرشيف ما متوفرش",
         "ARCHIVE_PLAYBACK_UNAVAILABLE_DESCRIPTION": "هاد المزود كيوفر تاريخ جدول البرامج للقناة، ولكن ما كيوفرش تشغيل أرشيف/Catchup.",
@@ -965,6 +967,7 @@
         },
         "SEARCH_VIEW": {
             "INITIAL_TITLE": "قلب على محتوى",
+            "CLEAR": "Clear search",
             "INITIAL_DESCRIPTION": "دخل على الأقل 3 حروف باش تقلب في البث المباشر، الأفلام والسلاسل.",
             "RESULTS_FOUND": "تلقاو {{count}} ديال النتايج",
             "NO_RESULTS_FOR": "ما تلقاو حتى نتيجة لـ \"{{term}}\"",
@@ -1241,7 +1244,8 @@
             "XTREAM_REFRESH_DELETING_CATEGORIES": "كنحيدو التصنيفات المخزنة...",
             "XTREAM_REFRESH_DETAIL_LOCAL": "كنخليو المفضلات، تاريخ المشاهدة، التصنيفات المخفية، وتقدم التشغيل واجدين باش يرجعو من بعد المزامنة.",
             "XTREAM_REFRESH_PROGRESS": "السجلات المحلية اللي تجهزات: {{current}} / {{total}}",
-            "RAIL_RADIO": "Radio"
+            "RAIL_RADIO": "Radio",
+            "RAIL_FOLLOWED_SERIES": "Followed series"
         },
         "SOURCES": {
             "TITLE": "المصادر",

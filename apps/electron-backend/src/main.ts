@@ -21,6 +21,7 @@ import { shutdownVlcSession } from './app/events/vlc-session.service';
 import PlaylistEvents from './app/events/playlist.events';
 import PlaylistOpenEvents from './app/events/playlist-open.events';
 import RemoteControlEvents from './app/events/remote-control.events';
+import AgentControlEvents from './app/events/agent-control.events';
 import SettingsEvents from './app/events/settings.events';
 import SharedEvents from './app/events/shared.events';
 import SquirrelEvents from './app/events/squirrel.events';
@@ -155,6 +156,7 @@ export default class Main {
         DatabaseEvents.bootstrapDatabaseEvents();
         EpgEvents.bootstrapEpgEvents();
         RemoteControlEvents.bootstrapRemoteControlEvents();
+        AgentControlEvents.bootstrapAgentControlEvents();
 
         // Keep the downloads broadcaster bound to the live window. macOS can
         // rebuild the window while the process runs, and a stale reference

@@ -25,6 +25,64 @@ export type CoverSize = 'small' | 'medium' | 'large';
 /** Rendering of the live EPG panel under the player. */
 export type EpgViewMode = 'timeline' | 'list';
 
+export type PlayerControlsDensity = 'compact' | 'expanded';
+export type PlayerControlsOpacity = 'solid' | 'translucent';
+export type PlayerControlsSize = 'small' | 'medium' | 'large';
+
+/** Persisted presentation preferences for the bottom shared player bar. */
+export interface PlayerControlsSettings {
+    visible: boolean;
+    /** Zero keeps controls visible while playback continues. */
+    autoHideDelayMs: number;
+    density: PlayerControlsDensity;
+    opacity: PlayerControlsOpacity;
+    size: PlayerControlsSize;
+}
+
+export interface PlayerControlsSettingsInput {
+    visible?: boolean | null;
+    autoHideDelayMs?: number | null;
+    density?: PlayerControlsDensity | null;
+    opacity?: PlayerControlsOpacity | null;
+    size?: PlayerControlsSize | null;
+}
+
+export const DEFAULT_PLAYER_CONTROLS_SETTINGS: PlayerControlsSettings = {
+    visible: true,
+    autoHideDelayMs: 2500,
+    density: 'expanded',
+    opacity: 'translucent',
+    size: 'medium',
+};
+
+export function normalizePlayerControlsSettings(
+    settings?: PlayerControlsSettingsInput | null
+): PlayerControlsSettings {
+    const source = settings ?? {};
+    const delay = source.autoHideDelayMs;
+    return {
+        visible: source.visible !== false,
+        autoHideDelayMs:
+            typeof delay === 'number' && Number.isFinite(delay)
+                ? Math.max(0, Math.min(30_000, Math.round(delay)))
+                : DEFAULT_PLAYER_CONTROLS_SETTINGS.autoHideDelayMs,
+        density:
+            source.density === 'compact' || source.density === 'expanded'
+                ? source.density
+                : DEFAULT_PLAYER_CONTROLS_SETTINGS.density,
+        opacity:
+            source.opacity === 'solid' || source.opacity === 'translucent'
+                ? source.opacity
+                : DEFAULT_PLAYER_CONTROLS_SETTINGS.opacity,
+        size:
+            source.size === 'small' ||
+            source.size === 'medium' ||
+            source.size === 'large'
+                ? source.size
+                : DEFAULT_PLAYER_CONTROLS_SETTINGS.size,
+    };
+}
+
 export interface DashboardRailsSettings {
     hero: boolean;
     continueWatching: boolean;
@@ -83,6 +141,8 @@ export interface Settings {
      * Missing values remain off for compatibility with older saved settings.
      */
     webPlayerSharedControls?: boolean;
+    /** Layout and visibility settings for the bottom shared player controls. */
+    playerControls?: PlayerControlsSettingsInput;
     /**
      * Fill the empty space around the inline VOD/series player with a blurred,
      * dimmed copy of the poster (YouTube "Ambient mode" style) instead of plain
@@ -110,8 +170,8 @@ export interface Settings {
     theme: Theme;
     /**
      * Mirror the live layout so the player sits on the left and the
-     * channel/category rail on the right. Off by default; affects the M3U
-     * player page and the Xtream/Stalker live-stream layouts.
+     * channel/category rail on the right. Fresh profiles default on; explicit
+     * saved preferences remain authoritative for existing users.
      */
     mirrorLayout?: boolean;
     mpvPlayerPath: string;

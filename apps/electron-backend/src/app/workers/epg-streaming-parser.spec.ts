@@ -45,6 +45,45 @@ describe('parseXmltvDate', () => {
 });
 
 describe('StreamingEpgParser', () => {
+    it('preserves stable series and episode metadata from XMLTV', () => {
+        const batches: ParsedProgram[][] = [];
+        const parser = new StreamingEpgParser(
+            () => undefined,
+            (programs) => batches.push(programs),
+            () => undefined
+        );
+
+        parser.write(
+            '<tv><programme id="program-7" series-id="series-2" start="20260415053700 +0000" stop="20260415062100 +0000" channel="channel-1"><title>The Show</title><sub-title>The Return</sub-title><series-id>series-2</series-id><programme-id>program-7</programme-id><new/></programme></tv>'
+        );
+        parser.finish();
+
+        expect(batches.flat()[0]).toEqual(
+            expect.objectContaining({
+                programId: 'program-7',
+                seriesId: 'series-2',
+                subTitle: [{ lang: '', value: 'The Return' }],
+                isNew: true,
+                previouslyShown: false,
+            })
+        );
+    });
+
+    it('marks previously shown episodes as repeats', () => {
+        const batches: ParsedProgram[][] = [];
+        const parser = new StreamingEpgParser(
+            () => undefined,
+            (programs) => batches.push(programs),
+            () => undefined
+        );
+        parser.write(
+            '<tv><programme start="20260415053700 +0000" stop="20260415062100 +0000" channel="channel-1"><title>The Show</title><previously-shown/></programme></tv>'
+        );
+        parser.finish();
+
+        expect(batches.flat()[0].previouslyShown).toBe(true);
+    });
+
     it('flushes pending channels before the first programme batch', () => {
         const callbackOrder: string[] = [];
         const channelIdsByBatch: string[][] = [];

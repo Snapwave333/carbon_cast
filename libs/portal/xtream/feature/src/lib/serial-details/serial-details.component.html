@@ -42,7 +42,12 @@
                     <span class="label">{{ 'XTREAM.CAST' | translate }}</span>
                     @if (info.tmdb_cast?.length) {
                         <div class="details__cast-strip">
-                            @for (member of info.tmdb_cast; track member.tmdbPersonId ? 'p' + member.tmdbPersonId : 'i' + $index) {
+                            @for (
+                                member of info.tmdb_cast;
+                                track member.tmdbPersonId
+                                    ? 'p' + member.tmdbPersonId
+                                    : 'i' + $index
+                            ) {
                                 <span
                                     class="details__cast-chip"
                                     [class.details__cast-chip--clickable]="
@@ -84,10 +89,17 @@
             }
             @if (info.director || info.tmdb_directors?.length) {
                 <div class="details__meta-item">
-                    <span class="label">{{ 'XTREAM.DIRECTOR' | translate }}</span>
+                    <span class="label">{{
+                        'XTREAM.DIRECTOR' | translate
+                    }}</span>
                     @if (info.tmdb_directors?.length) {
                         <div class="details__cast-strip">
-                            @for (member of info.tmdb_directors; track member.tmdbPersonId ? 'p' + member.tmdbPersonId : 'i' + $index) {
+                            @for (
+                                member of info.tmdb_directors;
+                                track member.tmdbPersonId
+                                    ? 'p' + member.tmdbPersonId
+                                    : 'i' + $index
+                            ) {
                                 <span
                                     class="details__cast-chip"
                                     [class.details__cast-chip--clickable]="
@@ -132,15 +144,15 @@
                     [disabled]="action.disabled"
                 >
                     <span class="play-btn__icon-shell" aria-hidden="true">
-                        <mat-icon class="play-btn__icon">{{
-                            action.icon
-                        }}</mat-icon>
+                        <mat-icon
+                            class="play-btn__icon"
+                            [svgIcon]="action.icon"
+                        ></mat-icon>
                     </span>
                     <span class="play-btn__copy">
                         <span class="play-btn__label">
                             {{
-                                action.labelKey
-                                    | translate: action.labelParams
+                                action.labelKey | translate: action.labelParams
                             }}
                         </span>
                         <span class="play-btn__meta">
@@ -151,7 +163,7 @@
             }
             @if (!isFavorite()) {
                 <button class="favorite-btn" (click)="toggleFavorite()">
-                    <mat-icon>add</mat-icon>
+                    <mat-icon svgIcon="add"></mat-icon>
                     {{ 'PORTALS.ADD_TO_FAVORITES' | translate }}
                 </button>
             } @else {
@@ -159,10 +171,17 @@
                     class="favorite-btn favorite-btn--active"
                     (click)="toggleFavorite()"
                 >
-                    <mat-icon>check</mat-icon>
+                    <mat-icon svgIcon="check"></mat-icon>
                     {{ 'PORTALS.REMOVE_FROM_FAVORITES' | translate }}
                 </button>
             }
+            <app-follow-series-button
+                source="xtream"
+                [seriesTitle]="info.name"
+                [seriesId]="item.series_id"
+                [sourcePlaylistId]="currentPlaylistId()"
+                [artworkUrl]="info.cover || null"
+            />
         </ng-template>
 
         @if (inlinePlayback(); as playback) {
@@ -239,15 +258,16 @@
                         }
                         @for (
                             item of similarInPortals();
-                            track 'x' + item.match.playlistId + '-' + item.match.xtreamId
+                            track 'x' +
+                                item.match.playlistId +
+                                '-' +
+                                item.match.xtreamId
                         ) {
                             <button
                                 type="button"
                                 class="details__similar-card"
                                 [title]="
-                                    item.title +
-                                    ' — ' +
-                                    item.match.playlistName
+                                    item.title + ' — ' + item.match.playlistName
                                 "
                                 (click)="openSimilarInPortals(item)"
                             >

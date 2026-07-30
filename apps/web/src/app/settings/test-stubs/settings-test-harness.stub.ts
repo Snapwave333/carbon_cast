@@ -79,6 +79,13 @@ export const DEFAULT_DASHBOARD_RAILS = {
 export const DEFAULT_SETTINGS = {
     player: VideoPlayer.VideoJs,
     webPlayerSharedControls: false,
+    playerControls: {
+        visible: true,
+        autoHideDelayMs: 2500,
+        density: 'expanded',
+        opacity: 'translucent',
+        size: 'medium',
+    },
     playerAmbientMode: false,
     playerUpNextRail: true,
     streamFormat: StreamFormat.AutoStreamFormat,
@@ -90,7 +97,7 @@ export const DEFAULT_SETTINGS = {
     showExternalPlaybackBar: true,
     stripCountryPrefix: false,
     theme: Theme.SystemTheme,
-    mirrorLayout: false,
+    mirrorLayout: true,
     mpvPlayerPath: '',
     mpvPlayerArguments: '',
     mpvReuseInstance: false,

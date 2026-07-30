@@ -16,6 +16,7 @@ import {
 import { filter, firstValueFrom } from 'rxjs';
 import { PlaylistContextFacade } from '@iptvnator/playlist/shared/util';
 import { PlaylistsService } from '@iptvnator/services';
+import { Channel } from '@iptvnator/shared/interfaces';
 
 type M3uLoadedSection = 'all' | 'groups';
 
@@ -111,7 +112,9 @@ export class M3uWorkspaceRouteSession {
                     );
                 });
 
-            const channels = playlist.playlist?.items ?? [];
+            const channels =
+                (playlist.playlist as { items?: Channel[] } | undefined)
+                    ?.items ?? [];
             measureRendererPerformancePhase(
                 RENDERER_PERFORMANCE_PHASE.M3U_PUBLISH_CHANNELS,
                 () =>

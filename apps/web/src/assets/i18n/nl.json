@@ -344,11 +344,6 @@
         "LINK_BLOG": "Blog",
         "LINK_GITHUB_DESCRIPTION": "Geef de repo een ster, open een issue of draag bij",
         "LINK_BLOG_DESCRIPTION": "Releaseopmerkingen, tips en projectupdates",
-        "LINK_TELEGRAM_DESCRIPTION": "Aankondigingen, community en ondersteuning",
-        "SUPPORT_TITLE": "Ondersteun het project",
-        "SUPPORT_DESCRIPTION": "IPTVnator is gratis en open source, gebouwd in de openbaarheid. Als het deel uitmaakt van je dagelijkse routine, helpt een kleine bijdrage het project levend te houden en mee te bepalen wat er komt — bedankt.",
-        "SUPPORT_SPONSORS_HINT": "Terugkerend of eenmalig",
-        "SUPPORT_KOFI_HINT": "Trakteer me op een koffie",
         "EPG_NOTE": "Momenteel is EPG alleen beschikbaar in de op Electron gebaseerde versie van IPTVnator.",
         "EPG_NOTE_URL_TEXT": "Bekijk het hier",
         "IMPORT_EXPORT_DATA": "Afspeellijsten importeren/exporteren",
@@ -451,7 +446,11 @@
         "APP_UPDATE_RELEASE_NOTES": "What's new",
         "EMBEDDED_MPV_FRAME_COPY": "Embedded MPV: frame-copy-engine (experimenteel)",
         "EMBEDDED_MPV_FRAME_COPY_DESCRIPTION": "De video wordt op het app-canvas getekend zodat menu's en dialoogvensters erboven verschijnen.",
-        "EMBEDDED_MPV_FRAME_COPY_RESTART": "Wordt van kracht na het herstarten van de app."
+        "EMBEDDED_MPV_FRAME_COPY_RESTART": "Wordt van kracht na het herstarten van de app.",
+        "ATTRIBUTION": "Attribution",
+        "ATTRIBUTION_DESCRIPTION": "CarbonCast IPTV is a fork of IPTVnator (github.com/4gray/iptvnator). The upstream project and its contributors are credited under the original license. CarbonCast IPTV is an independent fork and is not endorsed by the upstream maintainers.",
+        "MIRROR_LAYOUT": "Mirror layout",
+        "MIRROR_LAYOUT_DESCRIPTION": "Put the player on the left and the channel/category rail on the right. Applies to the playlist player and Xtream/Stalker live views."
     },
     "THEMES": {
         "DARK_THEME": "Donker",
@@ -611,6 +610,7 @@
             "NAME": "Naam",
             "CHANNEL_ID": "Kanaal-ID",
             "STREAM_URL": "Stream-URL",
+            "COPY_URL": "Copy stream URL",
             "GROUP": "Groep",
             "RADIO": "Radio",
             "CATCHUP_AVAILABLE": "Catchup beschikbaar",
@@ -654,8 +654,10 @@
         "ZOOM_OUT": "Uitzoomen",
         "FILTER_CHANNELS": "Kanalen filteren",
         "CLOSE_FILTER": "Filter sluiten",
+        "CLEAR_FILTER": "Clear filter",
         "SEARCH_PROGRAMS": "Programma's zoeken",
         "CLOSE_PROGRAM_SEARCH": "Programmazoekopdracht sluiten",
+        "CLEAR_PROGRAM_SEARCH": "Clear program search",
         "LIVE_STREAM": "Live stream",
         "ARCHIVE_PLAYBACK_UNAVAILABLE_TITLE": "Archiefweergave is niet beschikbaar",
         "ARCHIVE_PLAYBACK_UNAVAILABLE_DESCRIPTION": "Deze provider toont de programmageschiedenis voor het kanaal, maar biedt geen afspeelbare archief-/catch-up-weergave.",
@@ -965,6 +967,7 @@
         },
         "SEARCH_VIEW": {
             "INITIAL_TITLE": "Zoek naar inhoud",
+            "CLEAR": "Clear search",
             "INITIAL_DESCRIPTION": "Voer ten minste 3 tekens in om te zoeken in live tv, films en series.",
             "RESULTS_FOUND": "{{count}} resultaten gevonden",
             "NO_RESULTS_FOR": "Geen resultaten gevonden voor \"{{term}}\"",
@@ -1241,7 +1244,8 @@
             "XTREAM_REFRESH_DELETING_CATEGORIES": "Gecachte categorieën worden verwijderd...",
             "XTREAM_REFRESH_DETAIL_LOCAL": "Favorieten, kijkgeschiedenis, verborgen categorieën en afspeelvoortgang worden klaargezet voor herstel na de synchronisatie.",
             "XTREAM_REFRESH_PROGRESS": "Lokale records verwerkt: {{current}} / {{total}}",
-            "RAIL_RADIO": "Radio"
+            "RAIL_RADIO": "Radio",
+            "RAIL_FOLLOWED_SERIES": "Followed series"
         },
         "SOURCES": {
             "TITLE": "Bronnen",

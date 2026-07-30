@@ -392,9 +392,6 @@ importers:
       jsonc-eslint-parser:
         specifier: ^2.1.0
         version: 2.4.2
-      material-design-icons-iconfont:
-        specifier: 6.7.0
-        version: 6.7.0
       ng-mocks:
         specifier: 14.15.3
         version: 14.15.3(1918f1ef5f9f83bc2aab38921c00c721)
@@ -8399,9 +8396,6 @@ packages:
     resolution: {integrity: sha512-iDVQ5ldaiKXn6b2JroX5kgRfmwgqolW7NpaEzTl1k/2Zh1njIEN9yniyLV/mOvWwtsE8OGgkjsCYvijuPk1dtA==}
     engines: {node: '>= 20'}
     hasBin: true
-
-  material-design-icons-iconfont@6.7.0:
-    resolution: {integrity: sha512-lSj71DgVv20kO0kGbs42icDzbRot61gEDBLQACzkUuznRQBUYmbxzEkGU6dNBb5fRWHMaScYlAXX96HQ4/cJWA==}
 
   math-intrinsics@1.1.0:
     resolution: {integrity: sha512-/IXtbwEk5HTPyEwyKX6hGkYXxM9nbj64B+ilVJnC/R6B0pH5G4V3b0pVbL7DBj4tkhBAppbQUlf6F6Xl9LHu1g==}
@@ -21501,8 +21495,6 @@ snapshots:
   markdown-table@3.0.4: {}
 
   marked@18.0.7: {}
-
-  material-design-icons-iconfont@6.7.0: {}
 
   math-intrinsics@1.1.0: {}
 

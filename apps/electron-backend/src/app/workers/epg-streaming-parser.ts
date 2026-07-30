@@ -29,16 +29,21 @@ export interface ParsedChannel {
 }
 
 export interface ParsedProgram {
+    programId: string;
+    seriesId: string;
     start: string;
     stop: string;
     channel: string;
     title: ParsedTextValue[];
+    subTitle: ParsedTextValue[];
     desc: ParsedTextValue[];
     category: ParsedTextValue[];
     date: string;
     episodeNum: ParsedEpisodeNum[];
     icon: ParsedIcon[];
     rating: ParsedRating[];
+    isNew: boolean;
+    previouslyShown: boolean;
 }
 
 /**
@@ -67,8 +72,7 @@ export function parseXmltvDate(dateStr: string): string {
         // offsets like "+0030".
         const offsetSign = tz.startsWith('-') ? -1 : 1;
         const offsetTotalMinutes =
-            offsetSign *
-            (Number(tz.slice(1, 3)) * 60 + Number(tz.slice(3)));
+            offsetSign * (Number(tz.slice(1, 3)) * 60 + Number(tz.slice(3)));
         const utcMs = Date.UTC(
             Number(year),
             Number(month) - 1,
@@ -105,7 +109,10 @@ export class StreamingEpgParser {
     constructor(
         private readonly onChannelsBatch: (channels: ParsedChannel[]) => void,
         private readonly onProgramsBatch: (programs: ParsedProgram[]) => void,
-        private readonly onProgress: (channels: number, programs: number) => void,
+        private readonly onProgress: (
+            channels: number,
+            programs: number
+        ) => void,
         private readonly channelBatchSize = 100,
         private readonly programBatchSize = 1000
     ) {
@@ -135,6 +142,14 @@ export class StreamingEpgParser {
                     // IDs immediately instead of dropping the first rows.
                     this.flushChannels();
                     this.currentProgram = {
+                        programId:
+                            (tag.attributes['id'] as string) ||
+                            (tag.attributes['programme-id'] as string) ||
+                            '',
+                        seriesId:
+                            (tag.attributes['series-id'] as string) ||
+                            (tag.attributes['series_id'] as string) ||
+                            '',
                         start: parseXmltvDate(
                             (tag.attributes['start'] as string) || ''
                         ),
@@ -143,12 +158,15 @@ export class StreamingEpgParser {
                         ),
                         channel: (tag.attributes['channel'] as string) || '',
                         title: [],
+                        subTitle: [],
                         desc: [],
                         category: [],
                         date: '',
                         episodeNum: [],
                         icon: [],
                         rating: [],
+                        isNew: false,
+                        previouslyShown: false,
                     };
                     break;
 
@@ -178,9 +196,20 @@ export class StreamingEpgParser {
 
                 case 'display-name':
                 case 'title':
+                case 'sub-title':
                 case 'desc':
                 case 'category':
                     this.currentLang = (tag.attributes['lang'] as string) || '';
+                    break;
+
+                case 'new':
+                    if (this.currentProgram) this.currentProgram.isNew = true;
+                    break;
+
+                case 'previously-shown':
+                    if (this.currentProgram) {
+                        this.currentProgram.previouslyShown = true;
+                    }
                     break;
 
                 case 'rating':
@@ -223,7 +252,9 @@ export class StreamingEpgParser {
                         if (text) this.currentChannel.url!.push(text);
                         break;
                     case 'channel':
-                        this.channels.push(this.currentChannel as ParsedChannel);
+                        this.channels.push(
+                            this.currentChannel as ParsedChannel
+                        );
                         this.totalChannels++;
                         this.currentChannel = null;
 
@@ -241,6 +272,18 @@ export class StreamingEpgParser {
                             lang: this.currentLang,
                             value: text,
                         });
+                        break;
+                    case 'sub-title':
+                        this.currentProgram.subTitle!.push({
+                            lang: this.currentLang,
+                            value: text,
+                        });
+                        break;
+                    case 'series-id':
+                        if (text) this.currentProgram.seriesId = text;
+                        break;
+                    case 'programme-id':
+                        if (text) this.currentProgram.programId = text;
                         break;
                     case 'desc':
                         this.currentProgram.desc!.push({
@@ -275,7 +318,9 @@ export class StreamingEpgParser {
                         }
                         break;
                     case 'programme':
-                        this.programs.push(this.currentProgram as ParsedProgram);
+                        this.programs.push(
+                            this.currentProgram as ParsedProgram
+                        );
                         this.totalPrograms++;
 
                         if (this.programs.length >= this.programBatchSize) {

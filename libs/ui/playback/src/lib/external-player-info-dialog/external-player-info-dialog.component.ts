@@ -11,7 +11,7 @@ import { TranslateModule } from '@ngx-translate/core';
         <h2 mat-dialog-title>{{ 'INFORMATION' | translate }}</h2>
         <mat-dialog-content class="mat-typography">
             <div class="centered">
-                <mat-icon class="icon">live_tv</mat-icon>
+                <mat-icon class="icon" svgIcon="live_tv"></mat-icon>
                 <div>
                     The video is playing in external player window.<br />
                     Please make sure that mpv/vlc player is correctly installed

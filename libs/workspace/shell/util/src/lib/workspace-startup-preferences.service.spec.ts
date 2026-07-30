@@ -18,9 +18,9 @@ describe('WorkspaceStartupPreferencesService', () => {
         localStorage.clear();
 
         playlistsService = {
-            getAllPlaylists: jest.fn().mockReturnValue(
-                of([{ _id: 'playlist-1' }])
-            ),
+            getAllPlaylists: jest
+                .fn()
+                .mockReturnValue(of([{ _id: 'playlist-1' }])),
         };
         settingsStore = {
             loadSettings: jest.fn().mockResolvedValue(undefined),
@@ -65,6 +65,15 @@ describe('WorkspaceStartupPreferencesService', () => {
 
         await expect(service.resolveInitialWorkspacePath()).resolves.toBe(
             '/workspace/global-recent'
+        );
+    });
+
+    it('restores the followed-series workspace', async () => {
+        settingsStore.startupBehavior.set(StartupBehavior.RestoreLastView);
+        service.persistLastRestorablePath('/workspace/followed-series');
+
+        await expect(service.resolveInitialWorkspacePath()).resolves.toBe(
+            '/workspace/followed-series'
         );
     });
 

@@ -440,6 +440,17 @@
     gap: 6px;
 }
 
+.player-controls-preferences {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(150px, 1fr));
+    gap: 10px 14px;
+    align-items: center;
+}
+
+.player-controls-preferences mat-checkbox {
+    grid-column: 1 / -1;
+}
+
 .remote-control-url-item {
     width: min(100%, 340px);
 }
@@ -580,10 +591,6 @@
     color: #ff8a5b;
 }
 
-.link-card--telegram .link-card__glyph {
-    background: color-mix(in srgb, #229ed9 22%, transparent);
-    color: #38b0e3;
-}
 
 .link-card__text {
     min-width: 0;
@@ -870,9 +877,6 @@
         grid-template-columns: 1fr;
     }
 
-    .support-btn {
-        flex: 1 1 100%;
-    }
 
     .url-row {
         justify-content: flex-start;
@@ -891,5 +895,9 @@
         button {
             width: 100%;
         }
+    }
+
+    .player-controls-preferences {
+        grid-template-columns: 1fr;
     }
 }

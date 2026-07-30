@@ -59,7 +59,11 @@ import {
     Settings,
     STORE_KEY,
 } from '@iptvnator/shared/interfaces';
-import { normalizeEpgUrls } from '@iptvnator/shared/m3u-utils';
+import {
+    expandChannelCategories,
+    normalizeEpgUrls,
+} from '@iptvnator/shared/m3u-utils';
+import { ChannelGroup } from './channel-group.model';
 import { AllChannelsViewComponent } from './all-channels-view/all-channels-view.component';
 import { FavoritesViewComponent } from './favorites-view/favorites-view.component';
 import { GroupsViewComponent } from './groups-view/groups-view.component';
@@ -69,15 +73,27 @@ import {
 } from './recent-view/recent-view.component';
 import { ChannelListLoadingStateComponent } from '../channel-list-loading-state/channel-list-loading-state.component';
 
-function groupChannelsByTitle(channels: Channel[]): Record<string, Channel[]> {
-    return channels.reduce<Record<string, Channel[]>>((groups, channel) => {
-        const key = channel.group?.title ?? '';
-        if (!groups[key]) {
-            groups[key] = [];
+function groupChannelsByCategory(channels: Channel[]): ChannelGroup[] {
+    const buckets = new Map<string, { label: string; channels: Channel[] }>();
+
+    for (const channel of channels) {
+        for (const { key, label } of expandChannelCategories(
+            channel.group?.title
+        )) {
+            let bucket = buckets.get(key);
+            if (!bucket) {
+                bucket = { label, channels: [] };
+                buckets.set(key, bucket);
+            }
+            bucket.channels.push(channel);
         }
-        groups[key].push(channel);
-        return groups;
-    }, {});
+    }
+
+    return Array.from(buckets, ([key, { label, channels: grouped }]) => ({
+        key,
+        label,
+        channels: grouped,
+    }));
 }
 
 function mapChannelsByFirstUrl(channels: Channel[]): Map<string, Channel> {
@@ -269,9 +285,9 @@ export class ChannelListContainerComponent implements OnInit, OnDestroy {
         return this.channelListSignal();
     });
 
-    /** Object with channels sorted by groups */
-    readonly groupedChannels = computed(() =>
-        groupChannelsByTitle(this.displayedChannels())
+    /** Channels merged into canonical, de-duplicated category buckets */
+    readonly groupedChannels = computed<ChannelGroup[]>(() =>
+        groupChannelsByCategory(this.displayedChannels())
     );
 
     readonly recentChannelItems = computed<RecentViewItem[]>(() => {
@@ -516,8 +532,8 @@ export class ChannelListContainerComponent implements OnInit, OnDestroy {
                 playlist: {
                     _id: playlistId,
                     recentlyViewed: updatedPlaylist?.recentlyViewed ?? [],
-                } as PlaylistMeta,
-            }) as any
+                },
+            })
         );
     }
 
@@ -536,8 +552,8 @@ export class ChannelListContainerComponent implements OnInit, OnDestroy {
                 playlist: {
                     _id: playlistId,
                     recentlyViewed: updatedPlaylist?.recentlyViewed ?? [],
-                } as PlaylistMeta,
-            }) as any
+                },
+            })
         );
     }
 

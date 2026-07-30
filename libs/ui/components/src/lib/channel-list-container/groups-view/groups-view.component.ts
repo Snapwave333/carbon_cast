@@ -1,4 +1,4 @@
-import { KeyValue, TitleCasePipe } from '@angular/common';
+import { KeyValue } from '@angular/common';
 import {
     ChangeDetectionStrategy,
     Component,
@@ -22,6 +22,9 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { EpgRuntimeBridgeService } from '@iptvnator/epg/data-access';
 import { resolveChannelEpgLookupKey } from '@iptvnator/m3u-state';
 import { Channel, EpgProgram } from '@iptvnator/shared/interfaces';
+import { canonicalCategoryKey } from '@iptvnator/shared/m3u-utils';
+import { ChannelGroup } from '../channel-group.model';
+import { categoryIconFor } from './category-icon.util';
 import { buildChannelEpgMetadataMap } from '../epg-enrichment.util';
 import {
     PlaylistChannelSortMode,
@@ -46,12 +49,14 @@ interface GroupView {
     readonly channels: Channel[];
     readonly count: number;
     readonly key: string;
+    readonly label: string;
 }
 
 interface FilteredGroupView {
     readonly channels: Channel[];
     readonly count: number;
     readonly key: string;
+    readonly label: string;
     readonly titleMatches: boolean;
 }
 
@@ -68,7 +73,6 @@ interface FilteredGroupView {
         MatTooltipModule,
         ResizableDirective,
         ScrollingModule,
-        TitleCasePipe,
         TranslatePipe,
     ],
 })
@@ -83,8 +87,8 @@ export class GroupsViewComponent {
     readonly groupSearchInput =
         viewChild<ElementRef<HTMLInputElement>>('groupSearchInput');
 
-    /** Grouped channels object */
-    readonly groupedChannels = input.required<{ [key: string]: Channel[] }>();
+    /** Merged, canonical category buckets */
+    readonly groupedChannels = input.required<readonly ChannelGroup[]>();
     readonly searchTerm = input('');
 
     /** EPG map for channel enrichment */
@@ -246,22 +250,26 @@ export class GroupsViewComponent {
     }
 
     readonly allGroups = computed<GroupView[]>(() => {
-        const grouped = this.groupedChannels();
-        const groups = Object.entries(grouped).map(([key, channels]) => ({
-            channels,
-            count: channels.length,
-            key,
+        const groups = this.groupedChannels().map((group) => ({
+            channels: group.channels,
+            count: group.channels.length,
+            key: group.key,
+            label: group.label,
         }));
 
         return groups.sort(this.groupsComparator);
     });
 
     readonly visibleGroups = computed(() => {
-        const hiddenGroupTitles = new Set(this.hiddenGroupTitles());
+        // Stored hidden titles may be raw (pre-canonicalization) legacy values,
+        // so coerce both sides to canonical keys before matching.
+        const hiddenKeys = new Set(
+            this.hiddenGroupTitles().map((title) => canonicalCategoryKey(title))
+        );
 
         return this.allGroups().filter(
             (group) =>
-                !hiddenGroupTitles.has(group.key) && group.channels.length > 0
+                !hiddenKeys.has(group.key) && group.channels.length > 0
         );
     });
 
@@ -274,12 +282,13 @@ export class GroupsViewComponent {
                 channels: group.channels,
                 count: group.count,
                 key: group.key,
+                label: group.label,
                 titleMatches: false,
             }));
         }
 
         return groups.reduce<FilteredGroupView[]>((acc, group) => {
-            const titleMatches = group.key.toLowerCase().includes(term);
+            const titleMatches = group.label.toLowerCase().includes(term);
             const channels = titleMatches
                 ? group.channels
                 : group.channels.filter((channel) =>
@@ -294,6 +303,7 @@ export class GroupsViewComponent {
                 channels,
                 count: channels.length,
                 key: group.key,
+                label: group.label,
                 titleMatches,
             });
             return acc;
@@ -308,7 +318,9 @@ export class GroupsViewComponent {
             return groups;
         }
 
-        return groups.filter((group) => group.key.toLowerCase().includes(term));
+        return groups.filter((group) =>
+            group.label.toLowerCase().includes(term)
+        );
     });
 
     readonly hasAnyGroups = computed(() => this.allGroups().length > 0);
@@ -367,13 +379,13 @@ export class GroupsViewComponent {
     private readonly groupKeyByChannelUrl = computed(() => {
         const groupKeys = new Map<string, string>();
 
-        for (const [groupKey, channels] of Object.entries(
-            this.groupedChannels()
-        )) {
-            for (const channel of channels) {
+        // First-seen wins, so a channel appearing in several buckets maps to
+        // its first canonical group — matching activeChannelGroupKey selection.
+        for (const group of this.groupedChannels()) {
+            for (const channel of group.channels) {
                 const channelUrl = channel.url;
                 if (!groupKeys.has(channelUrl)) {
-                    groupKeys.set(channelUrl, groupKey);
+                    groupKeys.set(channelUrl, group.key);
                 }
             }
         }
@@ -414,9 +426,10 @@ export class GroupsViewComponent {
 
     openGroupManagement(): void {
         const groups = this.allGroups().map<GroupManagementDialogGroup>(
-            ({ key, count }) => ({
+            ({ key, count, label }) => ({
                 key,
                 count,
+                label,
             })
         );
         const dialogRef = this.dialog.open(GroupManagementDialogComponent, {
@@ -461,6 +474,10 @@ export class GroupsViewComponent {
 
     trackByGroupKey(_: number, group: FilteredGroupView): string {
         return group.key;
+    }
+
+    categoryIcon(key: string): string {
+        return categoryIconFor(key);
     }
 
     onChannelClick(channel: Channel): void {

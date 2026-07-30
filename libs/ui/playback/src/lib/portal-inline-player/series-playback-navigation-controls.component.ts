@@ -31,7 +31,7 @@ import type { SeriesPlaybackNavigation } from './series-playback-navigation';
                     matTooltip="Previous episode"
                     matTooltipPosition="above"
                 >
-                    <mat-icon>skip_previous</mat-icon>
+                    <mat-icon svgIcon="skip_previous"></mat-icon>
                 </button>
 
                 <button
@@ -45,7 +45,7 @@ import type { SeriesPlaybackNavigation } from './series-playback-navigation';
                     matTooltip="Next episode"
                     matTooltipPosition="above"
                 >
-                    <mat-icon>skip_next</mat-icon>
+                    <mat-icon svgIcon="skip_next"></mat-icon>
                 </button>
             </nav>
         }

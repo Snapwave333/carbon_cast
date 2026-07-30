@@ -20,7 +20,7 @@
                             ('DOWNLOADS.NO_FOLDER' | translate)
                         "
                     >
-                        <mat-icon>folder_open</mat-icon>
+                        <mat-icon svgIcon="folder_open"></mat-icon>
                         <span class="downloads__folder-inline-path">
                             {{
                                 downloadFolder() ||
@@ -40,7 +40,7 @@
                                 'DOWNLOADS.CLEAR_COMPLETED' | translate
                             "
                         >
-                            <mat-icon>delete_sweep</mat-icon>
+                            <mat-icon svgIcon="delete_sweep"></mat-icon>
                             {{ 'DOWNLOADS.CLEAR_COMPLETED' | translate }}
                         </button>
                     }
@@ -50,7 +50,7 @@
 
         @if (!isAvailable()) {
             <div class="downloads__empty">
-                <mat-icon>desktop_access_disabled</mat-icon>
+                <mat-icon svgIcon="desktop_access_disabled"></mat-icon>
                 <p>{{ 'DOWNLOADS.NOT_AVAILABLE' | translate }}</p>
                 <span>{{ 'DOWNLOADS.DESKTOP_ONLY' | translate }}</span>
             </div>
@@ -154,7 +154,7 @@
             />
         } @else if (filteredDownloads().length === 0) {
             <div class="downloads__empty">
-                <mat-icon>search_off</mat-icon>
+                <mat-icon svgIcon="search_off"></mat-icon>
                 <p>{{ 'DOWNLOADS.NO_FILTER_MATCH' | translate }}</p>
                 <span>{{ 'DOWNLOADS.NO_FILTER_MATCH_HINT' | translate }}</span>
             </div>
@@ -193,9 +193,7 @@
                                         (error)="markPosterFailed(item)"
                                     />
                                 } @else {
-                                    <mat-icon>{{
-                                        getPosterPlaceholderIcon(item)
-                                    }}</mat-icon>
+                                    <mat-icon [svgIcon]="getPosterPlaceholderIcon(item)"></mat-icon>
                                 }
                             </div>
 
@@ -216,9 +214,7 @@
                                         class="downloads__item-status"
                                         [class]="getStatusColor(item.status)"
                                     >
-                                        <mat-icon>{{
-                                            getStatusIcon(item.status)
-                                        }}</mat-icon>
+                                        <mat-icon [svgIcon]="getStatusIcon(item.status)"></mat-icon>
                                         {{
                                             'DOWNLOADS.STATUS.' +
                                                 item.status.toUpperCase()
@@ -281,8 +277,11 @@
                                         [matTooltip]="
                                             'DOWNLOADS.COPY_URL' | translate
                                         "
+                                        [attr.aria-label]="
+                                            'DOWNLOADS.COPY_URL' | translate
+                                        "
                                     >
-                                        <mat-icon>content_copy</mat-icon>
+                                        <mat-icon svgIcon="content_copy"></mat-icon>
                                     </button>
                                     @switch (item.status) {
                                         @case ('queued') {
@@ -295,8 +294,11 @@
                                                 [matTooltip]="
                                                     'DOWNLOADS.PAUSE' | translate
                                                 "
+                                                [attr.aria-label]="
+                                                    'DOWNLOADS.PAUSE' | translate
+                                                "
                                             >
-                                                <mat-icon>pause</mat-icon>
+                                                <mat-icon svgIcon="pause"></mat-icon>
                                             </button>
                                             <button
                                                 mat-icon-button
@@ -307,8 +309,11 @@
                                                 [matTooltip]="
                                                     'DOWNLOADS.CANCEL' | translate
                                                 "
+                                                [attr.aria-label]="
+                                                    'DOWNLOADS.CANCEL' | translate
+                                                "
                                             >
-                                                <mat-icon>close</mat-icon>
+                                                <mat-icon svgIcon="close"></mat-icon>
                                             </button>
                                         }
                                         @case ('downloading') {
@@ -321,8 +326,11 @@
                                                 [matTooltip]="
                                                     'DOWNLOADS.PAUSE' | translate
                                                 "
+                                                [attr.aria-label]="
+                                                    'DOWNLOADS.PAUSE' | translate
+                                                "
                                             >
-                                                <mat-icon>pause</mat-icon>
+                                                <mat-icon svgIcon="pause"></mat-icon>
                                             </button>
                                             <button
                                                 mat-icon-button
@@ -333,8 +341,11 @@
                                                 [matTooltip]="
                                                     'DOWNLOADS.CANCEL' | translate
                                                 "
+                                                [attr.aria-label]="
+                                                    'DOWNLOADS.CANCEL' | translate
+                                                "
                                             >
-                                                <mat-icon>close</mat-icon>
+                                                <mat-icon svgIcon="close"></mat-icon>
                                             </button>
                                         }
                                         @case ('paused') {
@@ -348,8 +359,11 @@
                                                 [matTooltip]="
                                                     'DOWNLOADS.RESUME' | translate
                                                 "
+                                                [attr.aria-label]="
+                                                    'DOWNLOADS.RESUME' | translate
+                                                "
                                             >
-                                                <mat-icon>play_arrow</mat-icon>
+                                                <mat-icon svgIcon="play_arrow"></mat-icon>
                                             </button>
                                             <button
                                                 mat-icon-button
@@ -360,8 +374,11 @@
                                                 [matTooltip]="
                                                     'DOWNLOADS.CANCEL' | translate
                                                 "
+                                                [attr.aria-label]="
+                                                    'DOWNLOADS.CANCEL' | translate
+                                                "
                                             >
-                                                <mat-icon>close</mat-icon>
+                                                <mat-icon svgIcon="close"></mat-icon>
                                             </button>
                                             <button
                                                 mat-icon-button
@@ -373,8 +390,11 @@
                                                 [matTooltip]="
                                                     'DOWNLOADS.REMOVE' | translate
                                                 "
+                                                [attr.aria-label]="
+                                                    'DOWNLOADS.REMOVE' | translate
+                                                "
                                             >
-                                                <mat-icon>delete</mat-icon>
+                                                <mat-icon svgIcon="delete"></mat-icon>
                                             </button>
                                         }
                                         @case ('completed') {
@@ -388,8 +408,11 @@
                                                 [matTooltip]="
                                                     'DOWNLOADS.PLAY' | translate
                                                 "
+                                                [attr.aria-label]="
+                                                    'DOWNLOADS.PLAY' | translate
+                                                "
                                             >
-                                                <mat-icon>play_arrow</mat-icon>
+                                                <mat-icon svgIcon="play_arrow"></mat-icon>
                                             </button>
                                             <button
                                                 mat-icon-button
@@ -400,8 +423,11 @@
                                                 [matTooltip]="
                                                     'DOWNLOADS.REVEAL' | translate
                                                 "
+                                                [attr.aria-label]="
+                                                    'DOWNLOADS.REVEAL' | translate
+                                                "
                                             >
-                                                <mat-icon>folder_open</mat-icon>
+                                                <mat-icon svgIcon="folder_open"></mat-icon>
                                             </button>
                                             <button
                                                 mat-icon-button
@@ -413,8 +439,11 @@
                                                 [matTooltip]="
                                                     'DOWNLOADS.REMOVE' | translate
                                                 "
+                                                [attr.aria-label]="
+                                                    'DOWNLOADS.REMOVE' | translate
+                                                "
                                             >
-                                                <mat-icon>delete</mat-icon>
+                                                <mat-icon svgIcon="delete"></mat-icon>
                                             </button>
                                         }
                                         @case ('failed') {
@@ -428,8 +457,11 @@
                                                 [matTooltip]="
                                                     'DOWNLOADS.RETRY' | translate
                                                 "
+                                                [attr.aria-label]="
+                                                    'DOWNLOADS.RETRY' | translate
+                                                "
                                             >
-                                                <mat-icon>refresh</mat-icon>
+                                                <mat-icon svgIcon="refresh"></mat-icon>
                                             </button>
                                             <button
                                                 mat-icon-button
@@ -441,8 +473,11 @@
                                                 [matTooltip]="
                                                     'DOWNLOADS.REMOVE' | translate
                                                 "
+                                                [attr.aria-label]="
+                                                    'DOWNLOADS.REMOVE' | translate
+                                                "
                                             >
-                                                <mat-icon>delete</mat-icon>
+                                                <mat-icon svgIcon="delete"></mat-icon>
                                             </button>
                                         }
                                         @case ('canceled') {
@@ -456,8 +491,11 @@
                                                 [matTooltip]="
                                                     'DOWNLOADS.RETRY' | translate
                                                 "
+                                                [attr.aria-label]="
+                                                    'DOWNLOADS.RETRY' | translate
+                                                "
                                             >
-                                                <mat-icon>refresh</mat-icon>
+                                                <mat-icon svgIcon="refresh"></mat-icon>
                                             </button>
                                             <button
                                                 mat-icon-button
@@ -469,8 +507,11 @@
                                                 [matTooltip]="
                                                     'DOWNLOADS.REMOVE' | translate
                                                 "
+                                                [attr.aria-label]="
+                                                    'DOWNLOADS.REMOVE' | translate
+                                                "
                                             >
-                                                <mat-icon>delete</mat-icon>
+                                                <mat-icon svgIcon="delete"></mat-icon>
                                             </button>
                                         }
                                     }

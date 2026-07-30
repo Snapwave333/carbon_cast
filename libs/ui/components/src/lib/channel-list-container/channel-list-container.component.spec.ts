@@ -42,6 +42,10 @@ function createChannel(id: string, url: string): Channel {
     };
 }
 
+function createGroupedChannel(id: string, url: string, title: string): Channel {
+    return { ...createChannel(id, url), group: { title } };
+}
+
 function createTrackedUrlChannel(
     id: string,
     url: string,
@@ -341,6 +345,32 @@ describe('ChannelListContainerComponent', () => {
                 } as PlaylistMeta,
             })
         );
+    });
+
+    it('merges category variants and expands multi-group channels into canonical buckets', () => {
+        fixture.detectChanges();
+        fixture.componentInstance.channelList = [
+            createGroupedChannel('a', 'a-url', 'Animation'),
+            createGroupedChannel('b', 'b-url', 'ANIMATION'),
+            createGroupedChannel('c', 'c-url', ' Animation '),
+            createGroupedChannel('d', 'd-url', 'Anime'),
+            createGroupedChannel('e', 'e-url', 'Animation;Kids'),
+        ];
+
+        const groups = fixture.componentInstance.groupedChannels();
+        const animation = groups.find((group) => group.key === 'animation');
+        const kids = groups.find((group) => group.key === 'kids');
+
+        expect(groups.map((group) => group.key)).toEqual(['animation', 'kids']);
+        expect(animation?.label).toBe('Animation');
+        expect(animation?.channels.map((channel) => channel.id)).toEqual([
+            'a',
+            'b',
+            'c',
+            'd',
+            'e',
+        ]);
+        expect(kids?.channels.map((channel) => channel.id)).toEqual(['e']);
     });
 
     it('maps favorite URLs with one channel lookup pass while preserving order and first duplicate match', async () => {

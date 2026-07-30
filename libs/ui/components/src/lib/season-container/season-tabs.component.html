@@ -12,7 +12,7 @@
                         | translate: { number: selectedSeason() ?? '—' }
                 }}
             </span>
-            <mat-icon>arrow_drop_down</mat-icon>
+            <mat-icon svgIcon="arrow_drop_down"></mat-icon>
         </button>
         <mat-menu #seasonMenu="matMenu">
             @for (seasonKey of seasonKeys(); track seasonKey) {
@@ -33,7 +33,7 @@
                         {{ episodeCounts()[seasonKey] }}
                     </span>
                     @if (isSeasonCompleted(seasonKey)) {
-                        <mat-icon class="season-tabs__done">check</mat-icon>
+                        <mat-icon class="season-tabs__done" svgIcon="check"></mat-icon>
                     }
                 </button>
             }
@@ -52,7 +52,7 @@
             >
                 {{ 'PORTALS.SEASON_TAB' | translate: { number: seasonKey } }}
                 @if (isSeasonCompleted(seasonKey)) {
-                    <mat-icon class="season-tabs__done">check</mat-icon>
+                    <mat-icon class="season-tabs__done" svgIcon="check"></mat-icon>
                 }
             </button>
         }
@@ -65,7 +65,7 @@
             type="button"
             (click)="backToPlayingRequested.emit()"
         >
-            <mat-icon>play_circle</mat-icon>
+            <mat-icon svgIcon="play_circle"></mat-icon>
             {{ 'PORTALS.BACK_TO_PLAYING_EPISODE' | translate }}
         </button>
     }

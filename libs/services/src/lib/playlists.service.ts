@@ -548,7 +548,8 @@ export class PlaylistsService {
             ...updatedPlaylist,
             _id: playlistId,
             count:
-                updatedPlaylist.playlist?.items?.length ??
+                (updatedPlaylist.playlist as { items?: unknown[] } | undefined)
+                    ?.items?.length ??
                 currentPlaylist?.count ??
                 updatedPlaylist.count,
             updateDate: Date.now(),
@@ -612,7 +613,9 @@ export class PlaylistsService {
         );
     }
 
-    updatePlaylistMeta(updatedPlaylist: PlaylistMeta) {
+    updatePlaylistMeta(
+        updatedPlaylist: Partial<PlaylistMeta> & Pick<PlaylistMeta, '_id'>
+    ) {
         return this.serializePlaylistWrite(updatedPlaylist._id, async () => {
             const playlist = await firstValueFrom(
                 this.getPlaylistById(updatedPlaylist._id)
@@ -803,7 +806,10 @@ export class PlaylistsService {
     getFavoriteChannels(playlistId: string) {
         return this.getPlaylistById(playlistId).pipe(
             map((data) =>
-                (data.playlist?.items ?? []).filter((channel: Channel) =>
+                (
+                    (data.playlist as { items?: Channel[] } | undefined)
+                        ?.items ?? []
+                ).filter((channel: Channel) =>
                     data.favorites?.includes(channel.id)
                 )
             )
@@ -1035,10 +1041,16 @@ export class PlaylistsService {
     getRawPlaylistById(id: string) {
         return this.getPlaylistById(id).pipe(
             map((playlist) => {
+                const parsed = playlist.playlist as
+                    | {
+                          header?: { raw?: string };
+                          items?: PlaylistRawItem[];
+                      }
+                    | undefined;
                 return (
-                    `${playlist.playlist?.header?.raw ?? ''}` +
+                    `${parsed?.header?.raw ?? ''}` +
                     '\n' +
-                    (playlist.playlist?.items ?? [])
+                    (parsed?.items ?? [])
                         .map((item: PlaylistRawItem) => item.raw)
                         .join('\n')
                 );

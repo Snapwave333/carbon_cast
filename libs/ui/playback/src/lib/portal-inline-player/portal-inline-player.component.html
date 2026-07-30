@@ -11,7 +11,7 @@
                     [matTooltip]="'BACK' | translate"
                     (click)="onBack()"
                 >
-                    <mat-icon>arrow_back</mat-icon>
+                    <mat-icon svgIcon="arrow_back"></mat-icon>
                 </button>
                 <div class="player-shell__heading">
                     <div class="player-shell__eyebrow">
@@ -34,7 +34,7 @@
                         [matTooltip]="streamUrl()"
                         (click)="onCopied()"
                     >
-                        <mat-icon>content_copy</mat-icon>
+                        <mat-icon svgIcon="content_copy"></mat-icon>
                         {{ 'PORTALS.COPY_STREAM_URL' | translate }}
                     </button>
                     <button
@@ -42,7 +42,7 @@
                         type="button"
                         (click)="onClose()"
                     >
-                        <mat-icon>close</mat-icon>
+                        <mat-icon svgIcon="close"></mat-icon>
                         {{ 'PORTALS.CLOSE_PLAYER' | translate }}
                     </button>
                 </div>

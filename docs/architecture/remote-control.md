@@ -50,6 +50,9 @@ Current capabilities:
       descendant. Angular route fallback may serve only that root's `index.html`;
       it must never bypass the containment check.
     - Routes `/api/remote-control/*` to registered handlers.
+    - Routes `/api/agent-control/*` to the separately authenticated agent
+      bridge; legacy remote-web endpoints remain compatibility endpoints and
+      are not silently given broader agent authority.
     - Starts/stops/restarts on settings updates.
 
 ### Remote control event module
@@ -94,6 +97,21 @@ Exposed APIs relevant to remote control:
 - `onChannelChange(callback) => unsubscribe`
 - `onRemoteControlCommand(callback) => unsubscribe`
 - `updateRemoteControlStatus(status) => void`
+
+### Agent-control bridge
+
+The renderer also exposes a narrow IPC contract for the authenticated agent
+bridge:
+
+- `onAgentControlCommand(callback) => unsubscribe`
+- `updateAgentControlState(state) => void`
+- `completeAgentControlCommand(result) => void`
+
+`AgentControlRuntimeService` executes the request against real renderer state
+and returns a correlation-ID-matched result to Electron main. The main process
+publishes redacted SSE state changes and command completions. See
+[Agent Control Architecture](./agent-control.md) for the scopes, rate limits,
+token lifecycle, audit log, and full safety contract.
 
 Type definitions:
 
@@ -248,6 +266,9 @@ Implemented UI behavior:
 - Remote status uses polling from web UI (2s), not push/WebSocket.
 - Number-based selection is list-position based (1-based index in active list scope), not global EPG number mapping.
 - Remote API currently has no auth/TLS; intended for trusted local networks.
+- That statement applies to the legacy `/api/remote-control/*` mobile-web API.
+  `/api/agent-control/v1/*` is a distinct scoped bearer-token API and is not a
+  replacement for putting the mobile remote UI behind authentication.
 
 ## Operational notes
 

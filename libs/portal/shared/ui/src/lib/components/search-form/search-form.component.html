@@ -1,6 +1,6 @@
 <div class="search-container">
     <div class="recent-search">
-        <mat-icon>search</mat-icon>
+        <mat-icon svgIcon="search"></mat-icon>
         <input
             #searchInput
             type="search"
@@ -11,8 +11,14 @@
             (ngModelChange)="onSearchTermChange()"
         />
         @if (searchTerm()) {
-            <button mat-icon-button class="clear-btn" (click)="clearSearch()">
-                <mat-icon>close</mat-icon>
+            <button
+                mat-icon-button
+                class="clear-btn"
+                (click)="clearSearch()"
+                [matTooltip]="'PORTALS.SEARCH_VIEW.CLEAR' | translate"
+                [attr.aria-label]="'PORTALS.SEARCH_VIEW.CLEAR' | translate"
+            >
+                <mat-icon svgIcon="close"></mat-icon>
             </button>
         }
     </div>

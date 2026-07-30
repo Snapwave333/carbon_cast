@@ -1,6 +1,6 @@
 <div class="palette-shell">
     <label class="palette-search">
-        <mat-icon class="palette-search__icon">search</mat-icon>
+        <mat-icon class="palette-search__icon" svgIcon="search"></mat-icon>
         <input
             #queryInput
             type="search"
@@ -37,7 +37,7 @@
                             (click)="onCommandClick(command)"
                         >
                             <span class="palette-command__icon">
-                                <mat-icon>{{ command.icon }}</mat-icon>
+                                <mat-icon [svgIcon]="command.icon"></mat-icon>
                             </span>
                             <span class="palette-command__label">{{
                                 command.label

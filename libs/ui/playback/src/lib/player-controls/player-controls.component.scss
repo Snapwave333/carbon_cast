@@ -27,6 +27,18 @@
     cursor: none;
 }
 
+:host(.player-controls-host--solid) {
+    --pc-panel-bg: rgba(18, 18, 20, 1);
+}
+
+:host(.player-controls-host--small) {
+    font-size: 0.88em;
+}
+
+:host(.player-controls-host--large) {
+    font-size: 1.12em;
+}
+
 .player-controls__feedback {
     position: absolute;
     top: 50%;
@@ -159,6 +171,12 @@
     opacity: 1;
     pointer-events: auto;
     transform: translateY(0);
+}
+
+:host(.player-controls-host--compact) .player-controls__bar {
+    gap: 10px;
+    min-height: 52px;
+    padding: 30px 10px 8px;
 }
 
 .player-controls__transport {

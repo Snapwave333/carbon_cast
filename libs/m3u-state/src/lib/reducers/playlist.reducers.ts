@@ -48,11 +48,11 @@ export const playlistReducers = [
                 action.playlist.disabledEpgUrls ??
                 currentPlaylist?.disabledEpgUrls,
         });
+        const parsedItems = (action.playlist.playlist as { items: Channel[] })
+            .items;
         return {
             ...state,
-            channels: isActivePlaylist
-                ? (action.playlist.playlist.items as Channel[])
-                : state.channels,
+            channels: isActivePlaylist ? parsedItems : state.channels,
             channelsLoading: isActivePlaylist ? false : state.channelsLoading,
             playlists: playlistsAdapter.updateOne(
                 {
@@ -61,7 +61,7 @@ export const playlistReducers = [
                         ...action.playlist,
                         _id: action.playlistId,
                         updateDate: Date.now(),
-                        count: action.playlist.playlist.items.length,
+                        count: parsedItems.length,
                         userAgent: action.playlist.userAgent,
                         favorites: currentPlaylist?.favorites ?? [],
                         epgUrls: epgSourceState.epgUrls,
@@ -211,7 +211,8 @@ export const playlistReducers = [
                 return {
                     ...state,
                     channelsLoading: false,
-                    channels: action.playlist.playlist.items as Channel[],
+                    channels: (action.playlist.playlist as { items: Channel[] })
+                        .items,
                 };
             } else {
                 return {

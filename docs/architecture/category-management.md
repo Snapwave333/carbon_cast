@@ -4,6 +4,68 @@
 
 Xtream API playlists often contain many categories, some of which may be empty, in another language, or simply not relevant to the user. The category management feature allows users to hide unwanted categories from the sidebar while keeping them in the database for potential future use.
 
+## M3U Category Normalization & De-duplication
+
+M3U playlists derive their categories from the raw `group-title` attribute.
+Because that string is author-controlled, the same logical category routinely
+arrives in several forms — `Animation`, `ANIMATION`, ` Animation `, the alias
+`Anime`, and the multi-group `Animation;Kids`. Historically the raw string was
+used verbatim as the grouping key (title-casing at display only masked the
+casing differences), so a single category could appear as several sidebar rows.
+
+### Canonical key / display label model
+
+`libs/shared/m3u-utils/src/lib/category-normalization.util.ts` (pure,
+dependency-free) derives a stable **canonical key** for grouping/hiding and a
+clean **display label** for the UI:
+
+| Function | Purpose |
+| --- | --- |
+| `canonicalizeCategoryLabel(raw)` | Trim + collapse internal whitespace. Empty stays empty. Used for display labels. |
+| `canonicalCategoryKey(raw)` | Canonicalize → lower-case → apply a tiny conservative alias map (seed: `anime` → `animation`). The grouping/hiding key. |
+| `expandChannelCategories(rawGroupTitle)` | Split on `;` only (never comma — a comma is a legitimate name character), trim each part, drop empties, de-dupe by canonical key keeping the first-seen label. Empty/missing → a single `{ key: '', label: 'Uncategorized' }` bucket, matching the app's existing empty-group (`''`) behavior. |
+
+### Multi-group expansion & grouping
+
+The M3U channel list container
+(`libs/ui/components/.../channel-list-container.component.ts`) builds
+`ChannelGroup[]` (`{ key, label, channels }`) by pushing each channel into
+**every** canonical bucket returned by `expandChannelCategories`. This merges
+casing/whitespace/alias variants into one bucket and gives a channel that
+declares several groups membership in each. Because a channel can now appear in
+multiple buckets, category counts can exceed the channel total, and
+"first-seen" wins for selection: `activeChannelGroupKey` resolves a channel to
+the first bucket it was placed in.
+
+The groups view keys everything (selection, `trackBy`, hidden matching) by the
+canonical `key` and renders the `label`.
+
+### Hidden-group back-compat (read-time coercion, no migration)
+
+`playlists.hiddenGroupTitles` (playlist meta + backups) was persisted keyed by
+the **raw** group string. Rather than a destructive migration, hidden matching
+coerces both sides through `canonicalCategoryKey()` at read time:
+
+- When the user hides a group the **canonical key** is stored.
+- Membership checks canonicalize each stored entry and compare to the canonical
+  group key. This runs in the renderer (`visibleGroups` in
+  `groups-view.component.ts` and the `GroupManagementDialog`) **and** in the
+  backend M3U global-search filter
+  (`apps/electron-backend/.../operations/content.operations.ts`), which expands
+  a channel's group into canonical keys and excludes it if **any** is hidden —
+  so hiding "Animation" also hides an "Animation;Kids" channel from search.
+
+Old persisted raw values keep working with no migration step.
+
+### Provider categories (Xtream / Stalker) — display cleanup only
+
+Xtream and Stalker categories are id-keyed with a content foreign key, so their
+identifiers are never touched. Only the display name is tidied with
+`canonicalizeCategoryLabel()` (Xtream `with-content.feature.ts` at publish time;
+Stalker `with-stalker-content.feature.ts` in the category mapping). Provider
+categories are **not** merged, and the Stalker `'all'` pseudo-category is
+preserved.
+
 ## User Flow
 
 1. User navigates to an Xtream playlist (Live TV, Movies, or Series section)

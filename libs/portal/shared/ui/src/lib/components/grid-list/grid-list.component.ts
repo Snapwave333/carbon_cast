@@ -121,9 +121,7 @@ function normalizeArtworkUrl(value: string | undefined): string | undefined {
                                     class="stream-icon-placeholder"
                                     aria-hidden="true"
                                 >
-                                    <mat-icon>{{
-                                        getPlaceholderIcon()
-                                    }}</mat-icon>
+                                    <mat-icon [svgIcon]="getPlaceholderIcon()"></mat-icon>
                                 </div>
                             } @else {
                                 <img
@@ -154,7 +152,7 @@ function normalizeArtworkUrl(value: string | undefined): string | undefined {
                                 class="rating"
                                 [matTooltip]="'XTREAM.IMDB_RATING' | translate"
                             >
-                                <mat-icon>star</mat-icon>{{ rating }}
+                                <mat-icon svgIcon="star"></mat-icon>{{ rating }}
                             </div>
                         }
                         <mat-card-actions>

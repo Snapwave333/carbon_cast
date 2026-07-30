@@ -115,6 +115,13 @@ export class WorkspaceShellRouteStateService {
             exact: true,
         });
 
+        links.push({
+            icon: 'calendar_month',
+            tooltip: this.translateText('WORKSPACE.SHELL.RAIL_FOLLOWED_SERIES'),
+            path: ['/workspace/followed-series'],
+            exact: true,
+        });
+
         return links;
     });
     readonly isDashboardRoute = computed(

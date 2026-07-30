@@ -39,7 +39,7 @@
                 [matTooltip]="headerActionTooltip()"
                 (click)="onHeaderActionClick()"
             >
-                <mat-icon>{{ headerActionIcon() }}</mat-icon>
+                <mat-icon [svgIcon]="headerActionIcon()"></mat-icon>
             </button>
         }
     </div>
@@ -69,7 +69,7 @@
             </div>
         } @else {
             <div class="no-items">
-                <mat-icon>{{ emptyIcon() }}</mat-icon>
+                <mat-icon [svgIcon]="emptyIcon()"></mat-icon>
                 <p>No items in the selected category</p>
             </div>
         }

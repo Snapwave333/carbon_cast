@@ -16,7 +16,7 @@
                     activeClass() === 'is-active' && isActive(link)
                 "
             >
-                <mat-icon matListItemIcon>{{ resolveIcon(link) }}</mat-icon>
+                <mat-icon matListItemIcon [svgIcon]="resolveIcon(link)"></mat-icon>
             </a>
         }
     </mat-nav-list>
@@ -37,7 +37,7 @@
                     activeClass() === 'is-active' && isActive(link)
                 "
             >
-                <mat-icon>{{ resolveIcon(link) }}</mat-icon>
+                <mat-icon [svgIcon]="resolveIcon(link)"></mat-icon>
             </a>
         }
     </nav>

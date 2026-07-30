@@ -705,7 +705,7 @@ export async function stubNativePlaylistFileDialog(
             ({
                 canceled: false,
                 filePaths: [selectedFilePath],
-            }) as any;
+            }) as Electron.OpenDialogReturnValue;
     }, filePath);
 }
 

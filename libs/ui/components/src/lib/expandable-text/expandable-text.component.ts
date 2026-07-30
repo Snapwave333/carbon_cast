@@ -40,9 +40,7 @@ import { TranslateModule } from '@ngx-translate/core';
                 <span>{{
                     (isExpanded() ? 'SHOW_LESS' : 'SHOW_MORE') | translate
                 }}</span>
-                <mat-icon aria-hidden="true">
-                    {{ isExpanded() ? 'expand_less' : 'expand_more' }}
-                </mat-icon>
+                <mat-icon aria-hidden="true" [svgIcon]="isExpanded() ? 'expand_less' : 'expand_more'"></mat-icon>
             </button>
         }
     `,

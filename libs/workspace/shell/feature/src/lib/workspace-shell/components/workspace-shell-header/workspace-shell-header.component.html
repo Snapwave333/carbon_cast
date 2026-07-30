@@ -22,7 +22,7 @@
 
     @if (!hasNoPlaylists()) {
         <label class="search-field">
-            <mat-icon>search</mat-icon>
+            <mat-icon svgIcon="search"></mat-icon>
             @if (searchScopeLabel()) {
                 <span class="search-chip search-chip--scope">
                     {{ searchScopeLabel() }}
@@ -73,7 +73,7 @@
             [matTooltip]="'WORKSPACE.SHORTCUTS.OPEN_TOOLTIP' | translate"
             [attr.aria-label]="'WORKSPACE.SHORTCUTS.OPEN_ARIA' | translate"
         >
-            <mat-icon>keyboard</mat-icon>
+            <mat-icon svgIcon="keyboard"></mat-icon>
         </button>
         <button
             type="button"
@@ -82,7 +82,7 @@
             [matTooltip]="'WORKSPACE.SHELL.ADD_PLAYLIST_ALL' | translate"
             [attr.aria-label]="'WORKSPACE.SHELL.ADD_PLAYLIST' | translate"
         >
-            <mat-icon>add</mat-icon>
+            <mat-icon svgIcon="add"></mat-icon>
         </button>
         @if (!isSettingsRoute()) {
             @if (headerShortcut(); as action) {
@@ -94,7 +94,7 @@
                     [matTooltip]="action.tooltipKey | translate"
                     [attr.aria-label]="action.ariaLabelKey | translate"
                 >
-                    <mat-icon>{{ action.icon }}</mat-icon>
+                    <mat-icon [svgIcon]="action.icon"></mat-icon>
                 </button>
             }
             @if (headerBulkAction(); as bulk) {
@@ -107,7 +107,7 @@
                     [matTooltip]="bulk.tooltip"
                     [attr.aria-label]="bulk.ariaLabel"
                 >
-                    <mat-icon>{{ bulk.icon }}</mat-icon>
+                    <mat-icon [svgIcon]="bulk.icon"></mat-icon>
                 </button>
             }
         }
@@ -135,7 +135,7 @@
                         'WORKSPACE.SHELL.OPEN_DOWNLOADS' | translate
                     "
                 >
-                    <mat-icon>download</mat-icon>
+                    <mat-icon svgIcon="download"></mat-icon>
                 </button>
             </span>
         </div>

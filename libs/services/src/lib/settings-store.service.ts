@@ -11,6 +11,7 @@ import { StorageMap } from '@ngx-pwa/local-storage';
 import { firstValueFrom } from 'rxjs';
 import {
     DEFAULT_DASHBOARD_RAILS_SETTINGS,
+    DEFAULT_PLAYER_CONTROLS_SETTINGS,
     DEFAULT_TMDB_SETTINGS,
     ElectronBridgeTrustOptions,
     EpgViewMode,
@@ -22,11 +23,13 @@ import {
     Theme,
     VideoPlayer,
     normalizeDashboardRailsSettings,
+    normalizePlayerControlsSettings,
 } from '@iptvnator/shared/interfaces';
 
 const DEFAULT_SETTINGS: Settings = {
     player: VideoPlayer.VideoJs,
     webPlayerSharedControls: false,
+    playerControls: DEFAULT_PLAYER_CONTROLS_SETTINGS,
     playerAmbientMode: false,
     playerUpNextRail: true,
     streamFormat: StreamFormat.AutoStreamFormat,
@@ -38,7 +41,7 @@ const DEFAULT_SETTINGS: Settings = {
     showExternalPlaybackBar: true,
     stripCountryPrefix: false,
     theme: Theme.SystemTheme,
-    mirrorLayout: false,
+    mirrorLayout: true,
     mpvPlayerPath: '',
     mpvPlayerArguments: '',
     mpvReuseInstance: false,
@@ -151,6 +154,9 @@ export const SettingsStore = signalStore(
                             ...storedSettings,
                             webPlayerSharedControls:
                                 storedSettings.webPlayerSharedControls === true,
+                            playerControls: normalizePlayerControlsSettings(
+                                storedSettings.playerControls
+                            ),
                             dashboardRails: normalizeDashboardRailsSettings(
                                 storedSettings.dashboardRails
                             ),
@@ -192,6 +198,13 @@ export const SettingsStore = signalStore(
                               ),
                           }
                         : {}),
+                    ...(settings.playerControls !== undefined
+                        ? {
+                              playerControls: normalizePlayerControlsSettings(
+                                  settings.playerControls
+                              ),
+                          }
+                        : {}),
                 });
                 // Save the complete settings object, not just the partial update
                 const completeSettings = this.getSettings();
@@ -217,6 +230,9 @@ export const SettingsStore = signalStore(
                     player: store.player(),
                     webPlayerSharedControls:
                         store.webPlayerSharedControls?.() === true,
+                    playerControls: normalizePlayerControlsSettings(
+                        store.playerControls?.()
+                    ),
                     playerAmbientMode:
                         store.playerAmbientMode?.() ??
                         DEFAULT_SETTINGS.playerAmbientMode,

@@ -6,7 +6,7 @@
 >
     <header class="settings-group__header">
         <div class="settings-group__header-icon">
-            <mat-icon>settings</mat-icon>
+            <mat-icon svgIcon="settings"></mat-icon>
         </div>
         <div class="settings-group__header-text">
             <h3>{{ 'SETTINGS.GENERAL' | translate }}</h3>
@@ -71,7 +71,7 @@
                         role="radio"
                         (click)="selectCoverSize.emit(option.value)"
                     >
-                        <mat-icon>{{ option.icon }}</mat-icon>
+                        <mat-icon [svgIcon]="option.icon"></mat-icon>
                         <span>{{ option.labelKey | translate }}</span>
                     </button>
                 }

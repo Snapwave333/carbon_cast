@@ -6,7 +6,7 @@
 >
     <header class="settings-group__header">
         <div class="settings-group__header-icon">
-            <mat-icon>movie</mat-icon>
+            <mat-icon svgIcon="movie"></mat-icon>
         </div>
         <div class="settings-group__header-text">
             <h3>{{ 'SETTINGS.TMDB' | translate }}</h3>
@@ -73,7 +73,7 @@
                             @if (keyTestState() === 'testing') {
                                 <mat-spinner diameter="16" />
                             } @else {
-                                <mat-icon>network_check</mat-icon>
+                                <mat-icon svgIcon="network_check"></mat-icon>
                             }
                             {{ 'SETTINGS.TMDB_TEST_BUTTON' | translate }}
                         </button>
@@ -82,7 +82,7 @@
                                 class="tmdb-key-test__result tmdb-key-test__result--success"
                                 data-test-id="tmdb-test-success"
                             >
-                                <mat-icon>check_circle</mat-icon>
+                                <mat-icon svgIcon="check_circle"></mat-icon>
                                 {{ 'SETTINGS.TMDB_TEST_SUCCESS' | translate }}
                             </span>
                         } @else if (keyTestState() === 'error') {
@@ -90,7 +90,7 @@
                                 class="tmdb-key-test__result tmdb-key-test__result--error"
                                 data-test-id="tmdb-test-error"
                             >
-                                <mat-icon>error</mat-icon>
+                                <mat-icon svgIcon="error"></mat-icon>
                                 {{ 'SETTINGS.TMDB_TEST_FAILED' | translate }}
                             </span>
                         }
@@ -133,7 +133,7 @@
                     @if (isClearing()) {
                         <mat-spinner diameter="16" />
                     } @else {
-                        <mat-icon>delete_sweep</mat-icon>
+                        <mat-icon svgIcon="delete_sweep"></mat-icon>
                     }
                     {{ 'SETTINGS.TMDB_CACHE_CLEAR' | translate }}
                 </button>

@@ -13,7 +13,7 @@ import { XtreamStore } from '@iptvnator/portal/xtream/data-access';
                 data-test-id="xtream-offline-warning"
                 data-testid="xtream-offline-warning"
             >
-                <mat-icon>cloud_off</mat-icon>
+                <mat-icon svgIcon="cloud_off"></mat-icon>
 
                 <div class="xtream-cached-offline-notice__copy">
                     <strong>

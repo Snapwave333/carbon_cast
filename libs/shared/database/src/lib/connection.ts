@@ -260,6 +260,11 @@ const CREATE_TABLE_STATEMENTS = [
       rating TEXT,
       episode_num TEXT,
       source_url TEXT,
+      program_id TEXT,
+      series_id TEXT,
+      episode_title TEXT,
+      is_new INTEGER,
+      previously_shown INTEGER,
       FOREIGN KEY (channel_id) REFERENCES epg_channels(id) ON DELETE CASCADE
   )`,
     // EPG indexes
@@ -360,6 +365,12 @@ const COLUMN_MIGRATION_STATEMENTS = [
     `ALTER TABLE content ADD COLUMN backdrop_url TEXT`,
     // v1.7.1: Scope XMLTV programs to their source URL for playlist-local EPG lookup
     `ALTER TABLE epg_programs ADD COLUMN source_url TEXT`,
+    // Followed series: retain strong episode identity and new/repeat metadata.
+    `ALTER TABLE epg_programs ADD COLUMN program_id TEXT`,
+    `ALTER TABLE epg_programs ADD COLUMN series_id TEXT`,
+    `ALTER TABLE epg_programs ADD COLUMN episode_title TEXT`,
+    `ALTER TABLE epg_programs ADD COLUMN is_new INTEGER`,
+    `ALTER TABLE epg_programs ADD COLUMN previously_shown INTEGER`,
     // Pause/resume: entity validator (ETag/Last-Modified) sent as If-Range on resume
     `ALTER TABLE downloads ADD COLUMN resume_validator TEXT`,
 ];
@@ -372,6 +383,8 @@ const INDEX_MIGRATION_STATEMENTS = [
     `CREATE INDEX IF NOT EXISTS favorites_playlist_position_idx ON favorites(playlist_id, position, added_at DESC)`,
     // v1.7.1 -> v1.7.2: Query playlist-scoped EPG by source URL and channel/time
     `CREATE INDEX IF NOT EXISTS idx_epg_programs_source ON epg_programs(source_url)`,
+    `CREATE INDEX IF NOT EXISTS idx_epg_programs_program_id ON epg_programs(program_id)`,
+    `CREATE INDEX IF NOT EXISTS idx_epg_programs_series_id ON epg_programs(series_id)`,
     `CREATE INDEX IF NOT EXISTS idx_epg_programs_source_time_range ON epg_programs(source_url, channel_id, start, stop)`,
 ];
 
@@ -559,8 +572,7 @@ function normalizeXtreamContentAddedEpochs(sqliteDb: Database.Database): void {
         const migrationState = sqliteDb
             .prepare(`SELECT value FROM app_state WHERE key = ?`)
             .get(XTREAM_ADDED_EPOCH_SECONDS_MIGRATION_KEY) as
-            | { value?: unknown }
-            | undefined;
+            { value?: unknown } | undefined;
 
         if (migrationState?.value === 'done') {
             return;
@@ -611,8 +623,7 @@ function ensureContentTitleFts(sqliteDb: Database.Database): void {
         const migrationState = sqliteDb
             .prepare(`SELECT value FROM app_state WHERE key = ?`)
             .get(CONTENT_TITLE_FTS_MIGRATION_KEY) as
-            | { value?: unknown }
-            | undefined;
+            { value?: unknown } | undefined;
 
         if (migrationState?.value === 'done') {
             return;
@@ -655,8 +666,7 @@ function backfillEpgProgramSourceUrls(sqliteDb: Database.Database): void {
         const migrationState = sqliteDb
             .prepare(`SELECT value FROM app_state WHERE key = ?`)
             .get(EPG_PROGRAM_SOURCE_URL_BACKFILL_MIGRATION_KEY) as
-            | { value?: unknown }
-            | undefined;
+            { value?: unknown } | undefined;
 
         if (migrationState?.value === 'done') {
             return;
@@ -790,8 +800,7 @@ function cleanupLegacyTmdbSearchCache(sqliteDb: Database.Database): void {
         const migrationState = sqliteDb
             .prepare(`SELECT value FROM app_state WHERE key = ?`)
             .get(TMDB_SEARCH_LOOKUP_V2_CACHE_CLEANUP_MIGRATION_KEY) as
-            | { value?: unknown }
-            | undefined;
+            { value?: unknown } | undefined;
 
         if (migrationState?.value === 'done') {
             return;
@@ -916,9 +925,7 @@ function ensureDownloadsPauseResumeSchema(sqliteDb: Database.Database): void {
                     FROM downloads_pause_resume_legacy`
                 )
                 .run();
-            sqliteDb
-                .prepare(`DROP TABLE downloads_pause_resume_legacy`)
-                .run();
+            sqliteDb.prepare(`DROP TABLE downloads_pause_resume_legacy`).run();
             for (const statement of DOWNLOADS_INDEX_STATEMENTS) {
                 sqliteDb.prepare(statement).run();
             }

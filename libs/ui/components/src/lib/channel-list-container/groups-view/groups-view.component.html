@@ -1,8 +1,6 @@
 @if (!hasAnyGroups()) {
     <div class="groups-view-empty-state">
-        <mat-icon class="empty-state-icon">{{
-            searchTerm() ? 'search_off' : 'folder_off'
-        }}</mat-icon>
+        <mat-icon class="empty-state-icon" [svgIcon]="searchTerm() ? 'search_off' : 'folder_off'"></mat-icon>
         <div class="empty-state-title">
             {{
                 (searchTerm()
@@ -55,7 +53,7 @@
                                 "
                                 (click)="toggleGroupSearch()"
                             >
-                                <mat-icon>search</mat-icon>
+                                <mat-icon svgIcon="search"></mat-icon>
                             </button>
                             <button
                                 type="button"
@@ -69,16 +67,14 @@
                                 "
                                 (click)="openGroupManagement()"
                             >
-                                <mat-icon>tune</mat-icon>
+                                <mat-icon svgIcon="tune"></mat-icon>
                             </button>
                         </div>
                     </div>
 
                     @if (isGroupSearchOpen()) {
                         <label class="groups-nav-search">
-                            <mat-icon class="groups-nav-search__icon">
-                                search
-                            </mat-icon>
+                            <mat-icon class="groups-nav-search__icon" svgIcon="search"></mat-icon>
                             <input
                                 #groupSearchInput
                                 type="search"
@@ -101,7 +97,7 @@
                                 [attr.aria-label]="'CLOSE' | translate"
                                 (click)="closeGroupSearch()"
                             >
-                                <mat-icon>close</mat-icon>
+                                <mat-icon svgIcon="close"></mat-icon>
                             </button>
                         </label>
                     }
@@ -127,9 +123,13 @@
                                 "
                                 (click)="selectGroup(group.key)"
                             >
+                                <mat-icon
+                                    class="group-tile-icon"
+                                    [svgIcon]="categoryIcon(group.key)"
+                                ></mat-icon>
                                 <span class="nav-item-label">
                                     @if (group.key) {
-                                        {{ group.key | titlecase }}
+                                        {{ group.label }}
                                     } @else {
                                         {{ 'CHANNELS.UNGROUPED' | translate }}
                                     }
@@ -141,13 +141,9 @@
                         }
                     } @else {
                         <div class="groups-nav-empty">
-                            <mat-icon class="groups-nav-empty__icon">
-                                {{
-                                    hasSearchQuery()
+                            <mat-icon class="groups-nav-empty__icon" [svgIcon]="hasSearchQuery()
                                         ? 'search_off'
-                                        : 'folder_off'
-                                }}
-                            </mat-icon>
+                                        : 'folder_off'"></mat-icon>
                             <div class="groups-nav-empty__title">
                                 {{
                                     (hasSearchQuery()
@@ -176,7 +172,7 @@
                     <div class="category-meta category-meta--stacked">
                         <h2 class="category-title">
                             @if (group.key) {
-                                {{ group.key | titlecase }}
+                                {{ group.label }}
                             } @else {
                                 {{ 'CHANNELS.UNGROUPED' | translate }}
                             }
@@ -192,7 +188,7 @@
                         [matTooltip]="'Sort: ' + groupChannelSortLabel()"
                         aria-label="Sort channels"
                     >
-                        <mat-icon>sort_by_alpha</mat-icon>
+                        <mat-icon svgIcon="sort_by_alpha"></mat-icon>
                     </button>
                     <button
                         mat-icon-button
@@ -206,37 +202,37 @@
                         "
                         (click)="sidebarToggleRequested.emit()"
                     >
-                        <mat-icon>chevron_left</mat-icon>
+                        <mat-icon svgIcon="chevron_left"></mat-icon>
                     </button>
                     <mat-menu #channelSortMenu="matMenu">
                         <button
                             mat-menu-item
                             (click)="setGroupChannelSortMode('server')"
                         >
-                            <mat-icon>drag_indicator</mat-icon>
+                            <mat-icon svgIcon="drag_indicator"></mat-icon>
                             <span>Playlist Order</span>
                             @if (groupChannelSortMode() === 'server') {
-                                <mat-icon>check</mat-icon>
+                                <mat-icon svgIcon="check"></mat-icon>
                             }
                         </button>
                         <button
                             mat-menu-item
                             (click)="setGroupChannelSortMode('name-asc')"
                         >
-                            <mat-icon>sort_by_alpha</mat-icon>
+                            <mat-icon svgIcon="sort_by_alpha"></mat-icon>
                             <span>Name A-Z</span>
                             @if (groupChannelSortMode() === 'name-asc') {
-                                <mat-icon>check</mat-icon>
+                                <mat-icon svgIcon="check"></mat-icon>
                             }
                         </button>
                         <button
                             mat-menu-item
                             (click)="setGroupChannelSortMode('name-desc')"
                         >
-                            <mat-icon>sort_by_alpha</mat-icon>
+                            <mat-icon svgIcon="sort_by_alpha"></mat-icon>
                             <span>Name Z-A</span>
                             @if (groupChannelSortMode() === 'name-desc') {
-                                <mat-icon>check</mat-icon>
+                                <mat-icon svgIcon="check"></mat-icon>
                             }
                         </button>
                     </mat-menu>
@@ -296,9 +292,7 @@
                 </header>
 
                 <div class="groups-content-empty-state">
-                    <mat-icon class="empty-state-icon">
-                        {{ hasSearchQuery() ? 'search_off' : 'visibility_off' }}
-                    </mat-icon>
+                    <mat-icon class="empty-state-icon" [svgIcon]="hasSearchQuery() ? 'search_off' : 'visibility_off'"></mat-icon>
                     <div class="empty-state-title">
                         {{
                             (hasSearchQuery()
@@ -333,12 +327,12 @@
 <mat-menu #channelContextMenu="matMenu">
     @if (supportsEpgMapping) {
         <button mat-menu-item (click)="openEpgMapping()">
-            <mat-icon>settings_remote</mat-icon>
+            <mat-icon svgIcon="settings_remote"></mat-icon>
             <span>{{ 'CHANNELS.MAP_EPG' | translate }}</span>
         </button>
     }
     <button mat-menu-item (click)="openChannelDetails()">
-        <mat-icon>info</mat-icon>
+        <mat-icon svgIcon="info"></mat-icon>
         <span>{{ 'CHANNELS.SHOW_DETAILS' | translate }}</span>
     </button>
 </mat-menu>

@@ -61,7 +61,7 @@
             @for (stat of heroStats(); track stat.labelKey) {
                 <article class="account-stat">
                     <div class="account-stat__icon">
-                        <mat-icon>{{ stat.icon }}</mat-icon>
+                        <mat-icon [svgIcon]="stat.icon"></mat-icon>
                     </div>
                     <div class="account-stat__label">
                         {{ stat.labelKey | translate }}
@@ -88,7 +88,7 @@
     @if (loadState() === 'error') {
         <section class="account-dialog__error-state">
             <div class="account-dialog__error-icon">
-                <mat-icon>signal_wifi_connected_no_internet_4</mat-icon>
+                <mat-icon svgIcon="signal_wifi_connected_no_internet_4"></mat-icon>
             </div>
             <h3>
                 {{ 'PORTALS.ERROR_VIEW.PORTAL_UNAVAILABLE.TITLE' | translate }}

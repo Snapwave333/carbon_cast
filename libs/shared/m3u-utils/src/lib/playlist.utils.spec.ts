@@ -271,7 +271,9 @@ describe('playlist utils', () => {
             ],
         });
 
-        const [encrypted, plain] = playlist.playlist.items;
+        const [encrypted, plain] = (
+            playlist.playlist as { items: Array<{ drm?: unknown }> }
+        ).items;
         expect(encrypted.drm).toEqual({
             licenseType: 'clearkey',
             supported: true,

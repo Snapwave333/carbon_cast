@@ -56,6 +56,15 @@ describe('workspace-shell-route.utils', () => {
                 kind: 'downloads',
             })
         );
+        expect(parseWorkspaceShellRoute('/workspace/followed-series')).toEqual(
+            expect.objectContaining({
+                kind: 'followed-series',
+                context: null,
+                contextPanel: 'none',
+                searchMode: 'none',
+                usesQuerySearch: false,
+            })
+        );
     });
 
     it('parses Xtream portal routes and detects context-panel/query-search state', () => {
@@ -103,9 +112,7 @@ describe('workspace-shell-route.utils', () => {
     });
 
     it('parses Stalker portal routes and detects context-panel/query-search state', () => {
-        expect(
-            parseWorkspaceShellRoute('/workspace/stalker/pl-2/itv')
-        ).toEqual(
+        expect(parseWorkspaceShellRoute('/workspace/stalker/pl-2/itv')).toEqual(
             expect.objectContaining({
                 kind: 'portal',
                 context: {

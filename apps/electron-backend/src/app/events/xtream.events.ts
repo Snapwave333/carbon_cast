@@ -57,7 +57,8 @@ function formatXtreamError(
             status: error.response?.status,
             message: error.message,
             syscall: (error as NodeJS.ErrnoException).syscall,
-            hostname: (error as any).hostname,
+            hostname: (error as NodeJS.ErrnoException & { hostname?: string })
+                .hostname,
         };
     }
 

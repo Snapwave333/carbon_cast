@@ -3,12 +3,11 @@ import express, { Express, Request, Response } from 'express';
 import { createHash } from 'node:crypto';
 import { lookup } from 'node:dns/promises';
 import { isIP } from 'node:net';
-import zlib from 'node:zlib';
 import axios from 'axios';
-import epgParser from 'epg-parser';
 import parser from 'iptv-playlist-parser';
 import { normalizeXtreamServerUrl } from '@iptvnator/shared/interfaces';
 import { extractDrmFromRaw } from '@iptvnator/shared/m3u-utils';
+import { parseEpgInWorker } from './workers/epg-parse-worker-client';
 
 export interface WebBackendHttpGetOptions {
     readonly headers?: Record<string, string>;
@@ -470,15 +469,17 @@ async function fetchEpgDataFromUrl(
     const href = url.href;
     // Provider URLs are validated by /provider-targets before XMLTV parsing.
     // codeql[js/request-forgery]
-    const response = await httpClient.get<ArrayBuffer | string>(href, {
-        ...(url.pathname.endsWith('.gz')
-            ? { responseType: 'arraybuffer' }
-            : {}),
+    const response = await httpClient.get<ArrayBuffer>(href, {
+        responseType: 'arraybuffer',
     });
-    const xml = url.pathname.endsWith('.gz')
-        ? zlib.gunzipSync(Buffer.from(response.data as ArrayBuffer)).toString()
-        : response.data.toString();
-    return epgParser.parse(xml);
+    const bytes = Buffer.from(response.data);
+    // Detach a standalone ArrayBuffer from the Node Buffer's shared pool so it
+    // can be transferred into the worker without copying.
+    const transfer = bytes.buffer.slice(
+        bytes.byteOffset,
+        bytes.byteOffset + bytes.byteLength
+    );
+    return parseEpgInWorker(transfer, url.pathname.endsWith('.gz'));
 }
 
 function isPlaylistParseError(

@@ -169,6 +169,11 @@ describe('EpgDatabase', () => {
         expect(insertProgramSql).toContain(
             'ON CONFLICT(channel_id, start, title, source_url) DO UPDATE SET'
         );
+        expect(insertProgramSql).toContain('program_id');
+        expect(insertProgramSql).toContain('series_id');
+        expect(insertProgramSql).toContain('episode_title');
+        expect(insertProgramSql).toContain('is_new');
+        expect(insertProgramSql).toContain('previously_shown');
         expect(insertProgramSql).not.toContain(
             'source_url = excluded.source_url'
         );

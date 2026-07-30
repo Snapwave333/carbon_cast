@@ -5,7 +5,7 @@
     >
         <div class="panel-header">
             <span class="header-title">
-                <mat-icon>live_tv</mat-icon>
+                <mat-icon svgIcon="live_tv"></mat-icon>
                 @if (!minimized()) {
                     {{ 'EPG.IMPORT_PROGRESS' | translate }}
                 } @else {
@@ -24,9 +24,7 @@
                     (click)="toggleMinimize()"
                     [attr.aria-label]="minimized() ? 'Expand' : 'Minimize'"
                 >
-                    <mat-icon>
-                        {{ minimized() ? 'unfold_more' : 'unfold_less' }}
-                    </mat-icon>
+                    <mat-icon [svgIcon]="minimized() ? 'unfold_more' : 'unfold_less'"></mat-icon>
                 </button>
                 <button
                     mat-icon-button
@@ -34,7 +32,7 @@
                     (click)="dismissAll()"
                     [attr.aria-label]="'CLOSE' | translate"
                 >
-                    <mat-icon>close</mat-icon>
+                    <mat-icon svgIcon="close"></mat-icon>
                 </button>
             </div>
         </div>
@@ -49,9 +47,7 @@
                         <div class="item-header">
                             <mat-icon
                                 [class.spinning]="item.status === 'loading'"
-                            >
-                                {{ getStatusIcon(item.status) }}
-                            </mat-icon>
+                             [svgIcon]="getStatusIcon(item.status)"></mat-icon>
                             <span class="item-url" [title]="item.url">
                                 {{ getDisplayUrl(item.url) }}
                             </span>
@@ -73,7 +69,7 @@
                                     [attr.aria-label]="'EPG.RETRY' | translate"
                                     [matTooltip]="'EPG.RETRY' | translate"
                                 >
-                                    <mat-icon>refresh</mat-icon>
+                                    <mat-icon svgIcon="refresh"></mat-icon>
                                 </button>
                             }
                             <button
@@ -82,7 +78,7 @@
                                 (click)="dismiss(item.url)"
                                 [attr.aria-label]="'CLOSE' | translate"
                             >
-                                <mat-icon>close</mat-icon>
+                                <mat-icon svgIcon="close"></mat-icon>
                             </button>
                         </div>
 
@@ -98,7 +94,7 @@
                                         'EPG.TOTAL_CHANNELS' | translate
                                     }}"
                                 >
-                                    <mat-icon>tv</mat-icon>
+                                    <mat-icon svgIcon="tv"></mat-icon>
                                     {{ item.stats.totalChannels }}
                                 </span>
                                 <span
@@ -107,7 +103,7 @@
                                         'EPG.TOTAL_PROGRAMS' | translate
                                     }}"
                                 >
-                                    <mat-icon>event</mat-icon>
+                                    <mat-icon svgIcon="event"></mat-icon>
                                     {{ item.stats.totalPrograms }}
                                 </span>
                             } @else if (item.error) {
@@ -122,7 +118,7 @@
                 @if (queuedImports.length > 0) {
                     <div class="queue-section">
                         <div class="queue-header">
-                            <mat-icon>queue</mat-icon>
+                            <mat-icon svgIcon="queue"></mat-icon>
                             <span
                                 >{{ 'EPG.QUEUED' | translate }} ({{
                                     queuedImports.length
@@ -148,7 +144,7 @@
                                         (click)="dismiss(item.url)"
                                         [attr.aria-label]="'CLOSE' | translate"
                                     >
-                                        <mat-icon>close</mat-icon>
+                                        <mat-icon svgIcon="close"></mat-icon>
                                     </button>
                                 </div>
                             }

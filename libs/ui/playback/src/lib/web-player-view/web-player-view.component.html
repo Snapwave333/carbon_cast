@@ -97,7 +97,7 @@
     >
         <div class="web-player-diagnostic__content">
             <div class="web-player-diagnostic__badge">
-                <mat-icon aria-hidden="true">warning</mat-icon>
+                <mat-icon aria-hidden="true" svgIcon="warning"></mat-icon>
                 <span>{{ getDiagnosticTitleKey(issue) | translate }}</span>
             </div>
 
@@ -138,7 +138,7 @@
                         data-test-id="playback-fallback-mpv"
                         (click)="requestExternalFallback('mpv')"
                     >
-                        <mat-icon aria-hidden="true">open_in_new</mat-icon>
+                        <mat-icon aria-hidden="true" svgIcon="open_in_new"></mat-icon>
                         <span class="web-player-diagnostic__player-copy">
                             <span class="web-player-diagnostic__player-label">
                                 {{
@@ -161,7 +161,7 @@
                         data-test-id="playback-fallback-vlc"
                         (click)="requestExternalFallback('vlc')"
                     >
-                        <mat-icon aria-hidden="true">open_in_new</mat-icon>
+                        <mat-icon aria-hidden="true" svgIcon="open_in_new"></mat-icon>
                         <span class="web-player-diagnostic__player-copy">
                             <span class="web-player-diagnostic__player-label">
                                 {{
@@ -188,7 +188,7 @@
                     [matTooltip]="resolvedPlayback().streamUrl"
                     data-test-id="playback-copy-url"
                 >
-                    <mat-icon aria-hidden="true">content_copy</mat-icon>
+                    <mat-icon aria-hidden="true" svgIcon="content_copy"></mat-icon>
                     {{ 'PLAYBACK_DIAGNOSTICS.ACTION_COPY_URL' | translate }}
                 </button>
 
@@ -203,7 +203,7 @@
                     data-test-id="playback-retry"
                     (click)="retryPlayback()"
                 >
-                    <mat-icon aria-hidden="true">refresh</mat-icon>
+                    <mat-icon aria-hidden="true" svgIcon="refresh"></mat-icon>
                     {{ 'PLAYBACK_DIAGNOSTICS.ACTION_RETRY' | translate }}
                 </button>
 
@@ -217,7 +217,7 @@
                     data-test-id="playback-diagnostic-details"
                 >
                     <summary>
-                        <mat-icon aria-hidden="true">expand_more</mat-icon>
+                        <mat-icon aria-hidden="true" svgIcon="expand_more"></mat-icon>
                         {{ 'PLAYBACK_DIAGNOSTICS.DETAILS_SUMMARY' | translate }}
                     </summary>
                     <dl>

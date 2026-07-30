@@ -16,6 +16,7 @@ import {
     measureRendererPerformancePhase,
     RENDERER_PERFORMANCE_PHASE,
 } from '@iptvnator/shared/logging';
+import { canonicalizeCategoryLabel } from '@iptvnator/shared/m3u-utils';
 import { createLogger } from '@iptvnator/portal/shared/util';
 import {
     DatabaseService,
@@ -41,6 +42,36 @@ import {
     XtreamContentLoadState,
     XtreamContentLoadStateByType,
 } from '../../xtream-state';
+
+/**
+ * Tidy the DISPLAY label of provider categories (trim + collapse whitespace)
+ * without touching `category_id`/`xtream_id` or the content foreign-key path —
+ * provider categories stay id-keyed, so only the shown name is normalized.
+ * Handles both API (`category_name`) and cached-DB (`name`) shapes.
+ */
+function cleanXtreamCategoryLabels(
+    categories: (XtreamCategory | XtreamCategoryFromDb)[]
+): (XtreamCategory | XtreamCategoryFromDb)[] {
+    return categories.map((category) => {
+        if ('category_name' in category && category.category_name) {
+            return {
+                ...category,
+                category_name: canonicalizeCategoryLabel(
+                    category.category_name
+                ),
+            };
+        }
+
+        if ('name' in category && category.name) {
+            return {
+                ...category,
+                name: canonicalizeCategoryLabel(category.name),
+            };
+        }
+
+        return category;
+    });
+}
 
 const cancelledPlaylistInitializationLockKey = (playlistId: string): string =>
     `xtream-init-cancelled:${playlistId}`;
@@ -533,21 +564,24 @@ export function withContent() {
 
                         switch (entry.type) {
                             case 'live':
-                                updates.liveCategories = entry.categories;
+                                updates.liveCategories =
+                                    cleanXtreamCategoryLabels(entry.categories);
                                 updates.liveStreams =
                                     asCachedContent<XtreamLiveStream>(
                                         entry.content
                                     );
                                 break;
                             case 'vod':
-                                updates.vodCategories = entry.categories;
+                                updates.vodCategories =
+                                    cleanXtreamCategoryLabels(entry.categories);
                                 updates.vodStreams =
                                     asCachedContent<XtreamVodStream>(
                                         entry.content
                                     );
                                 break;
                             case 'series':
-                                updates.serialCategories = entry.categories;
+                                updates.serialCategories =
+                                    cleanXtreamCategoryLabels(entry.categories);
                                 updates.serialStreams =
                                     asCachedContent<XtreamSerieItem>(
                                         entry.content
@@ -982,9 +1016,12 @@ export function withContent() {
                             RENDERER_PERFORMANCE_PHASE.XTREAM_PUBLISH_CATEGORIES,
                             () =>
                                 patchState(store, {
-                                    liveCategories: live,
-                                    vodCategories: vod,
-                                    serialCategories: series,
+                                    liveCategories:
+                                        cleanXtreamCategoryLabels(live),
+                                    vodCategories:
+                                        cleanXtreamCategoryLabels(vod),
+                                    serialCategories:
+                                        cleanXtreamCategoryLabels(series),
                                     isLoadingCategories: false,
                                 }),
                             () => ({
@@ -1306,9 +1343,9 @@ export function withContent() {
                         ]);
 
                         patchState(store, {
-                            liveCategories: live,
-                            vodCategories: vod,
-                            serialCategories: series,
+                            liveCategories: cleanXtreamCategoryLabels(live),
+                            vodCategories: cleanXtreamCategoryLabels(vod),
+                            serialCategories: cleanXtreamCategoryLabels(series),
                         });
                     } catch (error) {
                         logger.error('Error reloading categories', error);

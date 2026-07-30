@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { TranslatePipe } from '@ngx-translate/core';
 import { MockPipe } from 'ng-mocks';
+import { SearchFormComponent } from '../search-form/search-form.component';
 import { SearchLayoutComponent } from './search-layout.component';
 
 describe('SearchLayoutComponent', () => {
@@ -12,6 +13,17 @@ describe('SearchLayoutComponent', () => {
             imports: [SearchLayoutComponent],
         })
             .overrideComponent(SearchLayoutComponent, {
+                remove: { imports: [TranslatePipe] },
+                add: {
+                    imports: [
+                        MockPipe(
+                            TranslatePipe,
+                            (value: string | null | undefined) => value ?? ''
+                        ),
+                    ],
+                },
+            })
+            .overrideComponent(SearchFormComponent, {
                 remove: { imports: [TranslatePipe] },
                 add: {
                     imports: [

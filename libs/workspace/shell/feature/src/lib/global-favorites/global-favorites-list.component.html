@@ -1,6 +1,6 @@
 <div class="search-panel">
     <mat-form-field class="search-bar">
-        <mat-icon matPrefix>search</mat-icon>
+        <mat-icon matPrefix svgIcon="search"></mat-icon>
         <input
             matInput
             type="search"
@@ -16,7 +16,7 @@
 <div class="nav-list app-scrollbar" cdkDropList (cdkDropListDropped)="onDrop($event)">
     @if (enrichedChannels().length === 0) {
         <div class="empty-state">
-            <mat-icon class="empty-icon">star_border</mat-icon>
+            <mat-icon class="empty-icon" svgIcon="star_border"></mat-icon>
             @if (searchTerm()) {
                 <p class="empty-title">
                     {{ 'WORKSPACE.GLOBAL_FAVORITES.NO_RESULTS' | translate }}

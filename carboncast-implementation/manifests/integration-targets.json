@@ -1,0 +1,27 @@
+{
+  "productName": "CarbonCast IPTV",
+  "web": {
+    "logo": "assets/logos/logo-horizontal-dark.svg",
+    "favicon": "assets/favicons/favicon.ico",
+    "manifest": "assets/favicons/site.webmanifest"
+  },
+  "windows": {
+    "icon": "assets/icons/app-icon.ico"
+  },
+  "macos": {
+    "icon": "assets/icons/app-icon.icns"
+  },
+  "linux": {
+    "icon": "assets/icons/png/app-icon-512.png"
+  },
+  "pwa": {
+    "icon192": "assets/favicons/android-chrome-192x192.png",
+    "icon512": "assets/favicons/android-chrome-512x512.png",
+    "maskable": "assets/favicons/maskable-512x512.png"
+  },
+  "splash": {
+    "desktop": "assets/splash/splash-desktop-1920x1080.png",
+    "tv": "assets/splash/splash-tv-3840x2160.png",
+    "mobile": "assets/splash/splash-mobile-1080x1920.png"
+  }
+}

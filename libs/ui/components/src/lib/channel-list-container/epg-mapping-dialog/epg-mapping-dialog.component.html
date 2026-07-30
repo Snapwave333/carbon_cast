@@ -22,7 +22,7 @@
             (ngModelChange)="onSearchInput($event)"
             [placeholder]="'EPG_MAPPING_DIALOG.SEARCH_PLACEHOLDER' | translate"
         />
-        <mat-icon matPrefix>search</mat-icon>
+        <mat-icon matPrefix svgIcon="search"></mat-icon>
         @if (loading()) {
             <mat-spinner matSuffix diameter="20" />
         }
@@ -49,7 +49,7 @@
                 </button>
             } @empty {
                 <div class="epg-mapping-empty">
-                    <mat-icon>search_off</mat-icon>
+                    <mat-icon svgIcon="search_off"></mat-icon>
                     <span>{{ 'EPG_MAPPING_DIALOG.NO_RESULTS' | translate }}</span>
                 </div>
             }

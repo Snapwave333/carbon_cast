@@ -28,7 +28,7 @@
                 [matTooltip]="'Sort: ' + liveChannelSortLabel()"
                 aria-label="Sort channels"
             >
-                <mat-icon>sort_by_alpha</mat-icon>
+                <mat-icon svgIcon="sort_by_alpha"></mat-icon>
             </button>
             <button
                 mat-icon-button
@@ -38,7 +38,7 @@
                 [attr.aria-pressed]="isSidebarCollapsed()"
                 (click)="toggleSidebar()"
             >
-                <mat-icon>chevron_left</mat-icon>
+                <mat-icon svgIcon="chevron_left"></mat-icon>
             </button>
             <mat-menu #channelSortMenu="matMenu">
                 <button
@@ -47,7 +47,7 @@
                 >
                     <span>Server Order</span>
                     @if (liveChannelSortMode() === 'server') {
-                        <mat-icon>check</mat-icon>
+                        <mat-icon svgIcon="check"></mat-icon>
                     }
                 </button>
                 <button
@@ -56,7 +56,7 @@
                 >
                     <span>Name A-Z</span>
                     @if (liveChannelSortMode() === 'name-asc') {
-                        <mat-icon>check</mat-icon>
+                        <mat-icon svgIcon="check"></mat-icon>
                     }
                 </button>
                 <button
@@ -65,7 +65,7 @@
                 >
                     <span>Name Z-A</span>
                     @if (liveChannelSortMode() === 'name-desc') {
-                        <mat-icon>check</mat-icon>
+                        <mat-icon svgIcon="check"></mat-icon>
                     }
                 </button>
             </mat-menu>
@@ -89,7 +89,7 @@
             [attr.aria-pressed]="isSidebarCollapsed()"
             (click)="toggleSidebar()"
         >
-            <mat-icon>chevron_right</mat-icon>
+            <mat-icon svgIcon="chevron_right"></mat-icon>
         </button>
     }
     @if (streamUrl) {

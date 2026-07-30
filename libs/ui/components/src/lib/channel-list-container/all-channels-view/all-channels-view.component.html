@@ -9,7 +9,7 @@
             [matTooltip]="'Sort: ' + allChannelsSortLabel()"
             aria-label="Sort channels"
         >
-            <mat-icon>sort_by_alpha</mat-icon>
+            <mat-icon svgIcon="sort_by_alpha"></mat-icon>
         </button>
         <button
             type="button"
@@ -19,30 +19,30 @@
             [matTooltip]="'LAYOUT.TOGGLE_SIDEBAR_TOOLTIP' | translate"
             (click)="sidebarToggleRequested.emit()"
         >
-            <mat-icon>chevron_left</mat-icon>
+            <mat-icon svgIcon="chevron_left"></mat-icon>
         </button>
     </div>
 
     <mat-menu #channelSortMenu="matMenu">
         <button mat-menu-item (click)="setAllChannelsSortMode('server')">
-            <mat-icon>drag_indicator</mat-icon>
+            <mat-icon svgIcon="drag_indicator"></mat-icon>
             <span>Playlist Order</span>
             @if (allChannelsSortMode() === 'server') {
-                <mat-icon>check</mat-icon>
+                <mat-icon svgIcon="check"></mat-icon>
             }
         </button>
         <button mat-menu-item (click)="setAllChannelsSortMode('name-asc')">
-            <mat-icon>sort_by_alpha</mat-icon>
+            <mat-icon svgIcon="sort_by_alpha"></mat-icon>
             <span>Name A-Z</span>
             @if (allChannelsSortMode() === 'name-asc') {
-                <mat-icon>check</mat-icon>
+                <mat-icon svgIcon="check"></mat-icon>
             }
         </button>
         <button mat-menu-item (click)="setAllChannelsSortMode('name-desc')">
-            <mat-icon>sort_by_alpha</mat-icon>
+            <mat-icon svgIcon="sort_by_alpha"></mat-icon>
             <span>Name Z-A</span>
             @if (allChannelsSortMode() === 'name-desc') {
-                <mat-icon>check</mat-icon>
+                <mat-icon svgIcon="check"></mat-icon>
             }
         </button>
     </mat-menu>
@@ -52,7 +52,7 @@
 <div id="all-channels" class="channel-list">
     @if (filteredChannels().length === 0 && searchTerm()) {
         <div class="no-results">
-            <mat-icon class="no-results-icon">search_off</mat-icon>
+            <mat-icon class="no-results-icon" svgIcon="search_off"></mat-icon>
             <div class="no-results-title">
                 {{ 'CHANNELS.NO_SEARCH_RESULTS' | translate }}
             </div>
@@ -112,12 +112,12 @@
 <mat-menu #channelContextMenu="matMenu">
     @if (supportsEpgMapping) {
         <button mat-menu-item (click)="openEpgMapping()">
-            <mat-icon>settings_remote</mat-icon>
+            <mat-icon svgIcon="settings_remote"></mat-icon>
             <span>{{ 'CHANNELS.MAP_EPG' | translate }}</span>
         </button>
     }
     <button mat-menu-item (click)="openChannelDetails()">
-        <mat-icon>info</mat-icon>
+        <mat-icon svgIcon="info"></mat-icon>
         <span>{{ 'CHANNELS.SHOW_DETAILS' | translate }}</span>
     </button>
 </mat-menu>

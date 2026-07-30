@@ -5,6 +5,22 @@ engine-agnostic player-controls contract and shared default controls.
 Embedded MPV rendering and native-view bounds behavior remain documented in
 [embedded-mpv-native.md](./embedded-mpv-native.md).
 
+## Bottom-bar presentation preferences
+
+`app-player-controls` is bottom-docked. The optional top fullscreen title is
+informational only and never owns player actions. New `Settings.playerControls`
+preferences capture the shared-control presentation when a web player host is
+created: visibility, auto-hide delay (zero means never hide), compact or
+expanded density, solid/translucent backdrop, and small/medium/large sizing.
+
+`WebPlayerViewComponent` provides this immutable snapshot through
+`PLAYER_CONTROLS_SETTINGS`, alongside `WEB_PLAYER_SHARED_CONTROLS`. Saving a
+preference therefore affects a newly created player host without disrupting a
+current playback session; vendor controls and native-view Embedded MPV retain
+their existing behavior. The fresh live layout also defaults to the player on
+the left with its channel rail on the right; explicit stored `mirrorLayout`
+values continue to win for existing profiles.
+
 ## Current status
 
 The shared-controls foundation from PR #1148 now supports four runtime

@@ -20,7 +20,7 @@ import { SettingsContextService } from '@iptvnator/workspace/shell/util';
                         [attr.data-test-id]="'settings-section-' + section.id"
                         (click)="ctx.navigateToSection(section.id)"
                     >
-                        <mat-icon>{{ section.icon }}</mat-icon>
+                        <mat-icon [svgIcon]="section.icon"></mat-icon>
                         <span>{{ section.label | translate }}</span>
                     </button>
                 }
@@ -32,7 +32,7 @@ import { SettingsContextService } from '@iptvnator/workspace/shell/util';
                 class="nav-item settings-back-button"
                 (click)="onBack()"
             >
-                <mat-icon>arrow_back</mat-icon>
+                <mat-icon svgIcon="arrow_back"></mat-icon>
                 <span>{{ 'SETTINGS.BACK_TO_HOME' | translate }}</span>
             </button>
         </div>

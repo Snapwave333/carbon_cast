@@ -17,7 +17,7 @@ export interface Playlist {
     _id: string;
     title: string;
     filename?: string;
-    playlist?: any;
+    playlist?: unknown;
     importDate: string;
     lastUsage: string;
     /**

@@ -33,4 +33,36 @@ describe('settings form utils — strip country prefix', () => {
 
         expect(settings.stripCountryPrefix).toBe(false);
     });
+
+    it('uses the left-player layout for a fresh form but preserves an explicit choice', () => {
+        const form = createSettingsForm(formBuilder, true);
+
+        expect(form.getRawValue().mirrorLayout).toBe(true);
+
+        form.patchValue({ mirrorLayout: false });
+        expect(
+            createSettingsFromFormValue(form, {} as Settings).mirrorLayout
+        ).toBe(false);
+    });
+
+    it('normalizes persisted bottom-control preferences from the form', () => {
+        const form = createSettingsForm(formBuilder, true);
+        form.patchValue({
+            playerControls: {
+                visible: false,
+                autoHideDelayMs: -10,
+                density: 'compact',
+            },
+        });
+
+        expect(
+            createSettingsFromFormValue(form, {} as Settings).playerControls
+        ).toEqual({
+            visible: false,
+            autoHideDelayMs: 0,
+            density: 'compact',
+            opacity: 'translucent',
+            size: 'medium',
+        });
+    });
 });

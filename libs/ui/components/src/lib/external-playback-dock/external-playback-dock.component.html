@@ -24,7 +24,7 @@
             />
         } @else {
             <div class="external-playback-dock__placeholder">
-                <mat-icon>{{ artworkPlaceholderIcon() }}</mat-icon>
+                <mat-icon [svgIcon]="artworkPlaceholderIcon()"></mat-icon>
             </div>
         }
     </button>
@@ -41,9 +41,7 @@
             @if (showSpinner()) {
                 <mat-spinner diameter="12" strokeWidth="2"></mat-spinner>
             } @else if (showStatusIcon()) {
-                <mat-icon class="external-playback-dock__status-icon">{{
-                    statusIcon()
-                }}</mat-icon>
+                <mat-icon class="external-playback-dock__status-icon" [svgIcon]="statusIcon()"></mat-icon>
             }
             <span class="external-playback-dock__status-text">{{
                 statusLabel()
@@ -59,7 +57,7 @@
                 class="external-playback-dock__button"
                 (click)="closeClicked.emit()"
             >
-                <mat-icon>stop_circle</mat-icon>
+                <mat-icon svgIcon="stop_circle"></mat-icon>
                 @if (!compact()) {
                     <span>{{
                         'WORKSPACE.SHELL.EXTERNAL_PLAYBACK_CLOSE' | translate

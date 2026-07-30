@@ -344,11 +344,6 @@
         "LINK_BLOG": "ブログ",
         "LINK_GITHUB_DESCRIPTION": "リポジトリにスターを付ける、Issueを開く、コントリビュートする",
         "LINK_BLOG_DESCRIPTION": "リリースノート、ヒント、プロジェクトの最新情報",
-        "LINK_TELEGRAM_DESCRIPTION": "お知らせ、コミュニティ、サポート",
-        "SUPPORT_TITLE": "プロジェクトをサポート",
-        "SUPPORT_DESCRIPTION": "IPTVnatorはオープンに開発されている無料のオープンソースソフトウェアです。日々の利用に役立っているなら、わずかなご支援がプロジェクトの継続と今後の方向性を後押しします。ありがとうございます。",
-        "SUPPORT_SPONSORS_HINT": "定期または1回限り",
-        "SUPPORT_KOFI_HINT": "コーヒーを奢る",
         "EPG_NOTE": "現在、EPGはIPTVnatorのelectronベース版でのみ利用可能です。",
         "EPG_NOTE_URL_TEXT": "こちらをチェック",
         "IMPORT_EXPORT_DATA": "プレイリストのインポート/エクスポート",
@@ -451,7 +446,11 @@
         "APP_UPDATE_RELEASE_NOTES": "What's new",
         "EMBEDDED_MPV_FRAME_COPY": "埋め込みMPV：フレームコピーエンジン（実験的）",
         "EMBEDDED_MPV_FRAME_COPY_DESCRIPTION": "映像をアプリのキャンバスに描画するため、メニューやダイアログをその上に表示できます。",
-        "EMBEDDED_MPV_FRAME_COPY_RESTART": "アプリの再起動後に有効になります。"
+        "EMBEDDED_MPV_FRAME_COPY_RESTART": "アプリの再起動後に有効になります。",
+        "ATTRIBUTION": "Attribution",
+        "ATTRIBUTION_DESCRIPTION": "CarbonCast IPTV is a fork of IPTVnator (github.com/4gray/iptvnator). The upstream project and its contributors are credited under the original license. CarbonCast IPTV is an independent fork and is not endorsed by the upstream maintainers.",
+        "MIRROR_LAYOUT": "Mirror layout",
+        "MIRROR_LAYOUT_DESCRIPTION": "Put the player on the left and the channel/category rail on the right. Applies to the playlist player and Xtream/Stalker live views."
     },
     "THEMES": {
         "DARK_THEME": "ダーク",
@@ -611,6 +610,7 @@
             "NAME": "名前",
             "CHANNEL_ID": "チャンネルID",
             "STREAM_URL": "ストリームURL",
+            "COPY_URL": "Copy stream URL",
             "GROUP": "グループ",
             "RADIO": "ラジオ",
             "CATCHUP_AVAILABLE": "Catchup利用可能",
@@ -654,8 +654,10 @@
         "ZOOM_OUT": "縮小",
         "FILTER_CHANNELS": "チャンネルをフィルター",
         "CLOSE_FILTER": "フィルターを閉じる",
+        "CLEAR_FILTER": "Clear filter",
         "SEARCH_PROGRAMS": "番組を検索",
         "CLOSE_PROGRAM_SEARCH": "番組検索を閉じる",
+        "CLEAR_PROGRAM_SEARCH": "Clear program search",
         "LIVE_STREAM": "ライブストリーム",
         "ARCHIVE_PLAYBACK_UNAVAILABLE_TITLE": "アーカイブ再生は利用できません",
         "ARCHIVE_PLAYBACK_UNAVAILABLE_DESCRIPTION": "このプロバイダーはチャンネルの番組履歴を提供していますが、アーカイブ／Catchup再生には対応していません。",
@@ -965,6 +967,7 @@
         },
         "SEARCH_VIEW": {
             "INITIAL_TITLE": "コンテンツを検索",
+            "CLEAR": "Clear search",
             "INITIAL_DESCRIPTION": "ライブTV、映画、シリーズを横断して検索するには3文字以上を入力してください。",
             "RESULTS_FOUND": "{{count}}件の結果が見つかりました",
             "NO_RESULTS_FOR": "「{{term}}」に一致する結果は見つかりませんでした",
@@ -1241,7 +1244,8 @@
             "XTREAM_REFRESH_DELETING_CATEGORIES": "キャッシュ済みカテゴリを削除しています...",
             "XTREAM_REFRESH_DETAIL_LOCAL": "お気に入り、視聴履歴、非表示カテゴリ、再生進捗を同期後に復元できるよう準備しています。",
             "XTREAM_REFRESH_PROGRESS": "処理済みローカルレコード: {{current}} / {{total}}",
-            "RAIL_RADIO": "ラジオ"
+            "RAIL_RADIO": "ラジオ",
+            "RAIL_FOLLOWED_SERIES": "Followed series"
         },
         "SOURCES": {
             "TITLE": "ソース",

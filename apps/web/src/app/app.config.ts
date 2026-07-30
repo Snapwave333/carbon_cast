@@ -39,6 +39,7 @@ import {
     AppPortalNavigationActionsService,
     providePortalNavigationActions,
 } from './services/portal-navigation-actions.service';
+import { provideAppIcons } from './icons/app-icons.provider';
 import { providePortalPlaybackPositions } from './services/portal-playback-positions.service';
 import { PwaService } from './services/pwa.service';
 import { shouldEnableServiceWorker } from './services/runtime-config';
@@ -106,6 +107,7 @@ export const appConfig: ApplicationConfig = {
     providers: [
         provideZoneChangeDetection({ eventCoalescing: true }),
         provideRouter(routes, withComponentInputBinding()),
+        provideAppIcons(),
         provideAnimations(),
         provideHttpClient(withInterceptorsFromDi()),
         provideStore({

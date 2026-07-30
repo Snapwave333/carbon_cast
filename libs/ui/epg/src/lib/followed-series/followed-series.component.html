@@ -1,0 +1,727 @@
+<main class="followed-page">
+    <header class="followed-page__header">
+        <div>
+            <p class="followed-page__eyebrow">EPG AUTOMATION</p>
+            <h1>Followed Series</h1>
+            <p class="followed-page__intro">
+                Track upcoming broadcasts and hand playback to the right channel
+                automatically.
+            </p>
+        </div>
+        <div class="followed-page__header-actions">
+            <button
+                type="button"
+                class="icon-action"
+                (click)="followed.refresh()"
+                aria-label="Refresh followed series schedule"
+            >
+                @if (followed.refreshStatus().state === 'refreshing') {
+                    <mat-spinner diameter="20" />
+                } @else {
+                    <mat-icon svgIcon="refresh" />
+                }
+            </button>
+            <button
+                type="button"
+                class="toolbar-action"
+                [attr.aria-expanded]="settingsOpen()"
+                (click)="settingsOpen.set(!settingsOpen())"
+            >
+                <mat-icon svgIcon="tune" />
+                Preferences
+            </button>
+            <button
+                type="button"
+                class="toolbar-action toolbar-action--danger"
+                (click)="followed.removeExpiredEpisodes()"
+            >
+                <mat-icon svgIcon="delete_sweep" />
+                Remove expired
+            </button>
+        </div>
+    </header>
+
+    <div
+        class="refresh-state"
+        [class.refresh-state--error]="
+            followed.refreshStatus().state === 'error' ||
+            followed.refreshStatus().state === 'offline'
+        "
+    >
+        <span class="status-dot"></span>
+        <span>{{ followed.refreshStatus().state }}</span>
+        @if (followed.refreshStatus().lastSuccessAt; as updated) {
+            <span>Updated {{ updated | date: 'medium' }}</span>
+        }
+        @if (followed.refreshStatus().lastError; as error) {
+            <span>{{ error }}</span>
+        }
+    </div>
+
+    @if (settingsOpen()) {
+        <section
+            class="preferences-panel"
+            aria-label="Followed series preferences"
+        >
+            <div class="preferences-panel__heading">
+                <div>
+                    <p class="section-kicker">AUTOMATION RULES</p>
+                    <h2>Playback preferences</h2>
+                </div>
+                @if (notificationPermission() !== 'granted') {
+                    <button
+                        type="button"
+                        class="text-action"
+                        (click)="requestNotificationPermission()"
+                    >
+                        Enable system notifications
+                    </button>
+                }
+            </div>
+            <div class="preferences-grid">
+                <label class="toggle-setting">
+                    <input
+                        type="checkbox"
+                        [checked]="followed.preferences().defaultAutoSwitch"
+                        (change)="updateBoolean('defaultAutoSwitch', $event)"
+                    />
+                    <span
+                        ><strong>Default auto-switch</strong
+                        ><small
+                            >Enable the first airing found for new
+                            matches.</small
+                        ></span
+                    >
+                </label>
+                <label class="toggle-setting">
+                    <input
+                        type="checkbox"
+                        [checked]="followed.preferences().onlyNewEpisodes"
+                        (change)="updateBoolean('onlyNewEpisodes', $event)"
+                    />
+                    <span
+                        ><strong>Only new episodes</strong
+                        ><small
+                            >Skip repeats when the guide identifies them.</small
+                        ></span
+                    >
+                </label>
+                <label class="toggle-setting">
+                    <input
+                        type="checkbox"
+                        [checked]="followed.preferences().includeReruns"
+                        (change)="updateBoolean('includeReruns', $event)"
+                    />
+                    <span
+                        ><strong>Include reruns</strong
+                        ><small
+                            >Keep repeat broadcasts as alternatives.</small
+                        ></span
+                    >
+                </label>
+                <label class="toggle-setting">
+                    <input
+                        type="checkbox"
+                        [checked]="
+                            followed.preferences().returnToPreviousChannel
+                        "
+                        (change)="
+                            updateBoolean('returnToPreviousChannel', $event)
+                        "
+                    />
+                    <span
+                        ><strong>Return after episode</strong
+                        ><small
+                            >Restore the previous live channel at the scheduled
+                            end.</small
+                        ></span
+                    >
+                </label>
+                <label class="toggle-setting">
+                    <input
+                        type="checkbox"
+                        [checked]="
+                            followed.preferences().playNextScheduledEpisode
+                        "
+                        (change)="
+                            updateBoolean('playNextScheduledEpisode', $event)
+                        "
+                    />
+                    <span
+                        ><strong>Play next scheduled episode</strong
+                        ><small
+                            >Allow the next enabled episode to take over
+                            automatically.</small
+                        ></span
+                    >
+                </label>
+                <label class="toggle-setting">
+                    <input
+                        type="checkbox"
+                        [checked]="followed.preferences().disableWhileRecording"
+                        (change)="
+                            updateBoolean('disableWhileRecording', $event)
+                        "
+                    />
+                    <span
+                        ><strong>Protect recordings</strong
+                        ><small
+                            >Do not switch while Embedded MPV is
+                            recording.</small
+                        ></span
+                    >
+                </label>
+                <label class="toggle-setting">
+                    <input
+                        type="checkbox"
+                        [checked]="followed.preferences().disableWhileCasting"
+                        (change)="updateBoolean('disableWhileCasting', $event)"
+                    />
+                    <span
+                        ><strong>Protect casting</strong
+                        ><small
+                            >Do not interrupt an active remote playback
+                            session.</small
+                        ></span
+                    >
+                </label>
+                <label class="toggle-setting">
+                    <input
+                        type="checkbox"
+                        [checked]="followed.preferences().notifications.enabled"
+                        (change)="updateNotification('enabled', $event)"
+                    />
+                    <span
+                        ><strong>Notifications</strong
+                        ><small
+                            >Show schedule, episode, and switch alerts.</small
+                        ></span
+                    >
+                </label>
+                <label class="toggle-setting">
+                    <input
+                        type="checkbox"
+                        [checked]="
+                            followed.preferences().notifications.newEpisode
+                        "
+                        (change)="updateNotification('newEpisode', $event)"
+                    />
+                    <span
+                        ><strong>New episode alerts</strong
+                        ><small
+                            >Notify when a new guide match appears.</small
+                        ></span
+                    >
+                </label>
+                <label class="toggle-setting">
+                    <input
+                        type="checkbox"
+                        [checked]="
+                            followed.preferences().notifications.scheduleChanges
+                        "
+                        (change)="updateNotification('scheduleChanges', $event)"
+                    />
+                    <span
+                        ><strong>Schedule change alerts</strong
+                        ><small
+                            >Notify when a broadcast moves or disappears.</small
+                        ></span
+                    >
+                </label>
+                <label class="toggle-setting">
+                    <input
+                        type="checkbox"
+                        [checked]="
+                            followed.preferences().notifications.failures
+                        "
+                        (change)="updateNotification('failures', $event)"
+                    />
+                    <span
+                        ><strong>Failure alerts</strong
+                        ><small
+                            >Notify when all candidate streams fail.</small
+                        ></span
+                    >
+                </label>
+                <label class="field-setting">
+                    <span>Switch early by</span>
+                    <span class="input-unit"
+                        ><input
+                            type="number"
+                            min="0"
+                            max="300"
+                            [value]="followed.preferences().switchLeadSeconds"
+                            (change)="updateNumber('switchLeadSeconds', $event)"
+                        /><small>seconds</small></span
+                    >
+                </label>
+                <label class="field-setting">
+                    <span>Countdown length</span>
+                    <span class="input-unit"
+                        ><input
+                            type="number"
+                            min="1"
+                            max="300"
+                            [value]="
+                                followed.preferences().switchCountdownSeconds
+                            "
+                            (change)="
+                                updateNumber('switchCountdownSeconds', $event)
+                            "
+                        /><small>seconds</small></span
+                    >
+                </label>
+                <label class="field-setting">
+                    <span>Conflict behavior</span>
+                    <select
+                        [value]="followed.preferences().conflictBehavior"
+                        (change)="updateText('conflictBehavior', $event)"
+                    >
+                        <option value="priority">Use series priority</option>
+                        <option value="first-available">
+                            First available stream
+                        </option>
+                        <option value="prompt">Always prompt</option>
+                    </select>
+                </label>
+                <label class="field-setting">
+                    <span>Notification timing</span>
+                    <select
+                        [value]="followed.preferences().notifications.timing"
+                        (change)="updateNotification('timing', $event)"
+                    >
+                        <option value="five-minutes">Five minutes</option>
+                        <option value="one-minute">One minute</option>
+                        <option value="ten-seconds">Ten seconds</option>
+                        <option value="countdown-only">Countdown only</option>
+                    </select>
+                </label>
+                <label class="field-setting">
+                    <span>Preferred language</span>
+                    <input
+                        type="text"
+                        [value]="followed.preferences().preferredLanguage"
+                        placeholder="Any"
+                        (change)="updateText('preferredLanguage', $event)"
+                    />
+                </label>
+                <label class="field-setting">
+                    <span>Preferred quality</span>
+                    <input
+                        type="text"
+                        [value]="followed.preferences().preferredVideoQuality"
+                        placeholder="Auto"
+                        (change)="updateText('preferredVideoQuality', $event)"
+                    />
+                </label>
+            </div>
+            @if (followed.channelMappings().length) {
+                <details class="preferred-channels">
+                    <summary>Preferred channels</summary>
+                    <div class="preferred-channels__grid">
+                        @for (
+                            channel of followed.channelMappings();
+                            track channel.id
+                        ) {
+                            <label>
+                                <input
+                                    type="checkbox"
+                                    [checked]="
+                                        followed
+                                            .preferences()
+                                            .preferredChannelIds.includes(
+                                                channel.channelId
+                                            )
+                                    "
+                                    (change)="
+                                        togglePreferredChannel(
+                                            channel.channelId,
+                                            $event
+                                        )
+                                    "
+                                />
+                                <span>{{ channel.name }}</span>
+                            </label>
+                        }
+                    </div>
+                </details>
+            }
+        </section>
+    }
+
+    @if (followed.pendingConflict(); as conflict) {
+        <section class="conflict-card" aria-live="polite">
+            <mat-icon svgIcon="warning" />
+            <div>
+                <h2>Choose which broadcast wins</h2>
+                <p>
+                    Several enabled episodes are scheduled for
+                    {{ conflict.scheduledSwitchAt | date: 'medium' }}.
+                </p>
+                <div class="conflict-card__options">
+                    @for (
+                        schedule of pendingConflictSchedules();
+                        track schedule.id
+                    ) {
+                        <button
+                            type="button"
+                            (click)="chooseConflict(schedule.id)"
+                        >
+                            {{ scheduleSummary(schedule) }}
+                        </button>
+                    }
+                </div>
+            </div>
+        </section>
+    }
+
+    @if (
+        followed.refreshStatus().state === 'refreshing' &&
+        followed.followedSeries().length > 0 &&
+        view().length === 0
+    ) {
+        <section class="empty-state" aria-live="polite">
+            <mat-spinner diameter="36" />
+            <h2>Finding upcoming episodes</h2>
+            <p>
+                The latest programme guide is being matched across your
+                channels.
+            </p>
+        </section>
+    } @else if (view().length === 0) {
+        <section class="empty-state">
+            <mat-icon svgIcon="calendar_month" />
+            @if (followed.followedSeries().length > 0) {
+                <h2>No upcoming broadcasts found</h2>
+                <p>
+                    Your series are still followed. Refresh the guide or adjust
+                    rerun and new-episode preferences.
+                </p>
+            } @else {
+                <h2>No followed series yet</h2>
+                <p>
+                    Open a series or an EPG programme and choose
+                    <strong>Follow Series</strong>. Upcoming episodes will
+                    appear here after the guide refreshes.
+                </p>
+            }
+        </section>
+    } @else {
+        <section
+            class="series-list"
+            aria-label="Upcoming followed series broadcasts"
+        >
+            @for (group of view(); track group.series.id) {
+                <article class="series-card">
+                    <header class="series-card__header">
+                        @if (group.series.artworkUrl) {
+                            <img
+                                [src]="group.series.artworkUrl"
+                                [alt]="group.series.title"
+                                loading="lazy"
+                            />
+                        } @else {
+                            <span class="series-card__art-fallback"
+                                ><mat-icon svgIcon="live_tv"
+                            /></span>
+                        }
+                        <div class="series-card__identity">
+                            <span class="source-badge">{{
+                                group.series.source
+                            }}</span>
+                            <h2>{{ group.series.title }}</h2>
+                            <p>
+                                {{ group.episodes.length }} upcoming
+                                {{
+                                    group.episodes.length === 1
+                                        ? 'episode'
+                                        : 'episodes'
+                                }}
+                            </p>
+                        </div>
+                        <label class="priority-field">
+                            <span>Priority</span>
+                            <input
+                                type="number"
+                                min="0"
+                                max="999"
+                                [value]="group.series.priority"
+                                (change)="
+                                    followed.setSeriesPriority(
+                                        group.series.id,
+                                        $any($event.target).valueAsNumber
+                                    )
+                                "
+                            />
+                        </label>
+                        <button
+                            type="button"
+                            class="text-action text-action--danger"
+                            (click)="followed.unfollow(group.series.id)"
+                        >
+                            Unfollow
+                        </button>
+                    </header>
+
+                    <div class="episode-list">
+                        @for (item of group.episodes; track item.episode.id) {
+                            @let primary = item.broadcasts[0];
+                            <section class="episode-row">
+                                <div class="episode-row__title">
+                                    <span class="episode-code">{{
+                                        episodeCode(item.episode)
+                                    }}</span>
+                                    <div>
+                                        <h3>{{ item.episode.title }}</h3>
+                                        @if (item.episode.description) {
+                                            <p>
+                                                {{ item.episode.description }}
+                                            </p>
+                                        }
+                                    </div>
+                                    <span
+                                        class="newness-badge"
+                                        [class.newness-badge--new]="
+                                            item.episode.newness === 'new'
+                                        "
+                                        >{{ item.episode.newness }}</span
+                                    >
+                                </div>
+                                <div class="broadcast-row">
+                                    <div class="channel-cell">
+                                        @if (primary.broadcast.channelLogo) {
+                                            <img
+                                                [src]="
+                                                    primary.broadcast
+                                                        .channelLogo
+                                                "
+                                                [alt]="
+                                                    primary.broadcast
+                                                        .channelName
+                                                "
+                                                loading="lazy"
+                                            />
+                                        }
+                                        <span>
+                                            <strong>{{
+                                                primary.broadcast.channelName
+                                            }}</strong>
+                                            <small>
+                                                @if (
+                                                    primary.broadcast
+                                                        .channelNumber
+                                                ) {
+                                                    #{{
+                                                        primary.broadcast
+                                                            .channelNumber
+                                                    }}
+                                                    ·
+                                                }
+                                                {{
+                                                    primary.broadcast.startAt
+                                                        | date
+                                                            : 'EEE, MMM d · h:mm a'
+                                                }}–
+                                                @if (
+                                                    crossesDateBoundary(
+                                                        primary.broadcast
+                                                            .startAt,
+                                                        primary.broadcast.endAt
+                                                    )
+                                                ) {
+                                                    {{
+                                                        primary.broadcast.endAt
+                                                            | date
+                                                                : 'EEE, MMM d · h:mm a'
+                                                    }}
+                                                } @else {
+                                                    {{
+                                                        primary.broadcast.endAt
+                                                            | date: 'h:mm a'
+                                                    }}
+                                                }
+                                                @if (
+                                                    primary.broadcast
+                                                        .channelGroup
+                                                ) {
+                                                    ·
+                                                    {{
+                                                        primary.broadcast
+                                                            .channelGroup
+                                                    }}
+                                                }
+                                            </small>
+                                        </span>
+                                    </div>
+                                    <app-broadcast-remaining-time
+                                        [startAt]="primary.broadcast.startAt"
+                                        [endAt]="primary.broadcast.endAt"
+                                    />
+                                    <span
+                                        class="schedule-status"
+                                        [attr.data-status]="
+                                            primary.broadcast.availability
+                                        "
+                                        >{{
+                                            primary.broadcast.availability
+                                        }}</span
+                                    >
+                                    <span
+                                        class="schedule-status"
+                                        [attr.data-status]="
+                                            primary.schedule?.status ?? 'off'
+                                        "
+                                        >{{
+                                            autoSwitchLabel(primary.schedule)
+                                        }}</span
+                                    >
+                                    <label class="auto-switch-toggle">
+                                        <input
+                                            type="checkbox"
+                                            [checked]="
+                                                isAutoEnabled(primary.schedule)
+                                            "
+                                            [disabled]="
+                                                !primary.schedule ||
+                                                !primary.broadcast
+                                                    .channelMappingId
+                                            "
+                                            (change)="toggleAuto(primary)"
+                                        />
+                                        <span>Auto-switch</span>
+                                    </label>
+                                    <div class="episode-row__actions">
+                                        <button
+                                            type="button"
+                                            (click)="
+                                                openChannel(primary.schedule)
+                                            "
+                                            [disabled]="
+                                                !primary.schedule ||
+                                                !primary.broadcast
+                                                    .channelMappingId
+                                            "
+                                        >
+                                            <mat-icon svgIcon="play_arrow" />
+                                            Open channel
+                                        </button>
+                                        <button
+                                            type="button"
+                                            (click)="
+                                                showDetails(
+                                                    item.episode,
+                                                    primary.broadcast
+                                                )
+                                            "
+                                        >
+                                            Details
+                                        </button>
+                                        @if (item.broadcasts.length > 1) {
+                                            <button
+                                                type="button"
+                                                [attr.aria-expanded]="
+                                                    expandedEpisodeId() ===
+                                                    item.episode.id
+                                                "
+                                                (click)="
+                                                    toggleAlternatives(
+                                                        item.episode.id
+                                                    )
+                                                "
+                                            >
+                                                {{ item.broadcasts.length - 1 }}
+                                                alternatives
+                                            </button>
+                                        }
+                                    </div>
+                                </div>
+                                @if (expandedEpisodeId() === item.episode.id) {
+                                    <div class="alternatives-list">
+                                        @for (
+                                            alternative of item.broadcasts.slice(
+                                                1
+                                            );
+                                            track alternative.broadcast.id
+                                        ) {
+                                            <div class="alternative-row">
+                                                <span
+                                                    ><strong>{{
+                                                        alternative.broadcast
+                                                            .channelName
+                                                    }}</strong
+                                                    ><small
+                                                        >{{
+                                                            alternative
+                                                                .broadcast
+                                                                .startAt
+                                                                | date
+                                                                    : 'EEE, MMM d · h:mm a'
+                                                        }}–{{
+                                                            alternative
+                                                                .broadcast.endAt
+                                                                | date: 'h:mm a'
+                                                        }}</small
+                                                    ></span
+                                                >
+                                                <span
+                                                    class="schedule-status"
+                                                    [attr.data-status]="
+                                                        alternative.schedule
+                                                            ?.status ?? 'off'
+                                                    "
+                                                    >{{
+                                                        alternative.broadcast
+                                                            .availability
+                                                    }}</span
+                                                >
+                                                <button
+                                                    type="button"
+                                                    (click)="
+                                                        openChannel(
+                                                            alternative.schedule
+                                                        )
+                                                    "
+                                                    [disabled]="
+                                                        !alternative.schedule ||
+                                                        !alternative.broadcast
+                                                            .channelMappingId
+                                                    "
+                                                >
+                                                    Open
+                                                </button>
+                                                <label
+                                                    class="auto-switch-toggle"
+                                                >
+                                                    <input
+                                                        type="checkbox"
+                                                        [checked]="
+                                                            isAutoEnabled(
+                                                                alternative.schedule
+                                                            )
+                                                        "
+                                                        [disabled]="
+                                                            !alternative.schedule ||
+                                                            !alternative
+                                                                .broadcast
+                                                                .channelMappingId
+                                                        "
+                                                        (change)="
+                                                            toggleAuto(
+                                                                alternative
+                                                            )
+                                                        "
+                                                    />
+                                                    <span>Auto</span>
+                                                </label>
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                            </section>
+                        }
+                    </div>
+                </article>
+            }
+        </section>
+    }
+</main>

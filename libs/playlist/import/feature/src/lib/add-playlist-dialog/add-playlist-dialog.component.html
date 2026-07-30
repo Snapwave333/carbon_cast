@@ -24,7 +24,7 @@
                     (click)="method.set(opt.value)"
                 >
                     <span class="apd-method__icon" aria-hidden="true">
-                        <mat-icon>{{ opt.icon }}</mat-icon>
+                        <mat-icon [svgIcon]="opt.icon"></mat-icon>
                     </span>
                     <span class="apd-method__title">
                         {{ opt.labelKey | translate }}

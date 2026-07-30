@@ -1,0 +1,457 @@
+{
+  "fileCount": 113,
+  "files": [
+    {
+      "path": "AGENTS.md",
+      "bytes": 822
+    },
+    {
+      "path": "ASSET_NOTICE.md",
+      "bytes": 395
+    },
+    {
+      "path": "CLAUDE_CODE_TASK.md",
+      "bytes": 7354
+    },
+    {
+      "path": "README.md",
+      "bytes": 3412
+    },
+    {
+      "path": "assets/favicons/android-chrome-192x192.png",
+      "bytes": 6331
+    },
+    {
+      "path": "assets/favicons/android-chrome-512x512.png",
+      "bytes": 17483
+    },
+    {
+      "path": "assets/favicons/apple-touch-icon.png",
+      "bytes": 5985
+    },
+    {
+      "path": "assets/favicons/browserconfig.xml",
+      "bytes": 198
+    },
+    {
+      "path": "assets/favicons/favicon-16x16.png",
+      "bytes": 488
+    },
+    {
+      "path": "assets/favicons/favicon-32x32.png",
+      "bytes": 811
+    },
+    {
+      "path": "assets/favicons/favicon-48x48.png",
+      "bytes": 1677
+    },
+    {
+      "path": "assets/favicons/favicon.ico",
+      "bytes": 18042
+    },
+    {
+      "path": "assets/favicons/favicon.svg",
+      "bytes": 699
+    },
+    {
+      "path": "assets/favicons/maskable-512x512.png",
+      "bytes": 17469
+    },
+    {
+      "path": "assets/favicons/site.webmanifest",
+      "bytes": 582
+    },
+    {
+      "path": "assets/icons/_tmp-40.svg",
+      "bytes": 699
+    },
+    {
+      "path": "assets/icons/android/mipmap-hdpi/ic_launcher.png",
+      "bytes": 2509
+    },
+    {
+      "path": "assets/icons/android/mipmap-mdpi/ic_launcher.png",
+      "bytes": 1677
+    },
+    {
+      "path": "assets/icons/android/mipmap-xhdpi/ic_launcher.png",
+      "bytes": 3282
+    },
+    {
+      "path": "assets/icons/android/mipmap-xxhdpi/ic_launcher.png",
+      "bytes": 4853
+    },
+    {
+      "path": "assets/icons/android/mipmap-xxxhdpi/ic_launcher.png",
+      "bytes": 6331
+    },
+    {
+      "path": "assets/icons/app-icon.icns",
+      "bytes": 116062
+    },
+    {
+      "path": "assets/icons/app-icon.ico",
+      "bytes": 18042
+    },
+    {
+      "path": "assets/icons/app-icon.svg",
+      "bytes": 699
+    },
+    {
+      "path": "assets/icons/ios/AppIcon-1024.png",
+      "bytes": 39295
+    },
+    {
+      "path": "assets/icons/ios/AppIcon-20@2x.png",
+      "bytes": 1380
+    },
+    {
+      "path": "assets/icons/ios/AppIcon-20@3x.png",
+      "bytes": 2263
+    },
+    {
+      "path": "assets/icons/ios/AppIcon-29@2x.png",
+      "bytes": 2263
+    },
+    {
+      "path": "assets/icons/ios/AppIcon-29@3x.png",
+      "bytes": 3282
+    },
+    {
+      "path": "assets/icons/ios/AppIcon-40@2x.png",
+      "bytes": 2509
+    },
+    {
+      "path": "assets/icons/ios/AppIcon-40@3x.png",
+      "bytes": 4167
+    },
+    {
+      "path": "assets/icons/ios/AppIcon-60@2x.png",
+      "bytes": 4167
+    },
+    {
+      "path": "assets/icons/ios/AppIcon-60@3x.png",
+      "bytes": 5985
+    },
+    {
+      "path": "assets/icons/ios/AppIcon-76@2x.png",
+      "bytes": 5065
+    },
+    {
+      "path": "assets/icons/linux/icon-512.png",
+      "bytes": 17483
+    },
+    {
+      "path": "assets/icons/macos/icon.icns",
+      "bytes": 116062
+    },
+    {
+      "path": "assets/icons/maskable-icon.svg",
+      "bytes": 699
+    },
+    {
+      "path": "assets/icons/png/app-icon-1024.png",
+      "bytes": 39295
+    },
+    {
+      "path": "assets/icons/png/app-icon-128.png",
+      "bytes": 4167
+    },
+    {
+      "path": "assets/icons/png/app-icon-144.png",
+      "bytes": 4853
+    },
+    {
+      "path": "assets/icons/png/app-icon-152.png",
+      "bytes": 5065
+    },
+    {
+      "path": "assets/icons/png/app-icon-16.png",
+      "bytes": 488
+    },
+    {
+      "path": "assets/icons/png/app-icon-180.png",
+      "bytes": 5985
+    },
+    {
+      "path": "assets/icons/png/app-icon-192.png",
+      "bytes": 6331
+    },
+    {
+      "path": "assets/icons/png/app-icon-20.png",
+      "bytes": 613
+    },
+    {
+      "path": "assets/icons/png/app-icon-24.png",
+      "bytes": 656
+    },
+    {
+      "path": "assets/icons/png/app-icon-256.png",
+      "bytes": 8361
+    },
+    {
+      "path": "assets/icons/png/app-icon-32.png",
+      "bytes": 811
+    },
+    {
+      "path": "assets/icons/png/app-icon-384.png",
+      "bytes": 12916
+    },
+    {
+      "path": "assets/icons/png/app-icon-40.png",
+      "bytes": 1380
+    },
+    {
+      "path": "assets/icons/png/app-icon-48.png",
+      "bytes": 1677
+    },
+    {
+      "path": "assets/icons/png/app-icon-512.png",
+      "bytes": 17483
+    },
+    {
+      "path": "assets/icons/png/app-icon-64.png",
+      "bytes": 2263
+    },
+    {
+      "path": "assets/icons/png/app-icon-72.png",
+      "bytes": 2509
+    },
+    {
+      "path": "assets/icons/png/app-icon-96.png",
+      "bytes": 3282
+    },
+    {
+      "path": "assets/icons/windows/icon-256.png",
+      "bytes": 8361
+    },
+    {
+      "path": "assets/icons/windows/icon.ico",
+      "bytes": 18042
+    },
+    {
+      "path": "assets/logos/logo-horizontal-dark.svg",
+      "bytes": 1566
+    },
+    {
+      "path": "assets/logos/logo-horizontal-light.svg",
+      "bytes": 1566
+    },
+    {
+      "path": "assets/logos/logo-horizontal-monochrome-dark.svg",
+      "bytes": 1566
+    },
+    {
+      "path": "assets/logos/logo-mark-monochrome-black.svg",
+      "bytes": 694
+    },
+    {
+      "path": "assets/logos/logo-mark-monochrome-white.svg",
+      "bytes": 694
+    },
+    {
+      "path": "assets/logos/logo-mark-on-carbon.svg",
+      "bytes": 697
+    },
+    {
+      "path": "assets/logos/logo-mark.svg",
+      "bytes": 694
+    },
+    {
+      "path": "assets/logos/logo-stacked-dark.svg",
+      "bytes": 1576
+    },
+    {
+      "path": "assets/logos/logo-stacked-light.svg",
+      "bytes": 1576
+    },
+    {
+      "path": "assets/logos/png/logo-horizontal-dark.png",
+      "bytes": 39428
+    },
+    {
+      "path": "assets/logos/png/logo-horizontal-light.png",
+      "bytes": 38753
+    },
+    {
+      "path": "assets/logos/png/logo-mark-on-carbon.png",
+      "bytes": 39295
+    },
+    {
+      "path": "assets/logos/png/logo-stacked-dark.png",
+      "bytes": 39866
+    },
+    {
+      "path": "assets/logos/png/logo-stacked-light.png",
+      "bytes": 37040
+    },
+    {
+      "path": "assets/patterns/carbon-fiber-tile-256.png",
+      "bytes": 3055
+    },
+    {
+      "path": "assets/patterns/carbon-fiber-tile.svg",
+      "bytes": 364
+    },
+    {
+      "path": "assets/reference/README.md",
+      "bytes": 191
+    },
+    {
+      "path": "assets/reference/brand-style-guide.png",
+      "bytes": 1544003
+    },
+    {
+      "path": "assets/reference/icon-system-guide.png",
+      "bytes": 1636718
+    },
+    {
+      "path": "assets/reference/splash-concepts.png",
+      "bytes": 1639477
+    },
+    {
+      "path": "assets/splash/splash-desktop-1920x1080.png",
+      "bytes": 636391
+    },
+    {
+      "path": "assets/splash/splash-desktop-1920x1080.svg",
+      "bytes": 3106
+    },
+    {
+      "path": "assets/splash/splash-desktop-2560x1440.png",
+      "bytes": 978892
+    },
+    {
+      "path": "assets/splash/splash-desktop-2560x1440.svg",
+      "bytes": 3143
+    },
+    {
+      "path": "assets/splash/splash-mobile-1080x1920.png",
+      "bytes": 691343
+    },
+    {
+      "path": "assets/splash/splash-mobile-1080x1920.svg",
+      "bytes": 3224
+    },
+    {
+      "path": "assets/splash/splash-tablet-1536x2048.png",
+      "bytes": 945436
+    },
+    {
+      "path": "assets/splash/splash-tablet-1536x2048.svg",
+      "bytes": 3113
+    },
+    {
+      "path": "assets/splash/splash-tv-3840x2160.png",
+      "bytes": 1750828
+    },
+    {
+      "path": "assets/splash/splash-tv-3840x2160.svg",
+      "bytes": 3133
+    },
+    {
+      "path": "docs/ACCEPTANCE_CHECKLIST.md",
+      "bytes": 1255
+    },
+    {
+      "path": "docs/BRAND_IMPLEMENTATION_SPEC.md",
+      "bytes": 2250
+    },
+    {
+      "path": "docs/REMOVAL_SCOPE.md",
+      "bytes": 1286
+    },
+    {
+      "path": "docs/UPSTREAM_ATTRIBUTION_POLICY.md",
+      "bytes": 1054
+    },
+    {
+      "path": "examples/electron/forge-config-notes.md",
+      "bytes": 542
+    },
+    {
+      "path": "examples/react/BrandLogo.tsx",
+      "bytes": 598
+    },
+    {
+      "path": "examples/react/SplashScreen.tsx",
+      "bytes": 761
+    },
+    {
+      "path": "examples/react/splash-screen.css",
+      "bytes": 712
+    },
+    {
+      "path": "examples/tauri/config-fragment.json",
+      "bytes": 208
+    },
+    {
+      "path": "examples/web/head-snippet.html",
+      "bytes": 388
+    },
+    {
+      "path": "manifests/asset-manifest.json",
+      "bytes": 14229
+    },
+    {
+      "path": "manifests/integration-targets.json",
+      "bytes": 772
+    },
+    {
+      "path": "manifests/removal-patterns.json",
+      "bytes": 830
+    },
+    {
+      "path": "scripts/audit-original-promotion.mjs",
+      "bytes": 2764
+    },
+    {
+      "path": "scripts/copy-assets.mjs",
+      "bytes": 878
+    },
+    {
+      "path": "scripts/discover-upstream.mjs",
+      "bytes": 2815
+    },
+    {
+      "path": "scripts/run-audits.ps1",
+      "bytes": 457
+    },
+    {
+      "path": "scripts/run-audits.sh",
+      "bytes": 348
+    },
+    {
+      "path": "scripts/verify-brand-assets.mjs",
+      "bytes": 873
+    },
+    {
+      "path": "templates/README_ATTRIBUTION.md",
+      "bytes": 284
+    },
+    {
+      "path": "templates/THIRD_PARTY_NOTICES.md",
+      "bytes": 348
+    },
+    {
+      "path": "templates/about-credit.json",
+      "bytes": 278
+    },
+    {
+      "path": "tokens/brand-tokens.json",
+      "bytes": 992
+    },
+    {
+      "path": "tokens/brand.css",
+      "bytes": 1469
+    },
+    {
+      "path": "tokens/brand.ts",
+      "bytes": 585
+    },
+    {
+      "path": "tokens/tailwind.extend.cjs",
+      "bytes": 459
+    }
+  ]
+}

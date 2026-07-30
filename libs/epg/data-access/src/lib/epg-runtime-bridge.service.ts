@@ -15,6 +15,8 @@ import {
     ElectronBridgeTrustOptions,
     EpgChannelMetadata,
     EpgProgram,
+    FollowedSeriesProgramCandidate,
+    FollowedSeriesProgramQuery,
 } from '@iptvnator/shared/interfaces';
 import { RuntimeCapabilitiesService } from '@iptvnator/services';
 
@@ -40,6 +42,7 @@ type EpgElectronBridge = Pick<
     | 'getEpgChannelsByRange'
     | 'onEpgProgress'
     | 'searchEpgPrograms'
+    | 'getFollowedSeriesPrograms'
     | 'getEpgMapping'
     | 'getEpgMappingsBatch'
     | 'setEpgMapping'
@@ -232,6 +235,19 @@ export class EpgRuntimeBridgeService {
         );
     }
 
+    getFollowedSeriesPrograms(
+        request: FollowedSeriesProgramQuery
+    ): Promise<FollowedSeriesProgramCandidate[] | null> {
+        if (!this.runtime.supportsFollowedSeriesLookup) {
+            return Promise.resolve(null);
+        }
+
+        return (
+            this.bridge?.getFollowedSeriesPrograms?.(request) ??
+            Promise.resolve(null)
+        );
+    }
+
     getEpgMapping(
         channelKey: string
     ): Promise<ElectronBridgeEpgMapping | null> {
@@ -239,7 +255,9 @@ export class EpgRuntimeBridgeService {
             return Promise.resolve(null);
         }
 
-        return this.bridge?.getEpgMapping?.(channelKey) ?? Promise.resolve(null);
+        return (
+            this.bridge?.getEpgMapping?.(channelKey) ?? Promise.resolve(null)
+        );
     }
 
     getEpgMappingsBatch(
@@ -265,8 +283,11 @@ export class EpgRuntimeBridgeService {
         }
 
         return (
-            this.bridge?.setEpgMapping?.(channelKey, epgChannelId, playlistId) ??
-            Promise.resolve(null)
+            this.bridge?.setEpgMapping?.(
+                channelKey,
+                epgChannelId,
+                playlistId
+            ) ?? Promise.resolve(null)
         );
     }
 
@@ -275,7 +296,9 @@ export class EpgRuntimeBridgeService {
             return Promise.resolve(null);
         }
 
-        return this.bridge?.deleteEpgMapping?.(channelKey) ?? Promise.resolve(null);
+        return (
+            this.bridge?.deleteEpgMapping?.(channelKey) ?? Promise.resolve(null)
+        );
     }
 
     searchEpgChannels(

@@ -58,10 +58,11 @@ describe('epg-db.events', () => {
         consoleErrorSpy.mockRestore();
     });
 
-    it('registers only the programme-search channel', () => {
-        // Every other EPG persistence/lookup path lives in the EPG worker and
-        // epg-query.service.ts; the removed EPG_DB_* handlers must not return.
-        expect(getRegisteredChannels()).toEqual(['EPG_DB_SEARCH_PROGRAMS']);
+    it('registers the programme search and bounded followed-series lookup', () => {
+        expect(getRegisteredChannels()).toEqual([
+            'EPG_DB_SEARCH_PROGRAMS',
+            'EPG_DB_FOLLOWED_SERIES_PROGRAMS',
+        ]);
     });
 
     it('returns an empty result for a blank search term without querying', async () => {
@@ -91,5 +92,56 @@ describe('epg-db.events', () => {
         const boundParams = JSON.stringify(query);
         expect(boundParams).toContain('%news%');
         expect(boundParams).toContain('25');
+    });
+
+    it('bounds followed-series lookahead and normalizes SQLite booleans', async () => {
+        const all = jest.fn().mockResolvedValue([
+            {
+                title: 'The Office',
+                channel: 'office.us',
+                start: '2026-08-01T10:00:00Z',
+                stop: '2026-08-01T10:30:00Z',
+                desc: null,
+                category: null,
+                isNew: 1,
+                previouslyShown: 0,
+            },
+        ]);
+        getDatabase.mockResolvedValue({ all });
+
+        await expect(
+            getIpcMainHandler('EPG_DB_FOLLOWED_SERIES_PROGRAMS')(
+                {},
+                {
+                    from: '2026-08-01T00:00:00Z',
+                    to: '2026-08-15T00:00:00Z',
+                    titleHints: ['The Office', 'The Office'],
+                    limit: 50_000,
+                }
+            )
+        ).resolves.toEqual([
+            expect.objectContaining({ isNew: true, previouslyShown: false }),
+        ]);
+
+        const query = JSON.stringify(all.mock.calls[0][0]);
+        expect(query).toContain('%The Office%');
+        expect(query).toContain('10000');
+    });
+
+    it('rejects invalid or empty followed-series ranges without querying', async () => {
+        const all = jest.fn();
+        getDatabase.mockResolvedValue({ all });
+
+        await expect(
+            getIpcMainHandler('EPG_DB_FOLLOWED_SERIES_PROGRAMS')(
+                {},
+                {
+                    from: 'invalid',
+                    to: '2026-08-01T00:00:00Z',
+                    titleHints: [],
+                }
+            )
+        ).resolves.toEqual([]);
+        expect(all).not.toHaveBeenCalled();
     });
 });

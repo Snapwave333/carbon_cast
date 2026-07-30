@@ -68,7 +68,7 @@
                                     item.fallbackPosterBackground
                                 "
                             >
-                                <mat-icon>{{ item.icon }}</mat-icon>
+                                <mat-icon [svgIcon]="item.icon"></mat-icon>
                             </span>
                         }
                     </span>
@@ -176,7 +176,7 @@
                         }
 
                         <span class="hero__cta">
-                            <mat-icon>play_arrow</mat-icon>
+                            <mat-icon svgIcon="play_arrow"></mat-icon>
                             <span>{{
                                 'WORKSPACE.DASHBOARD.CONTINUE_WATCHING'
                                     | translate

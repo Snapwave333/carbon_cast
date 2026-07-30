@@ -6,6 +6,7 @@ import {
 export type WorkspaceShellPageKind =
     | 'dashboard'
     | 'downloads'
+    | 'followed-series'
     | 'global-favorites'
     | 'global-recent'
     | 'global-search'
@@ -15,11 +16,7 @@ export type WorkspaceShellPageKind =
     | 'unknown';
 
 export type WorkspaceShellContextPanel =
-    | 'none'
-    | 'sources'
-    | 'settings'
-    | 'category'
-    | 'collection';
+    'none' | 'sources' | 'settings' | 'category' | 'collection';
 
 export interface WorkspacePortalContext {
     provider: PortalProvider;
@@ -27,10 +24,7 @@ export interface WorkspacePortalContext {
 }
 
 export type WorkspaceShellSearchMode =
-    | 'none'
-    | 'local-filter'
-    | 'remote-search'
-    | 'advanced-only';
+    'none' | 'local-filter' | 'remote-search' | 'advanced-only';
 
 export interface WorkspaceShellRoute {
     kind: WorkspaceShellPageKind;
@@ -293,11 +287,13 @@ export function parseWorkspaceShellRoute(url: string): WorkspaceShellRoute {
                   ? 'global-favorites'
                   : page === 'global-recent'
                     ? 'global-recent'
-                    : page === 'search'
-                      ? 'global-search'
-                      : page === 'downloads'
-                        ? 'downloads'
-                        : 'unknown';
+                    : page === 'followed-series'
+                      ? 'followed-series'
+                      : page === 'search'
+                        ? 'global-search'
+                        : page === 'downloads'
+                          ? 'downloads'
+                          : 'unknown';
     const searchMode = resolveRouteSearchMode(kind, null, null);
 
     return {

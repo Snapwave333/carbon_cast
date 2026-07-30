@@ -8,6 +8,10 @@ import { EpgChannelMetadata } from './epg-channel-metadata.model';
 import { EpgProgram } from './epg-program.model';
 import { ExternalPlayerSession } from './external-player-session.interface';
 import {
+    FollowedSeriesProgramCandidate,
+    FollowedSeriesProgramQuery,
+} from './followed-series.model';
+import {
     GlobalSearchPaginationOptions,
     GlobalSearchResult,
     GlobalSearchResultSource,
@@ -39,6 +43,11 @@ import {
     TmdbCacheStats,
 } from './tmdb.interface';
 import { XtreamCategory } from './xtream-category.interface';
+import {
+    AgentControlRequest,
+    AgentControlResult,
+    AgentControlState,
+} from './agent-control.interface';
 
 export const ELECTRON_BRIDGE_CONTENT_TYPES = {
     Episode: 'episode',
@@ -372,8 +381,7 @@ export interface ElectronBridgePlaylistRow {
 }
 
 export type ElectronBridgePlaylistUpsertInput =
-    | Playlist
-    | ElectronBridgePlaylistInput;
+    Playlist | ElectronBridgePlaylistInput;
 
 export interface ElectronBridgeCategoryRow {
     id: number;
@@ -663,6 +671,9 @@ export interface ElectronBridgeApi {
         searchTerm: string,
         limit?: number
     ) => Promise<EpgProgram[]>;
+    getFollowedSeriesPrograms: (
+        request: FollowedSeriesProgramQuery
+    ) => Promise<FollowedSeriesProgramCandidate[]>;
 
     // EPG channel mapping (manual user overrides)
     getEpgMapping: (
@@ -885,6 +896,11 @@ export interface ElectronBridgeApi {
     updateRemoteControlStatus?: (
         status: ElectronBridgeRemoteControlStatus
     ) => void;
+    onAgentControlCommand?: (
+        callback: (request: AgentControlRequest & { correlationId: string }) => void
+    ) => () => void;
+    updateAgentControlState?: (state: Partial<AgentControlState>) => void;
+    completeAgentControlCommand?: (result: AgentControlResult) => void;
     onPlayerError?: (
         callback: (data: ElectronBridgePlayerError) => void
     ) => void;

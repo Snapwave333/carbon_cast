@@ -2,7 +2,7 @@
     <div class="epg-dialog__hero">
         @if (channelName) {
             <span class="epg-dialog__chan">
-                <mat-icon>live_tv</mat-icon>
+                <mat-icon svgIcon="live_tv"></mat-icon>
                 <span class="epg-dialog__chan-name">{{ channelName }}</span>
             </span>
         }
@@ -12,7 +12,7 @@
             mat-dialog-close
             [attr.aria-label]="'HOME.PLAYLISTS.INFO_DIALOG.CLOSE' | translate"
         >
-            <mat-icon>close</mat-icon>
+            <mat-icon svgIcon="close"></mat-icon>
         </button>
 
         @if (channelLogo && !logoFailed) {
@@ -23,13 +23,18 @@
                 (error)="logoFailed = true"
             />
         } @else {
-            <mat-icon class="epg-dialog__hero-glyph">live_tv</mat-icon>
+            <mat-icon
+                class="epg-dialog__hero-glyph"
+                svgIcon="live_tv"
+            ></mat-icon>
         }
     </div>
 
     <div class="epg-dialog__body">
         <div class="epg-dialog__meta">
-            <span>{{ startMs | date: 'EEE d MMM' : '' : currentLocale() }}</span>
+            <span>{{
+                startMs | date: 'EEE d MMM' : '' : currentLocale()
+            }}</span>
             <span class="epg-dialog__dot"></span>
             <span
                 >{{ startMs | date: 'HH:mm' }} –
@@ -74,13 +79,20 @@
         }
 
         <div class="epg-dialog__actions">
+            <app-follow-series-button
+                source="epg"
+                [seriesTitle]="epgProgram.seriesTitle || epgProgram.title"
+                [seriesId]="epgProgram.seriesId || null"
+                [artworkUrl]="epgProgram.iconUrl || null"
+                [epgProgram]="epgProgram"
+            />
             @if (primaryAction === 'live') {
                 <button
                     type="button"
                     class="epg-dialog__btn epg-dialog__btn--primary"
                     [mat-dialog-close]="'live'"
                 >
-                    <mat-icon>play_arrow</mat-icon>
+                    <mat-icon svgIcon="play_arrow"></mat-icon>
                     {{ 'EPG.TIMELINE.WATCH_LIVE' | translate }}
                 </button>
             } @else if (primaryAction === 'timeshift') {
@@ -89,7 +101,7 @@
                     class="epg-dialog__btn epg-dialog__btn--primary"
                     [mat-dialog-close]="'timeshift'"
                 >
-                    <mat-icon>replay</mat-icon>
+                    <mat-icon svgIcon="replay"></mat-icon>
                     {{ 'EPG.TIMELINE.WATCH_FROM_START' | translate }}
                 </button>
             }

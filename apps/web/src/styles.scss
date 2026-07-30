@@ -11,7 +11,8 @@
 
 // ─── Third-party ─────────────────────────────────────────────────────────────
 @import '@yangkghjh/videojs-aspect-ratio-panel/dist/videojs-aspect-ratio-panel.css';
-@import 'material-design-icons-iconfont/dist/material-design-icons.css';
+// Material Icons font removed: the app registers a custom stroke SVG icon set
+// instead (apps/web/src/app/icons/) — see app-icons.provider.ts.
 
 // ─── Bundled Fonts ────────────────────────────────────────────────────────────
 @import '@fontsource/dm-sans/400.css';

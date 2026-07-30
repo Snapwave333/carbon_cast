@@ -1,7 +1,7 @@
-export class IpcCommand {
+export class IpcCommand<T = unknown> {
     constructor(
         public id: string,
-        public callback: (payload: any) => void
+        public callback: (payload: T) => void
     ) {
         this.id = id;
         this.callback = callback;

@@ -5,8 +5,18 @@
     "sourceRoot": "apps/web-backend/src",
     "tags": ["scope:app", "domain:web", "type:app"],
     "targets": {
+        "build-worker": {
+            "executor": "nx:run-commands",
+            "outputs": [
+                "{workspaceRoot}/dist/apps/web-backend/epg-parser.worker.cjs"
+            ],
+            "options": {
+                "command": "node apps/web-backend/build-worker.js"
+            }
+        },
         "build": {
             "executor": "@nx/esbuild:esbuild",
+            "dependsOn": ["web-backend:build-worker"],
             "outputs": ["{options.outputPath}"],
             "options": {
                 "outputPath": "dist/apps/web-backend",
@@ -17,7 +27,8 @@
                 "target": "node22",
                 "bundle": true,
                 "thirdParty": true,
-                "generatePackageJson": true
+                "generatePackageJson": true,
+                "deleteOutputPath": false
             }
         },
         "serve": {

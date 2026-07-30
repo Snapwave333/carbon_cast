@@ -22,7 +22,7 @@
     }
     @if (isPlaying()) {
         <div class="playtag">
-            <mat-icon>play_arrow</mat-icon>
+            <mat-icon svgIcon="play_arrow"></mat-icon>
             {{ 'EPG.TIMELINE.FROM_ARCHIVE' | translate }}
         </div>
     }
@@ -43,7 +43,7 @@
             (click)="onWatch($event)"
             [attr.aria-label]="'EPG.TIMELINE.WATCH_FROM_START' | translate"
         >
-            <mat-icon>replay</mat-icon>
+            <mat-icon svgIcon="replay"></mat-icon>
             {{ 'EPG.TIMELINE.WATCH' | translate }}
         </button>
     }
@@ -56,6 +56,6 @@
             'EPG.PROGRAM_DIALOG.SHOW_PROGRAM_DETAILS' | translate
         "
     >
-        <mat-icon>info_outline</mat-icon>
+        <mat-icon svgIcon="info_outline"></mat-icon>
     </button>
 </div>

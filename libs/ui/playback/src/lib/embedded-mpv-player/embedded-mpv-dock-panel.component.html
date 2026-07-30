@@ -9,7 +9,7 @@
         [matTooltip]="backLabel()"
         matTooltipPosition="above"
     >
-        <mat-icon>arrow_back</mat-icon>
+        <mat-icon svgIcon="arrow_back"></mat-icon>
     </button>
 
     <span class="embedded-mpv-dock-panel__title">{{ panel().title }}</span>
@@ -43,7 +43,7 @@
                     (click)="chipSelected.emit(chip.id)"
                 >
                     @if (chip.selected) {
-                        <mat-icon aria-hidden="true">check</mat-icon>
+                        <mat-icon aria-hidden="true" svgIcon="check"></mat-icon>
                     }
                     <span class="embedded-mpv-dock-panel__chip-label">{{
                         chip.label

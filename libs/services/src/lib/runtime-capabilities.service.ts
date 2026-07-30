@@ -115,6 +115,10 @@ export class RuntimeCapabilitiesService {
         return this.hasElectronMethod('searchEpgPrograms');
     }
 
+    get supportsFollowedSeriesLookup(): boolean {
+        return this.hasElectronMethod('getFollowedSeriesPrograms');
+    }
+
     get supportsEpgMapping(): boolean {
         return (
             this.hasElectronMethod('getEpgMapping') &&
@@ -278,8 +282,7 @@ export class RuntimeCapabilitiesService {
 
     private hasElectronMethod(methodName: string): boolean {
         const bridge = this.electronBridge as
-            | Record<string, unknown>
-            | undefined;
+            Record<string, unknown> | undefined;
         return typeof bridge?.[methodName] === 'function';
     }
 

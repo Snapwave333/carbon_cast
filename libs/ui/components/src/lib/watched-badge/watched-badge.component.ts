@@ -8,7 +8,7 @@ import { MatIcon } from '@angular/material/icon';
     template: `
         @if (isWatched()) {
             <div class="watched-badge">
-                <mat-icon>{{ icon() }}</mat-icon>
+                <mat-icon [svgIcon]="icon()"></mat-icon>
             </div>
         }
     `,

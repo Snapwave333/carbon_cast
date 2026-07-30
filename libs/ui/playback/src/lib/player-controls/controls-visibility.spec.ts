@@ -63,4 +63,13 @@ describe('ControlsVisibility', () => {
         jest.advanceTimersByTime(1000);
         expect(visibility.visible()).toBe(true);
     });
+
+    it('keeps controls visible when auto-hide is disabled', () => {
+        const visibility = new ControlsVisibility(() => true, 0);
+
+        visibility.reveal();
+        jest.advanceTimersByTime(10_000);
+
+        expect(visibility.visible()).toBe(true);
+    });
 });

@@ -1,4 +1,8 @@
 import { InjectionToken } from '@angular/core';
+import {
+    DEFAULT_PLAYER_CONTROLS_SETTINGS,
+    type PlayerControlsSettings,
+} from '@iptvnator/shared/interfaces';
 
 /**
  * Reserved rollout switch for shared `app-player-controls` chrome on the web
@@ -22,3 +26,10 @@ export const WEB_PLAYER_SHARED_CONTROLS = new InjectionToken<boolean>(
         factory: () => WEB_PLAYER_SHARED_CONTROLS_ENABLED,
     }
 );
+
+/** Immutable player-bar preferences captured when a player host is created. */
+export const PLAYER_CONTROLS_SETTINGS =
+    new InjectionToken<PlayerControlsSettings>('PLAYER_CONTROLS_SETTINGS', {
+        providedIn: 'root',
+        factory: () => DEFAULT_PLAYER_CONTROLS_SETTINGS,
+    });

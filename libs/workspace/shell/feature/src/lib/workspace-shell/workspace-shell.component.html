@@ -8,6 +8,10 @@
         <app-workspace-shell-import-overlay />
     }
 
+    <!-- Drag strip that also keeps content clear of the floating window
+         controls; collapses to 0 height when the OS draws its own frame. -->
+    <div class="workspace-titlebar-strip" aria-hidden="true"></div>
+
     <app-workspace-shell-rail
         [isMacOS]="facade.isMacOS"
         [brandLink]="facade.brandLink()"

@@ -15,6 +15,17 @@ export const VLC_REUSE_INSTANCE = 'VLC_REUSE_INSTANCE';
  * its preload frame pump, which cannot change after window creation.
  */
 export const EMBEDDED_MPV_FRAME_COPY = 'EMBEDDED_MPV_FRAME_COPY';
+export const AGENT_CONTROL_TOKENS = 'AGENT_CONTROL_TOKENS';
+
+export interface AgentControlTokenRecord {
+    id: string;
+    label: string;
+    tokenHash: string;
+    scopes: string[];
+    createdAt: string;
+    expiresAt?: string;
+    revokedAt?: string;
+}
 
 export type StoreType = {
     [WINDOW_BOUNDS]: Electron.Rectangle;
@@ -25,6 +36,7 @@ export type StoreType = {
     [MPV_REUSE_INSTANCE]: boolean;
     [VLC_REUSE_INSTANCE]: boolean;
     [EMBEDDED_MPV_FRAME_COPY]: boolean;
+    [AGENT_CONTROL_TOKENS]: AgentControlTokenRecord[];
 };
 
 // Export singleton store instance

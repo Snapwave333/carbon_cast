@@ -181,6 +181,37 @@ describe('withContent import state', () => {
         localStorage.clear();
     });
 
+    it('cleans the display label of published categories without touching category_id', async () => {
+        dataSource.getCategories.mockImplementation(
+            (
+                _playlistId: string,
+                _credentials: unknown,
+                type: 'live' | 'vod' | 'series'
+            ) =>
+                Promise.resolve(
+                    type === 'vod'
+                        ? [
+                              {
+                                  category_id: '42',
+                                  category_name: '  Kids   Shows  ',
+                                  parent_id: 0,
+                              },
+                          ]
+                        : []
+                )
+        );
+
+        await store.reloadCategories();
+
+        expect(store.vodCategories()).toEqual([
+            {
+                category_id: '42',
+                category_name: 'Kids Shows',
+                parent_id: 0,
+            },
+        ]);
+    });
+
     it('emits ordered count-only publication markers for a successful import', async () => {
         const events: RendererPerformancePhaseEvent[] = [];
         setPerformanceHook((event) => events.push(event));

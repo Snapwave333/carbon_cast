@@ -14,9 +14,9 @@
                 class="sort-trigger"
                 [matMenuTriggerFor]="sortMenu"
             >
-                <mat-icon>sort</mat-icon>
+                <mat-icon svgIcon="sort"></mat-icon>
                 <span class="sort-trigger__label">{{ activeSortLabel() }}</span>
-                <mat-icon class="sort-trigger__caret">arrow_drop_down</mat-icon>
+                <mat-icon class="sort-trigger__caret" svgIcon="arrow_drop_down"></mat-icon>
             </button>
             <mat-menu #sortMenu="matMenu" xPosition="before">
                 @for (option of sortOptions; track option.translationKey) {
@@ -26,10 +26,10 @@
                         [class.active-option]="isSortActive(option)"
                         (click)="setSortOption(option)"
                     >
-                        <mat-icon>{{ option.icon }}</mat-icon>
+                        <mat-icon [svgIcon]="option.icon"></mat-icon>
                         <span>{{ option.translationKey | translate }}</span>
                         @if (isSortActive(option)) {
-                            <mat-icon class="sort-menu__check">check</mat-icon>
+                            <mat-icon class="sort-menu__check" svgIcon="check"></mat-icon>
                         }
                     </button>
                 }

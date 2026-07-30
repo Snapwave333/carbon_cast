@@ -13,6 +13,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslatePipe } from '@ngx-translate/core';
 
 export interface SearchFilters {
@@ -35,6 +36,7 @@ export interface SearchFilter {
         MatIconModule,
         MatCheckboxModule,
         MatButtonModule,
+        MatTooltipModule,
         TranslatePipe,
     ],
     templateUrl: './search-form.component.html',

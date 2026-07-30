@@ -19,6 +19,7 @@ import { StorageMap } from '@ngx-pwa/local-storage';
 import { TranslatePipe } from '@ngx-translate/core';
 import {
     Channel,
+    normalizePlayerControlsSettings,
     ResolvedPortalPlayback,
     Settings,
     STORE_KEY,
@@ -31,6 +32,7 @@ import { EmbeddedMpvPlayerComponent } from '../embedded-mpv-player/embedded-mpv-
 import { HtmlVideoPlayerComponent } from '../html-video-player/html-video-player.component';
 import {
     type PlayerMediaTitle,
+    PLAYER_CONTROLS_SETTINGS,
     WEB_PLAYER_SHARED_CONTROLS,
     WEB_PLAYER_SHARED_CONTROLS_ENABLED,
 } from '../player-controls';
@@ -56,6 +58,12 @@ function resolveWebPlayerSharedControls(): boolean {
         : WEB_PLAYER_SHARED_CONTROLS_ENABLED;
 }
 
+function resolvePlayerControlsSettings() {
+    return normalizePlayerControlsSettings(
+        inject(SettingsStore).playerControls?.()
+    );
+}
+
 @Component({
     selector: 'app-web-player-view',
     templateUrl: './web-player-view.component.html',
@@ -78,6 +86,10 @@ function resolveWebPlayerSharedControls(): boolean {
         {
             provide: WEB_PLAYER_SHARED_CONTROLS,
             useFactory: resolveWebPlayerSharedControls,
+        },
+        {
+            provide: PLAYER_CONTROLS_SETTINGS,
+            useFactory: resolvePlayerControlsSettings,
         },
     ],
     encapsulation: ViewEncapsulation.None,

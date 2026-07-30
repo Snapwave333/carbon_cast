@@ -12,7 +12,7 @@
                 (click)="selectAll()"
                 [disabled]="allSelected()"
             >
-                <mat-icon>check_box</mat-icon>
+                <mat-icon svgIcon="check_box"></mat-icon>
                 {{ 'CHANNELS.GROUP_MANAGEMENT.SELECT_ALL' | translate }}
             </button>
             <button
@@ -20,14 +20,14 @@
                 (click)="deselectAll()"
                 [disabled]="selectedCount() === 0"
             >
-                <mat-icon>check_box_outline_blank</mat-icon>
+                <mat-icon svgIcon="check_box_outline_blank"></mat-icon>
                 {{ 'CHANNELS.GROUP_MANAGEMENT.DESELECT_ALL' | translate }}
             </button>
         </div>
     </div>
 
     <label class="search-inline">
-        <mat-icon class="search-inline__icon">search</mat-icon>
+        <mat-icon class="search-inline__icon" svgIcon="search"></mat-icon>
         <input
             type="search"
             spellcheck="false"
@@ -44,7 +44,7 @@
                 class="search-inline__clear"
                 (click)="clearSearch()"
             >
-                <mat-icon>close</mat-icon>
+                <mat-icon svgIcon="close"></mat-icon>
             </button>
         }
     </label>
@@ -60,7 +60,7 @@
                 </mat-checkbox>
                 <span class="group-name">
                     @if (group.key) {
-                        {{ group.key | titlecase }}
+                        {{ group.label }}
                     } @else {
                         {{ 'CHANNELS.UNGROUPED' | translate }}
                     }

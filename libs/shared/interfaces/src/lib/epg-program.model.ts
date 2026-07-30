@@ -14,4 +14,13 @@ export interface EpgProgram {
     episodeNum?: string | null;
     iconUrl?: string | null;
     rating?: string | null;
+    /** Stable source identifiers when the XMLTV provider supplies them. */
+    programId?: string | null;
+    seriesId?: string | null;
+    /** Series and episode titles are kept separate when XMLTV sub-title exists. */
+    seriesTitle?: string | null;
+    episodeTitle?: string | null;
+    /** XMLTV new / previously-shown flags; absent means unknown. */
+    isNew?: boolean | null;
+    previouslyShown?: boolean | null;
 }

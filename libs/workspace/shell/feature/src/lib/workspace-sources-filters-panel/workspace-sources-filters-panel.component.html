@@ -20,7 +20,7 @@
                     [class.selected]="isTypeActive(option.id)"
                     (click)="selectType(option.id)"
                 >
-                    <mat-icon>{{ option.icon }}</mat-icon>
+                    <mat-icon [svgIcon]="option.icon"></mat-icon>
                     <span class="nav-item-label option-label">
                         {{
                             option.translationKey

@@ -32,6 +32,7 @@ import {
     youtubeEmbedUrl,
 } from '@iptvnator/shared/interfaces';
 import { SafePipe } from '@iptvnator/pipes';
+import { FollowSeriesButtonComponent } from '@iptvnator/ui/epg';
 import {
     PORTAL_EXTERNAL_PLAYBACK,
     PORTAL_PLAYBACK_POSITIONS,
@@ -90,6 +91,7 @@ import {
     styleUrls: ['../styles/detail-view.scss'],
     imports: [
         FavoritesButtonComponent,
+        FollowSeriesButtonComponent,
         DetailActionsTemplateDirective,
         DetailMetaTemplateDirective,
         DetailTagsTemplateDirective,
@@ -146,8 +148,7 @@ export class StalkerSeriesViewComponent implements OnDestroy {
      */
     readonly similarInPortals = signal<CrossPortalSimilarItem[]>([]);
     private readonly loadSimilarInPortals = effect(() => {
-        const recommendations =
-            this.displayItem()?.info?.tmdb_recommendations;
+        const recommendations = this.displayItem()?.info?.tmdb_recommendations;
         untracked(() => {
             this.similarInPortals.set([]);
             if (
@@ -242,21 +243,22 @@ export class StalkerSeriesViewComponent implements OnDestroy {
             const seasons = this.mappedSeasons();
             const episodes = seasonKey ? seasons[seasonKey] : undefined;
             if (tmdbId && seasonKey && !seasonsLoading && episodes?.length) {
-                untracked(() =>
-                    void this.tmdbSeasons.fetchSeason(
-                        tmdbId,
-                        seasonKey,
-                        episodes,
-                        {
-                            // The season marker can live in either title
-                            // field (generic name + descriptive o_name)
-                            rawTitle: pickSeasonMarkedTitle(
-                                item?.info?.name,
-                                item?.info?.o_name
-                            ),
-                            seasonCount: Object.keys(seasons).length,
-                        }
-                    )
+                untracked(
+                    () =>
+                        void this.tmdbSeasons.fetchSeason(
+                            tmdbId,
+                            seasonKey,
+                            episodes,
+                            {
+                                // The season marker can live in either title
+                                // field (generic name + descriptive o_name)
+                                rawTitle: pickSeasonMarkedTitle(
+                                    item?.info?.name,
+                                    item?.info?.o_name
+                                ),
+                                seasonCount: Object.keys(seasons).length,
+                            }
+                        )
                 );
             }
         });
@@ -491,19 +493,20 @@ export class StalkerSeriesViewComponent implements OnDestroy {
         // before the answer arrives. A failure releases the claim below.
         this.prefetchedSpilloverSeasonIds.add(prefetchKey);
 
-        untracked(() =>
-            void this.loadEpisodesForSeason(nextSeason).then((answered) => {
-                if (answered) {
-                    this.spilloverPrefetchFailure = null;
-                    return;
-                }
+        untracked(
+            () =>
+                void this.loadEpisodesForSeason(nextSeason).then((answered) => {
+                    if (answered) {
+                        this.spilloverPrefetchFailure = null;
+                        return;
+                    }
 
-                this.spilloverPrefetchFailure = {
-                    key: prefetchKey,
-                    episodeId,
-                };
-                this.prefetchedSpilloverSeasonIds.delete(prefetchKey);
-            })
+                    this.spilloverPrefetchFailure = {
+                        key: prefetchKey,
+                        episodeId,
+                    };
+                    this.prefetchedSpilloverSeasonIds.delete(prefetchKey);
+                })
         );
     });
 
@@ -846,10 +849,7 @@ export class StalkerSeriesViewComponent implements OnDestroy {
             }
 
             this.closeInlinePlayer();
-            void this.portalPlayer.openResolvedPlayback(
-                resolvedPlayback,
-                true
-            );
+            void this.portalPlayer.openResolvedPlayback(resolvedPlayback, true);
         } catch (error) {
             this.logger.error('Failed to start inline series playback', error);
             const errorMessage =

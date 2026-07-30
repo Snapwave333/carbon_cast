@@ -7,6 +7,7 @@ import {
     MatDialogModule,
 } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslatePipe } from '@ngx-translate/core';
 import { EpgRuntimeBridgeService } from '@iptvnator/epg/data-access';
 import { getM3uArchiveDays, isM3uCatchupPlaybackSupported } from '@iptvnator/shared/m3u-utils';
@@ -38,7 +39,14 @@ interface HeroStat {
     templateUrl: './channel-details-dialog.component.html',
     styleUrls: ['./channel-details-dialog.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    imports: [ClipboardModule, MatButtonModule, MatDialogModule, MatIconModule, TranslatePipe],
+    imports: [
+        ClipboardModule,
+        MatButtonModule,
+        MatDialogModule,
+        MatIconModule,
+        MatTooltipModule,
+        TranslatePipe,
+    ],
 })
 export class ChannelDetailsDialogComponent {
     readonly channel = inject<Channel>(MAT_DIALOG_DATA);

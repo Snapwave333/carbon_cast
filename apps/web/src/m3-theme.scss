@@ -14,6 +14,36 @@ $my-typography: mat.m2-define-typography-config(
 );
 @include mat.typography-hierarchy($my-typography);
 
+// ─── Carbon-fibre weave ──────────────────────────────────────────────────────
+// Tight 14px twill: crossed 27°/207° tows in two tones over a vertical seam
+// and a 4-band base cell. Applied as separate longhands (not the `background`
+// shorthand) so the per-layer positions survive.
+@mixin carbon-weave {
+    background-color: #111;
+    background-image: linear-gradient(27deg, #151515 3.5px, transparent 3.5px),
+        linear-gradient(207deg, #151515 3.5px, transparent 3.5px),
+        linear-gradient(27deg, #242424 3.5px, transparent 3.5px),
+        linear-gradient(207deg, #242424 3.5px, transparent 3.5px),
+        linear-gradient(90deg, #1b1b1b 7px, transparent 7px),
+        linear-gradient(
+            #1d1d1d 25%,
+            #111 25%,
+            #111 50%,
+            transparent 50%,
+            transparent 75%,
+            #242424 75%
+        );
+    background-position:
+        0 3.5px,
+        7px 0,
+        0 7px,
+        7px 3.5px,
+        0 0,
+        0 0;
+    background-size: 14px 14px;
+    background-repeat: repeat;
+}
+
 // ─── M3 Themes ───────────────────────────────────────────────────────────────
 // One primary color across the app. Azure is the closest M3 prebuilt to the
 // product's "active/selection" blue (#2f7bff / #78adff), so checkboxes, radio
@@ -132,29 +162,17 @@ html {
         // dark one (shadow), tiled over the near-black surfaces below. Kept in
         // one variable and layered ahead of a solid base color via the
         // `background` shorthand consumers (rail/header/content).
-        --app-carbon-weave: repeating-linear-gradient(
-                45deg,
-                rgba(255, 255, 255, 0.028) 0,
-                rgba(255, 255, 255, 0.028) 1px,
-                transparent 1px,
-                transparent 3px
-            ),
-            repeating-linear-gradient(
-                -45deg,
-                rgba(0, 0, 0, 0.4) 0,
-                rgba(0, 0, 0, 0.4) 1px,
-                transparent 1px,
-                transparent 3px
-            );
-
-        // App shell & navigation. `--app-shell-bg` stays a solid color because
-        // some components feed it to color-mix(); the woven surfaces are only
-        // consumed via the `background` shorthand.
+        // App shell & navigation. All background vars are plain colors now:
+        // the carbon-fibre weave is painted by the surface rules at the bottom
+        // of this block (separate background-image/position/size longhands),
+        // and the side rails are translucent glass panels that frost it.
+        // `--app-shell-bg` stays a solid color because some components feed it
+        // to color-mix().
         --app-shell-bg: #08090c;
-        --app-rail-bg: var(--app-carbon-weave), #0a0c10;
-        --app-header-bg: var(--app-carbon-weave), #0a0c10;
-        --app-content-bg: var(--app-carbon-weave), #0d0f14;
-        --app-rail-border: transparent;
+        --app-rail-bg: rgba(15, 17, 22, 0.55);
+        --app-header-bg: #111;
+        --app-content-bg: #111418;
+        --app-rail-border: rgba(255, 255, 255, 0.07);
         --app-on-surface: #e6e1e5;
         --app-hover-overlay: rgba(255, 255, 255, 0.08);
         --app-search-bg: rgba(255, 255, 255, 0.05);
@@ -225,6 +243,29 @@ html {
             rgba(255, 140, 26, 0.1) 100%
         );
         --app-hero-surface: rgba(16, 18, 24, 0.92);
+
+        // ── Carbon surfaces ────────────────────────────────────────────────
+        // The weave lives on the structural surfaces (shell body, header,
+        // content). Selectors are doubled to outrank the component-scoped
+        // `background: var(...)` shorthands (same trick as .app-scrollbar).
+        .workspace-shell.workspace-shell,
+        .workspace-body.workspace-body,
+        .workspace-header.workspace-header,
+        .workspace-content.workspace-content,
+        .workspace-now-playing.workspace-now-playing,
+        .groups-view-layout.groups-view-layout {
+            @include carbon-weave;
+        }
+
+        // ── Glass side panels ──────────────────────────────────────────────
+        // The icon rail owns its full glass styling in its component; the
+        // sidebar panels keep their translucent `--app-rail-bg` tint and get
+        // backdrop blur here to frost the weave behind them.
+        .context-panel,
+        .groups-nav-panel {
+            backdrop-filter: blur(14px) saturate(1.2);
+            -webkit-backdrop-filter: blur(14px) saturate(1.2);
+        }
     }
 }
 

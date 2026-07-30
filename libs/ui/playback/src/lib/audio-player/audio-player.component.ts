@@ -47,7 +47,7 @@ import { ChannelActions } from '@iptvnator/m3u-state';
                         />
                     } @else {
                         <div class="artwork-fallback">
-                            <mat-icon>radio</mat-icon>
+                            <mat-icon svgIcon="radio"></mat-icon>
                         </div>
                     }
                 </div>
@@ -78,7 +78,7 @@ import { ChannelActions } from '@iptvnator/m3u-state';
                         "
                         (click)="switchChannel('previous')"
                     >
-                        <mat-icon>skip_previous</mat-icon>
+                        <mat-icon svgIcon="skip_previous"></mat-icon>
                     </button>
 
                     <button
@@ -98,9 +98,7 @@ import { ChannelActions } from '@iptvnator/m3u-state';
                         "
                         (click)="playState() === 'play' ? stop() : play()"
                     >
-                        <mat-icon>{{
-                            playState() === 'play' ? 'pause' : 'play_arrow'
-                        }}</mat-icon>
+                        <mat-icon [svgIcon]="playState() === 'play' ? 'pause' : 'play_arrow'"></mat-icon>
                     </button>
 
                     <button
@@ -112,7 +110,7 @@ import { ChannelActions } from '@iptvnator/m3u-state';
                         "
                         (click)="switchChannel('next')"
                     >
-                        <mat-icon>skip_next</mat-icon>
+                        <mat-icon svgIcon="skip_next"></mat-icon>
                     </button>
                 </div>
 
@@ -134,7 +132,7 @@ import { ChannelActions } from '@iptvnator/m3u-state';
                         "
                         (click)="mute()"
                     >
-                        <mat-icon>{{ volumeIcon() }}</mat-icon>
+                        <mat-icon [svgIcon]="volumeIcon()"></mat-icon>
                     </button>
                     <mat-slider
                         class="vol-slider"

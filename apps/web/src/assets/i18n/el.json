@@ -344,11 +344,6 @@
         "LINK_BLOG": "Blog",
         "LINK_GITHUB_DESCRIPTION": "Δώστε αστέρι στο αποθετήριο, ανοίξτε ένα ζήτημα ή συνεισφέρετε",
         "LINK_BLOG_DESCRIPTION": "Σημειώσεις έκδοσης, συμβουλές και ενημερώσεις του έργου",
-        "LINK_TELEGRAM_DESCRIPTION": "Ανακοινώσεις, κοινότητα και υποστήριξη",
-        "SUPPORT_TITLE": "Υποστηρίξτε το έργο",
-        "SUPPORT_DESCRIPTION": "Το IPTVnator είναι δωρεάν και ανοιχτού κώδικα, δημιουργημένο ανοιχτά. Αν αποτελεί μέρος της καθημερινότητάς σας, μια μικρή συνεισφορά βοηθά να κρατηθεί ζωντανό το έργο και να διαμορφωθεί η συνέχεια — ευχαριστούμε.",
-        "SUPPORT_SPONSORS_HINT": "Επαναλαμβανόμενο ή εφάπαξ",
-        "SUPPORT_KOFI_HINT": "Κέρασέ μου έναν καφέ",
         "EPG_NOTE": "Προς το παρόν, το EPG είναι διαθέσιμο μόνο στην ηλεκτρονική έκδοση του IPTVnator.",
         "EPG_NOTE_URL_TEXT": "Ελέγξτε το εδώ",
         "IMPORT_EXPORT_DATA": "Εισαγωγή/εξαγωγή λιστών αναπαραγωγής",
@@ -451,7 +446,11 @@
         "APP_UPDATE_RELEASE_NOTES": "What's new",
         "EMBEDDED_MPV_FRAME_COPY": "Embedded MPV: μηχανή frame-copy (πειραματικό)",
         "EMBEDDED_MPV_FRAME_COPY_DESCRIPTION": "Το βίντεο σχεδιάζεται στον καμβά της εφαρμογής, ώστε τα μενού και τα παράθυρα διαλόγου να εμφανίζονται από πάνω του.",
-        "EMBEDDED_MPV_FRAME_COPY_RESTART": "Ισχύει μετά την επανεκκίνηση της εφαρμογής."
+        "EMBEDDED_MPV_FRAME_COPY_RESTART": "Ισχύει μετά την επανεκκίνηση της εφαρμογής.",
+        "ATTRIBUTION": "Attribution",
+        "ATTRIBUTION_DESCRIPTION": "CarbonCast IPTV is a fork of IPTVnator (github.com/4gray/iptvnator). The upstream project and its contributors are credited under the original license. CarbonCast IPTV is an independent fork and is not endorsed by the upstream maintainers.",
+        "MIRROR_LAYOUT": "Mirror layout",
+        "MIRROR_LAYOUT_DESCRIPTION": "Put the player on the left and the channel/category rail on the right. Applies to the playlist player and Xtream/Stalker live views."
     },
     "THEMES": {
         "DARK_THEME": "Σκούρο",
@@ -611,6 +610,7 @@
             "NAME": "Όνομα",
             "CHANNEL_ID": "ID καναλιού",
             "STREAM_URL": "URL ροής",
+            "COPY_URL": "Copy stream URL",
             "GROUP": "Ομάδα",
             "RADIO": "Ραδιόφωνο",
             "CATCHUP_AVAILABLE": "Διαθέσιμο Catchup",
@@ -654,8 +654,10 @@
         "ZOOM_OUT": "Σμίκρυνση",
         "FILTER_CHANNELS": "Φιλτράρισμα καναλιών",
         "CLOSE_FILTER": "Κλείσιμο φίλτρου",
+        "CLEAR_FILTER": "Clear filter",
         "SEARCH_PROGRAMS": "Αναζήτηση προγραμμάτων",
         "CLOSE_PROGRAM_SEARCH": "Κλείσιμο αναζήτησης προγραμμάτων",
+        "CLEAR_PROGRAM_SEARCH": "Clear program search",
         "LIVE_STREAM": "Ζωντανή ροή",
         "ARCHIVE_PLAYBACK_UNAVAILABLE_TITLE": "Η αναπαραγωγή αρχείου δεν είναι διαθέσιμη",
         "ARCHIVE_PLAYBACK_UNAVAILABLE_DESCRIPTION": "Αυτός ο πάροχος εκθέτει ιστορικό προγράμματος για το κανάλι, αλλά δεν παρέχει αναπαραγωγή αρχείου/catch-up.",
@@ -965,6 +967,7 @@
         },
         "SEARCH_VIEW": {
             "INITIAL_TITLE": "Αναζήτηση περιεχομένου",
+            "CLEAR": "Clear search",
             "INITIAL_DESCRIPTION": "Εισαγάγετε τουλάχιστον 3 χαρακτήρες για αναζήτηση σε ζωντανές τηλεοπτικές μεταδόσεις, ταινίες και σειρές.",
             "RESULTS_FOUND": "Βρέθηκαν {{count}} αποτελέσματα",
             "NO_RESULTS_FOR": "Δεν βρέθηκαν αποτελέσματα για \"{{term}}\"",
@@ -1241,7 +1244,8 @@
             "XTREAM_REFRESH_DELETING_CATEGORIES": "Αφαίρεση αποθηκευμένων κατηγοριών...",
             "XTREAM_REFRESH_DETAIL_LOCAL": "Τα αγαπημένα, το ιστορικό προβολής, οι κρυφές κατηγορίες και η πρόοδος αναπαραγωγής ετοιμάζονται για επαναφορά μετά τον συγχρονισμό.",
             "XTREAM_REFRESH_PROGRESS": "Τοπικές εγγραφές που επεξεργάστηκαν: {{current}} / {{total}}",
-            "RAIL_RADIO": "Ραδιόφωνο"
+            "RAIL_RADIO": "Ραδιόφωνο",
+            "RAIL_FOLLOWED_SERIES": "Followed series"
         },
         "SOURCES": {
             "TITLE": "Πηγές",

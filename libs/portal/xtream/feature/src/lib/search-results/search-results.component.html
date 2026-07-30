@@ -38,7 +38,7 @@
         }
         @if (showGlobalCloseButton) {
             <button mat-icon-button (click)="onCloseDialog()">
-                <mat-icon>close</mat-icon>
+                <mat-icon svgIcon="close"></mat-icon>
             </button>
         }
     </ng-container>
@@ -47,7 +47,7 @@
         @if (isGlobalSearch) {
             <div class="global-search-subheader">
                 <div class="global-search-note">
-                    <mat-icon aria-hidden="true">info</mat-icon>
+                    <mat-icon aria-hidden="true" svgIcon="info"></mat-icon>
                     <span>
                         {{
                             'PORTALS.SEARCH_VIEW.GLOBAL_SEARCH_SOURCE_NOTE'
@@ -107,7 +107,7 @@
                     @for (group of groupedResults(); track group.playlistId) {
                         <div class="playlist-group">
                             <h3 class="playlist-title">
-                                <mat-icon>playlist_play</mat-icon>
+                                <mat-icon svgIcon="playlist_play"></mat-icon>
                                 {{ group.playlistName }}
                                 <span class="item-count"
                                     >({{ group.items.length }} items)</span

@@ -86,7 +86,7 @@
                             class="epg-timeline__watch"
                             (click)="watchClick.emit(item.block); $event.stopPropagation()"
                         >
-                            <mat-icon>replay</mat-icon>
+                            <mat-icon svgIcon="replay"></mat-icon>
                         </button>
                     }
                 } @else if (isPlaying(item)) {
@@ -99,7 +99,7 @@
                         class="epg-timeline__watch"
                         (click)="watchClick.emit(item.block); $event.stopPropagation()"
                     >
-                        <mat-icon>replay</mat-icon>
+                        <mat-icon svgIcon="replay"></mat-icon>
                         {{ 'EPG.TIMELINE.WATCH' | translate }}
                     </button>
                 }
@@ -113,7 +113,7 @@
                 "
                 (click)="infoClick.emit(item.block); $event.stopPropagation()"
             >
-                <mat-icon>info_outline</mat-icon>
+                <mat-icon svgIcon="info_outline"></mat-icon>
             </button>
         </div>
     }

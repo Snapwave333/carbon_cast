@@ -13,6 +13,7 @@ import { StorageMap } from '@ngx-pwa/local-storage';
 import { TranslateService } from '@ngx-translate/core';
 import {
     EMPTY,
+    Observable,
     concatMap,
     filter,
     firstValueFrom,
@@ -34,6 +35,7 @@ import {
     Channel,
     Playlist,
     PlaylistMeta,
+    Settings,
     STORE_KEY,
     VideoPlayer,
 } from '@iptvnator/shared/interfaces';
@@ -196,8 +198,11 @@ export class PlaylistEffects {
                         );
                     });
 
-                firstValueFrom(this.storage.get(STORE_KEY.Settings)).then(
-                    (settings: any) => {
+                firstValueFrom(
+                    this.storage.get(
+                        STORE_KEY.Settings
+                    ) as Observable<Settings>
+                ).then((settings) => {
                         if (
                             shouldAutoLaunchExternalPlayer(
                                 settings,
@@ -270,9 +275,9 @@ export class PlaylistEffects {
             return;
         }
 
-        const settings: any = await firstValueFrom(
+        const settings = (await firstValueFrom(
             this.storage.get(STORE_KEY.Settings)
-        );
+        )) as Settings | undefined;
         if (!settings || Object.keys(settings).length === 0) {
             return;
         }
@@ -508,7 +513,9 @@ export class PlaylistEffects {
         this.epgService.fetchEpg(plan.urls);
     }
 
-    private hasPlaylistScopedEpgSourceChange(playlist: PlaylistMeta): boolean {
+    private hasPlaylistScopedEpgSourceChange(
+        playlist: Partial<PlaylistMeta>
+    ): boolean {
         return (
             Object.prototype.hasOwnProperty.call(playlist, 'epgUrls') ||
             Object.prototype.hasOwnProperty.call(playlist, 'detectedEpgUrls') ||

@@ -29,7 +29,7 @@
                         {{ 'WORKSPACE.DASHBOARD.SEE_ALL' | translate }}
                     }
                 </span>
-                <mat-icon>chevron_right</mat-icon>
+                <mat-icon svgIcon="chevron_right"></mat-icon>
             </a>
         }
     </header>
@@ -43,7 +43,7 @@
             aria-label="Scroll left"
             tabindex="-1"
         >
-            <mat-icon>chevron_left</mat-icon>
+            <mat-icon svgIcon="chevron_left"></mat-icon>
         </button>
 
         <div
@@ -89,7 +89,7 @@
                                             (error)="markFailed(card.id)"
                                         />
                                     } @else {
-                                        <mat-icon>{{ card.icon }}</mat-icon>
+                                        <mat-icon [svgIcon]="card.icon"></mat-icon>
                                     }
                                 </div>
                                 <div class="rail__channel-meta">
@@ -173,7 +173,7 @@
                                     />
                                 } @else {
                                     <div class="rail__art-fallback">
-                                        <mat-icon>{{ card.icon }}</mat-icon>
+                                        <mat-icon [svgIcon]="card.icon"></mat-icon>
                                     </div>
                                 }
 
@@ -221,7 +221,7 @@
                                 "
                                 (click)="stopActionEvent($event)"
                             >
-                                <mat-icon>more_vert</mat-icon>
+                                <mat-icon svgIcon="more_vert"></mat-icon>
                             </button>
                         }
                     </div>
@@ -246,7 +246,7 @@
                         "
                         (click)="selectAction(card, action, $event)"
                     >
-                        <mat-icon>{{ action.icon }}</mat-icon>
+                        <mat-icon [svgIcon]="action.icon"></mat-icon>
                         <span>{{ action.labelKey | translate }}</span>
                     </button>
                 }
@@ -261,7 +261,7 @@
             aria-label="Scroll right"
             tabindex="-1"
         >
-            <mat-icon>chevron_right</mat-icon>
+            <mat-icon svgIcon="chevron_right"></mat-icon>
         </button>
     </div>
 </section>

@@ -344,11 +344,6 @@
         "LINK_BLOG": "博客",
         "LINK_GITHUB_DESCRIPTION": "为仓库点星、提交问题或参与贡献",
         "LINK_BLOG_DESCRIPTION": "发布说明、使用技巧及项目动态",
-        "LINK_TELEGRAM_DESCRIPTION": "公告、社区与支持",
-        "SUPPORT_TITLE": "支持本项目",
-        "SUPPORT_DESCRIPTION": "IPTVnator 是免费且开源的，公开开发。如果它已成为您日常的一部分，您的小额贡献将有助于让项目持续发展并塑造未来 — 感谢您。",
-        "SUPPORT_SPONSORS_HINT": "定期或一次性",
-        "SUPPORT_KOFI_HINT": "请我喝杯咖啡",
         "EPG_NOTE": "目前 EPG 仅在基于电子的 IPTVnator 版本中可用。",
         "EPG_NOTE_URL_TEXT": "在这里检查一下",
         "IMPORT_EXPORT_DATA": "导入/导出播放列表",
@@ -451,7 +446,11 @@
         "APP_UPDATE_RELEASE_NOTES": "What's new",
         "EMBEDDED_MPV_FRAME_COPY": "嵌入式 MPV：帧拷贝引擎（实验性）",
         "EMBEDDED_MPV_FRAME_COPY_DESCRIPTION": "视频渲染到应用画布上，菜单和对话框可以显示在其上方。",
-        "EMBEDDED_MPV_FRAME_COPY_RESTART": "重启应用后生效。"
+        "EMBEDDED_MPV_FRAME_COPY_RESTART": "重启应用后生效。",
+        "ATTRIBUTION": "Attribution",
+        "ATTRIBUTION_DESCRIPTION": "CarbonCast IPTV is a fork of IPTVnator (github.com/4gray/iptvnator). The upstream project and its contributors are credited under the original license. CarbonCast IPTV is an independent fork and is not endorsed by the upstream maintainers.",
+        "MIRROR_LAYOUT": "Mirror layout",
+        "MIRROR_LAYOUT_DESCRIPTION": "Put the player on the left and the channel/category rail on the right. Applies to the playlist player and Xtream/Stalker live views."
     },
     "THEMES": {
         "DARK_THEME": "深色",
@@ -611,6 +610,7 @@
             "NAME": "名称",
             "CHANNEL_ID": "频道 ID",
             "STREAM_URL": "流 URL",
+            "COPY_URL": "Copy stream URL",
             "GROUP": "分组",
             "RADIO": "广播",
             "CATCHUP_AVAILABLE": "Catchup 可用",
@@ -654,8 +654,10 @@
         "ZOOM_OUT": "缩小",
         "FILTER_CHANNELS": "筛选频道",
         "CLOSE_FILTER": "关闭筛选",
+        "CLEAR_FILTER": "Clear filter",
         "SEARCH_PROGRAMS": "搜索节目",
         "CLOSE_PROGRAM_SEARCH": "关闭节目搜索",
+        "CLEAR_PROGRAM_SEARCH": "Clear program search",
         "LIVE_STREAM": "正在直播",
         "ARCHIVE_PLAYBACK_UNAVAILABLE_TITLE": "归档播放不可用",
         "ARCHIVE_PLAYBACK_UNAVAILABLE_DESCRIPTION": "此提供商提供了该频道的节目历史，但不提供可播放的归档/Catchup 回看。",
@@ -965,6 +967,7 @@
         },
         "SEARCH_VIEW": {
             "INITIAL_TITLE": "搜索内容",
+            "CLEAR": "Clear search",
             "INITIAL_DESCRIPTION": "至少输入 3 个字符以在直播电视、电影和剧集中搜索。",
             "RESULTS_FOUND": "找到 {{count}} 条结果",
             "NO_RESULTS_FOR": "未找到与“{{term}}”匹配的结果",
@@ -1241,7 +1244,8 @@
             "XTREAM_REFRESH_DELETING_CATEGORIES": "正在移除缓存的分类...",
             "XTREAM_REFRESH_DETAIL_LOCAL": "收藏、观看历史、隐藏分类和播放进度会保留，以便同步后恢复。",
             "XTREAM_REFRESH_PROGRESS": "已处理本地记录：{{current}} / {{total}}",
-            "RAIL_RADIO": "广播"
+            "RAIL_RADIO": "广播",
+            "RAIL_FOLLOWED_SERIES": "Followed series"
         },
         "SOURCES": {
             "TITLE": "源",

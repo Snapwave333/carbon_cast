@@ -4,11 +4,39 @@ import { MatDialog } from '@angular/material/dialog';
 import { TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
 import { Channel } from '@iptvnator/shared/interfaces';
+import { expandChannelCategories } from '@iptvnator/shared/m3u-utils';
 import { ChannelDetailsDialogComponent } from '../channel-details-dialog/channel-details-dialog.component';
+import { ChannelGroup } from '../channel-group.model';
 import { GroupManagementDialogComponent } from './group-management-dialog/group-management-dialog.component';
 import { GroupsViewComponent } from './groups-view.component';
 
 const GROUP_CHANNEL_SORT_STORAGE_KEY = 'm3u-groups-channel-sort-mode';
+
+/**
+ * Mirror the container's canonical grouping: treat each record key as a raw
+ * M3U group-title, expand it into canonical buckets, and merge channels by
+ * canonical key (first-seen label wins).
+ */
+function toChannelGroups(record: Record<string, Channel[]>): ChannelGroup[] {
+    const buckets = new Map<string, { label: string; channels: Channel[] }>();
+
+    for (const [rawTitle, channels] of Object.entries(record)) {
+        for (const { key, label } of expandChannelCategories(rawTitle)) {
+            let bucket = buckets.get(key);
+            if (!bucket) {
+                bucket = { label, channels: [] };
+                buckets.set(key, bucket);
+            }
+            bucket.channels.push(...channels);
+        }
+    }
+
+    return Array.from(buckets, ([key, { label, channels }]) => ({
+        key,
+        label,
+        channels,
+    }));
+}
 
 function createChannel(
     id: string,
@@ -157,7 +185,7 @@ describe('GroupsViewComponent', () => {
     ): void {
         fixture.componentRef.setInput(
             'groupedChannels',
-            overrides.groupedChannels ?? groupedChannels
+            toChannelGroups(overrides.groupedChannels ?? groupedChannels)
         );
         fixture.componentRef.setInput('searchTerm', overrides.searchTerm ?? '');
         fixture.componentRef.setInput('channelEpgMap', new Map<string, null>());
@@ -202,10 +230,13 @@ describe('GroupsViewComponent', () => {
         });
 
         expect(component.filteredGroups().map((group) => group.key)).toEqual([
-            'Group 2',
-            'Group 10',
-            'Alpha',
+            'group 2',
+            'group 10',
+            'alpha',
         ]);
+        expect(
+            component.filteredGroups().map((group) => group.label)
+        ).toEqual(['Group 2', 'Group 10', 'Alpha']);
     });
 
     it('defaults to playlist order when no saved sort mode exists', () => {
@@ -310,8 +341,9 @@ describe('GroupsViewComponent', () => {
     it('prefers the active channel group for initial selection', () => {
         setInputs({ activeChannelUrl: worldUpdate.url });
 
-        expect(component.selectedGroupKey()).toBe('News');
-        expect(component.selectedGroup()?.key).toBe('News');
+        expect(component.selectedGroupKey()).toBe('news');
+        expect(component.selectedGroup()?.key).toBe('news');
+        expect(component.selectedGroup()?.label).toBe('News');
     });
 
     it('keeps the first grouped-channel match for duplicate active channel URLs', () => {
@@ -336,51 +368,51 @@ describe('GroupsViewComponent', () => {
             },
         });
 
-        expect(component.activeChannelGroupKey()).toBe('Movies');
-        expect(component.selectedGroupKey()).toBe('Movies');
+        expect(component.activeChannelGroupKey()).toBe('movies');
+        expect(component.selectedGroupKey()).toBe('movies');
     });
 
     it('retains a visible manual selection and falls back to the first visible group', () => {
-        component.selectGroup('Movies');
+        component.selectGroup('movies');
         fixture.detectChanges();
 
         setInputs({
             activeChannelUrl: sportsCenter.url,
             searchTerm: 'movie',
         });
-        expect(component.selectedGroupKey()).toBe('Movies');
+        expect(component.selectedGroupKey()).toBe('movies');
 
         setInputs({
             activeChannelUrl: sportsCenter.url,
             searchTerm: 'science',
         });
-        expect(component.selectedGroupKey()).toBe('Series');
+        expect(component.selectedGroupKey()).toBe('series');
     });
 
     it('switches selection to the active channel group when playback changes', () => {
-        component.selectGroup('Movies');
+        component.selectGroup('movies');
         fixture.detectChanges();
 
         setInputs({ activeChannelUrl: sportsCenter.url });
-        expect(component.selectedGroupKey()).toBe('Sports');
+        expect(component.selectedGroupKey()).toBe('sports');
 
         setInputs({ activeChannelUrl: scienceNow.url });
-        expect(component.selectedGroupKey()).toBe('Series');
+        expect(component.selectedGroupKey()).toBe('series');
     });
 
     it('keeps group selection behavior unchanged when channel sort mode changes', () => {
         component.setGroupChannelSortMode('name-asc');
-        component.selectGroup('Movies');
+        component.selectGroup('movies');
         fixture.detectChanges();
 
         setInputs({ activeChannelUrl: sportsCenter.url });
 
-        expect(component.selectedGroupKey()).toBe('Sports');
+        expect(component.selectedGroupKey()).toBe('sports');
         expect(component.filteredGroups().map((group) => group.key)).toEqual([
-            'Movies',
-            'News',
-            'Series',
-            'Sports',
+            'movies',
+            'news',
+            'series',
+            'sports',
         ]);
     });
 
@@ -390,7 +422,8 @@ describe('GroupsViewComponent', () => {
         expect(component.filteredGroups()).toEqual([
             expect.objectContaining({
                 count: 2,
-                key: 'News',
+                key: 'news',
+                label: 'News',
                 titleMatches: true,
             }),
         ]);
@@ -403,7 +436,8 @@ describe('GroupsViewComponent', () => {
         expect(component.filteredGroups()).toEqual([
             expect.objectContaining({
                 count: 1,
-                key: 'News',
+                key: 'news',
+                label: 'News',
                 titleMatches: false,
             }),
         ]);
@@ -412,20 +446,92 @@ describe('GroupsViewComponent', () => {
         ).toEqual(['World Update']);
     });
 
-    it('filters hidden groups from the rail and selected pane', () => {
+    it('filters hidden groups from the rail and selected pane using canonical keys for raw stored titles', () => {
         setInputs({
             activeChannelUrl: worldUpdate.url,
-            hiddenGroupTitles: ['News', 'Sports'],
+            // Raw, differently-cased stored titles must still match the
+            // canonical group keys (read-time back-compat coercion).
+            hiddenGroupTitles: ['NEWS', ' Sports '],
         });
 
         expect(component.filteredGroups().map((group) => group.key)).toEqual([
-            'Movies',
-            'Series',
+            'movies',
+            'series',
         ]);
-        expect(component.selectedGroupKey()).toBe('Movies');
+        expect(component.selectedGroupKey()).toBe('movies');
         expect(
             component.selectedGroupChannels().map((channel) => channel.name)
         ).toEqual(['Movie Classic']);
+    });
+
+    it('collapses case, whitespace, alias, and semicolon variants into one canonical row', () => {
+        setInputs({
+            groupedChannels: {
+                Animation: [
+                    createChannel('a', 'Anim A', 'http://x/a.m3u8', 'Animation'),
+                ],
+                ANIMATION: [
+                    createChannel('b', 'Anim B', 'http://x/b.m3u8', 'ANIMATION'),
+                ],
+                ' Animation ': [
+                    createChannel(
+                        'c',
+                        'Anim C',
+                        'http://x/c.m3u8',
+                        ' Animation '
+                    ),
+                ],
+                Anime: [createChannel('d', 'Anime D', 'http://x/d.m3u8', 'Anime')],
+                'Animation;Kids': [
+                    createChannel(
+                        'e',
+                        'Multi E',
+                        'http://x/e.m3u8',
+                        'Animation;Kids'
+                    ),
+                ],
+            },
+        });
+
+        expect(component.filteredGroups().map((group) => group.key)).toEqual([
+            'animation',
+            'kids',
+        ]);
+
+        const animation = component
+            .filteredGroups()
+            .find((group) => group.key === 'animation');
+        // key vs label split: canonical lower-cased key, first-seen display label.
+        expect(animation?.label).toBe('Animation');
+        expect(animation?.count).toBe(5);
+    });
+
+    it('hides every variant when a raw variant of the canonical key is stored, keeping other groups of a multi-group channel visible', () => {
+        setInputs({
+            groupedChannels: {
+                Animation: [
+                    createChannel('a', 'Anim A', 'http://x/a.m3u8', 'Animation'),
+                ],
+                ANIMATION: [
+                    createChannel('b', 'Anim B', 'http://x/b.m3u8', 'ANIMATION'),
+                ],
+                'Animation;Kids': [
+                    createChannel(
+                        'e',
+                        'Multi E',
+                        'http://x/e.m3u8',
+                        'Animation;Kids'
+                    ),
+                ],
+            },
+            hiddenGroupTitles: ['anime'],
+        });
+
+        // 'anime' → canonical 'animation', so the merged Animation row is hidden.
+        // The multi-group channel remains under its still-visible Kids group.
+        expect(component.filteredGroups().map((group) => group.key)).toEqual([
+            'kids',
+        ]);
     });
 
     it('opens the manage-groups dialog with all groups and emits updated hidden titles on save', () => {
@@ -443,10 +549,10 @@ describe('GroupsViewComponent', () => {
                 data: expect.objectContaining({
                     hiddenGroupTitles: [],
                     groups: expect.arrayContaining([
-                        { key: 'Movies', count: 1 },
-                        { key: 'News', count: 2 },
-                        { key: 'Series', count: 1 },
-                        { key: 'Sports', count: 2 },
+                        { key: 'movies', count: 1, label: 'Movies' },
+                        { key: 'news', count: 2, label: 'News' },
+                        { key: 'series', count: 1, label: 'Series' },
+                        { key: 'sports', count: 2, label: 'Sports' },
                     ]),
                 }),
                 maxHeight: '90vh',
@@ -478,9 +584,9 @@ describe('GroupsViewComponent', () => {
         fixture.detectChanges();
 
         expect(component.filteredGroups().map((group) => group.key)).toEqual([
-            'Sports',
+            'sports',
         ]);
-        expect(component.selectedGroupKey()).toBe('Sports');
+        expect(component.selectedGroupKey()).toBe('sports');
 
         searchButton.click();
         fixture.detectChanges();
@@ -489,10 +595,10 @@ describe('GroupsViewComponent', () => {
             fixture.nativeElement.querySelector('.groups-nav-search input')
         ).toBeNull();
         expect(component.filteredGroups().map((group) => group.key)).toEqual([
-            'Movies',
-            'News',
-            'Series',
-            'Sports',
+            'movies',
+            'news',
+            'series',
+            'sports',
         ]);
     });
 

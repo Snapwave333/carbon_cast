@@ -66,6 +66,10 @@ export class HttpServer {
         string,
         (req: http.IncomingMessage, res: http.ServerResponse) => void
     > = new Map();
+    private agentControlHandlers: Map<
+        string,
+        (req: http.IncomingMessage, res: http.ServerResponse) => void
+    > = new Map();
 
     constructor(options: HttpServerOptions = {}) {
         this.createServer = options.createServer ?? http.createServer;
@@ -175,6 +179,14 @@ export class HttpServer {
         this.remoteControlHandlers.set(path, handler);
     }
 
+    /** Register an authenticated agent-control endpoint. */
+    registerAgentControlHandler(
+        path: string,
+        handler: (req: http.IncomingMessage, res: http.ServerResponse) => void
+    ): void {
+        this.agentControlHandlers.set(path, handler);
+    }
+
     /**
      * Handle incoming HTTP requests
      */
@@ -187,6 +199,18 @@ export class HttpServer {
         // Handle API requests
         if (url.startsWith('/api/remote-control/')) {
             const handler = this.remoteControlHandlers.get(url);
+            if (handler) {
+                handler(req, res);
+                return;
+            }
+
+            res.writeHead(404, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: 'Endpoint not found' }));
+            return;
+        }
+
+        if (url.startsWith('/api/agent-control/')) {
+            const handler = this.agentControlHandlers.get(url);
             if (handler) {
                 handler(req, res);
                 return;

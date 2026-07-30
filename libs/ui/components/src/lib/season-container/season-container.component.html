@@ -16,13 +16,13 @@
                         value="grid"
                         [matTooltip]="'PORTALS.GRID_VIEW' | translate"
                     >
-                        <mat-icon>grid_view</mat-icon>
+                        <mat-icon svgIcon="grid_view"></mat-icon>
                     </mat-button-toggle>
                     <mat-button-toggle
                         value="list"
                         [matTooltip]="'PORTALS.LIST_VIEW' | translate"
                     >
-                        <mat-icon>view_list</mat-icon>
+                        <mat-icon svgIcon="view_list"></mat-icon>
                     </mat-button-toggle>
                 </mat-button-toggle-group>
             </div>
@@ -50,7 +50,7 @@
         } @else if (showSeriesEmptyState()) {
             <div class="empty-state-panel" role="status">
                 <div class="empty-state-panel__icon" aria-hidden="true">
-                    <mat-icon>video_library</mat-icon>
+                    <mat-icon svgIcon="video_library"></mat-icon>
                 </div>
                 <h4 class="empty-state-panel__title">
                     {{ 'PORTALS.NO_EPISODES_AVAILABLE' | translate }}
@@ -65,7 +65,7 @@
                 role="status"
             >
                 <div class="empty-state-panel__icon" aria-hidden="true">
-                    <mat-icon>video_library</mat-icon>
+                    <mat-icon svgIcon="video_library"></mat-icon>
                 </div>
                 <h4 class="empty-state-panel__title">
                     {{ 'PORTALS.SEASON_EMPTY' | translate }}
@@ -115,7 +115,7 @@
                                     />
                                 } @else {
                                     <div class="episode-card__placeholder">
-                                        <mat-icon>play_circle_outline</mat-icon>
+                                        <mat-icon svgIcon="play_circle_outline"></mat-icon>
                                     </div>
                                 }
                                 @if (getEpisodeProgress(episode) > 0) {
@@ -147,12 +147,16 @@
                                             : 'XTREAM.MARK_WATCHED'
                                         ) | translate
                                     "
+                                    [attr.aria-label]="
+                                        (isEpisodeWatched(episode)
+                                            ? 'XTREAM.MARK_UNWATCHED'
+                                            : 'XTREAM.MARK_WATCHED'
+                                        ) | translate
+                                    "
                                 >
-                                    <mat-icon>{{
-                                        isEpisodeWatched(episode)
+                                    <mat-icon [svgIcon]="isEpisodeWatched(episode)
                                             ? 'check_circle'
-                                            : 'radio_button_unchecked'
-                                    }}</mat-icon>
+                                            : 'radio_button_unchecked'"></mat-icon>
                                 </button>
                                 <div class="episode-card__actions">
                                     @if (isElectron()) {
@@ -170,8 +174,12 @@
                                                     'DOWNLOADS.PLAY_LOCAL'
                                                         | translate
                                                 "
+                                                [attr.aria-label]="
+                                                    'DOWNLOADS.PLAY_LOCAL'
+                                                        | translate
+                                                "
                                             >
-                                                <mat-icon>play_circle</mat-icon>
+                                                <mat-icon svgIcon="play_circle"></mat-icon>
                                             </button>
                                         } @else if (
                                             isEpisodePaused(episode)
@@ -189,8 +197,12 @@
                                                     'DOWNLOADS.RESUME'
                                                         | translate
                                                 "
+                                                [attr.aria-label]="
+                                                    'DOWNLOADS.RESUME'
+                                                        | translate
+                                                "
                                             >
-                                                <mat-icon>play_arrow</mat-icon>
+                                                <mat-icon svgIcon="play_arrow"></mat-icon>
                                             </button>
                                         } @else if (
                                             isEpisodeDownloading(episode)
@@ -203,8 +215,12 @@
                                                     'DOWNLOADS.STATUS.DOWNLOADING'
                                                         | translate
                                                 "
+                                                [attr.aria-label]="
+                                                    'DOWNLOADS.STATUS.DOWNLOADING'
+                                                        | translate
+                                                "
                                             >
-                                                <mat-icon>downloading</mat-icon>
+                                                <mat-icon svgIcon="downloading"></mat-icon>
                                             </button>
                                         } @else {
                                             <button
@@ -220,8 +236,12 @@
                                                     'DOWNLOADS.DOWNLOAD'
                                                         | translate
                                                 "
+                                                [attr.aria-label]="
+                                                    'DOWNLOADS.DOWNLOAD'
+                                                        | translate
+                                                "
                                             >
-                                                <mat-icon>download</mat-icon>
+                                                <mat-icon svgIcon="download"></mat-icon>
                                             </button>
                                         }
                                     }
@@ -233,14 +253,12 @@
                                                 diameter="26"
                                             ></mat-spinner>
                                         } @else {
-                                            <mat-icon>{{
-                                                isEpisodeActiveExternal(
+                                            <mat-icon [svgIcon]="isEpisodeActiveExternal(
                                                     episode
                                                 ) ||
                                                 isEpisodePlayingInline(episode)
                                                     ? 'equalizer'
-                                                    : 'play_arrow'
-                                            }}</mat-icon>
+                                                    : 'play_arrow'"></mat-icon>
                                         }
                                     </div>
                                 </div>
@@ -269,8 +287,12 @@
                                                 'PORTALS.EPISODE_INFO'
                                                     | translate
                                             "
+                                            [attr.aria-label]="
+                                                'PORTALS.EPISODE_INFO'
+                                                    | translate
+                                            "
                                         >
-                                            <mat-icon>info_outline</mat-icon>
+                                            <mat-icon svgIcon="info_outline"></mat-icon>
                                         </button>
                                     }
                                 </div>
@@ -332,8 +354,7 @@
                                     } @else {
                                         <mat-icon
                                             class="episode-list-item__thumb-placeholder"
-                                            >play_circle_outline</mat-icon
-                                        >
+                                             svgIcon="play_circle_outline"></mat-icon>
                                     }
                                     <span
                                         class="episode-list-item__thumb-number"
@@ -351,8 +372,7 @@
                                         {{ episode.title }}
                                         @if (isEpisodeWatched(episode)) {
                                             <mat-icon class="watched-icon"
-                                                >check_circle</mat-icon
-                                            >
+                                                 svgIcon="check_circle"></mat-icon>
                                         }
                                     </h4>
                                     <div class="episode-list-item__meta">
@@ -401,7 +421,8 @@
                                         selectEpisode(episode);
                                         $event.stopPropagation()
                                     "
-                                    [matTooltip]="'Play'"
+                                    [matTooltip]="'DOWNLOADS.PLAY' | translate"
+                                    [attr.aria-label]="'DOWNLOADS.PLAY' | translate"
                                     [disabled]="isEpisodeLaunching(episode)"
                                 >
                                     @if (isEpisodeLaunching(episode)) {
@@ -409,12 +430,10 @@
                                             diameter="18"
                                         ></mat-spinner>
                                     } @else {
-                                        <mat-icon>{{
-                                            isEpisodeActiveExternal(episode) ||
+                                        <mat-icon [svgIcon]="isEpisodeActiveExternal(episode) ||
                                             isEpisodePlayingInline(episode)
                                                 ? 'equalizer'
-                                                : 'play_arrow'
-                                        }}</mat-icon>
+                                                : 'play_arrow'"></mat-icon>
                                     }
                                 </button>
                                 @if (isElectron()) {
@@ -429,8 +448,12 @@
                                                 'DOWNLOADS.PLAY_LOCAL'
                                                     | translate
                                             "
+                                            [attr.aria-label]="
+                                                'DOWNLOADS.PLAY_LOCAL'
+                                                    | translate
+                                            "
                                         >
-                                            <mat-icon>folder_open</mat-icon>
+                                            <mat-icon svgIcon="folder_open"></mat-icon>
                                         </button>
                                     } @else if (isEpisodePaused(episode)) {
                                         <button
@@ -445,8 +468,11 @@
                                             [matTooltip]="
                                                 'DOWNLOADS.RESUME' | translate
                                             "
+                                            [attr.aria-label]="
+                                                'DOWNLOADS.RESUME' | translate
+                                            "
                                         >
-                                            <mat-icon>play_arrow</mat-icon>
+                                            <mat-icon svgIcon="play_arrow"></mat-icon>
                                         </button>
                                     } @else if (isEpisodeDownloading(episode)) {
                                         <button
@@ -457,8 +483,12 @@
                                                 'DOWNLOADS.STATUS.DOWNLOADING'
                                                     | translate
                                             "
+                                            [attr.aria-label]="
+                                                'DOWNLOADS.STATUS.DOWNLOADING'
+                                                    | translate
+                                            "
                                         >
-                                            <mat-icon>downloading</mat-icon>
+                                            <mat-icon svgIcon="downloading"></mat-icon>
                                         </button>
                                     } @else {
                                         <button
@@ -470,8 +500,11 @@
                                             [matTooltip]="
                                                 'DOWNLOADS.DOWNLOAD' | translate
                                             "
+                                            [attr.aria-label]="
+                                                'DOWNLOADS.DOWNLOAD' | translate
+                                            "
                                         >
-                                            <mat-icon>download</mat-icon>
+                                            <mat-icon svgIcon="download"></mat-icon>
                                         </button>
                                     }
                                 }
@@ -486,8 +519,11 @@
                                         [matTooltip]="
                                             'PORTALS.EPISODE_INFO' | translate
                                         "
+                                        [attr.aria-label]="
+                                            'PORTALS.EPISODE_INFO' | translate
+                                        "
                                     >
-                                        <mat-icon>info_outline</mat-icon>
+                                        <mat-icon svgIcon="info_outline"></mat-icon>
                                     </button>
                                 }
                                 <button
@@ -500,15 +536,19 @@
                                             : 'XTREAM.MARK_WATCHED'
                                         ) | translate
                                     "
+                                    [attr.aria-label]="
+                                        (isEpisodeWatched(episode)
+                                            ? 'XTREAM.MARK_UNWATCHED'
+                                            : 'XTREAM.MARK_WATCHED'
+                                        ) | translate
+                                    "
                                     [class.action-btn--success]="
                                         isEpisodeWatched(episode)
                                     "
                                 >
-                                    <mat-icon>{{
-                                        isEpisodeWatched(episode)
+                                    <mat-icon [svgIcon]="isEpisodeWatched(episode)
                                             ? 'check_circle'
-                                            : 'radio_button_unchecked'
-                                    }}</mat-icon>
+                                            : 'radio_button_unchecked'"></mat-icon>
                                 </button>
                             </div>
                         </article>

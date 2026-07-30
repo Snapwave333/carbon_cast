@@ -30,6 +30,7 @@ import {
     PortalInlinePlayerComponent,
     type UpNextRailItem,
 } from '@iptvnator/ui/playback';
+import { FollowSeriesButtonComponent } from '@iptvnator/ui/epg';
 import {
     normalizeTitleKeys,
     seriesStatusLabelKey,
@@ -72,6 +73,7 @@ import {
         DetailActionsTemplateDirective,
         DetailMetaTemplateDirective,
         DetailTagsTemplateDirective,
+        FollowSeriesButtonComponent,
         MatIcon,
         PortalDetailShellComponent,
         PortalInlinePlayerComponent,
@@ -172,8 +174,7 @@ export class SerialDetailsComponent implements OnInit, OnDestroy {
     });
 
     private readonly loadCrossPortalSimilar = effect(() => {
-        const recommendations =
-            this.selectedItem()?.info?.tmdb_recommendations;
+        const recommendations = this.selectedItem()?.info?.tmdb_recommendations;
         const playlistId = this.xtreamStore.currentPlaylist()?.id;
         untracked(() => {
             this.crossPortalItems.set([]);

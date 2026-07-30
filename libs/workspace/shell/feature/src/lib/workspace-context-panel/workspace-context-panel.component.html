@@ -15,7 +15,7 @@
                             'WORKSPACE.CONTEXT.SEARCH' | translate
                         "
                     >
-                        <mat-icon>search</mat-icon>
+                        <mat-icon svgIcon="search"></mat-icon>
                     </button>
                 }
                 @if (canSearchCategories()) {
@@ -35,7 +35,7 @@
                             'WORKSPACE.CATEGORY_SORT_ARIA' | translate
                         "
                     >
-                        <mat-icon>{{ categorySortIcon() }}</mat-icon>
+                        <mat-icon [svgIcon]="categorySortIcon()"></mat-icon>
                     </button>
                     <mat-menu #categorySortMenu="matMenu">
                         @for (
@@ -46,14 +46,13 @@
                                 mat-menu-item
                                 (click)="setCategorySortMode(option.mode)"
                             >
-                                <mat-icon>{{ option.icon }}</mat-icon>
+                                <mat-icon [svgIcon]="option.icon"></mat-icon>
                                 <span>{{
                                     option.translationKey | translate
                                 }}</span>
                                 @if (categorySortMode() === option.mode) {
                                     <mat-icon class="context-sort-check"
-                                        >check</mat-icon
-                                    >
+                                         svgIcon="check"></mat-icon>
                                 }
                             </button>
                         }
@@ -73,7 +72,7 @@
                             'WORKSPACE.CONTEXT.MANAGE_CATEGORIES' | translate
                         "
                     >
-                        <mat-icon>tune</mat-icon>
+                        <mat-icon svgIcon="tune"></mat-icon>
                     </button>
                 }
             </div>
@@ -85,7 +84,7 @@
 
     @if (isSearchOpen()) {
         <label class="context-search">
-            <mat-icon class="context-search__icon">search</mat-icon>
+            <mat-icon class="context-search__icon" svgIcon="search"></mat-icon>
             <input
                 #searchInput
                 type="search"
@@ -106,7 +105,7 @@
                     class="context-search__clear"
                     (click)="clearCategorySearch()"
                 >
-                    <mat-icon>close</mat-icon>
+                    <mat-icon svgIcon="close"></mat-icon>
                 </button>
             }
         </label>

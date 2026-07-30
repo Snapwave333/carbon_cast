@@ -238,6 +238,27 @@ describe('withStalkerContent failure states', () => {
         ).toEqual(['PORTALS.ALL_CATEGORIES', 'Zulu', 'Alpha', 'Movies']);
     });
 
+    it('cleans category display labels without changing category_id', async () => {
+        dataService.sendIpcEvent.mockResolvedValue({
+            js: [{ id: '7', title: '  Kids   Shows  ' }],
+        });
+
+        store.setSelectedContentType('vod');
+        store.setCurrentPlaylist(PLAYLIST);
+        void store.isCategoryResourceLoading();
+
+        await waitForCondition(
+            () => dataService.sendIpcEvent.mock.calls.length > 0
+        );
+        await flushResources();
+
+        const category = store
+            .getCategoryResource()
+            .find((item) => item.category_id === '7');
+        expect(category?.category_name).toBe('Kids Shows');
+        expect(category?.category_id).toBe('7');
+    });
+
     it('normalizes content failures into empty collections instead of undefined state', async () => {
         dataService.sendIpcEvent.mockRejectedValue(
             new Error('get_ordered_list failed')

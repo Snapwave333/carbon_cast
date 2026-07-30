@@ -344,11 +344,6 @@
         "LINK_BLOG": "블로그",
         "LINK_GITHUB_DESCRIPTION": "저장소에 별표를 누르거나, 이슈를 열거나, 기여하기",
         "LINK_BLOG_DESCRIPTION": "릴리스 노트, 팁 및 프로젝트 업데이트",
-        "LINK_TELEGRAM_DESCRIPTION": "공지사항, 커뮤니티 및 지원",
-        "SUPPORT_TITLE": "프로젝트 후원",
-        "SUPPORT_DESCRIPTION": "IPTVnator는 무료 오픈 소스 프로젝트로 공개적으로 개발되고 있습니다. 일상적으로 사용하신다면, 작은 기여로 프로젝트를 계속 유지하고 향후 방향을 만드는 데 도움이 됩니다 — 감사합니다.",
-        "SUPPORT_SPONSORS_HINT": "정기 또는 일회성",
-        "SUPPORT_KOFI_HINT": "Buy me a coffee",
         "EPG_NOTE": "현재 EPG는 IPTVnator의 전자 기반 버전에서만 사용할 수 있습니다.",
         "EPG_NOTE_URL_TEXT": "여기에서 확인하세요",
         "IMPORT_EXPORT_DATA": "재생목록 가져오기/내보내기",
@@ -451,7 +446,11 @@
         "APP_UPDATE_RELEASE_NOTES": "What's new",
         "EMBEDDED_MPV_FRAME_COPY": "내장 MPV: 프레임 복사 엔진(실험적)",
         "EMBEDDED_MPV_FRAME_COPY_DESCRIPTION": "비디오를 앱 캔버스에 렌더링하여 메뉴와 대화 상자가 그 위에 표시됩니다.",
-        "EMBEDDED_MPV_FRAME_COPY_RESTART": "앱을 다시 시작한 후 적용됩니다."
+        "EMBEDDED_MPV_FRAME_COPY_RESTART": "앱을 다시 시작한 후 적용됩니다.",
+        "ATTRIBUTION": "Attribution",
+        "ATTRIBUTION_DESCRIPTION": "CarbonCast IPTV is a fork of IPTVnator (github.com/4gray/iptvnator). The upstream project and its contributors are credited under the original license. CarbonCast IPTV is an independent fork and is not endorsed by the upstream maintainers.",
+        "MIRROR_LAYOUT": "Mirror layout",
+        "MIRROR_LAYOUT_DESCRIPTION": "Put the player on the left and the channel/category rail on the right. Applies to the playlist player and Xtream/Stalker live views."
     },
     "THEMES": {
         "DARK_THEME": "어둡게",
@@ -611,6 +610,7 @@
             "NAME": "이름",
             "CHANNEL_ID": "채널 ID",
             "STREAM_URL": "스트림 URL",
+            "COPY_URL": "Copy stream URL",
             "GROUP": "그룹",
             "RADIO": "라디오",
             "CATCHUP_AVAILABLE": "Catchup 사용 가능",
@@ -654,8 +654,10 @@
         "ZOOM_OUT": "축소",
         "FILTER_CHANNELS": "채널 필터",
         "CLOSE_FILTER": "필터 닫기",
+        "CLEAR_FILTER": "Clear filter",
         "SEARCH_PROGRAMS": "프로그램 검색",
         "CLOSE_PROGRAM_SEARCH": "프로그램 검색 닫기",
+        "CLEAR_PROGRAM_SEARCH": "Clear program search",
         "LIVE_STREAM": "Live stream",
         "ARCHIVE_PLAYBACK_UNAVAILABLE_TITLE": "아카이브 재생을 사용할 수 없습니다",
         "ARCHIVE_PLAYBACK_UNAVAILABLE_DESCRIPTION": "이 공급자는 채널의 편성 이력을 제공하지만 재생 가능한 아카이브/Catchup 재생은 제공하지 않습니다.",
@@ -965,6 +967,7 @@
         },
         "SEARCH_VIEW": {
             "INITIAL_TITLE": "콘텐츠 검색",
+            "CLEAR": "Clear search",
             "INITIAL_DESCRIPTION": "라이브 TV, 영화, 시리즈에서 검색하려면 3자 이상 입력하세요.",
             "RESULTS_FOUND": "{{count}}개의 결과를 찾았습니다",
             "NO_RESULTS_FOR": "\"{{term}}\"에 대한 결과를 찾을 수 없습니다",
@@ -1241,7 +1244,8 @@
             "XTREAM_REFRESH_DELETING_CATEGORIES": "캐시된 카테고리를 제거하는 중...",
             "XTREAM_REFRESH_DETAIL_LOCAL": "즐겨찾기, 시청 기록, 숨긴 카테고리, 재생 진행률을 동기화 후 복원할 수 있도록 준비합니다.",
             "XTREAM_REFRESH_PROGRESS": "처리된 로컬 레코드: {{current}} / {{total}}",
-            "RAIL_RADIO": "라디오"
+            "RAIL_RADIO": "라디오",
+            "RAIL_FOLLOWED_SERIES": "Followed series"
         },
         "SOURCES": {
             "TITLE": "소스",
