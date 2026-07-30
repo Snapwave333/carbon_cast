@@ -145,7 +145,7 @@ describe('ExternalPlaybackDockComponent', () => {
         expect(
             fixture.debugElement
                 .query(By.css('.external-playback-dock__placeholder mat-icon'))
-                .nativeElement.textContent.trim()
+                .componentInstance.svgIcon
         ).toBe('movie');
     });
 
