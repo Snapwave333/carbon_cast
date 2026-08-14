@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { StorageMap } from '@ngx-pwa/local-storage';
-import { catchError, map, Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { STORE_KEY } from '@iptvnator/shared/interfaces';
 
 const PRERELEASE_KEYWORDS = [
@@ -99,8 +99,11 @@ export class SettingsService {
     /**
      * Returns the version of the released app
      * Filters out pre-release versions (beta, alpha, rc)
+     *
+     * Emits null when the repository has no stable release to compare
+     * against; transport failures reach the caller as an error.
      */
-    getAppVersion() {
+    getAppVersion(): Observable<string | null> {
         return this.http
             .get<{ created_at: string; name: string }[]>(
                 'https://api.github.com/repos/Snapwave333/carbon_cast/releases'
@@ -126,12 +129,7 @@ export class SettingsService {
                             new Date(a.created_at).getTime()
                     );
 
-                    return sortedReleases[0];
-                }),
-                map((response) => response.name),
-                catchError((err) => {
-                    console.error(err);
-                    throw new Error(err);
+                    return sortedReleases[0]?.name ?? null;
                 })
             );
     }

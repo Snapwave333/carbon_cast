@@ -115,7 +115,19 @@ export class SettingsAppUpdateFacade {
         this.settingsService
             .getAppVersion()
             .pipe(take(1))
-            .subscribe((version) => this.showVersionInformation(version));
+            .subscribe({
+                next: (version) =>
+                    version
+                        ? this.showVersionInformation(version)
+                        : this.showVersionCheckFailure(),
+                error: () => this.showVersionCheckFailure(),
+            });
+    }
+
+    private showVersionCheckFailure(): void {
+        this.updateMessage.set(
+            this.translate.instant('SETTINGS.APP_UPDATE_ERROR')
+        );
     }
 
     /**

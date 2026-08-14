@@ -7,7 +7,7 @@ import {
 } from '@iptvnator/shared/interfaces';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MockProvider } from 'ng-mocks';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { ElectronServiceStub } from '../services/electron.service.stub';
 import { SettingsService } from '../services/settings.service';
 import { AppUpdateReleaseNotesDialogComponent } from './app-update-release-notes-dialog.component';
@@ -254,6 +254,28 @@ describe('SettingsAppUpdateFacade', () => {
                 'SETTINGS.NEW_VERSION_AVAILABLE'
             );
             expect(facade.updateMessage()).toBe('New version available: 1.0.0');
+        });
+
+        it('reports a failed check when the repository has no stable release', () => {
+            const settingsService = TestBed.inject(SettingsService);
+            (settingsService.getAppVersion as jest.Mock).mockReturnValue(
+                of(null)
+            );
+
+            facade.checkAppVersion();
+
+            expect(facade.updateMessage()).toBe('SETTINGS.APP_UPDATE_ERROR');
+        });
+
+        it('reports a failed check when the release lookup errors', () => {
+            const settingsService = TestBed.inject(SettingsService);
+            (settingsService.getAppVersion as jest.Mock).mockReturnValue(
+                throwError(() => new Error('offline'))
+            );
+
+            facade.checkAppVersion();
+
+            expect(facade.updateMessage()).toBe('SETTINGS.APP_UPDATE_ERROR');
         });
 
         it('reports the installed version as current when it matches', () => {
