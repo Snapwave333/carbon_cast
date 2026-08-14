@@ -34,6 +34,8 @@ export const MEDIA_ICONS: Record<string, string> = {
     tv: '<rect x="3" y="5" width="18" height="13" rx="2"/><path d="M9 21h6"/>',
     tv_off: '<rect x="3" y="5" width="18" height="13" rx="2"/><path d="M9 21h6"/><path d="m4 3.5 16 16"/>',
     radio: '<rect x="3" y="9" width="18" height="11" rx="2"/><path d="m5 9 11-5"/><circle cx="8.5" cy="14.5" r="2.2"/><path d="M14 12.5h4M14 16.5h4"/>',
+    podcasts:
+        '<rect x="9.5" y="2.5" width="5" height="10" rx="2.5"/><path d="M6.5 11a5.5 5.5 0 0 0 11 0"/><path d="M12 16.5V21"/><path d="M9.5 21h5"/>',
     movie: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 9h18"/><path d="m7 5 2 4M12 5l2 4M17 5l2 4"/>',
     video_library:
         '<rect x="7" y="7" width="14" height="13" rx="2"/><path d="M3 17V5a2 2 0 0 1 2-2h12"/><path d="M12 10.5v6l5-3z"/>',

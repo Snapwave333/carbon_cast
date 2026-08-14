@@ -1,10 +1,27 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 512 512">
-  <rect x="20" y="20" width="472" height="472" rx="92" fill="#07090C"/>
-  <g>
-    <path d="M82 142 L142 82 H370 L430 142 V342 L370 402 H142 L82 342 Z" fill="none" stroke="#E10D1A" stroke-width="36" stroke-linejoin="round"/>
-    <path d="M210 174 L344 256 L210 338 Z" fill="#F4F7FA"/>
-      <path d="M364 166 C394 182 412 209 416 240" fill="none" stroke="#00D8FF" stroke-width="24" stroke-linecap="round"/>
-      <path d="M380 116 C435 146 466 194 470 250" fill="none" stroke="#00D8FF" stroke-width="18" stroke-linecap="round" opacity=".78"/>
-    <circle cx="140" cy="348" r="18" fill="#FF6A00"/>
-  </g>
+  <defs>
+    <!-- Carbon-fibre twill: a 2x2 basketweave of tows with a directional
+         sheen, echoing the app's carbon UI. Eight cells across the mark, with
+         enough tow-to-ground contrast that the weave still reads at 128px —
+         a finer, lower-contrast version washed out to flat black there. -->
+    <pattern id="carbon-weave" width="64" height="64" patternUnits="userSpaceOnUse">
+      <rect width="64" height="64" fill="#04060A"/>
+      <rect x="1" y="1" width="30" height="30" rx="3" fill="#242E3E"/>
+      <rect x="33" y="33" width="30" height="30" rx="3" fill="#242E3E"/>
+      <rect x="1" y="1" width="30" height="3" fill="#46536B"/>
+      <rect x="33" y="33" width="30" height="3" fill="#46536B"/>
+      <rect x="33" y="1" width="3" height="30" fill="#46536B" opacity=".55"/>
+      <rect x="1" y="33" width="3" height="30" fill="#46536B" opacity=".55"/>
+    </pattern>
+  </defs>
+
+  <circle cx="256" cy="256" r="238" fill="url(#carbon-weave)"/>
+  <!-- Rim: without it the near-black field merges into a dark wallpaper. -->
+  <circle cx="256" cy="256" r="235" fill="none" stroke="#2C3342" stroke-width="6"/>
+
+  <!-- CarbonCast monogram: two C's in mirror symmetry about x=256, set back
+       to back. Facing them inward instead puts both openings on the centre
+       line, and the resulting cleft between two lobes reads as anatomy. -->
+  <path d="M131.7 222.1 A64 64 0 1 1 131.7 289.9" fill="none" stroke="#E10D1A" stroke-width="34" stroke-linecap="round"/>
+  <path d="M380.3 222.1 A64 64 0 1 0 380.3 289.9" fill="none" stroke="#E10D1A" stroke-width="34" stroke-linecap="round"/>
 </svg>
