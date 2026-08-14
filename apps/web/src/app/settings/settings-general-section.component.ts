@@ -7,7 +7,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { TranslateModule } from '@ngx-translate/core';
 import { CoverSize, Language } from '@iptvnator/shared/interfaces';
-import { CoverSizeOption, StartupBehaviorOption } from './settings.models';
+import {
+    CoverSizeOption,
+    DefaultWorkspacePageOption,
+    PlaylistDefaultSectionOption,
+    StartupBehaviorOption,
+} from './settings.models';
 
 @Component({
     selector: 'app-settings-general-section',
@@ -30,6 +35,10 @@ export class SettingsGeneralSectionComponent {
     readonly languageEnum = input.required<typeof Language>();
     readonly coverSizeOptions = input.required<CoverSizeOption[]>();
     readonly startupBehaviorOptions = input.required<StartupBehaviorOption[]>();
+    readonly defaultWorkspacePageOptions =
+        input.required<DefaultWorkspacePageOption[]>();
+    readonly playlistDefaultSectionOptions =
+        input.required<PlaylistDefaultSectionOption[]>();
 
     readonly selectCoverSize = output<CoverSize>();
 }

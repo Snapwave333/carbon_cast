@@ -340,7 +340,7 @@ export class PlaylistRefreshActionService {
             ),
             message: this.translateWithFallback(
                 'HOME.URL_UPLOAD.TRUST_TLS_HOST_WARNING',
-                'Only continue if you trust this playlist host. IPTVnator will allow invalid TLS certificates for this host, but other hosts still require valid certificates.'
+                'Only continue if you trust this playlist host. CarbonCast IPTV will allow invalid TLS certificates for this host, but other hosts still require valid certificates.'
             ),
             confirmLabel: this.translateWithFallback(
                 'HOME.URL_UPLOAD.TRUST_TLS_HOST',

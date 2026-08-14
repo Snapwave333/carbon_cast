@@ -5,3 +5,4 @@ export * from './lib/playlist.utils';
 export * from './lib/catchup.utils';
 export * from './lib/category-normalization.util';
 export * from './lib/strip-country-prefix.util';
+export * from './lib/spanish-channel.util';

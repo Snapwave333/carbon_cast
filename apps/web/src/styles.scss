@@ -160,11 +160,41 @@ textarea {
     opacity: 1 !important;
 }
 
+// Focus ring.
+//
+// The blanket `outline: none` this replaces removed the indicator from every
+// control in the app, so keyboard users had no way to tell where they were.
+// `:focus-visible` restores it only for keyboard and assistive navigation —
+// clicking a button still shows nothing, which is what the old reset was
+// really after.
+:root {
+    --app-focus-ring-color: var(--mat-sys-primary, #7c8cf5);
+    --app-focus-ring-width: 2px;
+    --app-focus-ring-offset: 2px;
+}
+
 input,
 button,
 textarea,
-:focus {
-    outline: none;
+select,
+a,
+[tabindex] {
+    &:focus:not(:focus-visible) {
+        outline: none;
+    }
+
+    // The outline follows the element's own border-radius in every browser
+    // this app targets, so the ring hugs rounded tiles without extra work.
+    &:focus-visible {
+        outline: var(--app-focus-ring-width) solid var(--app-focus-ring-color);
+        outline-offset: var(--app-focus-ring-offset);
+    }
+}
+
+// Material draws its own inner focus indicator; ours would double up on it.
+.mat-mdc-button-base:focus-visible,
+.mat-mdc-icon-button:focus-visible {
+    outline-offset: 1px;
 }
 
 // ─── Dark Theme ───────────────────────────────────────────────────────────────

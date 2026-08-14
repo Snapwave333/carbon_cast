@@ -6,6 +6,7 @@ import {
 } from '@angular/forms';
 import {
     CoverSize,
+    DefaultWorkspacePage,
     DEFAULT_DASHBOARD_RAILS_SETTINGS,
     DEFAULT_PLAYER_CONTROLS_SETTINGS,
     DEFAULT_TMDB_SETTINGS,
@@ -19,6 +20,7 @@ import {
     StreamFormat,
     Theme,
     VideoPlayer,
+    PlaylistDefaultSection,
 } from '@iptvnator/shared/interfaces';
 
 export const EPG_URL_PATTERN = /^(http|https|file):\/\/[^ "]+$/;
@@ -43,6 +45,7 @@ export function createSettingsForm(
         }),
         playerAmbientMode: false,
         playerUpNextRail: true,
+        guideArtwork: true,
         ...(supportsEpg
             ? { epgUrl: new FormArray<FormControl<string | null>>([]) }
             : {}),
@@ -65,8 +68,12 @@ export function createSettingsForm(
             tmdbTrending: DEFAULT_DASHBOARD_RAILS_SETTINGS.tmdbTrending,
         }),
         startupBehavior: StartupBehavior.FirstView,
+        defaultWorkspacePage: 'tv-guide' as DefaultWorkspacePage,
+        playlistDefaultSection: 'guide',
+        resumeLastChannel: true,
         showExternalPlaybackBar: true,
         stripCountryPrefix: false,
+        hideSpanishChannels: true,
         theme: Theme.SystemTheme,
         mirrorLayout: true,
         mpvPlayerPath: '',
@@ -132,6 +139,7 @@ export function createSettingsFromFormValue(
         playerControls: normalizePlayerControlsSettings(value.playerControls),
         playerAmbientMode: value.playerAmbientMode ?? false,
         playerUpNextRail: value.playerUpNextRail ?? true,
+        guideArtwork: value.guideArtwork ?? true,
         streamFormat: value.streamFormat ?? StreamFormat.AutoStreamFormat,
         openStreamOnDoubleClick: value.openStreamOnDoubleClick ?? false,
         language: value.language ?? Language.ENGLISH,
@@ -139,8 +147,14 @@ export function createSettingsFromFormValue(
         showDashboard: value.showDashboard ?? true,
         dashboardRails: normalizeDashboardRailsSettings(value.dashboardRails),
         startupBehavior: value.startupBehavior ?? StartupBehavior.FirstView,
+        defaultWorkspacePage:
+            (value.defaultWorkspacePage as DefaultWorkspacePage) ?? 'tv-guide',
+        playlistDefaultSection:
+            (value.playlistDefaultSection as PlaylistDefaultSection) ?? 'guide',
+        resumeLastChannel: value.resumeLastChannel ?? true,
         showExternalPlaybackBar: value.showExternalPlaybackBar ?? true,
         stripCountryPrefix: value.stripCountryPrefix ?? false,
+        hideSpanishChannels: value.hideSpanishChannels ?? true,
         theme: value.theme ?? Theme.SystemTheme,
         mirrorLayout: value.mirrorLayout ?? true,
         mpvPlayerPath: normalizeExternalPlayerPath(value.mpvPlayerPath),

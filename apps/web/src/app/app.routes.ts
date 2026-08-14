@@ -101,6 +101,13 @@ export const routes: Routes = [
                     ),
             },
             {
+                path: 'radio',
+                loadComponent: () =>
+                    import('@iptvnator/portal/radio/feature').then(
+                        (c) => c.RadioComponent
+                    ),
+            },
+            {
                 path: 'followed-series',
                 loadComponent: () =>
                     import('./followed-series-route.component').then(

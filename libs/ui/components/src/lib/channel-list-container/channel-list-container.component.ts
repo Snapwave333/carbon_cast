@@ -61,6 +61,7 @@ import {
 } from '@iptvnator/shared/interfaces';
 import {
     expandChannelCategories,
+    isSpanishLanguageChannel,
     normalizeEpgUrls,
 } from '@iptvnator/shared/m3u-utils';
 import { ChannelGroup } from './channel-group.model';
@@ -282,7 +283,15 @@ export class ChannelListContainerComponent implements OnInit, OnDestroy {
 
     /** Displayed channels - filters out unfavorited channels in global favorites view */
     readonly displayedChannels = computed(() => {
-        return this.channelListSignal();
+        const channels = this.channelListSignal();
+        if (!this.settingsStore.hideSpanishChannels?.()) {
+            return channels;
+        }
+
+        return channels.filter(
+            (channel) =>
+                !isSpanishLanguageChannel(channel.name, channel.group?.title)
+        );
     });
 
     /** Channels merged into canonical, de-duplicated category buckets */

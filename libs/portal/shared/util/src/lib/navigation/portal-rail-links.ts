@@ -4,6 +4,7 @@ export type PortalRailSection =
     | 'downloads'
     | 'favorites'
     | 'groups'
+    | 'guide'
     | 'itv'
     | 'library'
     | 'live'
@@ -26,6 +27,8 @@ interface BuildPortalRailLinksOptions {
     provider: PortalProvider;
     playlistId: string;
     supportsDownloads: boolean;
+    /** The TV guide needs the EPG runtime; without it the tab is hidden. */
+    supportsEpg?: boolean;
     workspace: boolean;
 }
 
@@ -37,7 +40,8 @@ interface PortalRailLinkGroups {
 export function buildPortalRailLinks(
     options: BuildPortalRailLinksOptions
 ): PortalRailLinkGroups {
-    const { provider, playlistId, supportsDownloads, workspace } = options;
+    const { provider, playlistId, supportsDownloads, supportsEpg, workspace } =
+        options;
     const root = workspace
         ? ['/workspace', provider, playlistId]
         : [`/${provider}`, playlistId];
@@ -144,7 +148,20 @@ export function buildPortalRailLinks(
     }
 
     if (provider === 'playlists') {
-        const primary: PortalRailLink[] = [
+        const primary: PortalRailLink[] = [];
+
+        // The guide leads because it is the playlist's default section.
+        if (supportsEpg) {
+            primary.push({
+                icon: 'view_timeline',
+                tooltip: 'TV guide (this playlist)',
+                path: [...root, 'guide'],
+                exact: true,
+                section: 'guide',
+            });
+        }
+
+        primary.push(
             {
                 icon: 'tv',
                 tooltip: 'All channels (this playlist)',
@@ -158,8 +175,8 @@ export function buildPortalRailLinks(
                 path: [...root, 'groups'],
                 exact: true,
                 section: 'groups',
-            },
-        ];
+            }
+        );
 
         return {
             primary,

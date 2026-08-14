@@ -24,6 +24,7 @@ import {
 import { PlaylistActions } from '@iptvnator/m3u-state';
 import { AppComponent } from './app.component';
 import { ElectronServiceStub } from './services/electron.service.stub';
+import { FollowedSeriesRuntimeService } from './services/followed-series-runtime.service';
 import { SettingsService } from './services/settings.service';
 
 jest.spyOn(global.console, 'error').mockImplementation(() => {
@@ -122,6 +123,10 @@ describe('AppComponent', () => {
                     setDefaultLang: jest.fn(),
                     use: jest.fn(),
                 }),
+                // AppComponent pulls in the followed-series runtime, whose
+                // real dependency chain (PlaylistsService → NgxIndexedDBService)
+                // has no place in this component test.
+                MockProvider(FollowedSeriesRuntimeService),
                 {
                     provide: WORKSPACE_SHELL_ACTIONS,
                     useValue: {

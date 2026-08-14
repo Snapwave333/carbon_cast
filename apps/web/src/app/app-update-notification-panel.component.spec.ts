@@ -11,7 +11,8 @@ import { AppUpdateReleaseNotesDialogComponent } from './settings/app-update-rele
 const availableStatus: ElectronBridgeAppUpdateStatus = {
     currentVersion: '0.22.0',
     latestVersion: '0.23.0',
-    manualDownloadUrl: 'https://github.com/4gray/iptvnator/releases/latest',
+    manualDownloadUrl:
+        'https://github.com/Snapwave333/carbon_cast/releases/latest',
     status: ELECTRON_BRIDGE_APP_UPDATE_STATUSES.Available,
     supportedSelfUpdate: true,
 };
@@ -123,9 +124,9 @@ describe('AppUpdateNotificationPanelComponent', () => {
         expect(button.textContent).toContain(
             'SETTINGS.APP_UPDATE_OPEN_RELEASE'
         );
-        expect(button.querySelector('mat-icon')?.textContent?.trim()).toBe(
-            'open_in_new'
-        );
+        expect(
+            button.querySelector('mat-icon')?.getAttribute('data-mat-icon-name')
+        ).toBe('open_in_new');
 
         button.click();
 

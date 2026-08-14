@@ -1,12 +1,16 @@
 import {
     CoverSize,
+    DefaultWorkspacePage,
     EpgViewMode,
+    PlaylistDefaultSection,
     StartupBehavior,
     VideoPlayer,
 } from '@iptvnator/shared/interfaces';
 import {
     CoverSizeOption,
+    DefaultWorkspacePageOption,
     EpgViewModeOption,
+    PlaylistDefaultSectionOption,
     SettingsPlayerOption,
     SettingsSection,
     StartupBehaviorOption,
@@ -53,6 +57,58 @@ export const SETTINGS_STARTUP_BEHAVIOR_OPTIONS: StartupBehaviorOption[] = [
         labelKey: 'SETTINGS.STARTUP_BEHAVIOR_RESTORE_LAST_VIEW',
     },
 ];
+
+export const SETTINGS_DEFAULT_WORKSPACE_PAGE_OPTIONS: DefaultWorkspacePageOption[] =
+    [
+        {
+            value: 'tv-guide' satisfies DefaultWorkspacePage,
+            labelKey: 'SETTINGS.DEFAULT_WORKSPACE_TV_GUIDE',
+        },
+        {
+            value: 'followed-series' satisfies DefaultWorkspacePage,
+            labelKey: 'SETTINGS.DEFAULT_WORKSPACE_FOLLOWED_SERIES',
+        },
+        {
+            value: 'dashboard' satisfies DefaultWorkspacePage,
+            labelKey: 'SETTINGS.DEFAULT_WORKSPACE_DASHBOARD',
+        },
+        {
+            value: 'sources' satisfies DefaultWorkspacePage,
+            labelKey: 'SETTINGS.DEFAULT_WORKSPACE_SOURCES',
+        },
+        {
+            value: 'radio' satisfies DefaultWorkspacePage,
+            labelKey: 'SETTINGS.DEFAULT_WORKSPACE_RADIO',
+        },
+        {
+            value: 'global-favorites' satisfies DefaultWorkspacePage,
+            labelKey: 'SETTINGS.DEFAULT_WORKSPACE_FAVORITES',
+        },
+        {
+            value: 'global-recent' satisfies DefaultWorkspacePage,
+            labelKey: 'SETTINGS.DEFAULT_WORKSPACE_RECENT',
+        },
+        {
+            value: 'downloads' satisfies DefaultWorkspacePage,
+            labelKey: 'SETTINGS.DEFAULT_WORKSPACE_DOWNLOADS',
+        },
+    ];
+
+export const SETTINGS_PLAYLIST_DEFAULT_SECTION_OPTIONS: PlaylistDefaultSectionOption[] =
+    [
+        {
+            value: 'guide' satisfies PlaylistDefaultSection,
+            labelKey: 'SETTINGS.PLAYLIST_SECTION_GUIDE',
+        },
+        {
+            value: 'all' satisfies PlaylistDefaultSection,
+            labelKey: 'SETTINGS.PLAYLIST_SECTION_ALL',
+        },
+        {
+            value: 'groups' satisfies PlaylistDefaultSection,
+            labelKey: 'SETTINGS.PLAYLIST_SECTION_GROUPS',
+        },
+    ];
 
 export const SETTINGS_OS_PLAYER_OPTIONS: SettingsPlayerOption[] = [
     {

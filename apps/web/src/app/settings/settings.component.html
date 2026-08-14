@@ -22,10 +22,7 @@
         @if (!isDialog) {
             <!-- Reserved hook so the page test selector still resolves,
                  even though there's no visible chrome here. -->
-            <span
-                class="visually-hidden"
-                data-test-id="settings-page-header"
-            >
+            <span class="visually-hidden" data-test-id="settings-page-header">
                 {{ 'SETTINGS.TITLE' | translate }}
             </span>
         }
@@ -37,6 +34,8 @@
                 [languageEnum]="languageEnum"
                 [coverSizeOptions]="coverSizeOptions"
                 [startupBehaviorOptions]="startupBehaviorOptions"
+                [defaultWorkspacePageOptions]="defaultWorkspacePageOptions"
+                [playlistDefaultSectionOptions]="playlistDefaultSectionOptions"
                 (selectCoverSize)="form.selectCoverSize($event)"
             />
 
@@ -46,8 +45,12 @@
                 [players]="players()"
                 [streamFormatEnum]="streamFormatEnum"
                 [isDesktop]="isDesktop"
-                [supportsManagedExternalPlayers]="supportsManagedExternalPlayers"
-                [supportsExternalPlayerPathSettings]="supportsExternalPlayerPathSettings"
+                [supportsManagedExternalPlayers]="
+                    supportsManagedExternalPlayers
+                "
+                [supportsExternalPlayerPathSettings]="
+                    supportsExternalPlayerPathSettings
+                "
                 [frameCopyAvailable]="embeddedMpv.frameCopyAvailable()"
                 [frameCopyActive]="embeddedMpv.frameCopyActive()"
                 (selectRecordingFolder)="selectRecordingFolder()"
@@ -92,7 +95,9 @@
             <app-settings-backup-section
                 [activeSection]="activeSection()"
                 [isPwa]="isPwa"
-                [isRemovingAllPlaylists]="playlistReset.isRemovingAllPlaylists()"
+                [isRemovingAllPlaylists]="
+                    playlistReset.isRemovingAllPlaylists()
+                "
                 [isExportingData]="backup.isExportingData()"
                 (importData)="importData()"
                 (exportData)="exportData()"
@@ -100,10 +105,14 @@
 
             <app-settings-reset-section
                 [activeSection]="activeSection()"
-                [isRemovingAllPlaylists]="playlistReset.isRemovingAllPlaylists()"
+                [isRemovingAllPlaylists]="
+                    playlistReset.isRemovingAllPlaylists()
+                "
                 [canRemoveAllPlaylists]="playlistReset.canRemoveAll()"
                 [playlistDeleteSummary]="playlistReset.deleteSummary()"
-                [removeAllProgressLabel]="playlistReset.removeAllProgressLabel()"
+                [removeAllProgressLabel]="
+                    playlistReset.removeAllProgressLabel()
+                "
                 (removeAll)="removeAll()"
             />
 

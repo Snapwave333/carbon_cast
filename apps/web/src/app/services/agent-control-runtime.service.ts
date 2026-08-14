@@ -12,10 +12,8 @@ import {
 import { SettingsStore } from '@iptvnator/services';
 import {
     type AgentControlErrorCode,
-    type AgentControlOperation,
     type AgentControlRequest,
     type AgentControlResult,
-    type AgentControlState,
     type Channel,
     type FollowedSeriesSource,
     type Settings,

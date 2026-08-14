@@ -1,14 +1,15 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { ReactiveFormsModule } from '@angular/forms';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { StreamFormat, VideoPlayer } from '@iptvnator/shared/interfaces';
 import { SettingsPlaybackSectionComponent } from './settings-playback-section.component';
+import { createPlaybackSettingsForm as createForm } from './test-stubs/settings-test-harness.stub';
 
 const MPV_PATH_DESCRIPTION =
     'Set the path to MPV. On macOS you can use the MPV app bundle, such as /Applications/mpv.app, or the executable path.';
 const MPV_COMPATIBLE_PLAYER_TIP =
-    'IINA can be launched as an MPV-compatible player on macOS, but use its executable path, such as /Applications/IINA.app/Contents/MacOS/iina-cli or /Applications/IINA.app/Contents/MacOS/IINA. IPTVnator controls, position polling, and reuse-instance behavior are guaranteed only for MPV IPC.';
+    'IINA can be launched as an MPV-compatible player on macOS, but use its executable path, such as /Applications/IINA.app/Contents/MacOS/iina-cli or /Applications/IINA.app/Contents/MacOS/IINA. CarbonCast IPTV controls, position polling, and reuse-instance behavior are guaranteed only for MPV IPC.';
 const VLC_PATH_DESCRIPTION =
     'Set the path to VLC. On macOS you can use the VLC app bundle, such as /Applications/VLC.app, or the executable path.';
 const MPV_ARGUMENTS_PLACEHOLDER =
@@ -377,29 +378,3 @@ describe('SettingsPlaybackSectionComponent', () => {
     });
 });
 
-function createForm(player = VideoPlayer.VideoJs): FormGroup {
-    return new FormGroup({
-        player: new FormControl(player),
-        webPlayerSharedControls: new FormControl(false),
-        playerControls: new FormGroup({
-            visible: new FormControl(true),
-            autoHideDelayMs: new FormControl(2500),
-            density: new FormControl('expanded'),
-            opacity: new FormControl('translucent'),
-            size: new FormControl('medium'),
-        }),
-        playerAmbientMode: new FormControl(false),
-        playerUpNextRail: new FormControl(true),
-        streamFormat: new FormControl(StreamFormat.AutoStreamFormat),
-        openStreamOnDoubleClick: new FormControl(false),
-        showExternalPlaybackBar: new FormControl(true),
-        embeddedMpvFrameCopy: new FormControl(false),
-        mpvPlayerPath: new FormControl(''),
-        mpvPlayerArguments: new FormControl(''),
-        mpvReuseInstance: new FormControl(false),
-        vlcPlayerPath: new FormControl(''),
-        vlcPlayerArguments: new FormControl(''),
-        vlcReuseInstance: new FormControl(false),
-        recordingFolder: new FormControl(''),
-    });
-}

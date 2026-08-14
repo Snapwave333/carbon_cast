@@ -36,8 +36,10 @@ import {
     buildSettingsPlayerOptions,
     buildSettingsSectionNavItems,
     SETTINGS_COVER_SIZE_OPTIONS,
+    SETTINGS_DEFAULT_WORKSPACE_PAGE_OPTIONS,
     SETTINGS_EPG_VIEW_MODE_OPTIONS,
     SETTINGS_STARTUP_BEHAVIOR_OPTIONS,
+    SETTINGS_PLAYLIST_DEFAULT_SECTION_OPTIONS,
 } from './settings-options';
 import { SettingsPlaybackSectionComponent } from './settings-playback-section.component';
 import { SettingsRemoteControlFacade } from './settings-remote-control.facade';
@@ -148,6 +150,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
     readonly coverSizeOptions = SETTINGS_COVER_SIZE_OPTIONS;
     readonly startupBehaviorOptions = SETTINGS_STARTUP_BEHAVIOR_OPTIONS;
+    readonly defaultWorkspacePageOptions =
+        SETTINGS_DEFAULT_WORKSPACE_PAGE_OPTIONS;
+    readonly playlistDefaultSectionOptions =
+        SETTINGS_PLAYLIST_DEFAULT_SECTION_OPTIONS;
     readonly epgViewModeOptions = SETTINGS_EPG_VIEW_MODE_OPTIONS;
 
     readonly sectionNavItems: SettingsSection[] = buildSettingsSectionNavItems({

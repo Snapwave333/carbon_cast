@@ -20,6 +20,20 @@ export enum StartupBehavior {
     RestoreLastView = 'restore-last-view',
 }
 
+/** Workspace destination used when the app opens in "first view" mode. */
+export type DefaultWorkspacePage =
+    | 'tv-guide'
+    | 'dashboard'
+    | 'sources'
+    | 'followed-series'
+    | 'radio'
+    | 'global-favorites'
+    | 'global-recent'
+    | 'downloads';
+
+/** Which section an M3U playlist opens on: TV guide, channel list or groups. */
+export type PlaylistDefaultSection = 'guide' | 'all' | 'groups';
+
 export type CoverSize = 'small' | 'medium' | 'large';
 
 /** Rendering of the live EPG panel under the player. */
@@ -137,7 +151,7 @@ export function normalizeDashboardRailsSettings(
 export interface Settings {
     player: VideoPlayer;
     /**
-     * Use IPTVnator's shared controls in HTML5, Video.js, and ArtPlayer.
+     * Use CarbonCast IPTV's shared controls in HTML5, Video.js, and ArtPlayer.
      * Missing values remain off for compatibility with older saved settings.
      */
     webPlayerSharedControls?: boolean;
@@ -156,6 +170,12 @@ export interface Settings {
      * missing values mean enabled. Only affects the built-in web players.
      */
     playerUpNextRail?: boolean;
+    /**
+     * Programme/channel artwork in the TV-guide grid. On by default;
+     * turning it off gives a denser, text-only guide and also stops the
+     * guide's TMDB artwork lookups. Missing values mean enabled.
+     */
+    guideArtwork?: boolean;
     epgUrl: string[];
     streamFormat: StreamFormat;
     openStreamOnDoubleClick: boolean;
@@ -163,10 +183,24 @@ export interface Settings {
     showCaptions: boolean;
     showDashboard: boolean;
     startupBehavior: StartupBehavior;
+    /** Fresh profiles open the most recently used M3U playlist's TV guide. */
+    defaultWorkspacePage?: DefaultWorkspacePage;
+    /**
+     * Section an M3U playlist opens on. Defaults to the TV guide where EPG is
+     * available; runtimes without EPG fall back to the channel list.
+     */
+    playlistDefaultSection?: PlaylistDefaultSection;
+    /**
+     * Automatically resume the playlist's most recently watched channel when
+     * the playlist opens with nothing playing. On by default.
+     */
+    resumeLastChannel?: boolean;
     /** Show the desktop footer bar for external playback status */
     showExternalPlaybackBar?: boolean;
     /** Strip country/group prefixes like "US | " or "UK - " from channel names */
     stripCountryPrefix?: boolean;
+    /** Hide Spanish-language channels from playlist channel lists */
+    hideSpanishChannels?: boolean;
     theme: Theme;
     /**
      * Mirror the live layout so the player sits on the left and the

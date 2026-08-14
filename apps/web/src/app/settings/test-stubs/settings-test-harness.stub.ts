@@ -1,6 +1,8 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import {
+    FormControl,
+    FormGroup,
     FormsModule,
     ReactiveFormsModule,
     UntypedFormBuilder,
@@ -76,6 +78,37 @@ export const DEFAULT_DASHBOARD_RAILS = {
     tmdbTrending: true,
 };
 
+/** Playback-section form fixture shared by the settings specs. */
+export function createPlaybackSettingsForm(
+    player = VideoPlayer.VideoJs
+): FormGroup {
+    return new FormGroup({
+        player: new FormControl(player),
+        webPlayerSharedControls: new FormControl(false),
+        playerControls: new FormGroup({
+            visible: new FormControl(true),
+            autoHideDelayMs: new FormControl(2500),
+            density: new FormControl('expanded'),
+            opacity: new FormControl('translucent'),
+            size: new FormControl('medium'),
+        }),
+        playerAmbientMode: new FormControl(false),
+        playerUpNextRail: new FormControl(true),
+        guideArtwork: new FormControl(true),
+        streamFormat: new FormControl(StreamFormat.AutoStreamFormat),
+        openStreamOnDoubleClick: new FormControl(false),
+        showExternalPlaybackBar: new FormControl(true),
+        embeddedMpvFrameCopy: new FormControl(false),
+        mpvPlayerPath: new FormControl(''),
+        mpvPlayerArguments: new FormControl(''),
+        mpvReuseInstance: new FormControl(false),
+        vlcPlayerPath: new FormControl(''),
+        vlcPlayerArguments: new FormControl(''),
+        vlcReuseInstance: new FormControl(false),
+        recordingFolder: new FormControl(''),
+    });
+}
+
 export const DEFAULT_SETTINGS = {
     player: VideoPlayer.VideoJs,
     webPlayerSharedControls: false,
@@ -88,16 +121,21 @@ export const DEFAULT_SETTINGS = {
     },
     playerAmbientMode: false,
     playerUpNextRail: true,
+    guideArtwork: true,
     streamFormat: StreamFormat.AutoStreamFormat,
     openStreamOnDoubleClick: false,
     language: Language.ENGLISH,
     showCaptions: false,
     showDashboard: true,
     startupBehavior: StartupBehavior.FirstView,
+    defaultWorkspacePage: 'tv-guide',
     showExternalPlaybackBar: true,
     stripCountryPrefix: false,
+    hideSpanishChannels: true,
     theme: Theme.SystemTheme,
     mirrorLayout: true,
+    playlistDefaultSection: 'guide',
+    resumeLastChannel: true,
     mpvPlayerPath: '',
     mpvPlayerArguments: '',
     mpvReuseInstance: false,
@@ -118,7 +156,8 @@ export const DEFAULT_SETTINGS = {
 
 export const DEFAULT_APP_UPDATE_STATUS: ElectronBridgeAppUpdateStatus = {
     currentVersion: '0.22.0',
-    manualDownloadUrl: 'https://github.com/4gray/iptvnator/releases/latest',
+    manualDownloadUrl:
+        'https://github.com/Snapwave333/carbon_cast/releases/latest',
     status: ELECTRON_BRIDGE_APP_UPDATE_STATUSES.Idle,
     supportedSelfUpdate: true,
 };

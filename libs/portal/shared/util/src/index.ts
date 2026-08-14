@@ -28,3 +28,5 @@ export * from './lib/navigation/workspace-portal-navigation';
 export * from './lib/collection';
 export * from './lib/external-playback-button-state';
 export * from './lib/inline-playback-position-writer';
+export * from './lib/playback-bar.service';
+export * from './lib/document-picture-in-picture.service';

@@ -576,6 +576,11 @@ export interface ElectronBridgeApi {
         title?: string,
         options?: ElectronBridgeTrustOptions
     ) => Promise<Playlist>;
+    /**
+     * Fetches a remote text document (podcast RSS feeds) through the main
+     * process, which is not subject to the renderer's same-origin policy.
+     */
+    fetchRemoteText: (url: string) => Promise<string>;
     updatePlaylistFromFilePath: (
         filePath: string,
         title: string
@@ -897,7 +902,9 @@ export interface ElectronBridgeApi {
         status: ElectronBridgeRemoteControlStatus
     ) => void;
     onAgentControlCommand?: (
-        callback: (request: AgentControlRequest & { correlationId: string }) => void
+        callback: (
+            request: AgentControlRequest & { correlationId: string }
+        ) => void
     ) => () => void;
     updateAgentControlState?: (state: Partial<AgentControlState>) => void;
     completeAgentControlCommand?: (result: AgentControlResult) => void;

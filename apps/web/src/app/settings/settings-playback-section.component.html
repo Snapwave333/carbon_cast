@@ -132,6 +132,24 @@
             </div>
         </div>
 
+        <div class="setting-item">
+            <div class="setting-item__meta">
+                <h4>
+                    {{ 'SETTINGS.GUIDE_ARTWORK' | translate }}
+                </h4>
+                <p>
+                    {{ 'SETTINGS.GUIDE_ARTWORK_DESCRIPTION' | translate }}
+                </p>
+            </div>
+            <div class="setting-item__control setting-item__toggle">
+                <mat-checkbox
+                    [aria-label]="'SETTINGS.GUIDE_ARTWORK' | translate"
+                    formControlName="guideArtwork"
+                    data-test-id="guide-artwork-toggle"
+                ></mat-checkbox>
+            </div>
+        </div>
+
         <div
             class="setting-item setting-item--player-controls"
             formGroupName="playerControls"

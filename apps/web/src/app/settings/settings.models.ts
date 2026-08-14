@@ -1,6 +1,8 @@
 import {
     CoverSize,
+    DefaultWorkspacePage,
     EpgViewMode,
+    PlaylistDefaultSection,
     StartupBehavior,
     VideoPlayer,
 } from '@iptvnator/shared/interfaces';
@@ -19,6 +21,16 @@ export interface ObservedSettingsSection {
 
 export interface StartupBehaviorOption {
     value: StartupBehavior;
+    labelKey: string;
+}
+
+export interface DefaultWorkspacePageOption {
+    value: DefaultWorkspacePage;
+    labelKey: string;
+}
+
+export interface PlaylistDefaultSectionOption {
+    value: PlaylistDefaultSection;
     labelKey: string;
 }
 

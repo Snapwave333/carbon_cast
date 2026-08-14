@@ -17,53 +17,13 @@ import {
     RuntimeCapabilitiesService,
     SettingsStore,
 } from '@iptvnator/services';
-import { Channel, PlaylistMeta } from '@iptvnator/shared/interfaces';
+import { PlaylistMeta } from '@iptvnator/shared/interfaces';
 import { ChannelListContainerComponent } from './channel-list-container.component';
-
-function createChannel(id: string, url: string): Channel {
-    return {
-        id,
-        url,
-        name: id,
-        group: { title: 'Group' },
-        tvg: {
-            id,
-            name: id,
-            url: '',
-            logo: '',
-            rec: '',
-        },
-        http: {
-            referrer: '',
-            'user-agent': '',
-            origin: '',
-        },
-        radio: 'false',
-    };
-}
-
-function createGroupedChannel(id: string, url: string, title: string): Channel {
-    return { ...createChannel(id, url), group: { title } };
-}
-
-function createTrackedUrlChannel(
-    id: string,
-    url: string,
-    onUrlRead: () => void
-): Channel {
-    const channel = createChannel(id, url);
-
-    Object.defineProperty(channel, 'url', {
-        configurable: true,
-        enumerable: true,
-        get: () => {
-            onUrlRead();
-            return url;
-        },
-    });
-
-    return channel;
-}
+import {
+    createChannel,
+    createGroupedChannel,
+    createTrackedUrlChannel,
+} from './channel-list-container.test-channels';
 
 describe('ChannelListContainerComponent', () => {
     let fixture: ComponentFixture<ChannelListContainerComponent>;

@@ -96,4 +96,39 @@ describe('buildPortalRailLinks', () => {
         ]);
         expect(links.secondary).toEqual([]);
     });
+
+    it('leads M3U playlist links with the TV guide when EPG is supported', () => {
+        const links = buildPortalRailLinks({
+            provider: 'playlists',
+            playlistId: 'm3u-1',
+            supportsDownloads: true,
+            supportsEpg: true,
+            workspace: true,
+        });
+
+        expect(links.primary[0]).toEqual({
+            icon: 'view_timeline',
+            tooltip: 'TV guide (this playlist)',
+            path: ['/workspace', 'playlists', 'm3u-1', 'guide'],
+            exact: true,
+            section: 'guide',
+        });
+        expect(
+            links.primary.map((link) => link.section)
+        ).toEqual(['guide', 'all', 'groups']);
+    });
+
+    it('hides the TV guide tab on runtimes without the EPG stack', () => {
+        const links = buildPortalRailLinks({
+            provider: 'playlists',
+            playlistId: 'm3u-1',
+            supportsDownloads: true,
+            supportsEpg: false,
+            workspace: true,
+        });
+
+        expect(
+            links.primary.some((link) => link.section === 'guide')
+        ).toBe(false);
+    });
 });

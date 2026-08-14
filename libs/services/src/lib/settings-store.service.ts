@@ -32,14 +32,19 @@ const DEFAULT_SETTINGS: Settings = {
     playerControls: DEFAULT_PLAYER_CONTROLS_SETTINGS,
     playerAmbientMode: false,
     playerUpNextRail: true,
+    guideArtwork: true,
     streamFormat: StreamFormat.AutoStreamFormat,
     openStreamOnDoubleClick: false,
     language: Language.ENGLISH,
     showCaptions: false,
     showDashboard: true,
     startupBehavior: StartupBehavior.FirstView,
+    defaultWorkspacePage: 'tv-guide' as const,
+    playlistDefaultSection: 'guide' as const,
+    resumeLastChannel: true,
     showExternalPlaybackBar: true,
     stripCountryPrefix: false,
+    hideSpanishChannels: true,
     theme: Theme.SystemTheme,
     mirrorLayout: true,
     mpvPlayerPath: '',
@@ -239,22 +244,36 @@ export const SettingsStore = signalStore(
                     playerUpNextRail:
                         store.playerUpNextRail?.() ??
                         DEFAULT_SETTINGS.playerUpNextRail,
+                    guideArtwork:
+                        store.guideArtwork?.() ??
+                        DEFAULT_SETTINGS.guideArtwork,
                     streamFormat: store.streamFormat(),
                     openStreamOnDoubleClick: store.openStreamOnDoubleClick(),
                     language: store.language(),
                     showCaptions: store.showCaptions(),
                     showDashboard: store.showDashboard(),
                     startupBehavior: store.startupBehavior(),
+                    defaultWorkspacePage:
+                        store.defaultWorkspacePage?.() ??
+                        DEFAULT_SETTINGS.defaultWorkspacePage,
+                    playlistDefaultSection:
+                        store.playlistDefaultSection?.() ??
+                        DEFAULT_SETTINGS.playlistDefaultSection,
+                    resumeLastChannel:
+                        store.resumeLastChannel?.() ??
+                        DEFAULT_SETTINGS.resumeLastChannel,
                     showExternalPlaybackBar:
                         store.showExternalPlaybackBar?.() ??
                         DEFAULT_SETTINGS.showExternalPlaybackBar,
                     stripCountryPrefix:
                         store.stripCountryPrefix?.() ??
                         DEFAULT_SETTINGS.stripCountryPrefix,
+                    hideSpanishChannels:
+                        store.hideSpanishChannels?.() ??
+                        DEFAULT_SETTINGS.hideSpanishChannels,
                     theme: store.theme(),
                     mirrorLayout:
-                        store.mirrorLayout?.() ??
-                        DEFAULT_SETTINGS.mirrorLayout,
+                        store.mirrorLayout?.() ?? DEFAULT_SETTINGS.mirrorLayout,
                     mpvPlayerPath: store.mpvPlayerPath(),
                     mpvPlayerArguments: store.mpvPlayerArguments(),
                     mpvReuseInstance: store.mpvReuseInstance(),

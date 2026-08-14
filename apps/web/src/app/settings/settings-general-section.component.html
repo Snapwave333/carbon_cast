@@ -127,6 +127,87 @@
 
     <div class="setting-item">
         <div class="setting-item__meta">
+            <h4>{{ 'SETTINGS.DEFAULT_WORKSPACE_PAGE' | translate }}</h4>
+            <p>
+                {{ 'SETTINGS.DEFAULT_WORKSPACE_PAGE_DESCRIPTION' | translate }}
+            </p>
+        </div>
+        <div class="setting-item__control">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                <mat-label>{{
+                    'SETTINGS.DEFAULT_WORKSPACE_PAGE' | translate
+                }}</mat-label>
+                <mat-select
+                    formControlName="defaultWorkspacePage"
+                    data-test-id="select-default-workspace-page"
+                >
+                    @for (
+                        option of defaultWorkspacePageOptions();
+                        track option.value
+                    ) {
+                        <mat-option
+                            [value]="option.value"
+                            [attr.data-test-id]="option.value"
+                        >
+                            {{ option.labelKey | translate }}
+                        </mat-option>
+                    }
+                </mat-select>
+            </mat-form-field>
+        </div>
+    </div>
+
+    <div class="setting-item">
+        <div class="setting-item__meta">
+            <h4>{{ 'SETTINGS.PLAYLIST_DEFAULT_SECTION' | translate }}</h4>
+            <p>
+                {{
+                    'SETTINGS.PLAYLIST_DEFAULT_SECTION_DESCRIPTION' | translate
+                }}
+            </p>
+        </div>
+        <div class="setting-item__control">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                <mat-label>{{
+                    'SETTINGS.PLAYLIST_DEFAULT_SECTION' | translate
+                }}</mat-label>
+                <mat-select
+                    formControlName="playlistDefaultSection"
+                    data-test-id="select-playlist-default-section"
+                >
+                    @for (
+                        option of playlistDefaultSectionOptions();
+                        track option.value
+                    ) {
+                        <mat-option
+                            [value]="option.value"
+                            [attr.data-test-id]="option.value"
+                        >
+                            {{ option.labelKey | translate }}
+                        </mat-option>
+                    }
+                </mat-select>
+            </mat-form-field>
+        </div>
+    </div>
+
+    <div class="setting-item">
+        <div class="setting-item__meta">
+            <h4>{{ 'SETTINGS.RESUME_LAST_CHANNEL' | translate }}</h4>
+            <p>
+                {{ 'SETTINGS.RESUME_LAST_CHANNEL_DESCRIPTION' | translate }}
+            </p>
+        </div>
+        <div class="setting-item__control">
+            <mat-checkbox
+                formControlName="resumeLastChannel"
+                data-test-id="checkbox-resume-last-channel"
+            ></mat-checkbox>
+        </div>
+    </div>
+
+    <div class="setting-item">
+        <div class="setting-item__meta">
             <h4>{{ 'SETTINGS.SHOW_CAPTIONS' | translate }}</h4>
             <p>
                 {{ 'SETTINGS.SHOW_CAPTIONS_DESCRIPTION' | translate }}
@@ -146,6 +227,18 @@
         </div>
         <div class="setting-item__control setting-item__toggle">
             <mat-checkbox formControlName="stripCountryPrefix"></mat-checkbox>
+        </div>
+    </div>
+
+    <div class="setting-item">
+        <div class="setting-item__meta">
+            <h4>{{ 'SETTINGS.HIDE_SPANISH_CHANNELS' | translate }}</h4>
+            <p>
+                {{ 'SETTINGS.HIDE_SPANISH_CHANNELS_DESCRIPTION' | translate }}
+            </p>
+        </div>
+        <div class="setting-item__control setting-item__toggle">
+            <mat-checkbox formControlName="hideSpanishChannels"></mat-checkbox>
         </div>
     </div>
 </section>

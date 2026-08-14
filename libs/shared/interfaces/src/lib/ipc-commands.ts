@@ -40,6 +40,14 @@ export const ANNOUNCE_PLAYLIST_OPEN_LISTENER =
 export const ACKNOWLEDGE_PLAYLIST_OPEN_REQUEST =
     'acknowledge-playlist-open-request';
 
+/**
+ * Renderer -> main invoke fetching a remote text document (podcast RSS feeds).
+ * The renderer cannot read them itself because publishers rarely send CORS
+ * headers; the main process is not bound by the same-origin policy and applies
+ * the app's SSRF guard instead.
+ */
+export const FETCH_REMOTE_TEXT = 'FETCH_REMOTE_TEXT';
+
 // Views
 export const VIEW_SETTINGS = 'VIEW:SETTINGS';
 export const VIEW_ADD_PLAYLIST = 'VIEW:PLAYLISTS';
