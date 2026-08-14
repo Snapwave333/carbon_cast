@@ -762,7 +762,7 @@ function assertOwnedOutputDestination(outputPrefix, fileSystem = fs) {
     }
     if (!outputStat.isDirectory() || outputStat.isSymbolicLink()) {
         throw new Error(
-            `Existing output ${outputPrefix} must be a non-symbolic-link directory carrying the IPTVnator ownership marker.`
+            `Existing output ${outputPrefix} must be a non-symbolic-link directory carrying the CarbonCast IPTV ownership marker.`
         );
     }
 
@@ -776,7 +776,7 @@ function assertOwnedOutputDestination(outputPrefix, fileSystem = fs) {
             OUTPUT_OWNERSHIP_MARKER_CONTENT
     ) {
         throw new Error(
-            `Existing output ${outputPrefix} is missing the valid IPTVnator ownership marker.`
+            `Existing output ${outputPrefix} is missing the valid CarbonCast IPTV ownership marker.`
         );
     }
 }

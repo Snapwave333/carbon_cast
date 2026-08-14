@@ -436,7 +436,7 @@ function noticePackageRecord(sourcePackage, inputPackage) {
 
 function createThirdPartyNotices(packages) {
     const lines = [
-        'IPTVnator Linux Embedded MPV Third-Party Notices',
+        'CarbonCast IPTV Linux Embedded MPV Third-Party Notices',
         '================================================',
         '',
         'This file identifies the pinned upstream source packages used by the bundled Linux Embedded MPV runtime.',

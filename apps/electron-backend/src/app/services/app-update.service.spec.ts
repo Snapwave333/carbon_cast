@@ -17,7 +17,8 @@ const githubReleases = [
     {
         body: '## New\n\nFresh build',
         draft: false,
-        html_url: 'https://github.com/4gray/iptvnator/releases/tag/v0.24.0',
+        html_url:
+            'https://github.com/Snapwave333/carbon_cast/releases/tag/v0.24.0',
         name: 'v0.24.0',
         prerelease: false,
         published_at: '2026-06-29T00:00:00.000Z',
@@ -26,7 +27,8 @@ const githubReleases = [
     {
         body: '## Current\n\nUpdate details',
         draft: false,
-        html_url: 'https://github.com/4gray/iptvnator/releases/tag/v0.23.0',
+        html_url:
+            'https://github.com/Snapwave333/carbon_cast/releases/tag/v0.23.0',
         name: 'v0.23.0',
         prerelease: false,
         published_at: '2026-06-28T00:00:00.000Z',
@@ -36,7 +38,7 @@ const githubReleases = [
         body: 'beta notes',
         draft: false,
         html_url:
-            'https://github.com/4gray/iptvnator/releases/tag/v0.22.5-beta',
+            'https://github.com/Snapwave333/carbon_cast/releases/tag/v0.22.5-beta',
         name: 'v0.22.5-beta',
         prerelease: true,
         published_at: '2026-06-27T00:00:00.000Z',
@@ -45,7 +47,8 @@ const githubReleases = [
     {
         body: '## Older\n\nBug fixes',
         draft: false,
-        html_url: 'https://github.com/4gray/iptvnator/releases/tag/v0.22.0',
+        html_url:
+            'https://github.com/Snapwave333/carbon_cast/releases/tag/v0.22.0',
         name: 'v0.22.0',
         prerelease: false,
         published_at: '2026-06-20T00:00:00.000Z',
@@ -108,7 +111,7 @@ describe('AppUpdateService', () => {
         expect(service.getStatus()).toEqual({
             currentVersion: '0.22.0',
             manualDownloadUrl:
-                'https://github.com/4gray/iptvnator/releases/latest',
+                'https://github.com/Snapwave333/carbon_cast/releases/latest',
             status: ELECTRON_BRIDGE_APP_UPDATE_STATUSES.Unsupported,
             supportedSelfUpdate: false,
         });
@@ -129,7 +132,7 @@ describe('AppUpdateService', () => {
         expect(service.getStatus()).toEqual({
             currentVersion: '0.0',
             manualDownloadUrl:
-                'https://github.com/4gray/iptvnator/releases/latest',
+                'https://github.com/Snapwave333/carbon_cast/releases/latest',
             status: ELECTRON_BRIDGE_APP_UPDATE_STATUSES.Unsupported,
             supportedSelfUpdate: false,
         });
@@ -153,7 +156,7 @@ describe('AppUpdateService', () => {
         expect(service.getStatus()).toEqual({
             currentVersion: '0.22.0',
             manualDownloadUrl:
-                'https://github.com/4gray/iptvnator/releases/latest',
+                'https://github.com/Snapwave333/carbon_cast/releases/latest',
             status: ELECTRON_BRIDGE_APP_UPDATE_STATUSES.Unsupported,
             supportedSelfUpdate: false,
         });
@@ -178,7 +181,7 @@ describe('AppUpdateService', () => {
 
         expect(updaterFactory).not.toHaveBeenCalled();
         expect(fetcher).toHaveBeenCalledWith(
-            'https://api.github.com/repos/4gray/iptvnator/releases?per_page=10&page=1',
+            'https://api.github.com/repos/Snapwave333/carbon_cast/releases?per_page=10&page=1',
             expect.any(Object)
         );
         expect(service.getStatus()).toEqual(
@@ -261,7 +264,7 @@ describe('AppUpdateService', () => {
 
         expect(updater.checkForUpdates).not.toHaveBeenCalled();
         expect(fetcher).toHaveBeenCalledWith(
-            'https://api.github.com/repos/4gray/iptvnator/releases?per_page=10&page=1',
+            'https://api.github.com/repos/Snapwave333/carbon_cast/releases?per_page=10&page=1',
             expect.objectContaining({
                 headers: expect.objectContaining({
                     Accept: 'application/vnd.github+json',

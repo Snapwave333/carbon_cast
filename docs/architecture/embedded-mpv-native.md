@@ -534,6 +534,20 @@ mpv's own caveats apply: the output container is inferred from the target extens
 
 ## Renderer Architecture And Reactivity
 
+### Automatic In-App Fallback For Undecodable Streams
+
+`WebPlayerViewComponent` (`libs/ui/playback/src/lib/web-player-view/`)
+substitutes Embedded MPV per stream when a built-in web player raises a
+playback diagnostic whose code marks the stream as unplayable in the browser
+(unsupported container/codec, media decode error, browser access error —
+but never DRM, which MPV cannot license either). The diagnostic renders
+immediately; a cached one-per-renderer-session `prepareEmbeddedMpv()` probe
+runs in the background, and only a confirmed `supported` result swaps the
+session to the embedded engine and clears the diagnostic — an unavailable
+engine leaves the external MPV/VLC suggestions in place. The substitution is
+keyed to the failing stream URL: the next stream starts back on the user's
+preferred player.
+
 The Angular side of the embedded MPV player is intentionally split so the
 player component stays a view-oriented orchestrator and engine-specific
 controls host. The renderer files live under

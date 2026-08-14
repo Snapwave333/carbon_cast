@@ -1,6 +1,6 @@
 # Database
 
-Shared database library for IPTVnator providing Drizzle ORM schema and connection utilities.
+Shared database library for CarbonCast IPTV providing Drizzle ORM schema and connection utilities.
 
 ## Usage
 
@@ -12,16 +12,23 @@ import { getDatabase, initDatabase } from '@iptvnator/shared/database';
 import { getReadOnlyDatabase } from '@iptvnator/shared/database';
 
 // Schema and types
-import { content, categories, playlists, type Content } from '@iptvnator/shared/database';
+import {
+    content,
+    categories,
+    playlists,
+    type Content,
+} from '@iptvnator/shared/database';
 ```
 
 ## Exports
 
 ### Schema (`schema.ts`)
+
 - **Tables**: `playlists`, `categories`, `content`, `recentlyViewed`, `favorites`
 - **Types**: `Playlist`, `Category`, `Content`, `RecentlyViewed`, `Favorite` (and `New*` variants)
 
 ### Connection (`connection.ts`)
+
 - `getDatabase(options?)` - Full read-write access
 - `getReadOnlyDatabase()` - Read-only access for agent queries
 - `initDatabase(options?)` - Initialize with custom options

@@ -1,8 +1,8 @@
-// Playback control: open a channel in the installed IPTVnator desktop app.
+// Playback control: open a channel in the installed CarbonCast IPTV desktop app.
 //
 // The desktop app registers as the .m3u handler and opens a playlist passed on
 // the command line (forwarding to the running instance via its single-instance
-// lock). So "play a channel" = write a one-channel .m3u and launch IPTVnator
+// lock). So "play a channel" = write a one-channel .m3u and launch CarbonCast IPTV
 // with it. This is the server's write/control surface (no live renderer bridge
 // required, works with the shipped app).
 import fs from 'node:fs';
@@ -13,17 +13,36 @@ import { spawn } from 'node:child_process';
 export function iptvnatorAppPath() {
     if (process.env.IPTVNATOR_APP_PATH) return process.env.IPTVNATOR_APP_PATH;
     const candidates = [
-        path.join(os.homedir(), 'AppData', 'Local', 'Programs', 'iptvnator', 'IPTVnator.exe'),
+        path.join(
+            os.homedir(),
+            'AppData',
+            'Local',
+            'Programs',
+            'CarbonCast IPTV',
+            'CarbonCast IPTV.exe'
+        ),
+        'C:/Program Files/CarbonCast IPTV/CarbonCast IPTV.exe',
+        '/Applications/CarbonCast IPTV.app/Contents/MacOS/CarbonCast IPTV',
+        path.join(
+            os.homedir(),
+            'AppData',
+            'Local',
+            'Programs',
+            'iptvnator',
+            'IPTVnator.exe'
+        ),
         'C:/Program Files/IPTVnator/IPTVnator.exe',
         '/Applications/IPTVnator.app/Contents/MacOS/IPTVnator',
     ];
-    return candidates.find((p) => {
-        try {
-            return fs.existsSync(p);
-        } catch {
-            return false;
-        }
-    }) || null;
+    return (
+        candidates.find((p) => {
+            try {
+                return fs.existsSync(p);
+            } catch {
+                return false;
+            }
+        }) || null
+    );
 }
 
 function m3uFor(channel) {
@@ -36,7 +55,7 @@ function m3uFor(channel) {
     );
 }
 
-// Write a one-channel playlist and (unless dryRun) launch IPTVnator with it.
+// Write a one-channel playlist and (unless dryRun) launch CarbonCast IPTV with it.
 export function launchInIptvnator(channel, { dryRun = false } = {}) {
     const app = iptvnatorAppPath();
     const file = path.join(os.tmpdir(), 'iptvnator-mcp-play.m3u');
@@ -44,8 +63,7 @@ export function launchInIptvnator(channel, { dryRun = false } = {}) {
     if (!app)
         return {
             launched: false,
-            reason:
-                'IPTVnator app not found. Set IPTVNATOR_APP_PATH to the executable.',
+            reason: 'CarbonCast IPTV app not found. Set IPTVNATOR_APP_PATH to the executable.',
             file,
         };
     if (dryRun) return { launched: false, dryRun: true, app, file };

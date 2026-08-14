@@ -89,7 +89,7 @@ export function createWebBackendApp(
         optionsSuccessStatus: 200,
     });
 
-    app.get('/', (_req, res) => res.send('IPTVnator web backend'));
+    app.get('/', (_req, res) => res.send('CarbonCast IPTV web backend'));
     app.get('/health', (_req, res) =>
         res.json({ status: 'ok', service: 'iptvnator-web-backend' })
     );
@@ -188,10 +188,11 @@ export function createWebBackendApp(
         const url = new URL(registeredUrl.href);
 
         try {
-            const providerUrlError = await normalizeAndValidateXtreamProviderUrl(
-                url,
-                providerUrlPolicy
-            );
+            const providerUrlError =
+                await normalizeAndValidateXtreamProviderUrl(
+                    url,
+                    providerUrlPolicy
+                );
             if (providerUrlError) {
                 res.status(providerUrlError.status).json(providerUrlError);
                 return;

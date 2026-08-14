@@ -4,8 +4,6 @@
 
 const ALIASES = {
     anime: 'animation',
-    'animation ': 'animation',
-    kids: 'kids',
     'kids & family': 'kids',
     docs: 'documentary',
     documentaries: 'documentary',

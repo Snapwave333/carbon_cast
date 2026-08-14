@@ -185,7 +185,7 @@ export class AgentControlEvents {
         const requested = sanitize(request.params ?? {}) as JsonObject;
         const window = BrowserWindow.getAllWindows()[0];
         if (!window || window.isDestroyed()) {
-            return this.result(false, request.operation, requested, correlationId, 'renderer-unavailable', 'The IPTVnator window is unavailable.', true);
+            return this.result(false, request.operation, requested, correlationId, 'renderer-unavailable', 'The CarbonCast IPTV window is unavailable.', true);
         }
         this.audit(request.operation, tokenId, { correlationId, params: requested });
         return new Promise<AgentControlResult>((resolve) => {

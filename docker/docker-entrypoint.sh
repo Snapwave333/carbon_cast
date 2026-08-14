@@ -79,7 +79,7 @@ for _ in $(seq 1 30); do
 done
 
 if [ "$backend_ready" -ne 1 ]; then
-    echo "IPTVnator web backend did not become healthy on port ${PORT}."
+    echo "CarbonCast IPTV web backend did not become healthy on port ${PORT}."
     exit 1
 fi
 
@@ -92,7 +92,7 @@ while :; do
         wait "$BACKEND_PID"
         EXIT_STATUS=$?
         set -e
-        echo "IPTVnator web backend exited with status ${EXIT_STATUS}."
+        echo "CarbonCast IPTV web backend exited with status ${EXIT_STATUS}."
         exit "$EXIT_STATUS"
     fi
 

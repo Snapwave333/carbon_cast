@@ -1,7 +1,7 @@
 # Embedded MPV Runtime
 
 This directory owns the source builders, staging, manifests, and archive
-helpers for IPTVnator's experimental Embedded MPV runtime.
+helpers for CarbonCast IPTV's experimental Embedded MPV runtime.
 
 The Linux architecture has a strict process boundary:
 
@@ -130,7 +130,7 @@ Snap's `mesa-core22`.
 The DEB metadata is release-tested on Ubuntu 24.04 (Noble). Ubuntu 22.04
 (Jammy) only provides `libmpv1`; use the x64 AppImage on that distribution
 rather than relaxing the runtime contract. CI explicitly installs the distro
-Mesa software renderer for headless smoke. IPTVnator does not add DRI-driver
+Mesa software renderer for headless smoke. CarbonCast IPTV does not add DRI-driver
 packages as direct dependencies; any transitive graphics-driver stack remains
 under the distro's dependency policy.
 
@@ -139,7 +139,7 @@ Builder's default plugs and adds an auto-connected private `shared-memory`
 plug plus `graphics-core22`, targeting a real empty mode-0755 `$SNAP/graphics`
 with external `mesa-core22` as default provider. The graphics provider supplies
 EGL/GL/GLX/GBM/DRM/VA, while Electron Builder's exact GNOME content runtime
-supplies ALSA/PulseAudio. Neither provider is bundled into IPTVnator's Snap,
+supplies ALSA/PulseAudio. Neither provider is bundled into CarbonCast IPTV's Snap,
 source archive, notices, or package-size accounting. The package hook creates
 the empty content target because core22 does not synthesize one; the extracted
 artifact verifier rejects a missing, redirected, non-empty, or wrongly

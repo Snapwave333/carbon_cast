@@ -11,6 +11,7 @@ import {
     m3uItems,
     isM3u,
     epgProgramsForChannel,
+    epgAiringNow,
 } from './db.mjs';
 import { canonicalKey, expandCategories } from './categories.mjs';
 import { liveHandlers, liveTools } from './live-tools.mjs';
@@ -111,18 +112,30 @@ const handlers = {
         return withDb((db) => {
             const tables = tableNames(db);
             const counts = {};
-            for (const t of ['playlists', 'categories', 'content', 'favorites', 'downloads', 'recently_viewed', 'epg_channels', 'epg_programs'])
+            for (const t of [
+                'playlists',
+                'categories',
+                'content',
+                'favorites',
+                'downloads',
+                'recently_viewed',
+                'epg_channels',
+                'epg_programs',
+            ])
                 if (tables.includes(t)) counts[t] = count(db, t);
             const playlists = playlistRows(db).map(safePlaylist);
-            return { databaseFound: true, tables: tables.length, counts, playlists };
+            return {
+                databaseFound: true,
+                tables: tables.length,
+                counts,
+                playlists,
+            };
         });
     },
 
     list_playlists() {
         requireDb();
-        return withDb((db) =>
-            playlistRows(db).map(safePlaylist)
-        );
+        return withDb((db) => playlistRows(db).map(safePlaylist));
     },
 
     get_playlist({ playlistId }) {
@@ -152,7 +165,12 @@ const handlers = {
                 for (const it of m3uItems(db, playlistId)) {
                     rawDistinct.add(it.group || '(none)');
                     for (const { key, label } of expandCategories(it.group)) {
-                        const b = buckets.get(key) || { key, label, channels: 0, variants: new Set() };
+                        const b = buckets.get(key) || {
+                            key,
+                            label,
+                            channels: 0,
+                            variants: new Set(),
+                        };
                         b.channels += 1;
                         if (it.group) b.variants.add(it.group);
                         buckets.set(key, b);
@@ -160,7 +178,12 @@ const handlers = {
                 }
                 const categories = [...buckets.values()]
                     .sort((a, b) => b.channels - a.channels)
-                    .map((b) => ({ label: b.label, key: b.key, channels: b.channels, mergedFrom: [...b.variants] }));
+                    .map((b) => ({
+                        label: b.label,
+                        key: b.key,
+                        channels: b.channels,
+                        mergedFrom: [...b.variants],
+                    }));
                 return {
                     playlistId,
                     source: 'm3u',
@@ -171,9 +194,16 @@ const handlers = {
                 };
             }
             const cats = db
-                .prepare('SELECT id,name,type,xtream_id,hidden FROM categories WHERE playlist_id = ? ORDER BY name')
+                .prepare(
+                    'SELECT id,name,type,xtream_id,hidden FROM categories WHERE playlist_id = ? ORDER BY name'
+                )
                 .all(playlistId);
-            return { playlistId, source: 'provider', canonicalCount: cats.length, categories: cats };
+            return {
+                playlistId,
+                source: 'provider',
+                canonicalCount: cats.length,
+                categories: cats,
+            };
         });
     },
 
@@ -190,14 +220,37 @@ const handlers = {
                 const q = search ? String(search).toLowerCase() : null;
                 let items = m3uItems(db, playlistId);
                 if (catKey != null)
-                    items = items.filter((it) => expandCategories(it.group).some((c) => c.key === catKey));
-                if (q) items = items.filter((it) => it.name.toLowerCase().includes(q));
+                    items = items.filter((it) =>
+                        expandCategories(it.group).some((c) => c.key === catKey)
+                    );
+                if (q)
+                    items = items.filter((it) =>
+                        it.name.toLowerCase().includes(q)
+                    );
                 const total = items.length;
                 const page = items.slice(off, off + lim).map(safeM3uChannel);
-                return { playlistId, total, offset: off, limit: lim, count: page.length, channels: page };
+                return {
+                    playlistId,
+                    total,
+                    offset: off,
+                    limit: lim,
+                    count: page.length,
+                    channels: page,
+                };
             }
-            const channels = contentChannels(db, playlistId, { category, search, limit: lim, offset: off });
-            return { playlistId, offset: off, limit: lim, count: channels.length, channels };
+            const channels = contentChannels(db, playlistId, {
+                category,
+                search,
+                limit: lim,
+                offset: off,
+            });
+            return {
+                playlistId,
+                offset: off,
+                limit: lim,
+                count: channels.length,
+                channels,
+            };
         });
     },
 
@@ -207,20 +260,40 @@ const handlers = {
         const lim = clampLimit(limit);
         const q = String(query).toLowerCase();
         return withDb((db) => {
-            const pls = playlistId ? [playlistRow(db, playlistId)].filter(Boolean) : playlistRows(db);
+            const pls = playlistId
+                ? [playlistRow(db, playlistId)].filter(Boolean)
+                : playlistRows(db);
             const results = [];
             for (const p of pls) {
                 if (isM3u(p.type)) {
                     for (const it of m3uItems(db, p.id)) {
                         if (it.name.toLowerCase().includes(q)) {
-                            results.push({ playlistId: p.id, playlist: p.name, ...safeM3uChannel(it) });
-                            if (results.length >= lim) return { query, count: results.length, results };
+                            results.push({
+                                playlistId: p.id,
+                                playlist: p.name,
+                                ...safeM3uChannel(it),
+                            });
+                            if (results.length >= lim)
+                                return {
+                                    query,
+                                    count: results.length,
+                                    results,
+                                };
                         }
                     }
                 } else {
-                    for (const c of contentChannels(db, p.id, { search: query, limit: lim, offset: 0 })) {
-                        results.push({ playlistId: p.id, playlist: p.name, ...c });
-                        if (results.length >= lim) return { query, count: results.length, results };
+                    for (const c of contentChannels(db, p.id, {
+                        search: query,
+                        limit: lim,
+                        offset: 0,
+                    })) {
+                        results.push({
+                            playlistId: p.id,
+                            playlist: p.name,
+                            ...c,
+                        });
+                        if (results.length >= lim)
+                            return { query, count: results.length, results };
                     }
                 }
             }
@@ -238,17 +311,40 @@ const handlers = {
             if (isM3u(p.type)) {
                 const items = m3uItems(db, playlistId);
                 const found =
-                    (channelId != null && items.find((it) => it.id === String(channelId))) ||
-                    (name && items.find((it) => it.name.toLowerCase() === String(name).toLowerCase())) ||
-                    (name && items.find((it) => it.name.toLowerCase().includes(String(name).toLowerCase())));
+                    (channelId != null &&
+                        items.find((it) => it.id === String(channelId))) ||
+                    (name &&
+                        items.find(
+                            (it) =>
+                                it.name.toLowerCase() ===
+                                String(name).toLowerCase()
+                        )) ||
+                    (name &&
+                        items.find((it) =>
+                            it.name
+                                .toLowerCase()
+                                .includes(String(name).toLowerCase())
+                        ));
                 if (!found) throw new Error('Channel not found');
                 return safeM3uChannel(found);
             }
+            // Match only on the identifiers actually provided — a LIKE '%%'
+            // fallback would return an arbitrary channel on a bad channelId.
+            const match = [];
+            const args = [playlistId];
+            if (channelId != null) {
+                match.push('c.id=?');
+                args.push(channelId);
+            }
+            if (name) {
+                match.push('c.title LIKE ?');
+                args.push(`%${name}%`);
+            }
             const row = db
                 .prepare(
-                    'SELECT c.*, cat.name AS category FROM content c LEFT JOIN categories cat ON cat.id=c.category_id WHERE c.category_id IN (SELECT id FROM categories WHERE playlist_id=?) AND (c.id=? OR c.title LIKE ?) LIMIT 1'
+                    `SELECT c.*, cat.name AS category FROM content c LEFT JOIN categories cat ON cat.id=c.category_id WHERE c.category_id IN (SELECT id FROM categories WHERE playlist_id=?) AND (${match.join(' OR ')}) LIMIT 1`
                 )
-                .get(playlistId, channelId ?? -1, `%${name ?? ''}%`);
+                .get(...args);
             if (!row) throw new Error('Channel not found');
             return {
                 id: String(row.id),
@@ -264,21 +360,33 @@ const handlers = {
         requireDb();
         return withDb((db) => {
             const rows = playlistId
-                ? db.prepare('SELECT playlist_id, content_id, position FROM favorites WHERE playlist_id = ? ORDER BY position').all(playlistId)
-                : db.prepare('SELECT playlist_id, content_id, position FROM favorites ORDER BY playlist_id, position').all();
+                ? db
+                      .prepare(
+                          'SELECT playlist_id, content_id, position FROM favorites WHERE playlist_id = ? ORDER BY position'
+                      )
+                      .all(playlistId)
+                : db
+                      .prepare(
+                          'SELECT playlist_id, content_id, position FROM favorites ORDER BY playlist_id, position'
+                      )
+                      .all();
             // For M3U playlists, favorites also live in the payload as channel ids.
             let m3uFavorites = [];
             if (playlistId) {
                 const p = playlistRow(db, playlistId);
                 if (p && isM3u(p.type)) {
-                    const favIds = new Set((() => {
-                        try {
-                            const j = JSON.parse(p.payload || '{}');
-                            return Array.isArray(j.favorites) ? j.favorites.map(String) : [];
-                        } catch {
-                            return [];
-                        }
-                    })());
+                    const favIds = new Set(
+                        (() => {
+                            try {
+                                const j = JSON.parse(p.payload || '{}');
+                                return Array.isArray(j.favorites)
+                                    ? j.favorites.map(String)
+                                    : [];
+                            } catch {
+                                return [];
+                            }
+                        })()
+                    );
                     if (favIds.size)
                         m3uFavorites = m3uItems(db, playlistId)
                             .filter((it) => favIds.has(it.id))
@@ -293,8 +401,16 @@ const handlers = {
         requireDb();
         return withDb((db) => {
             const rows = status
-                ? db.prepare('SELECT id, playlist_id, xtream_id, content_type, title, status, bytes_downloaded, total_bytes, created_at, updated_at FROM downloads WHERE status = ? ORDER BY updated_at DESC').all(status)
-                : db.prepare('SELECT id, playlist_id, xtream_id, content_type, title, status, bytes_downloaded, total_bytes, created_at, updated_at FROM downloads ORDER BY updated_at DESC').all();
+                ? db
+                      .prepare(
+                          'SELECT id, playlist_id, xtream_id, content_type, title, status, bytes_downloaded, total_bytes, created_at, updated_at FROM downloads WHERE status = ? ORDER BY updated_at DESC'
+                      )
+                      .all(status)
+                : db
+                      .prepare(
+                          'SELECT id, playlist_id, xtream_id, content_type, title, status, bytes_downloaded, total_bytes, created_at, updated_at FROM downloads ORDER BY updated_at DESC'
+                      )
+                      .all();
             return { count: rows.length, downloads: rows };
         });
     },
@@ -320,7 +436,11 @@ const handlers = {
                     'Provide tvgId, or playlistId + channelName to resolve one.'
                 );
             const programs = epgProgramsForChannel(db, channelId);
-            return { channelId, channel: resolvedName, ...pickNowNext(programs, lim) };
+            return {
+                channelId,
+                channel: resolvedName,
+                ...pickNowNext(programs, lim),
+            };
         });
     },
 
@@ -332,7 +452,9 @@ const handlers = {
             const p = playlistRow(db, playlistId);
             if (!p) throw new Error(`No playlist with id ${playlistId}`);
             if (!isM3u(p.type))
-                throw new Error('whats_on_now currently supports M3U playlists.');
+                throw new Error(
+                    'whats_on_now currently supports M3U playlists.'
+                );
             const catKey = category ? canonicalKey(category) : null;
             let items = m3uItems(db, playlistId).filter((it) => it.tvgId);
             if (catKey != null)
@@ -340,11 +462,13 @@ const handlers = {
                     expandCategories(it.group).some((c) => c.key === catKey)
                 );
             items = items.slice(0, lim);
-            const nowMs = Date.now();
+            // One query for everything airing now, instead of one full-history
+            // query per channel.
+            const airing = new Map();
+            for (const r of epgAiringNow(db))
+                if (!airing.has(r.channel_id)) airing.set(r.channel_id, r);
             const channels = items.map((it) => {
-                const now = epgProgramsForChannel(db, it.tvgId)
-                    .map((x) => ({ ...x, s: Date.parse(x.start), e: Date.parse(x.stop) }))
-                    .find((x) => x.s <= nowMs && x.e > nowMs);
+                const now = airing.get(it.tvgId);
                 return {
                     channel: it.name,
                     group: it.group,
@@ -352,7 +476,12 @@ const handlers = {
                     until: now ? now.stop : null,
                 };
             });
-            return { playlistId, category: category || null, count: channels.length, channels };
+            return {
+                playlistId,
+                category: category || null,
+                count: channels.length,
+                channels,
+            };
         });
     },
 
@@ -364,33 +493,40 @@ const handlers = {
             const p = playlistRow(db, playlistId);
             if (!p) throw new Error(`No playlist with id ${playlistId}`);
             if (!isM3u(p.type))
-                throw new Error('find_now_playing currently supports M3U playlists.');
+                throw new Error(
+                    'find_now_playing currently supports M3U playlists.'
+                );
             const byTvg = new Map();
             for (const it of m3uItems(db, playlistId))
                 if (it.tvgId && !byTvg.has(it.tvgId)) byTvg.set(it.tvgId, it);
-            const like = query ? `%${query}%` : '%';
-            const rows = db
-                .prepare(
-                    'SELECT channel_id, start, stop, title, category FROM epg_programs WHERE title LIKE ? OR category LIKE ?'
-                )
-                .all(like, like);
-            const nowMs = Date.now();
+            const q = query ? String(query).toLowerCase() : null;
+            // epgAiringNow filters to current programmes in SQL, so we only
+            // match/format the few hundred rows on air instead of the full EPG.
             const results = [];
-            for (const r of rows) {
+            for (const r of epgAiringNow(db)) {
                 const ch = byTvg.get(r.channel_id);
                 if (!ch) continue;
-                if (Date.parse(r.start) <= nowMs && Date.parse(r.stop) > nowMs) {
-                    results.push({
-                        channel: ch.name,
-                        group: ch.group,
-                        title: r.title,
-                        category: r.category || undefined,
-                        until: r.stop,
-                    });
-                    if (results.length >= lim) break;
-                }
+                if (
+                    q &&
+                    !r.title?.toLowerCase().includes(q) &&
+                    !r.category?.toLowerCase().includes(q)
+                )
+                    continue;
+                results.push({
+                    channel: ch.name,
+                    group: ch.group,
+                    title: r.title,
+                    category: r.category || undefined,
+                    until: r.stop,
+                });
+                if (results.length >= lim) break;
             }
-            return { playlistId, query: query || null, count: results.length, results };
+            return {
+                playlistId,
+                query: query || null,
+                count: results.length,
+                results,
+            };
         });
     },
 
@@ -416,7 +552,11 @@ const handlers = {
             const nowMs = Date.now();
             const endMs = nowMs + h * 3600 * 1000;
             const programs = epgProgramsForChannel(db, channelId)
-                .map((p) => ({ ...p, s: Date.parse(p.start), e: Date.parse(p.stop) }))
+                .map((p) => ({
+                    ...p,
+                    s: Date.parse(p.start),
+                    e: Date.parse(p.stop),
+                }))
                 .filter((p) => p.e > nowMs && p.s < endMs)
                 .sort((a, b) => a.s - b.s)
                 .slice(0, lim)
@@ -426,26 +566,168 @@ const handlers = {
                     stop: p.stop,
                     category: p.category || undefined,
                 }));
-            return { channelId, channel: resolvedName, hours: h, count: programs.length, programs };
+            return {
+                channelId,
+                channel: resolvedName,
+                hours: h,
+                count: programs.length,
+                programs,
+            };
         });
     },
 };
 
 // ── Tool schemas (advertised over MCP tools/list) ────────────────────────────
 export const tools = [
-    { name: 'get_app_status', description: 'IPTVnator database status, table row counts, and a safe playlist summary.', inputSchema: { type: 'object', properties: {} } },
-    { name: 'list_playlists', description: 'List all playlists (M3U, Xtream, Stalker) with id, name, type, and channel count.', inputSchema: { type: 'object', properties: {} } },
-    { name: 'get_playlist', description: 'Full metadata for one playlist (credentials/payload omitted).', inputSchema: { type: 'object', properties: { playlistId: { type: 'string' } }, required: ['playlistId'] } },
-    { name: 'list_categories', description: 'Categories for a playlist. For M3U playlists the raw group labels are normalized and de-duplicated into canonical categories (so "Animation", "ANIMATION", "Anime", "Animation;Kids" collapse into one).', inputSchema: { type: 'object', properties: { playlistId: { type: 'string' } }, required: ['playlistId'] } },
-    { name: 'list_channels', description: 'List channels in a playlist, optionally filtered by category (canonical) and a name search. Paginated.', inputSchema: { type: 'object', properties: { playlistId: { type: 'string' }, category: { type: 'string' }, search: { type: 'string' }, limit: { type: 'number' }, offset: { type: 'number' } }, required: ['playlistId'] } },
-    { name: 'search_channels', description: 'Search channels by name across one or all playlists.', inputSchema: { type: 'object', properties: { query: { type: 'string' }, playlistId: { type: 'string' }, limit: { type: 'number' } }, required: ['query'] } },
-    { name: 'get_channel', description: 'Get one channel by id or name using safe metadata only; stream URLs and provider credentials are never returned.', inputSchema: { type: 'object', properties: { playlistId: { type: 'string' }, channelId: { type: 'string' }, name: { type: 'string' } }, required: ['playlistId'] } },
-    { name: 'list_favorites', description: 'List favorite channels (optionally scoped to one playlist).', inputSchema: { type: 'object', properties: { playlistId: { type: 'string' } } } },
-    { name: 'list_downloads', description: 'List downloads (optionally filtered by status).', inputSchema: { type: 'object', properties: { status: { type: 'string' } } } },
-    { name: 'get_epg_now_next', description: "Now-playing and upcoming programmes for a channel from the EPG. Provide a channel's tvgId, or a playlistId + channelName to resolve one.", inputSchema: { type: 'object', properties: { tvgId: { type: 'string' }, playlistId: { type: 'string' }, channelName: { type: 'string' }, limit: { type: 'number' } } } },
-    { name: 'whats_on_now', description: "What's playing right now across a playlist's channels, optionally filtered to one canonical category. M3U playlists with EPG data.", inputSchema: { type: 'object', properties: { playlistId: { type: 'string' }, category: { type: 'string' }, limit: { type: 'number' } }, required: ['playlistId'] } },
-    { name: 'find_now_playing', description: "Search the whole EPG for what's airing RIGHT NOW matching a title/category term (e.g. 'news', 'movie', 'football'). Empty query returns everything currently on. M3U playlists with EPG data.", inputSchema: { type: 'object', properties: { playlistId: { type: 'string' }, query: { type: 'string' }, limit: { type: 'number' } }, required: ['playlistId'] } },
-    { name: 'get_epg_schedule', description: "A channel's upcoming schedule over the next N hours (default 6). Provide a tvgId, or a playlistId + channelName.", inputSchema: { type: 'object', properties: { tvgId: { type: 'string' }, playlistId: { type: 'string' }, channelName: { type: 'string' }, hours: { type: 'number' }, limit: { type: 'number' } } } },
+    {
+        name: 'get_app_status',
+        description:
+            'CarbonCast IPTV database status, table row counts, and a safe playlist summary.',
+        inputSchema: { type: 'object', properties: {} },
+    },
+    {
+        name: 'list_playlists',
+        description:
+            'List all playlists (M3U, Xtream, Stalker) with id, name, type, and channel count.',
+        inputSchema: { type: 'object', properties: {} },
+    },
+    {
+        name: 'get_playlist',
+        description:
+            'Full metadata for one playlist (credentials/payload omitted).',
+        inputSchema: {
+            type: 'object',
+            properties: { playlistId: { type: 'string' } },
+            required: ['playlistId'],
+        },
+    },
+    {
+        name: 'list_categories',
+        description:
+            'Categories for a playlist. For M3U playlists the raw group labels are normalized and de-duplicated into canonical categories (so "Animation", "ANIMATION", "Anime", "Animation;Kids" collapse into one).',
+        inputSchema: {
+            type: 'object',
+            properties: { playlistId: { type: 'string' } },
+            required: ['playlistId'],
+        },
+    },
+    {
+        name: 'list_channels',
+        description:
+            'List channels in a playlist, optionally filtered by category (canonical) and a name search. Paginated.',
+        inputSchema: {
+            type: 'object',
+            properties: {
+                playlistId: { type: 'string' },
+                category: { type: 'string' },
+                search: { type: 'string' },
+                limit: { type: 'number' },
+                offset: { type: 'number' },
+            },
+            required: ['playlistId'],
+        },
+    },
+    {
+        name: 'search_channels',
+        description: 'Search channels by name across one or all playlists.',
+        inputSchema: {
+            type: 'object',
+            properties: {
+                query: { type: 'string' },
+                playlistId: { type: 'string' },
+                limit: { type: 'number' },
+            },
+            required: ['query'],
+        },
+    },
+    {
+        name: 'get_channel',
+        description:
+            'Get one channel by id or name using safe metadata only; stream URLs and provider credentials are never returned.',
+        inputSchema: {
+            type: 'object',
+            properties: {
+                playlistId: { type: 'string' },
+                channelId: { type: 'string' },
+                name: { type: 'string' },
+            },
+            required: ['playlistId'],
+        },
+    },
+    {
+        name: 'list_favorites',
+        description:
+            'List favorite channels (optionally scoped to one playlist).',
+        inputSchema: {
+            type: 'object',
+            properties: { playlistId: { type: 'string' } },
+        },
+    },
+    {
+        name: 'list_downloads',
+        description: 'List downloads (optionally filtered by status).',
+        inputSchema: {
+            type: 'object',
+            properties: { status: { type: 'string' } },
+        },
+    },
+    {
+        name: 'get_epg_now_next',
+        description:
+            "Now-playing and upcoming programmes for a channel from the EPG. Provide a channel's tvgId, or a playlistId + channelName to resolve one.",
+        inputSchema: {
+            type: 'object',
+            properties: {
+                tvgId: { type: 'string' },
+                playlistId: { type: 'string' },
+                channelName: { type: 'string' },
+                limit: { type: 'number' },
+            },
+        },
+    },
+    {
+        name: 'whats_on_now',
+        description:
+            "What's playing right now across a playlist's channels, optionally filtered to one canonical category. M3U playlists with EPG data.",
+        inputSchema: {
+            type: 'object',
+            properties: {
+                playlistId: { type: 'string' },
+                category: { type: 'string' },
+                limit: { type: 'number' },
+            },
+            required: ['playlistId'],
+        },
+    },
+    {
+        name: 'find_now_playing',
+        description:
+            "Search the whole EPG for what's airing RIGHT NOW matching a title/category term (e.g. 'news', 'movie', 'football'). Empty query returns everything currently on. M3U playlists with EPG data.",
+        inputSchema: {
+            type: 'object',
+            properties: {
+                playlistId: { type: 'string' },
+                query: { type: 'string' },
+                limit: { type: 'number' },
+            },
+            required: ['playlistId'],
+        },
+    },
+    {
+        name: 'get_epg_schedule',
+        description:
+            "A channel's upcoming schedule over the next N hours (default 6). Provide a tvgId, or a playlistId + channelName.",
+        inputSchema: {
+            type: 'object',
+            properties: {
+                tvgId: { type: 'string' },
+                playlistId: { type: 'string' },
+                channelName: { type: 'string' },
+                hours: { type: 'number' },
+                limit: { type: 'number' },
+            },
+        },
+    },
     ...liveTools,
 ];
 

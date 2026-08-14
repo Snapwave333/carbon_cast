@@ -889,6 +889,78 @@ class EpgService {
 | `EpgItemDescriptionComponent` | Program details dialog               |
 | `MultiEpgContainerComponent`  | Grid view of all channels' schedules |
 
+### Multi-channel TV Guide
+
+The playlist-scoped `guide` route hides the redundant channel-list sidebar and
+embeds `MultiEpgContainerComponent` as a full-width page while preserving
+active playback above the grid. Fresh profiles open this view by default, and
+the user can choose another playlist section or disable last-channel resume in
+Settings.
+
+The grid uses overlap-based day layout: programmes crossing midnight are
+clipped to the selected day's 24-hour canvas rather than omitted. Its real
+minute clock drives the today-only playhead and airing highlights; the Today
+action returns both the selected date and horizontal scroll to now. Programme
+tiles are keyboard-focusable and open with Enter or Space.
+
+Programme artwork from the XMLTV feed (`EpgProgram.iconUrl`) renders as a
+thumbnail in cells wide enough to keep the title readable, and as a small
+preview in programme search results; the details dialog uses it as a
+full-bleed hero backdrop behind the channel logo; when the feed carries no
+programme artwork and TMDB enrichment is enabled, the dialog falls back to a
+cached TMDB backdrop looked up by title (`enrichMovie`/`enrichTv` chosen via
+`isMovieLikeCategory`). Cells at a medium width and
+up also show a pre-formatted start–stop time line plus a compact episode
+badge when XMLTV `episode-num` is parseable (`formatEpisodeBadge` in
+`epg-program.utils.ts` handles both the `onscreen` and zero-based `xmltv_ns`
+systems); the details dialog reuses the badge, shows the XMLTV sub-title as
+an episode subtitle, and marks first-run airings with a NEW chip. The
+single-channel timeline ribbon shows the programme still in its hover
+popover, and the vertical list view's rows carry the same thumbnail and
+badge. Channel icons pass through the same http(s)-only guard as programme
+artwork (`getEpgChannelIcon`). Cells and list rows fall back to the channel
+icon when a programme has no artwork (`Settings.guideArtwork`, default on,
+turns the whole artwork tier off for a text-only grid, including the TMDB
+lookups below); with TMDB enrichment enabled, a
+strictly bounded queue (`MultiEpgTmdbArtwork`) adds a last tier for wide
+movie/series cells airing within ±6h of now — lookups deduped by title,
+capped per guide session (48), concurrency 2, news/sports and uncategorized
+programmes skipped, misses memoized, backed by the TMDB SQLite cache.
+A load-time aspect check
+(`adjustArtworkFit`) switches near-square/portrait images (logos, posters)
+from `cover` to `contain` so they aren't cropped badly. Programmes are
+Sliver cells below 44px hide their text entirely (`MultiEpgArtwork.showsTitle`),
+empty channel rows render a "no programmes" note, and each channel's icon is
+sanitized once per layout into `safeIconUrl` rather than per cell per
+change-detection pass. Programmes are
+colour-coded by XMLTV category via `getEpgCategoryAccent`
+(`epg-program.utils.ts`): keyword buckets (movies/news/sports/kids/music/
+documentary/series, several languages) map to a fixed palette and unknown
+categories hash onto it, rendered as an accent edge + wash on guide cells
+and timeline blocks, a dot in list rows and search results, and a tinted
+category label in the dialog. Clicking a programme
+opens the details dialog through `openMultiEpgProgramDialog`
+(`multi-epg-program-dialog.ts`); when the programme is airing now it offers
+"Watch live"; past programmes offer "Watch from start" when the host's
+`catchupResolver` input reports the channel catch-up-capable and the
+programme is inside its archive window (shared `epg-archive.util` gating).
+Either action emits the guide's `playRequested` output — the M3U player
+page resolves it to a playlist channel (tvg-id first, display-name
+fallback) and dispatches the playback request; timeshift additionally
+dispatches `setActiveEpgProgram` after the synchronous channel switch, so
+the existing catch-up URL resolution effect (with its live-fallback
+snackbar) handles the rest. `MultiEpgArtwork`
+(`multi-epg-artwork.ts`) owns the width gating, restricts artwork to absolute
+http(s) URLs (XMLTV is untrusted input), and remembers failed URLs so a dead
+artwork host is never re-requested on zoom or day switches.
+
+Channel pages load incrementally with initial and pagination retry states.
+Playlist refreshes generation-gate pending page requests so stale results
+cannot repopulate a reset grid. Debounced programme search uses the same
+latest-request-wins rule, preventing a slow prior query from replacing newer
+results. Pure layout and search state live beside the component in
+`multi-epg-layout.util.ts` and `multi-epg-program-search.ts`.
+
 ## Video Player
 
 **Location**: `libs/playlist/m3u/feature-player/src/lib/video-player/`

@@ -1,5 +1,5 @@
 /**
- * Database connection and initialization for IPTVnator
+ * Database connection and initialization for CarbonCast IPTV
  * Uses Drizzle ORM with better-sqlite3
  * Stores database file under ~/.iptvnator/databases/ by default.
  * E2E tests can override the root with IPTVNATOR_E2E_DATA_DIR.
@@ -56,12 +56,12 @@ function compactSqlForTrace(sql: string): string {
 
 function traceSql(scope: string, message: string, payload?: unknown): void {
     if (payload === undefined) {
-        console.log(`[IPTVnator Trace][${scope}] ${message}`);
+        console.log(`[CarbonCast IPTV Trace][${scope}] ${message}`);
         return;
     }
 
     console.log(
-        `[IPTVnator Trace][${scope}] ${message} ${JSON.stringify(payload)}`
+        `[CarbonCast IPTV Trace][${scope}] ${message} ${JSON.stringify(payload)}`
     );
 }
 
@@ -113,7 +113,6 @@ const DOWNLOADS_INDEX_STATEMENTS = [
     `CREATE INDEX IF NOT EXISTS downloads_playlist_idx ON downloads(playlist_id)`,
     `CREATE INDEX IF NOT EXISTS downloads_status_idx ON downloads(status)`,
 ];
-
 const CREATE_TABLE_STATEMENTS = [
     `CREATE TABLE IF NOT EXISTS playlists (
       id TEXT PRIMARY KEY,

@@ -4,6 +4,20 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 > The process sections below (Plan Mode, Documentation After Changes, Regression Prevention, Agent Bootstrap, Electron CDP Debugging) are mirrored in `AGENTS.md`, which is the canonical copy for agent workflows. When updating one, keep the other in sync.
 
+## Repository Navigation
+
+| Guide                                            | Purpose                                                                                              |
+| ------------------------------------------------ | ---------------------------------------------------------------------------------------------------- |
+| [`TABLE_OF_CONTENTS.md`](./TABLE_OF_CONTENTS.md) | Canonical map of apps, libraries, feature ownership, architecture docs, tools, and generated folders |
+| [`README.md`](./README.md)                       | Product overview, downloads, self-hosting, and contributor setup                                     |
+| [`AGENTS.md`](./AGENTS.md)                       | Canonical repository workflow and validation rules for coding agents                                 |
+| [`docs/architecture/`](./docs/architecture/)     | Maintained subsystem contracts; prefer these over historical plans                                   |
+| [`.changes/README.md`](./.changes/README.md)     | Release-note schema and writing policy                                                               |
+
+Start repository exploration from the table of contents instead of recursively
+scanning generated output such as `node_modules/`, `dist/`, `coverage/`, `.nx/`,
+or `tmp/`.
+
 ## Plan Mode
 
 - When Claude Code is in Plan Mode and produces a final `<proposed_plan>`, it must also save that finalized plan as a Markdown file in the repo-root `.plans/` directory.
@@ -53,9 +67,22 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-IPTVnator is a cross-platform IPTV player application built with Angular and Electron, supporting M3U/M3U8 playlists, Xtream Codes API, and Stalker portals.
+CarbonCast IPTV is a cross-platform IPTV player built with Angular and Electron.
+It supports M3U/M3U8 playlists, Xtream Codes, Stalker/Ministra portals, public
+radio and podcast discovery, desktop automation, and a self-hosted PWA. It is an
+independent fork of IPTVnator and retains upstream attribution.
 
 **Dual Environment Support**: The application is designed to work in both Electron and as a Progressive Web App (PWA). The architecture uses a factory pattern to inject environment-specific services at runtime, ensuring the same codebase works in both contexts.
+
+### Branding Compatibility Boundary
+
+| Surface                                                                          | Rule                                                                                         |
+| -------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| User-visible name, copy, artwork, website, and new public documentation          | Use **CarbonCast IPTV** or **CarbonCast**                                                    |
+| TypeScript path aliases such as `@iptvnator/*`                                   | Intentionally retained; changing them requires a separately planned workspace-wide migration |
+| Environment variables such as `IPTVNATOR_*`                                      | Compatibility API; do not silently rename or remove                                          |
+| User-data paths such as `~/.iptvnator` and legacy executable/package identifiers | Keep stable so upgrades preserve profiles, databases, scripts, and launchers                 |
+| Upstream references and historical filenames                                     | Keep when needed for attribution, compatibility, or link stability                           |
 
 ## Development Commands
 
@@ -125,7 +152,7 @@ nx run electron-backend:make
 - Use CDP clients (Chrome DevTools Protocol tools) against: `127.0.0.1:9222`
 - When the task is Electron automation/debugging, use the `electron` skill
 - Do not auto-open DevTools during normal CDP automation. In development, DevTools is opt-in via `ELECTRON_OPEN_DEVTOOLS=1`.
-- If DevTools is open, `agent-browser --cdp 9222 ...` may attach to the DevTools page instead of the IPTVnator window (symptoms: `tab list` shows `about:blank`, empty snapshots, black screenshots). Inspect targets with `curl http://127.0.0.1:9222/json/list` and connect directly to the app page's `webSocketDebuggerUrl`.
+- If DevTools is open, `agent-browser --cdp 9222 ...` may attach to the DevTools page instead of the CarbonCast window (symptoms: `tab list` shows `about:blank`, empty snapshots, black screenshots). Inspect targets with `curl http://127.0.0.1:9222/json/list` and connect directly to the app page's `webSocketDebuggerUrl`.
 - The app holds a single-instance lock (`acquireSingleInstanceLock` in `apps/electron-backend/src/app/services/single-instance.ts`): a second launch against the same `userData` quits immediately and focuses the running window. To attach a second CDP-enabled instance to the same profile, set `IPTVNATOR_ALLOW_MULTIPLE_INSTANCES=1` — knowing that only one of the two processes will own the renderer's IndexedDB, so settings written by the other are lost. Before focusing, the guard forwards the second launch's argv to `onSecondInstance`, which is how a playlist path handed to an already-running app reaches the open queue.
 
 For startup tracing or white-screen debugging:
@@ -166,10 +193,10 @@ agent-browser --cdp 9222 tab 1
 agent-browser --cdp 9222 snapshot -i -c -d 4
 
 # Capture debug artifacts
-agent-browser --cdp 9222 screenshot /tmp/iptvnator-cdp.png
-agent-browser --cdp 9222 trace start /tmp/iptvnator.trace.zip
+agent-browser --cdp 9222 screenshot /tmp/carboncast-cdp.png
+agent-browser --cdp 9222 trace start /tmp/carboncast.trace.zip
 agent-browser --cdp 9222 wait 1500
-agent-browser --cdp 9222 trace stop /tmp/iptvnator.trace.zip
+agent-browser --cdp 9222 trace stop /tmp/carboncast.trace.zip
 ```
 
 If `agent-browser` is not in PATH, use:
@@ -241,7 +268,9 @@ file count against `find <project> -name '*.ts' | wc -l`.
 
 ### Monorepo Structure (Nx Workspace)
 
-This is an Nx monorepo with the following structure:
+This is an Nx monorepo. Use [`TABLE_OF_CONTENTS.md`](./TABLE_OF_CONTENTS.md) for
+the complete navigable directory, feature ownership, documentation, and tooling
+map; keep this architectural summary aligned with it.
 
 - **apps/web** - Angular application (frontend, shared by Electron and PWA)
 - **apps/electron-backend** - Electron main process
@@ -265,6 +294,7 @@ This is an Nx monorepo with the following structure:
     - **portal/stalker/{data-access,feature}** - StalkerStore and routed Stalker components
     - **portal/catalog/feature** - Portal catalog UI
     - **portal/downloads/feature** - Download manager UI
+    - **portal/radio/{data-access,feature}** - Internet radio and podcasts: Radio Browser / iTunes / RSS clients and local library in `data-access`; the routed page, grids, audio dock, and WebGL visualizer in `feature`
     - **portal/shared/{data-access,ui,util}** - Cross-portal shared code
     - **services** - Abstract DataService contract and shared app services (incl. the TMDB metadata enrichment module in `lib/tmdb/`)
     - **shared/interfaces** - TypeScript interfaces and types (incl. `ElectronBridgeApi`)
@@ -458,10 +488,11 @@ See `docs/architecture/m3u-playlist-module.md` for complete documentation.
 **Routing**: Lazy-loaded routes in `apps/web/src/app/app.routes.ts`. All user-facing routes are nested under the workspace shell (`/workspace/...`); `/` redirects into the workspace.
 
 - Dashboard: `/workspace/dashboard`; sources overview: `/workspace/sources`
-- M3U player: `/workspace/playlists/:id` (children: `favorites`, `recent`, `:view`) — routes in `libs/playlist/m3u/feature-player`
+- M3U player: `/workspace/playlists/:id` (children: `favorites`, `recent`, `:view` where `:view` covers `guide`/`all`/`groups`) — routes in `libs/playlist/m3u/feature-player`. The empty path redirects via a function reading `Settings.playlistDefaultSection` (default `guide`; falls back to `all` when `RuntimeCapabilitiesService.supportsEpg` is false, i.e. the PWA). The `guide` view embeds `MultiEpgContainerComponent` inline (its `COMPONENT_OVERLAY_REF` is optional for this) with any playing channel in a compact strip above it; it clips overnight programmes into the selected day, keeps a real minute-driven today playhead, supports keyboard programme activation, generation-gates pagination/search, and exposes Today/retry actions. `Settings.resumeLastChannel` (default on) re-activates the playlist's most recent `recentlyViewed` m3u item when the playlist opens with nothing playing
 - Xtream Codes: `/workspace/xtreams/:id` (children: `live`, `vod`, `series`, `search`, `actor/:personId`, `recently-added`, `favorites`, `recent`, `downloads`) — `libs/portal/xtream/feature/src/lib/xtream-feature.routes.ts`
 - Stalker portal: `/workspace/stalker/:id` (children: `itv`, `vod`, `radio`, `series`, `favorites`, `recent`, `search`, `actor/:personId`, `downloads`) — `libs/portal/stalker/feature/src/lib/stalker-feature.routes.ts`
 - Global collections: `/workspace/global-favorites`, `/workspace/global-recent`
+- Radio & podcasts: `/workspace/radio` — `libs/portal/radio/feature`. Not playlist-scoped, so it carries no portal context rail
 - Global search: `/workspace/search` (Electron-only; a guard redirects the PWA to `/workspace/sources`)
 - Downloads: `/workspace/downloads`
 - Settings: `/workspace/settings` (`/settings` redirects there)
@@ -632,6 +663,7 @@ This project uses modern Angular signal-based APIs and patterns. **ALWAYS** use 
     - `stalker.events.ts` - Stalker portal API
     - `player.events.ts` - External player IPC registration; MPV/VLC lifecycle logic lives in `mpv-session.service.ts`, `vlc-session.service.ts`, and shared `external-player-*` helpers
     - `settings.events.ts` - App settings
+    - `remote-text.events.ts` - `FETCH_REMOTE_TEXT`: fetches a podcast RSS feed on the renderer's behalf. Deliberately narrow (GET only, public hosts only via the `validateRemoteUrl` SSRF guard, no renderer-supplied headers, 12 MB cap) because the renderer cannot read those feeds itself — publishers rarely send CORS headers
     - `electron.events.ts` - App version, etc.
 
 **Workers** (`apps/electron-backend/src/app/workers/`):
@@ -883,6 +915,40 @@ engine` (restart required) or
 - Keyboard shortcuts: ArrowUp/ArrowDown (volume), M (mute)
 - Component: `libs/ui/playback/src/lib/audio-player/audio-player.component.ts`
 
+**Radio & Podcasts** (`/workspace/radio`) — distinct from the Radio Player
+above, which plays `radio="true"` channels out of a user's own M3U playlist.
+This section is a standalone browser over public catalogues and needs no
+playlist:
+
+- Catalogues, all key-free and signup-free: Radio Browser for stations
+  (`radio-browser.service.ts`, mirror discovery plus per-request failover, since
+  individual mirrors go down routinely), the Apple iTunes Search API and its
+  public top-podcasts chart for shows, and each show's own RSS feed for episodes
+- **Podcast feeds need the main process.** Publishers rarely send CORS headers,
+  so the renderer cannot read them; `RemoteTextService` routes through the
+  `FETCH_REMOTE_TEXT` IPC channel under Electron and falls back to a direct
+  `fetch` in the PWA, surfacing `RemoteTextUnavailableError` as a specific
+  "open the desktop app" message when a host refuses
+- Library (favourites, subscriptions, recents, episode resume points) lives in
+  `localStorage`, not SQLite: it is small and must behave identically in the PWA
+  where the SQLite bridge is absent
+- Sorting by country or genre deliberately **does not** use the catalogue's own
+  `order=country`/`order=tags`. A large share of stations have a blank value
+  there, and ascending order returns nothing but those blanks; the top list is
+  ranked by popularity and grouped locally instead. Genre additionally snaps
+  free-text tags onto the catalogue's ranked tag list so "classic rock" and
+  "indie, rock" group together (`radio-station-sort.ts`)
+- **The visualizer's audio reactivity is synthesized, and must stay that way.**
+  Reading a stream's real spectrum requires a `MediaElementAudioSourceNode`,
+  which the Web Audio spec makes emit silence for any cross-origin resource
+  without CORS opt-in — i.e. nearly every internet radio stream. Tapping the
+  element would mute the audio it visualizes. `radio-energy-model.ts` models the
+  shape of music instead; `radio-metaball-renderer.ts` draws it in WebGL2
+- Orbit geometry is aspect-corrected. The dock is roughly 15:1, and orbits
+  written for a square canvas collapse to an invisible pinprick at its centre;
+  `computeOrbPlacements()` is split out from the GL calls so that geometry is
+  unit-testable
+
 **EPG (Electronic Program Guide)**:
 
 - XMLTV format support
@@ -928,7 +994,7 @@ window.electron; // truthy in Electron, undefined in browser
 ```
 
 **Why Dual Mode?**
-IPTVnator supports both Electron (desktop app) and PWA (web browser) to provide flexibility:
+CarbonCast IPTV supports both Electron (desktop app) and PWA (web browser) to provide flexibility:
 
 - **Electron**: Full-featured desktop experience with local database, external player support (MPV/VLC), and native file system access
 - **PWA**: Lightweight web version that runs in any browser without installation
@@ -1022,6 +1088,17 @@ No formal migration system yet. Schema changes are applied via raw SQL in the `c
 - Use NgRx for global application state (M3U playlists, `libs/m3u-state`)
 - Use NgRx Signal Store with `signalStoreFeature()` composition for portal/feature state (XtreamStore, StalkerStore)
 - Use NgRx signals for reactive data streams
+
+**Focus Indicators**:
+
+- `apps/web/src/styles.scss` defines a single app-wide `:focus-visible` ring
+  from the `--app-focus-ring-*` tokens. Do not add `outline: none` to a focus
+  state: a blanket reset previously removed the indicator from every control in
+  the app, leaving keyboard and assistive-tech users with nothing. Suppressing
+  the ring on pointer interaction is already handled by `:focus-visible`
+- Custom controls built from bare `<button>`/`<a>` inherit the ring
+  automatically. Only override `outline-offset`, and only when a component's own
+  focus treatment (e.g. Material's inner indicator) would otherwise double up
 
 <!-- nx configuration start-->
 <!-- Leave the start & end comments to automatically receive updates. -->

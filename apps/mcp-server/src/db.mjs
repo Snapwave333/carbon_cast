@@ -1,4 +1,4 @@
-// SQLite access for the IPTVnator MCP server.
+// SQLite access for the CarbonCast IPTV MCP server.
 //
 // Uses Node's built-in `node:sqlite` (NOT better-sqlite3): the server runs under
 // system Node, while the repo's better-sqlite3 is compiled for Electron's ABI and
@@ -40,7 +40,9 @@ export function withDb(fn) {
 
 export function tableNames(db) {
     return db
-        .prepare("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name")
+        .prepare(
+            "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name"
+        )
         .all()
         .map((r) => r.name);
 }
@@ -86,7 +88,10 @@ export function m3uItems(db, id) {
     let raw = [];
     try {
         const j = JSON.parse(row.payload);
-        raw = j && j.playlist && Array.isArray(j.playlist.items) ? j.playlist.items : [];
+        raw =
+            j && j.playlist && Array.isArray(j.playlist.items)
+                ? j.playlist.items
+                : [];
     } catch {
         raw = [];
     }
@@ -113,4 +118,17 @@ export function epgProgramsForChannel(db, channelId) {
                 'FROM epg_programs WHERE channel_id = ? ORDER BY start'
         )
         .all(channelId);
+}
+
+// All programmes airing right now, in one query. The app stores start/stop as
+// uniform UTC ISO-8601 strings ("...Z"), so lexicographic comparison against
+// an ISO timestamp is equivalent to comparing instants.
+export function epgAiringNow(db) {
+    const nowIso = new Date().toISOString();
+    return db
+        .prepare(
+            'SELECT channel_id, start, stop, title, category ' +
+                'FROM epg_programs WHERE start <= ? AND stop > ?'
+        )
+        .all(nowIso, nowIso);
 }

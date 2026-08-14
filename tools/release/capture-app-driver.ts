@@ -129,7 +129,7 @@ async function assertMockServerIdentity(): Promise<void> {
     for (const expected of MOCK_FIXTURE_CATEGORIES) {
         if (!names.has(expected)) {
             throw new Error(
-                `The server on ${XTREAM_MOCK_ORIGIN} is not the IPTVnator marketing mock (missing category "${expected}"). Refusing to capture screenshots from unknown data.`
+                `The server on ${XTREAM_MOCK_ORIGIN} is not the CarbonCast IPTV marketing mock (missing category "${expected}"). Refusing to capture screenshots from unknown data.`
             );
         }
     }

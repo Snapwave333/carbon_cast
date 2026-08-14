@@ -8,6 +8,7 @@ import {
     APP_UPDATE_STATUS_CHANGED,
     ACKNOWLEDGE_PLAYLIST_OPEN_REQUEST,
     ANNOUNCE_PLAYLIST_OPEN_LISTENER,
+    FETCH_REMOTE_TEXT,
     OPEN_FILE,
 } from '@iptvnator/shared/interfaces/ipc-commands';
 import {
@@ -288,7 +289,9 @@ const electronApi: ElectronBridgeApi = {
         ipcRenderer.send('REMOTE_CONTROL_STATUS_UPDATE', status);
     },
     onAgentControlCommand: (
-        callback: (request: AgentControlRequest & { correlationId: string }) => void
+        callback: (
+            request: AgentControlRequest & { correlationId: string }
+        ) => void
     ) => {
         const handler = (
             _event: Electron.IpcRendererEvent,
@@ -440,6 +443,8 @@ const electronApi: ElectronBridgeApi = {
         title?: string,
         options?: ElectronBridgeTrustOptions
     ) => ipcRenderer.invoke('fetch-playlist-by-url', url, title, options),
+    fetchRemoteText: (url: string) =>
+        ipcRenderer.invoke(FETCH_REMOTE_TEXT, url),
     updatePlaylistFromFilePath: (filePath: string, title: string) =>
         ipcRenderer.invoke('update-playlist-from-file-path', filePath, title),
     openPlaylistFromFile: () => ipcRenderer.invoke('open-playlist-from-file'),

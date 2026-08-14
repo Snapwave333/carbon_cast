@@ -14,7 +14,15 @@ CarbonCast IPTV is a fork of [IPTVnator](https://github.com/4gray/iptvnator). Th
 
 ⚠️ Note: CarbonCast IPTV does not provide any playlists or other digital content. The channels and pictures in the screenshots are for demonstration purposes only.
 
-![IPTVnator: Channels list, player and epg list](./apps/website/public/screenshots/screenshot-player.webp)
+## 🧭 Repository Navigation
+
+| Guide | Use it for |
+| --- | --- |
+| [Repository table of contents](./TABLE_OF_CONTENTS.md) | Apps, libraries, feature owners, architecture contracts, tools, and common commands |
+| [Claude Code context](./CLAUDE.md) | Detailed implementation architecture and development notes |
+| [Agent operating rules](./AGENTS.md) | Validation, documentation, and release-note requirements |
+
+![CarbonCast IPTV: channels list, player, and EPG guide](./apps/website/public/screenshots/screenshot-player.webp)
 
 ## Features
 
@@ -27,7 +35,7 @@ CarbonCast IPTV is a fork of [IPTVnator](https://github.com/4gray/iptvnator). Th
 **Playback**
 
 - Built-in HTML5 player (HLS.js or Video.js) with a resizable, resumable inline view
-- Optional unified IPTVnator controls for HTML5, Video.js, and ArtPlayer, enabled in **Settings → Playback** _(experimental)_
+- Optional unified CarbonCast controls for HTML5, Video.js, and ArtPlayer, enabled in **Settings → Playback** _(experimental)_
 - External players — MPV, VLC, and IINA on macOS (`mpv.app` / `VLC.app` bundle paths supported) _(desktop)_
 - Embedded MPV — native mpv rendered inside the app window on macOS, Windows & Linux 🖥️ _(experimental · desktop)_
 - Dedicated radio player for `radio="true"` streams 📻
@@ -130,44 +138,13 @@ such as MPV, VLC, or IINA.
 
 ## Download
 
-Download the latest version of the application for macOS, Windows, and Linux from the [release page](https://github.com/4gray/iptvnator/releases).
-
-Alternatively, you can install the application using one of the following package managers:
-
-### Homebrew
-
-```shell
-$ brew install iptvnator
-```
-
-### Snap
-
-```shell
-$ sudo snap install iptvnator
-```
-
-### Arch
-
-Also available as an Arch PKG, [iptvnator-bin](https://aur.archlinux.org/packages/iptvnator-bin/), in the AUR (using your favourite AUR-helper, .e.g. `yay`)
-
-```shell
-$ yay -S iptvnator-bin
-```
-
-### Gentoo
-
-You can install IPTVnator from the [gentoo-zh overlay](https://github.com/microcai/gentoo-zh)
-
-```shell
-sudo eselect repository enable gentoo-zh
-sudo emerge --sync gentoo-zh
-sudo emerge iptvnator-bin
-```
+Download CarbonCast IPTV for macOS, Windows, and Linux from the
+[CarbonCast IPTV release page](https://github.com/Snapwave333/carbon_cast/releases).
 
 ### Linux Embedded MPV Support
 
 Embedded MPV on Linux is experimental and currently supports x64 desktop
-sessions where IPTVnator runs under X11 or Xwayland. Native Wayland embedding
+sessions where CarbonCast IPTV runs under X11 or XWayland. Native Wayland embedding
 is not supported yet. Linux package launchers request X11 with
 `--ozone-platform=x11`, so Wayland desktops still need Xwayland available.
 
@@ -180,11 +157,6 @@ installed. Flatpak and Snap builds remain available, but embedded MPV is not
 announced as supported there yet because those sandboxed formats do not expose
 the host `mpv` executable to the embedded backend by default.
 
-[![Get it from the Snap Store](https://snapcraft.io/static/images/badges/en/snap-store-black.svg)](https://snapcraft.io/iptvnator)
-
-<a href="https://github.com/sponsors/4gray" target="_blank"><img src="https://img.shields.io/badge/GitHub%20Sponsors-EA4AAA?style=for-the-badge&logo=githubsponsors&logoColor=white" alt="Sponsor on GitHub"></a>
-<a href="https://ko-fi.com/4gray" target="_blank"><img src="https://img.shields.io/badge/Ko--fi-FF5E5B?style=for-the-badge&logo=ko-fi&logoColor=white" alt="Support on Ko-fi"></a>
-
 ## Troubleshooting
 
 ### macOS: "App is damaged and can't be opened"
@@ -192,18 +164,18 @@ the host `mpv` executable to the embedded backend by default.
 Older unsigned macOS builds may require removing the quarantine flag from the downloaded application:
 
 ```bash
-xattr -c /Applications/IPTVnator.app
+xattr -c "/Applications/CarbonCast IPTV.app"
 ```
 
 Alternatively, if the app is located in a different directory:
 
 ```bash
-xattr -c ~/Downloads/IPTVnator.app
+xattr -c "$HOME/Downloads/CarbonCast IPTV.app"
 ```
 
 ### Linux: chrome-sandbox Issues
 
-If you encounter the following error when launching IPTVnator:
+If you encounter the following error when launching CarbonCast IPTV:
 
 ```
 The SUID sandbox helper binary was found, but is not configured correctly.
@@ -213,7 +185,7 @@ You need to make sure that chrome-sandbox is owned by root and has mode 4755.
 
 **Solution 1: Fix chrome-sandbox permissions (Recommended for .deb/.rpm installations)**
 
-Navigate to the IPTVnator installation directory and run:
+Navigate to the CarbonCast IPTV installation directory and run:
 
 ```bash
 sudo chown root:root chrome-sandbox
@@ -236,7 +208,7 @@ Edit the desktop launcher file to add the `--no-sandbox` flag:
 
 3. Save the file and relaunch the application from your application menu.
 
-Alternatively, you can launch IPTVnator from the terminal with the flag:
+Alternatively, you can launch CarbonCast IPTV from the terminal with the flag:
 
 ```bash
 iptvnator --no-sandbox
@@ -244,7 +216,7 @@ iptvnator --no-sandbox
 
 ### GNU/Linux: Wayland startup failure
 
-If IPTVnator exits on GNU/Linux with errors about failing to connect to
+If CarbonCast IPTV exits on GNU/Linux with errors about failing to connect to
 Wayland or initialize the Ozone platform, force X11/XWayland instead:
 
 ```bash
@@ -347,11 +319,13 @@ $ pnpm run serve:frontend
 
 ## Disclaimer
 
-**IPTVnator doesn't provide any playlists or other digital content.**
+**CarbonCast IPTV does not provide any playlists or other digital content.**
 
 ## Trademark
 
-The name **"IPTVnator"** and the IPTVnator logo are unregistered trademarks of the project owner. The MIT license covers the source code only — it does **not** grant rights to the name or logo. Forks and redistributions (including app-store submissions) must use a different name and their own icon. See [TRADEMARK.md](./TRADEMARK.md) for details.
+CarbonCast IPTV is an independent fork of IPTVnator. The upstream name and
+logo remain the property of the upstream project; CarbonCast uses its own name
+and icon. See [TRADEMARK.md](./TRADEMARK.md) for the inherited trademark terms.
 
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
 

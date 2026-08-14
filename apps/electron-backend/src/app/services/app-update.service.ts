@@ -8,9 +8,9 @@ import {
 } from '@iptvnator/shared/interfaces';
 
 export const APP_UPDATE_MANUAL_DOWNLOAD_URL =
-    'https://github.com/4gray/iptvnator/releases/latest';
+    'https://github.com/Snapwave333/carbon_cast/releases/latest';
 const GITHUB_RELEASES_API_URL =
-    'https://api.github.com/repos/4gray/iptvnator/releases';
+    'https://api.github.com/repos/Snapwave333/carbon_cast/releases';
 const GITHUB_RELEASES_PER_PAGE = 10;
 
 interface AppUpdateAppAdapter {
@@ -324,7 +324,8 @@ export class AppUpdateService {
         request: ElectronBridgeAppUpdateReleaseNotesRequest = {}
     ): Promise<ElectronBridgeAppUpdateReleaseNotes> {
         const canFallbackToLatest =
-            !request.direction && (!request.version || request.fallbackToLatest);
+            !request.direction &&
+            (!request.version || request.fallbackToLatest);
 
         if (canFallbackToLatest) {
             await this.ensureFirstStableReleaseLoaded();

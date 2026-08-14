@@ -1,4 +1,4 @@
-# IPTVnator Website
+# CarbonCast IPTV Website
 
 The website is an Astro static site deployed to GitHub Pages at `https://4gray.github.io/iptvnator/`.
 

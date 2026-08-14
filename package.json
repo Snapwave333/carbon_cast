@@ -3,10 +3,9 @@
     "version": "0.23.0",
     "license": "MIT",
     "description": "CarbonCast IPTV player application.",
-    "homepage": "https://github.com/4gray/iptvnator",
+    "homepage": "https://github.com/Snapwave333/carbon_cast",
     "author": {
-        "name": "4gray",
-        "email": "fourgray@proton.me"
+        "name": "Snapwave333"
     },
     "keywords": [
         "angular",
@@ -69,7 +68,9 @@
         "release:notes:blog": "node tools/release/build-release-notes.mjs --format blog",
         "release:screenshots": "tsx tools/release/capture-release-screenshots.ts",
         "lint": "nx run-many --target=lint --all",
-        "build": "nx build electron-backend"
+        "build": "nx build electron-backend",
+        "icons:generate": "node tools/branding/generate-icons.mjs",
+        "icons:check": "node tools/branding/generate-icons.mjs --check"
     },
     "private": true,
     "packageManager": "pnpm@10.33.0+sha512.10568bb4a6afb58c9eb3630da90cc9516417abebd3fabbe6739f0ae795728da1491e9db5a544c76ad8eb7570f5c4bb3d6c637b2cb41bfdcdb47fa823c8649319",

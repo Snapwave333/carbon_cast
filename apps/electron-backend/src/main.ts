@@ -21,6 +21,7 @@ import { shutdownVlcSession } from './app/events/vlc-session.service';
 import PlaylistEvents from './app/events/playlist.events';
 import PlaylistOpenEvents from './app/events/playlist-open.events';
 import RemoteControlEvents from './app/events/remote-control.events';
+import RemoteTextEvents from './app/events/remote-text.events';
 import AgentControlEvents from './app/events/agent-control.events';
 import SettingsEvents from './app/events/settings.events';
 import SharedEvents from './app/events/shared.events';
@@ -149,6 +150,7 @@ export default class Main {
         PlaylistEvents.bootstrapPlaylistEvents();
         PlaylistOpenEvents.bootstrapPlaylistOpenEvents();
         SharedEvents.bootstrapSharedEvents();
+        RemoteTextEvents.bootstrapRemoteTextEvents();
         PlayerEvents.bootstrapPlayerEvents();
         SettingsEvents.bootstrapSettingsEvents();
         StalkerEvents.bootstrapStalkerEvents();

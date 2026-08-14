@@ -2,6 +2,20 @@
 
 This file provides guidance to coding agents working in this repository.
 
+## Repository Navigation
+
+| Guide | Purpose |
+| --- | --- |
+| [`TABLE_OF_CONTENTS.md`](./TABLE_OF_CONTENTS.md) | Canonical map of apps, libraries, feature ownership, architecture docs, tools, and generated folders |
+| [`README.md`](./README.md) | Product overview, downloads, self-hosting, and contributor setup |
+| [`CLAUDE.md`](./CLAUDE.md) | Detailed architecture, commands, feature ownership, and implementation notes |
+| [`docs/architecture/`](./docs/architecture/) | Maintained subsystem contracts; prefer these over historical plans |
+| [`.changes/README.md`](./.changes/README.md) | Release-note schema and writing policy |
+
+Start repository exploration from the table of contents instead of recursively
+scanning generated output such as `node_modules/`, `dist/`, `coverage/`, `.nx/`,
+or `tmp/`.
+
 ## Plan Mode
 
 - When an agent is in Plan Mode and produces a final `<proposed_plan>`, it must also save that finalized plan as a Markdown file in the repo-root `.plans/` directory.
@@ -68,7 +82,7 @@ This file provides guidance to coding agents working in this repository.
 - Connect Chrome DevTools Protocol tools to: `127.0.0.1:9222`
 - For Electron automation/debugging tasks, use the `electron` skill
 - Do not auto-open DevTools during normal CDP automation. In development, DevTools is opt-in via `ELECTRON_OPEN_DEVTOOLS=1`.
-- If DevTools is open, `agent-browser --cdp 9222 ...` may attach to the DevTools page instead of the IPTVnator window. Symptoms: `tab list` shows `about:blank`, snapshots are empty, and screenshots are black.
+- If DevTools is open, `agent-browser --cdp 9222 ...` may attach to the DevTools page instead of the CarbonCast window. Symptoms: `tab list` shows `about:blank`, snapshots are empty, and screenshots are black.
 - If that happens, inspect targets with `curl http://127.0.0.1:9222/json/list` and connect directly to the IPTVnator page websocket from the `webSocketDebuggerUrl` field.
 - The app holds a single-instance lock (`acquireSingleInstanceLock` in `apps/electron-backend/src/app/services/single-instance.ts`): a second launch against the same `userData` quits immediately and focuses the running window. To attach a second CDP-enabled instance to the same profile, set `IPTVNATOR_ALLOW_MULTIPLE_INSTANCES=1` — knowing that only one of the two processes will own the renderer's IndexedDB, so settings written by the other are lost. Before focusing, the guard forwards the second launch's argv to `onSecondInstance`, which is how a playlist path handed to an already-running app reaches the open queue.
 
@@ -106,7 +120,7 @@ pnpm nx reset
 agent-browser --cdp 9222 tab list
 agent-browser --cdp 9222 tab 1
 agent-browser --cdp 9222 snapshot -i -c -d 4
-agent-browser --cdp 9222 screenshot /tmp/iptvnator-cdp.png
+agent-browser --cdp 9222 screenshot /tmp/carboncast-cdp.png
 ```
 
 ### Fallback
@@ -120,11 +134,17 @@ npx --yes agent-browser --cdp 9222 tab list
 ```bash
 ELECTRON_OPEN_DEVTOOLS=1 nx serve electron-backend
 curl http://127.0.0.1:9222/json/list
-agent-browser connect ws://127.0.0.1:9222/devtools/page/<iptvnator-page-id>
-agent-browser screenshot /tmp/iptvnator-cdp.png
+agent-browser connect ws://127.0.0.1:9222/devtools/page/<carboncast-page-id>
+agent-browser screenshot /tmp/carboncast-cdp.png
 ```
 
 ## Radio / Audio Player
+
+> Two unrelated things are both called "radio" in this repo. This section is the
+> **M3U radio channel** player. The standalone **Radio & podcasts** browser at
+> `/workspace/radio` (`libs/portal/radio/*`) is a separate feature that needs no
+> playlist — see the "Radio & Podcasts" block in `CLAUDE.md`. A third meaning,
+> the Stalker portal's `radio` section, is different again.
 
 M3U playlists can contain radio channels identified by the `radio="true"` attribute on `#EXTINF` lines. When a radio channel is selected:
 

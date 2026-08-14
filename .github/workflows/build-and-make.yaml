@@ -814,10 +814,10 @@ jobs:
 
                   case "${{ matrix.arch }}" in
                       x64)
-                          APP_PATH="dist/executables/mac/IPTVnator.app"
+                          APP_PATH="dist/executables/mac/CarbonCast IPTV.app"
                           ;;
                       arm64)
-                          APP_PATH="dist/executables/mac-arm64/IPTVnator.app"
+                          APP_PATH="dist/executables/mac-arm64/CarbonCast IPTV.app"
                           ;;
                       *)
                           echo "::error::Unsupported macOS arch: ${{ matrix.arch }}"

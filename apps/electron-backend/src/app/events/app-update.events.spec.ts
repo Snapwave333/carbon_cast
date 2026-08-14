@@ -14,8 +14,9 @@ jest.mock('electron', () => ({
     ipcMain: {
         handle: jest.fn(
             (channel: string, handler: (...args: unknown[]) => unknown) => {
-            mockHandlers.set(channel, handler);
-        }),
+                mockHandlers.set(channel, handler);
+            }
+        ),
     },
 }));
 
@@ -29,7 +30,7 @@ describe('AppUpdateEvents', () => {
         const status: ElectronBridgeAppUpdateStatus = {
             currentVersion: '0.22.0',
             manualDownloadUrl:
-                'https://github.com/4gray/iptvnator/releases/latest',
+                'https://github.com/Snapwave333/carbon_cast/releases/latest',
             status: ELECTRON_BRIDGE_APP_UPDATE_STATUSES.Idle,
             supportedSelfUpdate: true,
         };
@@ -48,7 +49,7 @@ describe('AppUpdateEvents', () => {
                 hasNext: false,
                 hasPrevious: true,
                 htmlUrl:
-                    'https://github.com/4gray/iptvnator/releases/tag/v0.23.0',
+                    'https://github.com/Snapwave333/carbon_cast/releases/tag/v0.23.0',
                 publishedAt: '2026-06-28T00:00:00.000Z',
                 releaseName: 'v0.23.0',
                 tagName: 'v0.23.0',
@@ -59,7 +60,8 @@ describe('AppUpdateEvents', () => {
                 status: ELECTRON_BRIDGE_APP_UPDATE_STATUSES.Downloaded,
             })),
         };
-        const { default: AppUpdateEvents } = await import('./app-update.events');
+        const { default: AppUpdateEvents } =
+            await import('./app-update.events');
 
         AppUpdateEvents.bootstrapAppUpdateEvents(service);
 

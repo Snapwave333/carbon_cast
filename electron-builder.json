@@ -21,8 +21,8 @@
     "publish": [
         {
             "provider": "github",
-            "owner": "4gray",
-            "repo": "iptvnator"
+            "owner": "Snapwave333",
+            "repo": "carbon_cast"
         }
     ],
     "directories": {
@@ -184,7 +184,7 @@
             }
         ],
         "artifactName": "${name}-${version}-windows-${arch}-setup.${ext}",
-        "icon": "apps/web/src/assets/icons/icon.png"
+        "icon": "apps/web/src/assets/icons/favicon.ico"
     },
     "nsis": {
         "artifactName": "${name}-${version}-windows-${arch}-setup.${ext}"

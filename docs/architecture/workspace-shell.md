@@ -40,8 +40,8 @@ Current workspace routes:
 1. `/` -> `/workspace`
 2. `/workspace` -> functional redirect `workspaceEntryRedirect`
    (`WorkspaceStartupPreferencesService.resolveInitialWorkspacePath()`;
-   `/workspace/dashboard` by default, `/workspace/sources` when the dashboard
-   is disabled, or the last restorable route under
+   the most recently used M3U playlist's TV Guide by default, a Settings-selected
+   workspace tab when configured, or the last restorable route under
    `StartupBehavior.RestoreLastView` — `dashboard` itself is guarded by
    `dashboardAccessGuard`)
 3. `/workspace/dashboard`
@@ -81,9 +81,9 @@ Provider route integration:
 The shell is intentionally split into four persistent regions:
 
 1. Left rail:
-    1. Static workspace links for dashboard, sources, global favorites, and
-       recently viewed. The routed global-search rail link is Electron-only
-       because its data source is the SQLite worker bridge.
+    1. Static workspace links for dashboard, sources, radio, collections, and
+       followed series. The routed global-search link is Electron-capability
+       gated because its data source is the SQLite worker bridge.
     2. Provider-aware context links derived from the active or current playlist.
     3. Settings remains a persistent footer shortcut in the rail.
 2. Top header:

@@ -1,11 +1,4 @@
-/**
- * Drizzle ORM schema for IPTVnator database
- * This schema defines the structure for Xtream Codes API data storage
- *
- * Single source of truth for database schema - used by:
- * - electron-backend (full read-write access)
- * - agent-backend (read-only access for AI queries)
- */
+/** Shared Drizzle schema used by Electron and read-only agent queries. */
 
 import { sql } from 'drizzle-orm';
 import {

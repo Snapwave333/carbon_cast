@@ -15,7 +15,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 const {
   title,
   description,
-  image = '/iptvnator/og-image.png',
+  image = '/carbon_cast/carboncast-1024.png',
   type = 'website',
   noindex = false,
   keywords = [],
@@ -35,15 +35,15 @@ const schemaPayload = jsonLd
 
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="icon" href="/iptvnator/favicon.ico" sizes="any" />
-<link rel="icon" type="image/png" sizes="16x16" href="/iptvnator/favicon-16x16.png" />
-<link rel="icon" type="image/png" sizes="32x32" href="/iptvnator/favicon-32x32.png" />
-<link rel="apple-touch-icon" sizes="180x180" href="/iptvnator/apple-touch-icon.png" />
-<link rel="manifest" href="/iptvnator/site.webmanifest" />
+<link rel="icon" href="/carbon_cast/favicon.ico" sizes="any" />
+<link rel="icon" type="image/png" sizes="16x16" href="/carbon_cast/favicon-16x16.png" />
+<link rel="icon" type="image/png" sizes="32x32" href="/carbon_cast/favicon-32x32.png" />
+<link rel="apple-touch-icon" sizes="180x180" href="/carbon_cast/apple-touch-icon.png" />
+<link rel="manifest" href="/carbon_cast/site.webmanifest" />
 <meta name="generator" content={Astro.generator} />
 <meta name="robots" content={robotsContent} />
 <meta name="referrer" content="strict-origin-when-cross-origin" />
-<meta name="author" content="4gray" />
+<meta name="author" content="Snapwave333" />
 <meta name="theme-color" content="#0a0a08" />
 <meta name="format-detection" content="telephone=no" />
 {keywords.length > 0 && <meta name="keywords" content={keywords.join(', ')} />}
@@ -66,7 +66,7 @@ const schemaPayload = jsonLd
 
 <!-- Open Graph / Facebook -->
 <meta property="og:type" content={type} />
-<meta property="og:site_name" content="IPTVnator" />
+<meta property="og:site_name" content="CarbonCast IPTV" />
 <meta property="og:locale" content="en_US" />
 <meta property="og:url" content={canonicalURL.toString()} />
 <meta property="og:title" content={title} />

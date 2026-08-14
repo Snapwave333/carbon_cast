@@ -22,6 +22,12 @@
             "@iptvnator/portal/downloads/feature": [
                 "libs/portal/downloads/feature/src/index.ts"
             ],
+            "@iptvnator/portal/radio/data-access": [
+                "libs/portal/radio/data-access/src/index.ts"
+            ],
+            "@iptvnator/portal/radio/feature": [
+                "libs/portal/radio/feature/src/index.ts"
+            ],
             "@iptvnator/portal/shared/ui": [
                 "libs/portal/shared/ui/src/index.ts"
             ],

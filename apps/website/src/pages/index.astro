@@ -5,7 +5,6 @@ import Hero from '../components/Hero.astro';
 import FeatureGrid from '../components/FeatureGrid.astro';
 import ScreenshotShowcase from '../components/ScreenshotShowcase.astro';
 import DownloadCTA from '../components/DownloadCTA.astro';
-import SupportSection from '../components/SupportSection.astro';
 import FeaturedBlogPost from '../components/FeaturedBlogPost.astro';
 import BlogPostCard from '../components/BlogPostCard.astro';
 
@@ -23,8 +22,8 @@ const homeSchema = [
   {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
-    name: 'IPTVnator',
-    url: 'https://4gray.github.io/iptvnator/',
+    name: 'CarbonCast IPTV',
+    url: 'https://snapwave333.github.io/carbon_cast/',
     description:
       'A cross-platform IPTV player supporting M3U/M3U8 playlists, Xtream Codes API, and Stalker portals.',
     inLanguage: 'en',
@@ -32,22 +31,18 @@ const homeSchema = [
   {
     '@context': 'https://schema.org',
     '@type': 'SoftwareApplication',
-    name: 'IPTVnator',
+    name: 'CarbonCast IPTV',
     applicationCategory: 'MultimediaApplication',
     operatingSystem: 'Windows, macOS, Linux, Web',
     softwareVersion: '0.20.0',
-    url: 'https://4gray.github.io/iptvnator/',
-    downloadUrl: 'https://github.com/4gray/iptvnator/releases/latest',
+    url: 'https://snapwave333.github.io/carbon_cast/',
+    downloadUrl: 'https://github.com/Snapwave333/carbon_cast/releases/latest',
     author: {
       '@type': 'Person',
-      name: '4gray',
-      url: 'https://github.com/4gray',
+      name: 'Snapwave333',
+      url: 'https://github.com/Snapwave333',
     },
-    sameAs: [
-      'https://github.com/4gray/iptvnator',
-      'https://t.me/iptvnator',
-      'https://ko-fi.com/4gray',
-    ],
+    sameAs: ['https://github.com/Snapwave333/carbon_cast'],
     description:
       'Open-source IPTV player with M3U/M3U8, Xtream Codes API, and Stalker portal support.',
   },
@@ -55,7 +50,7 @@ const homeSchema = [
 ---
 
 <BaseLayout
-  title="IPTVnator - Open Source IPTV Player"
+  title="CarbonCast IPTV - Open Source IPTV Player"
   description="A cross-platform IPTV player supporting M3U/M3U8 playlists, Xtream Codes API, and Stalker portals. Available as a desktop app and PWA."
   keywords={['IPTV player', 'M3U', 'M3U8', 'Xtream Codes', 'Stalker portal', 'EPG', 'XMLTV', 'open-source']}
   jsonLd={homeSchema}
@@ -64,7 +59,6 @@ const homeSchema = [
   <FeatureGrid />
   <ScreenshotShowcase />
   <DownloadCTA />
-  <SupportSection />
 
   <!-- Recent Blog Posts -->
   {
@@ -86,7 +80,7 @@ const homeSchema = [
               </p>
             </div>
             <a
-              href="/iptvnator/blog/"
+              href="/carbon_cast/blog/"
               class="hidden items-center gap-1.5 font-mono text-xs uppercase tracking-[0.1em] text-accent-500 transition-colors hover:text-accent-400 sm:inline-flex"
             >
               View all posts

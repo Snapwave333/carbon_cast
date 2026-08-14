@@ -138,9 +138,12 @@ function writeWindowsHelperFixture(helperPath, importedDllName) {
 }
 
 test('Linux package identity does not expose the internal Electron backend project name', () => {
-    assert.equal(electronBuilderConfig.productName, 'IPTVnator');
+    assert.equal(electronBuilderConfig.productName, 'CarbonCast IPTV');
     assert.equal(electronBuilderConfig.extraMetadata?.name, 'iptvnator');
-    assert.equal(electronBuilderConfig.extraMetadata?.productName, 'IPTVnator');
+    assert.equal(
+        electronBuilderConfig.extraMetadata?.productName,
+        'CarbonCast IPTV'
+    );
     assert.equal(electronBuilderConfig.linux?.executableName, 'iptvnator');
     assert.equal(
         electronBuilderConfig.linux?.desktop?.entry?.StartupWMClass,
@@ -154,7 +157,7 @@ test('Linux package identity does not expose the internal Electron backend proje
 });
 
 test('playlist file associations are registered with the operating system', () => {
-    // Without these the OS never offers IPTVnator as a handler, so every
+    // Without these the OS never offers CarbonCast IPTV as a handler, so every
     // runtime path for an OS-supplied playlist is unreachable by double-click.
     assert.deepEqual(electronBuilderConfig.fileAssociations, [
         {
@@ -205,8 +208,8 @@ test('GitHub Releases auto-update metadata is generated and uploaded', () => {
     assert.deepEqual(electronBuilderConfig.publish, [
         {
             provider: 'github',
-            owner: '4gray',
-            repo: 'iptvnator',
+            owner: 'Snapwave333',
+            repo: 'carbon_cast',
         },
     ]);
     assert.deepEqual(electronBuilderConfig.mac?.target, [

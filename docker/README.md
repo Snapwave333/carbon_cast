@@ -1,4 +1,4 @@
-# Self-hosted IPTVnator
+# Self-hosted CarbonCast IPTV
 
 The self-hosted image contains both pieces required for the browser PWA:
 
@@ -75,7 +75,7 @@ secrets.
 
 Use `latest` for the simplest self-hosted setup. Pin `sha-<sha>` or
 `<version>-pwa-<sha>` when you need reproducible deployments. Use release tags
-when you want the Docker image to track a tagged IPTVnator release rather than
+when you want the Docker image to track a tagged CarbonCast IPTV release rather than
 every merge to `master`.
 
 ## Runtime Configuration

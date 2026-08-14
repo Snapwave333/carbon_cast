@@ -496,7 +496,7 @@ export function compareDatabaseStates(before, after) {
             from.mtimeMs !== to.mtimeMs ||
             from.ino !== to.ino
         ) {
-            return `the real database file ${name} was modified during the capture run (close IPTVnator and any other process using it, then retry)`;
+            return `the real database file ${name} was modified during the capture run (close CarbonCast IPTV and any other process using it, then retry)`;
         }
     }
 

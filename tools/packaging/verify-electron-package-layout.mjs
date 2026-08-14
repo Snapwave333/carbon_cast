@@ -114,7 +114,7 @@ function getMacResourceDirs() {
             directory: path.join(
                 outputRoot,
                 'mac',
-                'IPTVnator.app',
+                'CarbonCast IPTV.app',
                 'Contents',
                 'Resources'
             ),
@@ -124,7 +124,7 @@ function getMacResourceDirs() {
             directory: path.join(
                 outputRoot,
                 'mac-arm64',
-                'IPTVnator.app',
+                'CarbonCast IPTV.app',
                 'Contents',
                 'Resources'
             ),

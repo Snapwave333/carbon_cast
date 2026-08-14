@@ -98,7 +98,7 @@ Response: raw JSON (no envelope). Matches the real Xtream Codes API format.
 
 ### PWA proxy endpoint
 
-IPTVnator's PWA routes Xtream calls through:
+CarbonCast IPTV's PWA routes Xtream calls through:
 
 ```
 GET /xtream?url=<serverUrl>&action=<action>&username=<u>&password=<p>

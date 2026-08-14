@@ -1,9 +1,9 @@
 #!/usr/bin/env node
-// IPTVnator MCP server — stdio transport, zero external dependencies.
+// CarbonCast IPTV MCP server — stdio transport, zero external dependencies.
 //
 // Speaks the Model Context Protocol over newline-delimited JSON-RPC 2.0 on
 // stdin/stdout (the MCP stdio transport). Exposes read-only tools over the
-// IPTVnator SQLite database via node:sqlite. Spawnable by any MCP client
+// CarbonCast IPTV SQLite database via node:sqlite. Spawnable by any MCP client
 // (e.g. Ember) with:  node apps/mcp-server/src/main.mjs
 //
 // IMPORTANT: stdout carries ONLY protocol messages. All logging goes to stderr.
@@ -12,11 +12,13 @@ import { tools, callTool } from './tools.mjs';
 
 const SERVER_INFO = { name: 'iptvnator', version: '0.1.0' };
 const DEFAULT_PROTOCOL = '2025-06-18';
+const SUPPORTED_PROTOCOLS = new Set(['2024-11-05', '2025-03-26', '2025-06-18']);
 
 const log = (...a) => process.stderr.write(`[iptvnator-mcp] ${a.join(' ')}\n`);
 const send = (msg) => process.stdout.write(`${JSON.stringify(msg)}\n`);
 const reply = (id, result) => send({ jsonrpc: '2.0', id, result });
-const fail = (id, code, message) => send({ jsonrpc: '2.0', id, error: { code, message } });
+const fail = (id, code, message) =>
+    send({ jsonrpc: '2.0', id, error: { code, message } });
 
 async function handle(msg) {
     const { id, method, params } = msg;
@@ -24,7 +26,13 @@ async function handle(msg) {
 
     switch (method) {
         case 'initialize': {
-            const protocolVersion = params?.protocolVersion || DEFAULT_PROTOCOL;
+            // Echo the client's version only if we support it; otherwise
+            // answer with our latest supported version, per the MCP spec.
+            const protocolVersion = SUPPORTED_PROTOCOLS.has(
+                params?.protocolVersion
+            )
+                ? params.protocolVersion
+                : DEFAULT_PROTOCOL;
             return reply(id, {
                 protocolVersion,
                 capabilities: { tools: { listChanged: false } },
@@ -43,12 +51,19 @@ async function handle(msg) {
             try {
                 const result = await callTool(name, params?.arguments);
                 return reply(id, {
-                    content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+                    content: [
+                        { type: 'text', text: JSON.stringify(result, null, 2) },
+                    ],
                 });
             } catch (err) {
                 // Tool errors are reported in-band (isError), per MCP guidance.
                 return reply(id, {
-                    content: [{ type: 'text', text: `Error: ${err?.message || String(err)}` }],
+                    content: [
+                        {
+                            type: 'text',
+                            text: `Error: ${err?.message || String(err)}`,
+                        },
+                    ],
                     isError: true,
                 });
             }
@@ -78,9 +93,12 @@ rl.on('line', (line) => {
         });
     } catch (err) {
         log('handler error:', err?.message || String(err));
-        if (msg?.id !== undefined && msg?.id !== null) fail(msg.id, -32603, 'Internal error');
+        if (msg?.id !== undefined && msg?.id !== null)
+            fail(msg.id, -32603, 'Internal error');
     }
 });
 rl.on('close', () => process.exit(0));
 
-log(`ready — ${tools.length} tools, db=${process.env.IPTVNATOR_DB_PATH || 'default'}`);
+log(
+    `ready — ${tools.length} tools, db=${process.env.IPTVNATOR_DB_PATH || 'default'}`
+);
