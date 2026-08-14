@@ -350,7 +350,9 @@ async function fetchJson<T>(
     request: APIRequestContext,
     url: string
 ): Promise<T> {
-    const response = await request.get(url);
+    // Fail fast instead of burning the whole test timeout in setup when the
+    // mock server is wedged.
+    const response = await request.get(url, { timeout: 10_000 });
 
     expect(response.ok()).toBeTruthy();
 

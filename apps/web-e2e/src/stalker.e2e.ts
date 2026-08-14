@@ -1,8 +1,5 @@
-import {
-    type APIRequestContext,
-    type Page,
-} from '@playwright/test';
-import { setInputValue } from './e2e-helpers';
+import { type Page } from '@playwright/test';
+import { resetMockServer, setInputValue } from './e2e-helpers';
 import { expect, test } from './fixtures';
 import {
     getRegisteredProviderUrl,
@@ -76,31 +73,6 @@ async function interceptStalkerRequests(page: Page): Promise<void> {
     });
 }
 
-async function resetMockServer(request: APIRequestContext): Promise<void> {
-    let lastError: unknown;
-
-    for (let attempt = 0; attempt < 3; attempt += 1) {
-        try {
-            const response = await request.post(`${MOCK_SERVER}/reset`);
-            if (response.ok()) {
-                return;
-            }
-
-            lastError = new Error(
-                `Reset failed with status ${response.status()}`
-            );
-        } catch (error) {
-            lastError = error;
-        }
-
-        await new Promise((resolve) =>
-            setTimeout(resolve, 250 * (attempt + 1))
-        );
-    }
-
-    throw lastError;
-}
-
 /**
  * Add a Stalker portal via the UI:
  * 1. Click the "add playlist" button to open the unified dialog
@@ -136,14 +108,16 @@ async function addStalkerPortal(
 
 test.beforeEach(async ({ page, request }) => {
     // Reset mock server state (clears in-memory favorites and cache)
-    await resetMockServer(request);
+    await resetMockServer(request, MOCK_SERVER);
+
+    // Install the route interception BEFORE the first navigation so that no
+    // bootstrap-time /stalker or provider-target request can escape to a real
+    // backend while the routes are still being registered.
+    await interceptStalkerRequests(page);
 
     // Playwright creates a fresh browser context per test, so extra
     // IndexedDB cleanup here only risks racing with app-managed DB handles.
     await page.goto('/');
-
-    // Redirect backend proxy calls to the mock server
-    await interceptStalkerRequests(page);
 });
 
 // ---------------------------------------------------------------------------
@@ -201,12 +175,11 @@ test('@stalker minimal scenario — correct item counts', async ({ page }) => {
         mac: MINIMAL_MAC,
     });
 
-    // Minimal scenario: 2 categories (+ "All" = 3 visible)
+    // Minimal scenario: exactly 2 categories (+ "All" = 3 visible). The
+    // default scenario renders 9, so an exact count proves the scenario
+    // actually switched with the MAC address.
     const categories = page.locator('.category-item');
-    await expect(categories.first()).toBeVisible({ timeout: 10_000 });
-    const count = await categories.count();
-    // At least 2 real categories
-    expect(count).toBeGreaterThanOrEqual(2);
+    await expect(categories).toHaveCount(3, { timeout: 10_000 });
 });
 
 test('@stalker PWA hides EPG for ITV channel', async ({ page }) => {
@@ -272,7 +245,9 @@ test('@stalker radio — stations use the inline audio player without EPG', asyn
         }
     });
 
-    await page.getByRole('link', { name: /radio/i }).click();
+    // Exact match: the workspace rail also carries a "Radio & podcasts"
+    // destination, which a loose /radio/i would match alongside this one.
+    await page.getByRole('link', { name: 'Radio', exact: true }).click();
     await page.waitForURL(/stalker.*radio/);
 
     const categories = page.locator('.category-item');
@@ -397,6 +372,12 @@ test('@stalker ITV full channel list loads via get_all_channels and search cover
     const requestsAfterFirstCategory = allChannelsRequests.length;
     await categories.nth(3).click();
     await expect(channels.first()).toBeVisible({ timeout: 10_000 });
+    // Wait until the category is fully rendered from the cache before
+    // asserting that no request was fired — checking the counter right after
+    // the click would race an in-flight request.
+    await expect(page.locator('.category-subtitle')).toHaveText('40 items', {
+        timeout: 10_000,
+    });
     expect(allChannelsRequests.length).toBe(requestsAfterFirstCategory);
 
     // Back to the first category for the search assertions below.
@@ -409,16 +390,18 @@ test('@stalker ITV full channel list loads via get_all_channels and search cover
     const deepChannelName = (
         await channels.nth(30).locator('.channel-name').textContent()
     )?.trim();
-    expect(deepChannelName).toBeTruthy();
+    if (!deepChannelName) {
+        throw new Error('Expected channel 31 to have a non-empty name');
+    }
 
     const searchInput = page.locator('input[type="search"]');
-    await searchInput.fill(deepChannelName as string);
+    await searchInput.fill(deepChannelName);
     await searchInput.press('Enter');
 
     await expect(
         page
             .locator('[data-test-id="channel-item"] .channel-name')
-            .filter({ hasText: deepChannelName as string })
+            .filter({ hasText: deepChannelName })
             .first()
     ).toBeVisible({ timeout: 10_000 });
     // The "loaded only" degraded-search hint must be gone in full-list mode.
@@ -510,7 +493,9 @@ test('@stalker ITV falls back to page crawling on portals without get_all_channe
     expect(crawlRequests.length).toBeGreaterThan(1);
 });
 
-test('@stalker mock server reset clears cached state', async ({ request }) => {
+test('@stalker mock server reset regenerates deterministic data', async ({
+    request,
+}) => {
     // Generate data for default MAC
     const before = await request.get(
         `${MOCK_SERVER}/stalker?action=get_categories&type=vod&macAddress=${DEFAULT_MAC}`

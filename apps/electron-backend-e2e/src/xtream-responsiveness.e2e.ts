@@ -9,7 +9,7 @@ import {
     test,
     waitForDbOperationEvent,
     waitForXtreamCatalog,
-    xtreamMockServer,
+    unreachableXtreamServer,
 } from './electron-test-fixtures';
 
 const stressPortalName = 'Stress Xtream Portal';
@@ -228,7 +228,7 @@ test.describe('Electron Xtream Responsiveness', () => {
             await addXtreamPortal(app.mainWindow, {
                 name: 'Unavailable Xtream Portal',
                 password: stressXtreamPassword,
-                serverUrl: xtreamMockServer.replace(/:\d+$/, ':65530'),
+                serverUrl: unreachableXtreamServer,
                 username: stressXtreamUsername,
             });
 

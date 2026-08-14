@@ -5,9 +5,22 @@ interface ProviderTargetPayload {
 }
 
 const BACKEND_ORIGIN = 'http://localhost:3000';
-const APP_ORIGIN = process.env['BASE_URL']
-    ? new URL(process.env['BASE_URL']).origin
-    : 'http://localhost:4200';
+const APP_ORIGIN = resolveAppOrigin();
+
+function resolveAppOrigin(): string {
+    const baseUrl = process.env['BASE_URL'];
+    if (!baseUrl) {
+        return 'http://localhost:4200';
+    }
+
+    try {
+        return new URL(baseUrl).origin;
+    } catch {
+        throw new Error(
+            `BASE_URL must be an absolute URL (e.g. http://localhost:4200), got "${baseUrl}"`
+        );
+    }
+}
 const CORS_HEADERS = {
     'access-control-allow-headers': 'content-type',
     'access-control-allow-methods': 'POST, OPTIONS',

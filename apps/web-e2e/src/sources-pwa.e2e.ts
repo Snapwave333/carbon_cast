@@ -18,10 +18,18 @@ import {
     saveSourceDialog,
     sourceRowByTitle,
     updateSourceDialog,
+    type RuntimeErrors,
 } from './sources-pwa.helpers';
+
+// Attached in beforeEach BEFORE the first navigation so that runtime errors
+// thrown during app bootstrap are captured too — attaching the listeners in
+// the test body would miss exactly the class of startup DB-bridge errors
+// these tests exist to catch.
+let runtimeErrors: RuntimeErrors;
 
 test.beforeEach(async ({ page, request }) => {
     await resetPwaMockServers(request);
+    runtimeErrors = collectRuntimeErrors(page);
     await interceptPwaProviderRequests(page);
     await page.goto('/');
 });
@@ -29,8 +37,6 @@ test.beforeEach(async ({ page, request }) => {
 test('@sources @pwa opens Xtream source details without Electron DB bridge calls', async ({
     page,
 }) => {
-    const runtimeErrors = collectRuntimeErrors(page);
-
     await expectElectronBridgeUnavailable(page);
     await addXtreamPortal(page, 'PWA Xtream Source');
     await openSources(page);
@@ -53,10 +59,16 @@ test('@sources @pwa opens Xtream source details without Electron DB bridge calls
 test('@sources @pwa edits M3U URL source details through the browser flow', async ({
     page,
 }) => {
-    const runtimeErrors = collectRuntimeErrors(page);
-
     await expectElectronBridgeUnavailable(page);
     await addM3uUrlPlaylist(page, 'PWA URL Source');
+    // The imported playlist's channel count must reach the header. (The
+    // channel LIST itself currently renders "No channels found" for this
+    // mocked /parse response even though the header counts 2 channels —
+    // tracked separately; do not assert the list here until that is
+    // resolved.)
+    await expect(page.getByText('2 channels')).toBeVisible({
+        timeout: 15_000,
+    });
     await openSources(page);
 
     let dialog = await openSourceEditor(page, 'PWA URL Source');
@@ -81,8 +93,6 @@ test('@sources @pwa edits M3U URL source details through the browser flow', asyn
 test('@sources @pwa edits Stalker source details through the browser flow', async ({
     page,
 }) => {
-    const runtimeErrors = collectRuntimeErrors(page);
-
     await expectElectronBridgeUnavailable(page);
     await addStalkerPortal(page, 'PWA Stalker Source');
     await openSources(page);

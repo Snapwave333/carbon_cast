@@ -96,7 +96,19 @@ async function createThrottledRangeServer(): Promise<ThrottledRangeServer> {
 
     return {
         close: () =>
-            new Promise<void>((resolve) => server.close(() => resolve())),
+            new Promise<void>((resolve) => {
+                // server.close() waits for in-flight connections; the trickle
+                // interval keeps a socket alive indefinitely, so drop the
+                // connections and bound the wait to keep teardown from
+                // hanging until the test timeout.
+                server.closeAllConnections();
+                const timer = setTimeout(resolve, 5_000);
+                timer.unref();
+                server.close(() => {
+                    clearTimeout(timer);
+                    resolve();
+                });
+            }),
         payload,
         requests,
         url: `http://127.0.0.1:${port}/media/e2e-pause-movie.mp4`,

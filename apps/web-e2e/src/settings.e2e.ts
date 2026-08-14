@@ -1,5 +1,4 @@
 import type { Page } from '@playwright/test';
-import { join } from 'path';
 import { expect, test } from './fixtures';
 
 async function openSettings(page: Page) {
@@ -26,6 +25,8 @@ test.describe('Settings', () => {
     test('@settings @web Check settings page', async ({ page }) => {
         await openSettings(page);
         await page.locator('.settings-back-button').click();
+        // The back button must actually leave the settings route.
+        await expect(page).not.toHaveURL(/\/workspace\/settings$/);
     });
 
     test('@settings @web Change video player', async ({ page }) => {
@@ -88,12 +89,15 @@ test.describe('Settings', () => {
     });
 
     test.afterEach(async ({ page }, testInfo) => {
+        // Only failures need a screenshot; testInfo.outputPath is unique per
+        // test AND per browser project, so parallel chromium/firefox/webkit
+        // workers no longer overwrite each other's artifacts.
+        if (testInfo.status === testInfo.expectedStatus) {
+            return;
+        }
+
         await page.screenshot({
-            path: join(
-                process.cwd(),
-                'dist/.playwright/apps/web-e2e/screenshots/settings',
-                `${testInfo.title}.png`
-            ),
+            path: testInfo.outputPath('settings-failure.png'),
         });
     });
 });

@@ -28,7 +28,7 @@ import {
     waitForStalkerCatalog,
     waitForXtreamCatalog,
     writeTemporaryM3uFile,
-    xtreamMockServer,
+    unreachableXtreamServer,
 } from './electron-test-fixtures';
 
 const xtreamStressUsername = 'stress';
@@ -325,11 +325,10 @@ test.describe('Electron Playlist Switcher', () => {
                 app.mainWindow,
                 /\/workspace\/xtreams\/[^/]+\/vod$/
             );
-            await Promise.race([
-                overlay.waitFor({ state: 'visible', timeout: 15000 }),
-                waitForXtreamCatalog(app.mainWindow),
-            ]);
-
+            // No Promise.race here: the losing branch of a race keeps
+            // running, and a late rejection from overlay.waitFor would
+            // surface as an unhandled rejection in an unrelated test.
+            // waitForXtreamCatalog alone covers both outcomes.
             await waitForXtreamCatalog(app.mainWindow);
 
             await switchPlaylistFromHeader(app.mainWindow, localADisplayName);
@@ -402,7 +401,7 @@ test.describe('Electron Playlist Switcher', () => {
                 offlineXtreamName
             );
             await updateSourceDialog(dialog, {
-                serverUrl: xtreamMockServer.replace(/:\d+$/, ':65530'),
+                serverUrl: unreachableXtreamServer,
             });
             await saveSourceDialog(app.mainWindow, dialog);
 

@@ -17,15 +17,13 @@ import {
     openGlobalRecent,
     openSettings,
     openWorkspaceSection,
+    defaultXtreamPassword,
+    defaultXtreamUsername,
     resetMockServers,
     restartElectronApp,
     saveSettings,
     test,
     waitForXtreamWorkspaceReady,
-} from './electron-test-fixtures';
-import {
-    defaultXtreamPassword,
-    defaultXtreamUsername,
 } from './electron-test-fixtures';
 import { fetchXtreamVodFixture } from './portal-mock-fixtures';
 

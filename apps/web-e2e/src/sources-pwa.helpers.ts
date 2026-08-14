@@ -1,6 +1,6 @@
 import type { APIRequestContext, Locator, Page } from '@playwright/test';
 import { expect } from './fixtures';
-import { setInputValue } from './e2e-helpers';
+import { resetMockServer, setInputValue } from './e2e-helpers';
 import {
     getRegisteredProviderUrl,
     interceptProviderTargetRegistration,
@@ -13,12 +13,16 @@ const STALKER_MOCK_PORT = process.env['MOCK_PORT'] ?? '3210';
 export const XTREAM_MOCK_SERVER = `http://localhost:${XTREAM_MOCK_PORT}`;
 export const STALKER_MOCK_SERVER = `http://localhost:${STALKER_MOCK_PORT}`;
 export const STALKER_PORTAL_URL = `${STALKER_MOCK_SERVER}/portal.php`;
-export const EDITED_MAC = '00:1A:79:00:00:03';
+// A MAC with no reserved scenario meaning in the stalker-mock-server (any
+// unknown MAC yields the deterministic "auto" dataset). Deliberately NOT
+// 00:1A:79:00:00:03 — that MAC would silently switch the portal to the
+// minimal 2-category scenario when an edit test saves it.
+export const EDITED_MAC = '00:1A:79:00:00:99';
 
 const DEFAULT_MAC = '00:1A:79:00:00:01';
 const M3U_PLAYLIST_URL = `${XTREAM_MOCK_SERVER}/playlist.m3u`;
 
-type RuntimeErrors = {
+export type RuntimeErrors = {
     consoleErrors: string[];
     pageErrors: string[];
 };
@@ -34,8 +38,10 @@ type SourceDialogField =
 export async function resetPwaMockServers(
     request: APIRequestContext
 ): Promise<void> {
-    await request.post(`${XTREAM_MOCK_SERVER}/reset`);
-    await request.post(`${STALKER_MOCK_SERVER}/reset`);
+    await Promise.all([
+        resetMockServer(request, XTREAM_MOCK_SERVER),
+        resetMockServer(request, STALKER_MOCK_SERVER),
+    ]);
 }
 
 export async function interceptPwaProviderRequests(

@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, resolve, sep } from 'node:path';
 import type { Page } from '@playwright/test';
 import { expect, test } from './fixtures';
 
@@ -51,13 +51,37 @@ test.skip(
     'DASH ClearKey coverage targets Chromium'
 );
 
+// Shaka issues many byte-range requests per segment; cache each fixture file
+// once instead of re-reading it from disk on every range request.
+const fixtureCache = new Map<string, Buffer>();
+
+function readFixture(pathname: string): Buffer | null {
+    // Contain the request path inside the fixture directory — a traversal
+    // like /../../secret must 404, not read outside the fixtures.
+    const resolved = resolve(FIXTURE_DIR, pathname.replace(/^\/+/, ''));
+    if (!resolved.startsWith(FIXTURE_DIR + sep)) {
+        return null;
+    }
+
+    const cached = fixtureCache.get(resolved);
+    if (cached) {
+        return cached;
+    }
+
+    try {
+        const body = readFileSync(resolved);
+        fixtureCache.set(resolved, body);
+        return body;
+    } catch {
+        return null;
+    }
+}
+
 async function serveDashFixtures(page: Page): Promise<void> {
     await page.route(`${FIXTURE_HOST}/**`, async (route) => {
         const url = new URL(route.request().url());
-        let body: Buffer;
-        try {
-            body = readFileSync(join(FIXTURE_DIR, url.pathname.slice(1)));
-        } catch {
+        const body = readFixture(url.pathname);
+        if (!body) {
             await route.fulfill({ status: 404, body: 'not found' });
             return;
         }

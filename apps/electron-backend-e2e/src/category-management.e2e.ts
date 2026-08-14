@@ -450,11 +450,13 @@ async function pickSidebarCategory(
                 ) ?? candidates[0];
 
             return preferredCandidate !== null;
-        })
-        .toBe(true, {
+        }, {
+            // Options belong on expect.poll — passed to .toBe() they are
+            // silently dropped and the poll runs with the 5s default.
             message: 'No visible Xtream category with content was found.',
             timeout: 15000,
-        });
+        })
+        .toBe(true);
 
     return preferredCandidate!;
 }
@@ -468,13 +470,15 @@ async function toggleManagedCategory(
     },
     shouldBeSelected: boolean
 ): Promise<void> {
-    void targetCategory.id;
     const categoryRows = dialog.locator('.category-item');
     await expect(categoryRows).toHaveCount(1, { timeout: 15000 });
     const categoryRow = categoryRows.first();
     const checkbox = categoryRow.locator('mat-checkbox input');
 
     await expect(categoryRow).toBeVisible({ timeout: 15000 });
+    // The single filtered row must actually be the requested category, not
+    // just any leftover row that happened to survive the filter.
+    await expect(categoryRow).toContainText(targetCategory.name);
     if (shouldBeSelected) {
         await checkbox.check();
         await expect(checkbox).toBeChecked();

@@ -49,15 +49,40 @@ export const stalkerMockPort = process.env['MOCK_PORT'] ?? '3210';
 export const xtreamMockPort = process.env['XTREAM_MOCK_PORT'] ?? '3211';
 export const stalkerMockServer = `http://localhost:${stalkerMockPort}`;
 export const xtreamMockServer = `http://localhost:${xtreamMockPort}`;
+/**
+ * A syntactically valid server URL nothing listens on — for tests that need
+ * a portal whose requests reliably fail to connect.
+ */
+export const unreachableXtreamServer = 'http://127.0.0.1:65530';
 export const defaultXtreamPortalName = 'Mock Xtream Portal';
 export const defaultStalkerPortalName = 'Mock Stalker Portal';
 export const defaultXtreamUsername = 'user1';
 export const defaultXtreamPassword = 'pass1';
 export const defaultStalkerMacAddress = '00:1A:79:00:00:01';
-const electronAppCloseTimeoutMs = Number(
-    process.env['IPTVNATOR_E2E_CLOSE_TIMEOUT_MS'] ?? '10000'
+const electronAppCloseTimeoutMs = parsePositiveIntegerEnv(
+    'IPTVNATOR_E2E_CLOSE_TIMEOUT_MS',
+    10_000
 );
 const electronAppKillWaitMs = 2000;
+
+function parsePositiveIntegerEnv(name: string, fallback: number): number {
+    const raw = process.env[name];
+    if (raw === undefined || raw === '') {
+        return fallback;
+    }
+
+    const value = Number(raw);
+    if (!Number.isFinite(value) || value <= 0) {
+        // Fail loudly at module load — a NaN here would otherwise make the
+        // close timeout fire immediately and hard-kill every app instance,
+        // surfacing only as a cryptic teardown error far from the cause.
+        throw new Error(
+            `${name} must be a positive number of milliseconds, got "${raw}"`
+        );
+    }
+
+    return value;
+}
 
 export type PortalProvider = 'stalker' | 'xtream';
 
@@ -634,11 +659,13 @@ function assertPackagedRendererBuildIsElectronSafe(): void {
 }
 
 async function findMainWindow(app: ElectronApplication): Promise<Page> {
-    await new Promise((resolvePromise) => setTimeout(resolvePromise, 2000));
+    // Wait for a window to actually exist instead of sleeping a fixed 2s —
+    // at ~95 launches per full run that sleep alone cost ~3 minutes of
+    // pure wall-clock time. waitForAppReady() afterwards still gates on the
+    // renderer being fully loaded.
+    const first = await app.firstWindow({ timeout: 30_000 });
 
-    const windows = app.windows();
-
-    for (const window of windows) {
+    for (const window of app.windows()) {
         const title = await window.title();
 
         if (!title.includes('DevTools')) {
@@ -646,7 +673,7 @@ async function findMainWindow(app: ElectronApplication): Promise<Page> {
         }
     }
 
-    return app.firstWindow();
+    return first;
 }
 
 async function waitForAppReady(page: Page): Promise<void> {
@@ -2069,12 +2096,18 @@ export async function resetMockServers(
     request: APIRequestContext,
     providers: PortalProvider[]
 ): Promise<void> {
-    for (const provider of providers) {
-        const server =
-            provider === 'stalker' ? stalkerMockServer : xtreamMockServer;
-        const response = await request.post(`${server}/reset`);
-        expect(response.ok()).toBeTruthy();
-    }
+    await Promise.all(
+        providers.map(async (provider) => {
+            const server =
+                provider === 'stalker' ? stalkerMockServer : xtreamMockServer;
+            // Fail fast instead of burning the whole test timeout when a
+            // mock server is wedged.
+            const response = await request.post(`${server}/reset`, {
+                timeout: 5_000,
+            });
+            expect(response.ok()).toBeTruthy();
+        })
+    );
 }
 
 async function openCommandPalette(page: Page): Promise<Locator> {

@@ -23,14 +23,23 @@ import {
     selectSourceSort,
     selectSourceTypeFilter,
     sourceRowByTitle,
+    stalkerMockPort,
     test,
     updateSourceDialog,
+    xtreamMockPort,
     waitForM3uCatalog,
     waitForPortalDebugEvent,
     waitForXtreamCatalog,
     waitForSourceRowIdle,
     writeTemporaryM3uFile,
 } from './electron-test-fixtures';
+
+// Edited-source URLs deliberately use 127.0.0.1 (instead of the localhost
+// form the sources were created with) so the edit genuinely changes the
+// stored value while still resolving to the same mock server. Deriving the
+// port keeps these working when MOCK_PORT/XTREAM_MOCK_PORT are overridden.
+const editedXtreamServerUrl = `http://127.0.0.1:${xtreamMockPort}`;
+const editedStalkerPortalUrl = `http://127.0.0.1:${stalkerMockPort}/portal.php`;
 
 const localSourceFileName = 'alpha-local-source.m3u';
 const localSourceDisplayName = 'alpha-local-source';
@@ -238,7 +247,7 @@ https://streams.example.test/url-omega.m3u8
             );
             await updateSourceDialog(dialog, {
                 password: 'pass1',
-                serverUrl: 'http://127.0.0.1:3211',
+                serverUrl: editedXtreamServerUrl,
                 title: 'Edited Xtream Source',
                 username: 'user1',
             });
@@ -250,7 +259,7 @@ https://streams.example.test/url-omega.m3u8
             );
             await updateSourceDialog(dialog, {
                 macAddress: '00:1A:79:00:00:99',
-                portalUrl: 'http://127.0.0.1:3210/portal.php',
+                portalUrl: editedStalkerPortalUrl,
                 title: 'Edited Stalker Source',
             });
             await saveSourceDialog(app.mainWindow, dialog);
@@ -274,7 +283,7 @@ https://streams.example.test/url-omega.m3u8
             );
             await expectSourceDialogValues(dialog, {
                 password: 'pass1',
-                serverUrl: 'http://127.0.0.1:3211',
+                serverUrl: editedXtreamServerUrl,
                 title: 'Edited Xtream Source',
                 username: 'user1',
             });
@@ -288,7 +297,7 @@ https://streams.example.test/url-omega.m3u8
             );
             await expectSourceDialogValues(dialog, {
                 macAddress: '00:1A:79:00:00:99',
-                portalUrl: 'http://127.0.0.1:3210/portal.php',
+                portalUrl: editedStalkerPortalUrl,
                 title: 'Edited Stalker Source',
             });
             await dialog
@@ -320,7 +329,7 @@ https://streams.example.test/url-omega.m3u8
             );
             await expectSourceDialogValues(dialog, {
                 password: 'pass1',
-                serverUrl: 'http://127.0.0.1:3211',
+                serverUrl: editedXtreamServerUrl,
                 title: 'Edited Xtream Source',
                 username: 'user1',
             });
@@ -334,7 +343,7 @@ https://streams.example.test/url-omega.m3u8
             );
             await expectSourceDialogValues(dialog, {
                 macAddress: '00:1A:79:00:00:99',
-                portalUrl: 'http://127.0.0.1:3210/portal.php',
+                portalUrl: editedStalkerPortalUrl,
                 title: 'Edited Stalker Source',
             });
         } finally {

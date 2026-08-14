@@ -7,7 +7,7 @@ test('@web @m3u basic playlist import flow', async ({ page }) => {
     await page.goto('/');
 
     // Basic checks
-    expect(await page.title()).toBe('IPTVnator');
+    await expect(page).toHaveTitle('CarbonCast IPTV');
 
     // Upload playlist test
     await page.getByRole('button', { name: 'Add playlist' }).click();

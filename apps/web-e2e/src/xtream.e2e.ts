@@ -1,6 +1,6 @@
 import type { APIRequestContext, Page } from '@playwright/test';
 import { expect, test } from './fixtures';
-import { setInputValue } from './e2e-helpers';
+import { resetMockServer, setInputValue } from './e2e-helpers';
 import {
     getRegisteredProviderUrl,
     interceptProviderTargetRegistration,
@@ -88,8 +88,10 @@ async function addXtreamPortal(
     await setInputValue(dialog.locator('#username'), username);
     await setInputValue(dialog.locator('#password'), password);
 
-    await dialog.getByRole('button', { name: 'Add', exact: true }).click();
-    await page.waitForSelector('mat-dialog-container', { state: 'detached' });
+    const addButton = dialog.getByRole('button', { name: 'Add', exact: true });
+    await expect(addButton).toBeEnabled({ timeout: 10_000 });
+    await addButton.click();
+    await expect(dialog).toBeHidden();
     await page.waitForURL(/xtreams.*vod/);
 }
 
@@ -97,6 +99,16 @@ async function openPlaylistDetailsDialog(page: Page, title: string) {
     const playlistSettingsButton = page.getByRole('button', {
         name: 'Playlist Settings',
     });
+    const switcherTrigger = page.locator(
+        'app-playlist-switcher .playlist-switcher-trigger'
+    );
+
+    // Wait until one of the two entry points has painted before branching —
+    // a one-shot isVisible() on a not-yet-rendered shell would silently take
+    // the wrong branch and fail later with a confusing locator error.
+    await expect(
+        playlistSettingsButton.or(switcherTrigger).first()
+    ).toBeVisible();
 
     if (await playlistSettingsButton.isVisible()) {
         await playlistSettingsButton.click();
@@ -127,13 +139,16 @@ async function openPlaylistDetailsDialog(page: Page, title: string) {
 // ---------------------------------------------------------------------------
 
 test.beforeEach(async ({ page, request }) => {
-    await request.post(`${MOCK_SERVER}/reset`);
+    await resetMockServer(request, MOCK_SERVER);
+
+    // Install the route interception BEFORE the first navigation so that no
+    // bootstrap-time /xtream or provider-target request can escape to a real
+    // backend while the routes are still being registered.
+    await interceptXtreamRequests(page);
 
     // Playwright creates a fresh browser context per test, so extra
     // IndexedDB cleanup here only risks racing with app-managed DB handles.
     await page.goto('/');
-
-    await interceptXtreamRequests(page);
 });
 
 // ---------------------------------------------------------------------------
@@ -163,7 +178,7 @@ test('@xtream get_account_info — active account returns correct fields', async
     expect(Array.isArray(body.user_info.allowed_output_formats)).toBeTruthy();
 });
 
-test('@xtream get_account_info — expired account returns Expired status', async ({
+test('@xtream get_account_info — expired account keeps Active status with past exp_date', async ({
     request,
 }) => {
     const response = await request.get(
@@ -175,7 +190,9 @@ test('@xtream get_account_info — expired account returns Expired status', asyn
     // The app's portal-status.service.ts detects expiry via exp_date, not status string
     expect(body.user_info.status).toBe('Active');
     const expDate = new Date(parseInt(body.user_info.exp_date) * 1000);
-    expect(expDate.getFullYear()).toBe(2020);
+    // UTC, not local: the mock's expiry is 2020-01-01T00:00Z, which is still
+    // 2019 in any timezone west of UTC.
+    expect(expDate.getUTCFullYear()).toBe(2020);
 });
 
 test('@xtream get_live_categories — returns expected category count', async ({

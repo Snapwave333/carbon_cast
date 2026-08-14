@@ -1,5 +1,5 @@
 import type { Page } from '@playwright/test';
-import { setInputValue } from './e2e-helpers';
+import { resetMockServer, setInputValue } from './e2e-helpers';
 import { expect, test } from './fixtures';
 
 const WEB_BACKEND_URL = 'http://localhost:3333';
@@ -28,12 +28,14 @@ async function addXtreamPortal(page: Page): Promise<void> {
         .getByRole('radio', { name: /Xtream credentials/i })
         .click();
 
-    await dialog.locator('#title').fill('Self-hosted Xtream');
-    await dialog.locator('#serverUrl').fill(XTREAM_MOCK_SERVER);
-    await dialog.locator('#username').fill('user1');
-    await dialog.locator('#password').fill('pass1');
+    await setInputValue(dialog.locator('#title'), 'Self-hosted Xtream');
+    await setInputValue(dialog.locator('#serverUrl'), XTREAM_MOCK_SERVER);
+    await setInputValue(dialog.locator('#username'), 'user1');
+    await setInputValue(dialog.locator('#password'), 'pass1');
 
-    await dialog.getByRole('button', { name: 'Add', exact: true }).click();
+    const addButton = dialog.getByRole('button', { name: 'Add', exact: true });
+    await expect(addButton).toBeEnabled({ timeout: 10_000 });
+    await addButton.click();
     await expect(dialog).toBeHidden();
     await page.waitForURL(/xtreams.*vod/);
 }
@@ -101,8 +103,10 @@ function expectRequestsUseTargetId(requests: string[], path: string): void {
 }
 
 test.beforeEach(async ({ page, request }) => {
-    await request.post(`${XTREAM_MOCK_SERVER}/reset`);
-    await request.post(`${STALKER_MOCK_SERVER}/reset`);
+    await Promise.all([
+        resetMockServer(request, XTREAM_MOCK_SERVER),
+        resetMockServer(request, STALKER_MOCK_SERVER),
+    ]);
     await installRuntimeConfig(page);
     await page.goto('/');
 });
@@ -117,8 +121,9 @@ test('@self-hosted runtime config points PWA calls at the monorepo backend', asy
         )
         .toBe(WEB_BACKEND_URL);
 
-    const response = await request.get(`${WEB_BACKEND_URL}/health`);
-    expect(response.ok()).toBeTruthy();
+    const response = await request.get(`${WEB_BACKEND_URL}/health`, {
+        timeout: 5_000,
+    });
     await expect(response).toBeOK();
 });
 

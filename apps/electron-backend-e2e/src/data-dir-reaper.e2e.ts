@@ -66,12 +66,31 @@ function spawnLiveProcess(): ChildProcess {
     return child;
 }
 
-test.afterAll(() => {
-    for (const child of children) {
-        child.kill();
-    }
+test.afterAll(async () => {
+    // Await actual process exit before deleting the roots: on Windows a
+    // freshly-killed child can still hold a handle inside the directory,
+    // making an immediate rmSync fail with EBUSY.
+    await Promise.all(
+        children.map((child) => {
+            if (child.exitCode !== null || child.signalCode !== null) {
+                return Promise.resolve();
+            }
+
+            return new Promise<void>((resolve) => {
+                child.once('exit', () => resolve());
+                child.kill();
+                setTimeout(resolve, 5_000).unref();
+            });
+        })
+    );
+
     for (const root of roots) {
-        rmSync(root, { force: true, recursive: true });
+        rmSync(root, {
+            force: true,
+            maxRetries: 20,
+            recursive: true,
+            retryDelay: 250,
+        });
     }
 });
 
