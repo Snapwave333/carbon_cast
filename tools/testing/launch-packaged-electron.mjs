@@ -56,10 +56,10 @@ function resolvePackagedExecutable() {
                 executable: path.join(
                     executablesRoot,
                     'mac',
-                    'IPTVnator.app',
+                    'CarbonCast IPTV.app',
                     'Contents',
                     'MacOS',
-                    'IPTVnator'
+                    'CarbonCast IPTV'
                 ),
             },
             {
@@ -67,26 +67,35 @@ function resolvePackagedExecutable() {
                 executable: path.join(
                     executablesRoot,
                     'mac-arm64',
-                    'IPTVnator.app',
+                    'CarbonCast IPTV.app',
                     'Contents',
                     'MacOS',
-                    'IPTVnator'
+                    'CarbonCast IPTV'
                 ),
             },
         ];
 
         const match = candidates.find(
-            (candidate) => (!arch || candidate.arch === arch) && ensureFile(candidate.executable)
+            (candidate) =>
+                (!arch || candidate.arch === arch) &&
+                ensureFile(candidate.executable)
         );
         return match?.executable;
     }
 
     if (currentPlatform === 'windows') {
-        return findUnpackedExecutable('win', ['IPTVnator.exe']);
+        return findUnpackedExecutable('win', [
+            'CarbonCast IPTV.exe',
+            'IPTVnator.exe',
+        ]);
     }
 
     if (currentPlatform === 'linux') {
-        return findUnpackedExecutable('linux', ['IPTVnator', 'iptvnator']);
+        return findUnpackedExecutable('linux', [
+            'CarbonCast IPTV',
+            'IPTVnator',
+            'iptvnator',
+        ]);
     }
 
     return undefined;
@@ -106,10 +115,14 @@ console.log(
     `After the window opens, connect with: agent-browser --cdp ${remoteDebuggingPort} tab list`
 );
 
-const child = spawn(executable, [`--remote-debugging-port=${remoteDebuggingPort}`], {
-    stdio: 'inherit',
-    detached: false,
-});
+const child = spawn(
+    executable,
+    [`--remote-debugging-port=${remoteDebuggingPort}`],
+    {
+        stdio: 'inherit',
+        detached: false,
+    }
+);
 
 child.on('exit', (code) => {
     process.exit(code ?? 0);

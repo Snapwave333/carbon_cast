@@ -104,3 +104,6 @@ entities.json
 # CarbonCast audit artifacts (regenerable)
 original-promotion-audit.json
 upstream-detection.json
+
+# Playwright test output that escapes the root-anchored /dist rule
+apps/web-e2e/dist/

@@ -880,7 +880,7 @@ export function renderMarketingAssetSvg(
             )
             .join('')}
         <text x="${width * 0.08}" y="${height * 0.84}" font-family="Arial, Helvetica, sans-serif" font-size="${Math.max(11, height * 0.024)}" font-weight="800" fill="#ffffff" opacity="0.76">${escapeSvg(creditLine)}</text>
-        <text x="${width * 0.08}" y="${height * 0.9}" font-family="Arial, Helvetica, sans-serif" font-size="${Math.max(12, height * 0.028)}" font-weight="700" fill="#ffffff" opacity="0.72">IPTVnator fictional demo artwork</text>
+        <text x="${width * 0.08}" y="${height * 0.9}" font-family="Arial, Helvetica, sans-serif" font-size="${Math.max(12, height * 0.028)}" font-weight="700" fill="#ffffff" opacity="0.72">CarbonCast IPTV fictional demo artwork</text>
         `
     );
 }
@@ -971,7 +971,7 @@ function buildMarketingEpgListings(
             id: `${stream.stream_id}-${index}`,
             epgId: channelId,
             title,
-            description: `${title} on ${stream.name}, part of the fictional IPTVnator demo schedule.`,
+            description: `${title} on ${stream.name}, part of the fictional CarbonCast IPTV demo schedule.`,
             startTimestamp,
             stopTimestamp: startTimestamp + slotSeconds,
             channelId,

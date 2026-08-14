@@ -56,7 +56,7 @@ const artifactModulePromise = import(artifactUrl.href)
     .then((module) => module as unknown as ArtifactModule)
     .catch(() => null);
 
-test('exports capture and persists the one exact IPTVnator renderer target', async () => {
+test('exports capture and persists the one exact app renderer target', async () => {
     const module = await modulePromise;
     assert.ok(module, 'Xtream renderer capture module must exist');
     assert.equal(typeof module.startXtreamRendererCapture, 'function');
@@ -66,7 +66,7 @@ test('exports capture and persists the one exact IPTVnator renderer target', asy
         new FakeSession([
             {
                 targetId: 'renderer-7',
-                title: 'IPTVnator',
+                title: 'CarbonCast IPTV',
                 type: 'page',
                 url: 'http://localhost:4200/workspace/sources',
             },

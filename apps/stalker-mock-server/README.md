@@ -1,6 +1,6 @@
 # Stalker Mock Server
 
-A local mock implementation of the Stalker/Ministra portal API for development and end-to-end testing of IPTVnator.
+A local mock implementation of the Stalker/Ministra portal API for development and end-to-end testing of CarbonCast IPTV.
 
 ## Overview
 
@@ -23,55 +23,55 @@ nx run stalker-mock-server:serve-with-watch
 nx run-many --targets=serve --projects=stalker-mock-server,web
 ```
 
-Then in IPTVnator, add a new Stalker portal:
+Then in CarbonCast IPTV, add a new Stalker portal:
 
 - **Portal URL**: `http://localhost:3210/portal.php`
 - **MAC Address**: one of the predefined scenarios below (or any MAC for auto-generated data)
 
 ## Predefined Scenario MAC Addresses
 
-| MAC Address | Scenario | Description |
-|---|---|---|
-| `00:1A:79:00:00:01` | **default** | 8 categories per type, 40 items each — the balanced go-to for daily dev |
-| `00:1A:79:FF:FF:FF` | **large** | 20 categories, 200 items each — stress-test pagination and virtual scroll |
-| `00:1A:79:00:00:02` | **series-heavy** | 15 series categories with 6 seasons × 10 episodes — test deep series navigation |
-| `00:1A:79:00:00:03` | **minimal** | 2 categories, 5 items — edge case testing (empty states, single items) |
-| `00:1A:79:00:00:04` | **is-series** | 60% of VOD items have `is_series=1` — tests the Ministra lazy-season flow |
-| `00:1A:79:00:00:05` | **embedded-series** | 50% of VOD items have embedded `series[]` arrays — tests the embedded series flow |
+| MAC Address         | Scenario              | Description                                                                                                         |
+| ------------------- | --------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `00:1A:79:00:00:01` | **default**           | 8 categories per type, 40 items each — the balanced go-to for daily dev                                             |
+| `00:1A:79:FF:FF:FF` | **large**             | 20 categories, 200 items each — stress-test pagination and virtual scroll                                           |
+| `00:1A:79:00:00:02` | **series-heavy**      | 15 series categories with 6 seasons × 10 episodes — test deep series navigation                                     |
+| `00:1A:79:00:00:03` | **minimal**           | 2 categories, 5 items — edge case testing (empty states, single items)                                              |
+| `00:1A:79:00:00:04` | **is-series**         | 60% of VOD items have `is_series=1` — tests the Ministra lazy-season flow                                           |
+| `00:1A:79:00:00:05` | **embedded-series**   | 50% of VOD items have embedded `series[]` arrays — tests the embedded series flow                                   |
 | `00:1A:79:00:00:06` | **legacy-pagination** | No `get_all_channels` support — tests the paginated `get_ordered_list` crawl fallback for the full ITV channel list |
-| `00:1A:79:00:00:07` | **marketing-demo** | 35 original poster movies with the newest 20 first — safe for screenshots and marketing |
-| `<any other MAC>` | **auto** | MAC bytes used as seed → deterministic unique dataset |
+| `00:1A:79:00:00:07` | **marketing-demo**    | 35 original poster movies with the newest 20 first — safe for screenshots and marketing                             |
+| `<any other MAC>`   | **auto**              | MAC bytes used as seed → deterministic unique dataset                                                               |
 
 ## Configuration
 
-| Environment Variable | Default | Description |
-|---|---|---|
-| `PORT` | `3210` | HTTP port the server listens on |
-| `NODE_ENV` | `development` | Node environment |
+| Environment Variable | Default       | Description                     |
+| -------------------- | ------------- | ------------------------------- |
+| `PORT`               | `3210`        | HTTP port the server listens on |
+| `NODE_ENV`           | `development` | Node environment                |
 
 ## Utility Endpoints
 
-| Endpoint | Method | Description |
-|---|---|---|
-| `/health` | `GET` | Health check — returns `{ status: "ok" }` |
-| `/reset` | `POST` | Clear all in-memory data and favorites (useful between test runs) |
+| Endpoint  | Method | Description                                                       |
+| --------- | ------ | ----------------------------------------------------------------- |
+| `/health` | `GET`  | Health check — returns `{ status: "ok" }`                         |
+| `/reset`  | `POST` | Clear all in-memory data and favorites (useful between test runs) |
 
 ## API Coverage
 
 All endpoints are served at `GET /portal.php?action=<action>&...` matching the real Stalker protocol:
 
-| Action | Description |
-|---|---|
-| `handshake` | Returns a mock Bearer token |
-| `do_auth` | Returns a mock user profile |
-| `get_categories` | Category list filtered by `type` (itv/vod/series) |
-| `get_genres` | Genre list (mirrors categories) |
-| `get_ordered_list` | Paginated content list; if `movie_id` is present → returns seasons |
+| Action             | Description                                                                                                                                 |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `handshake`        | Returns a mock Bearer token                                                                                                                 |
+| `do_auth`          | Returns a mock user profile                                                                                                                 |
+| `get_categories`   | Category list filtered by `type` (itv/vod/series)                                                                                           |
+| `get_genres`       | Genre list (mirrors categories)                                                                                                             |
+| `get_ordered_list` | Paginated content list; if `movie_id` is present → returns seasons                                                                          |
 | `get_all_channels` | Complete ITV channel list in one response (`type=itv` only); excludes censored (adult) genres; disabled in the `legacy-pagination` scenario |
-| `create_link` | Returns a real public HLS stream URL for playback |
-| `favorites` | Add / remove / get favorites (in-memory, resets on restart) |
-| `get_short_epg` | Current-and-upcoming EPG window for a channel (`ch_id`, `size`) |
-| `get_epg_info` | Bulk EPG keyed by channel id for a requested `period` window |
+| `create_link`      | Returns a real public HLS stream URL for playback                                                                                           |
+| `favorites`        | Add / remove / get favorites (in-memory, resets on restart)                                                                                 |
+| `get_short_epg`    | Current-and-upcoming EPG window for a channel (`ch_id`, `size`)                                                                             |
+| `get_epg_info`     | Bulk EPG keyed by channel id for a requested `period` window                                                                                |
 
 ## Cover Images
 
