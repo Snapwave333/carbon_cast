@@ -4,10 +4,9 @@ import { MatDialog } from '@angular/material/dialog';
 import { TranslateService } from '@ngx-translate/core';
 import { of } from 'rxjs';
 import { EpgRuntimeBridgeService } from '@iptvnator/epg/data-access';
-import {
-    MultiEpgContainerComponent,
-    isSelectedEpgDayToday,
-} from './multi-epg-container.component';
+import { SettingsStore, TmdbEnrichmentService } from '@iptvnator/services';
+import { MultiEpgContainerComponent } from './multi-epg-container.component';
+import { isSelectedEpgDayToday } from './multi-epg-layout.util';
 import { COMPONENT_OVERLAY_REF } from './overlay-ref.token';
 
 describe('isSelectedEpgDayToday', () => {
@@ -24,6 +23,7 @@ describe('MultiEpgContainerComponent runtime gates', () => {
     let fixture: ComponentFixture<MultiEpgContainerComponent>;
     let component: MultiEpgContainerComponent;
     let epgBridge: Partial<EpgRuntimeBridgeService>;
+    let dialog: { open: jest.Mock };
 
     beforeEach(async () => {
         epgBridge = {
@@ -32,11 +32,16 @@ describe('MultiEpgContainerComponent runtime gates', () => {
             supportsChannelBrowser: false,
             supportsProgramSearch: false,
         };
+        dialog = {
+            open: jest
+                .fn()
+                .mockReturnValue({ afterClosed: () => of(undefined) }),
+        };
 
         await TestBed.configureTestingModule({
             imports: [MultiEpgContainerComponent],
             providers: [
-                { provide: MatDialog, useValue: { open: jest.fn() } },
+                { provide: MatDialog, useValue: dialog },
                 {
                     provide: COMPONENT_OVERLAY_REF,
                     useValue: { detach: jest.fn() },
@@ -48,6 +53,18 @@ describe('MultiEpgContainerComponent runtime gates', () => {
                 {
                     provide: EpgRuntimeBridgeService,
                     useValue: epgBridge,
+                },
+                {
+                    provide: TmdbEnrichmentService,
+                    useValue: {
+                        isEnabled: () => false,
+                        enrichMovie: jest.fn(),
+                        enrichTv: jest.fn(),
+                    },
+                },
+                {
+                    provide: SettingsStore,
+                    useValue: { guideArtwork: () => true },
                 },
                 {
                     provide: TranslateService,
@@ -97,6 +114,55 @@ describe('MultiEpgContainerComponent runtime gates', () => {
 
         expect(epgBridge.getChannelsByRange).toHaveBeenCalledWith(0, 20);
         expect(component.isLoading()).toBe(false);
+    });
+
+    it('exposes a retryable error when the channel browser fails', async () => {
+        jest.spyOn(console, 'error').mockImplementation(() => undefined);
+        epgBridge.getChannelsByRange = jest
+            .fn()
+            .mockRejectedValue(new Error('offline'));
+        epgBridge.supportsChannelBrowser = true;
+
+        await component.requestPrograms();
+
+        expect(component.loadError()).toBe(true);
+        expect(component.isLoading()).toBe(false);
+    });
+
+    it('updates the current-time label on the minute clock', () => {
+        jest.useFakeTimers();
+        jest.setSystemTime(new Date(2026, 7, 12, 9, 0));
+
+        component.ngOnInit();
+        jest.advanceTimersByTime(60_000);
+
+        expect(component.currentTimeLabel()).toBe('09:01');
+    });
+
+    it('opens programme details from Enter and Space keyboard activation', () => {
+        const program = {
+            title: 'News',
+            start: '2026-08-12T09:00:00',
+            stop: '2026-08-12T09:30:00',
+            channel: 'channel-1',
+            desc: null,
+            category: null,
+        };
+        const enter = {
+            key: 'Enter',
+            preventDefault: jest.fn(),
+        } as unknown as KeyboardEvent;
+        const space = {
+            key: ' ',
+            preventDefault: jest.fn(),
+        } as unknown as KeyboardEvent;
+
+        component.activateProgramFromKeyboard(enter, program);
+        component.activateProgramFromKeyboard(space, program);
+
+        expect(enter.preventDefault).toHaveBeenCalled();
+        expect(space.preventDefault).toHaveBeenCalled();
+        expect(dialog.open).toHaveBeenCalledTimes(2);
     });
 
     it('does not search EPG programs when the EPG bridge cannot search programs', () => {

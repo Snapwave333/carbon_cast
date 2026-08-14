@@ -1,290 +1,551 @@
 <div id="epg-navigation">
-  <button
-    [matTooltip]="'CLOSE' | translate"
-    [attr.aria-label]="'CLOSE' | translate"
-    mat-icon-button
-    (click)="close()"
-    >
-    <mat-icon svgIcon="close"></mat-icon>
-  </button>
-  <button
-    [matTooltip]="'EPG.PREVIOUS_DAY' | translate"
-    [attr.aria-label]="'EPG.PREVIOUS_DAY' | translate"
-    mat-icon-button
-    (click)="switchDay('prev')"
-    >
-    <mat-icon svgIcon="chevron_left"></mat-icon>
-  </button>
-  <div class="today-date">
-    {{ selectedDayDate() | date: 'MMMM d, EEEE' : undefined : currentLocale() }}
-  </div>
-  <button
-    [matTooltip]="'EPG.NEXT_DAY' | translate"
-    [attr.aria-label]="'EPG.NEXT_DAY' | translate"
-    mat-icon-button
-    (click)="switchDay('next')"
-    >
-    <mat-icon svgIcon="chevron_right"></mat-icon>
-  </button>
-  <button
-    mat-icon-button
-    (click)="zoomOut()"
-    [disabled]="hourWidth() <= 50"
-    [matTooltip]="'EPG.ZOOM_OUT' | translate"
-    [attr.aria-label]="'EPG.ZOOM_OUT' | translate"
-  >
-    <mat-icon svgIcon="remove"></mat-icon>
-  </button>
-  <button
-    mat-icon-button
-    (click)="zoomIn()"
-    [disabled]="hourWidth() >= 800"
-    [matTooltip]="'EPG.ZOOM_IN' | translate"
-    [attr.aria-label]="'EPG.ZOOM_IN' | translate"
-  >
-    <mat-icon svgIcon="add"></mat-icon>
-  </button>
-
-  <div class="search-container" [class.expanded]="isSearchExpanded()">
-    @if (isSearchExpanded()) {
-      <div class="channel-search">
-        <mat-icon class="search-icon" svgIcon="search"></mat-icon>
-        <input
-          type="text"
-          [value]="channelFilter()"
-          (input)="onFilterInput($event)"
-          placeholder="Filter channels..."
-          autocomplete="off"
-          #searchInput
-        />
-        @if (channelFilter()) {
-          <button
-            class="clear-btn"
-            (click)="clearFilter()"
-            [matTooltip]="'EPG.CLEAR_FILTER' | translate"
-            [attr.aria-label]="'EPG.CLEAR_FILTER' | translate"
-          >
-            <mat-icon svgIcon="clear"></mat-icon>
-          </button>
-        }
-      </div>
-      <span class="filter-count">{{ filteredChannels().length }} / {{ channels().length }}</span>
+    @if (isOverlay) {
+        <button
+            [matTooltip]="'CLOSE' | translate"
+            [attr.aria-label]="'CLOSE' | translate"
+            mat-icon-button
+            (click)="close()"
+        >
+            <mat-icon svgIcon="close"></mat-icon>
+        </button>
     }
     <button
-      mat-icon-button
-      (click)="toggleSearch()"
-      [matTooltip]="
-        (isSearchExpanded() ? 'EPG.CLOSE_FILTER' : 'EPG.FILTER_CHANNELS')
-          | translate
-      "
-      [attr.aria-label]="
-        (isSearchExpanded() ? 'EPG.CLOSE_FILTER' : 'EPG.FILTER_CHANNELS')
-          | translate
-      "
-      >
-      <mat-icon [svgIcon]="isSearchExpanded() ? 'filter_list_off' : 'filter_list'"></mat-icon>
+        [matTooltip]="'EPG.PREVIOUS_DAY' | translate"
+        [attr.aria-label]="'EPG.PREVIOUS_DAY' | translate"
+        mat-icon-button
+        (click)="switchDay('prev')"
+    >
+        <mat-icon svgIcon="chevron_left"></mat-icon>
     </button>
-  </div>
-
-  <!-- Program Search -->
-  <div class="program-search-container" [class.open]="isProgramSearchOpen()">
-    @if (isProgramSearchOpen()) {
-      <div class="program-search-input">
-        <mat-icon class="search-icon" svgIcon="manage_search"></mat-icon>
-        <input
-          type="text"
-          [value]="programSearchQuery()"
-          (input)="onProgramSearchInput($event)"
-          placeholder="Search programs..."
-          autocomplete="off"
-          #programSearchInput
-        />
-        @if (programSearchQuery()) {
-          <button
-            class="clear-btn"
-            (click)="clearProgramSearch()"
-            [matTooltip]="'EPG.CLEAR_PROGRAM_SEARCH' | translate"
-            [attr.aria-label]="'EPG.CLEAR_PROGRAM_SEARCH' | translate"
-          >
-            <mat-icon svgIcon="clear"></mat-icon>
-          </button>
-        }
-        @if (isSearchingPrograms()) {
-          <div class="search-spinner"></div>
-        }
-      </div>
-      @if (programSearchResults().length > 0) {
-        <div class="program-search-results">
-          @for (program of programSearchResults(); track program.start) {
-            <button class="search-result-item" (click)="showProgramDetails(program)">
-              <div class="result-info">
-                <span class="result-title">{{ program.title }}</span>
-                <span class="result-meta">
-                  <span class="result-time">
-                    {{ (program.startTimestamp ? program.startTimestamp * 1000 : program.start) | date: 'HH:mm' }}
-                    -
-                    {{ (program.stopTimestamp ? program.stopTimestamp * 1000 : program.stop) | date: 'HH:mm' }}
-                  </span>
-                  <span class="result-date">
-                    {{ (program.startTimestamp ? program.startTimestamp * 1000 : program.start) | date: 'MMM d' : undefined : currentLocale() }}
-                  </span>
-                </span>
-              </div>
-              <mat-icon class="result-arrow" svgIcon="arrow_forward"></mat-icon>
-            </button>
-          }
-        </div>
-      }
-      @if (programSearchQuery().length >= 2 && programSearchResults().length === 0 && !isSearchingPrograms()) {
-        <div class="program-search-empty">
-          <mat-icon svgIcon="search_off"></mat-icon>
-          <span>No programs found</span>
-        </div>
-      }
-    }
+    <div class="today-date">
+        {{
+            selectedDayDate()
+                | date: 'MMMM d, EEEE' : undefined : currentLocale()
+        }}
+    </div>
     <button
-      mat-icon-button
-      (click)="toggleProgramSearch()"
-      [matTooltip]="
-        (isProgramSearchOpen()
-          ? 'EPG.CLOSE_PROGRAM_SEARCH'
-          : 'EPG.SEARCH_PROGRAMS'
-        ) | translate
-      "
-      [attr.aria-label]="
-        (isProgramSearchOpen()
-          ? 'EPG.CLOSE_PROGRAM_SEARCH'
-          : 'EPG.SEARCH_PROGRAMS'
-        ) | translate
-      "
-      >
-      <mat-icon [svgIcon]="isProgramSearchOpen() ? 'close' : 'manage_search'"></mat-icon>
+        mat-button
+        class="today-action"
+        (click)="returnToToday()"
+        [matTooltip]="'EPG.TIMELINE.JUMP_NOW' | translate"
+        [attr.aria-label]="'EPG.TIMELINE.JUMP_NOW' | translate"
+    >
+        <mat-icon svgIcon="schedule"></mat-icon>
+        {{ 'EPG.TIMELINE.TODAY' | translate }}
     </button>
-  </div>
+    <button
+        [matTooltip]="'EPG.NEXT_DAY' | translate"
+        [attr.aria-label]="'EPG.NEXT_DAY' | translate"
+        mat-icon-button
+        (click)="switchDay('next')"
+    >
+        <mat-icon svgIcon="chevron_right"></mat-icon>
+    </button>
+    <button
+        mat-icon-button
+        (click)="zoomOut()"
+        [disabled]="hourWidth() <= 50"
+        [matTooltip]="'EPG.ZOOM_OUT' | translate"
+        [attr.aria-label]="'EPG.ZOOM_OUT' | translate"
+    >
+        <mat-icon svgIcon="remove"></mat-icon>
+    </button>
+    <button
+        mat-icon-button
+        (click)="zoomIn()"
+        [disabled]="hourWidth() >= 800"
+        [matTooltip]="'EPG.ZOOM_IN' | translate"
+        [attr.aria-label]="'EPG.ZOOM_IN' | translate"
+    >
+        <mat-icon svgIcon="add"></mat-icon>
+    </button>
+
+    <div class="search-container" [class.expanded]="isSearchExpanded()">
+        @if (isSearchExpanded()) {
+            <div class="channel-search">
+                <mat-icon class="search-icon" svgIcon="search"></mat-icon>
+                <input
+                    type="text"
+                    [value]="channelFilter()"
+                    (input)="
+                        channelFilter.set($any($event.target).value ?? '')
+                    "
+                    [placeholder]="'EPG.FILTER_CHANNELS' | translate"
+                    autocomplete="off"
+                    #searchInput
+                />
+                @if (channelFilter()) {
+                    <button
+                        class="clear-btn"
+                        (click)="channelFilter.set('')"
+                        [matTooltip]="'EPG.CLEAR_FILTER' | translate"
+                        [attr.aria-label]="'EPG.CLEAR_FILTER' | translate"
+                    >
+                        <mat-icon svgIcon="clear"></mat-icon>
+                    </button>
+                }
+            </div>
+            <span class="filter-count"
+                >{{ filteredChannels().length }} / {{ channels().length }}</span
+            >
+        }
+        <button
+            mat-icon-button
+            (click)="toggleSearch()"
+            [matTooltip]="
+                (isSearchExpanded()
+                    ? 'EPG.CLOSE_FILTER'
+                    : 'EPG.FILTER_CHANNELS'
+                ) | translate
+            "
+            [attr.aria-label]="
+                (isSearchExpanded()
+                    ? 'EPG.CLOSE_FILTER'
+                    : 'EPG.FILTER_CHANNELS'
+                ) | translate
+            "
+        >
+            <mat-icon
+                [svgIcon]="
+                    isSearchExpanded() ? 'filter_list_off' : 'filter_list'
+                "
+            ></mat-icon>
+        </button>
+    </div>
+
+    <!-- Program Search -->
+    <div class="program-search-container" [class.open]="isProgramSearchOpen()">
+        @if (isProgramSearchOpen()) {
+            <div class="program-search-input">
+                <mat-icon
+                    class="search-icon"
+                    svgIcon="manage_search"
+                ></mat-icon>
+                <input
+                    type="text"
+                    [value]="programSearchQuery()"
+                    (input)="onProgramSearchInput($event)"
+                    [placeholder]="'EPG.SEARCH_PROGRAMS' | translate"
+                    autocomplete="off"
+                    #programSearchInput
+                />
+                @if (programSearchQuery()) {
+                    <button
+                        class="clear-btn"
+                        (click)="programSearch.clear()"
+                        [matTooltip]="'EPG.CLEAR_PROGRAM_SEARCH' | translate"
+                        [attr.aria-label]="
+                            'EPG.CLEAR_PROGRAM_SEARCH' | translate
+                        "
+                    >
+                        <mat-icon svgIcon="clear"></mat-icon>
+                    </button>
+                }
+                @if (isSearchingPrograms()) {
+                    <div class="search-spinner"></div>
+                }
+            </div>
+            @if (programSearchResults().length > 0) {
+                <div class="program-search-results">
+                    @for (
+                        program of programSearchResults();
+                        track program.start
+                    ) {
+                        <button
+                            class="search-result-item"
+                            (click)="openProgramDialog(program, '800px')"
+                        >
+                            @if (artwork.resultArtworkUrl(program); as artUrl) {
+                                <img
+                                    class="result-thumb"
+                                    [src]="artUrl"
+                                    alt=""
+                                    loading="lazy"
+                                    decoding="async"
+                                    draggable="false"
+                                    referrerpolicy="no-referrer"
+                                    (load)="onArtworkLoad($event)"
+                                    (error)="artwork.markFailed(artUrl)"
+                                />
+                            }
+                            <div class="result-info">
+                                <span class="result-title">
+                                    @if (
+                                        categoryAccent(program.category);
+                                        as accent
+                                    ) {
+                                        <span
+                                            class="result-catdot"
+                                            [style.background]="accent"
+                                            aria-hidden="true"
+                                        ></span>
+                                    }
+                                    {{ program.title }}
+                                </span>
+                                <span class="result-meta">
+                                    <span class="result-time">
+                                        {{
+                                            (program.startTimestamp
+                                                ? program.startTimestamp * 1000
+                                                : program.start
+                                            ) | date: 'HH:mm'
+                                        }}
+                                        -
+                                        {{
+                                            (program.stopTimestamp
+                                                ? program.stopTimestamp * 1000
+                                                : program.stop
+                                            ) | date: 'HH:mm'
+                                        }}
+                                    </span>
+                                    <span class="result-date">
+                                        {{
+                                            (program.startTimestamp
+                                                ? program.startTimestamp * 1000
+                                                : program.start
+                                            )
+                                                | date
+                                                    : 'MMM d'
+                                                    : undefined
+                                                    : currentLocale()
+                                        }}
+                                    </span>
+                                    @if (
+                                        episodeBadge(program.episodeNum);
+                                        as badge
+                                    ) {
+                                        <span class="result-episode">{{
+                                            badge
+                                        }}</span>
+                                    }
+                                </span>
+                            </div>
+                            <mat-icon
+                                class="result-arrow"
+                                svgIcon="arrow_forward"
+                            ></mat-icon>
+                        </button>
+                    }
+                </div>
+            }
+            @if (programSearchError()) {
+                <div class="program-search-empty program-search-empty--error">
+                    <mat-icon svgIcon="error"></mat-icon>
+                    <span>{{ 'EPG.TIMELINE.ERROR_TITLE' | translate }}</span>
+                </div>
+            } @else if (
+                programSearchQuery().length >= 2 &&
+                programSearchResults().length === 0 &&
+                !isSearchingPrograms()
+            ) {
+                <div class="program-search-empty">
+                    <mat-icon svgIcon="search_off"></mat-icon>
+                    <span>{{ 'EPG.NO_PROGRAMS_FOUND' | translate }}</span>
+                </div>
+            }
+        }
+        <button
+            mat-icon-button
+            (click)="programSearch.toggle()"
+            [matTooltip]="
+                (isProgramSearchOpen()
+                    ? 'EPG.CLOSE_PROGRAM_SEARCH'
+                    : 'EPG.SEARCH_PROGRAMS'
+                ) | translate
+            "
+            [attr.aria-label]="
+                (isProgramSearchOpen()
+                    ? 'EPG.CLOSE_PROGRAM_SEARCH'
+                    : 'EPG.SEARCH_PROGRAMS'
+                ) | translate
+            "
+        >
+            <mat-icon
+                [svgIcon]="isProgramSearchOpen() ? 'close' : 'manage_search'"
+            ></mat-icon>
+        </button>
+    </div>
 </div>
 <div class="parent" #epgContainer (scroll)="onScroll($event)">
-  <svg id="channels-column" [attr.height]="filteredChannels().length * barHeight + barHeight + 50">
-    @for (item of filteredChannels(); track item.id; let i = $index) {
-      <g>
-        <!-- channel name (column widened to 180px per UX audit) -->
-        <g class="channel" [class.active]="item.id === activeChannelId">
-          <rect
-            width="180"
-            [attr.height]="barHeight"
-            [attr.y]="barHeight * i + barHeight"
-            stroke="black"
-            />
-          <foreignObject
-            width="180"
-            [attr.height]="barHeight"
-            [attr.y]="barHeight * i + barHeight"
-            >
-            <div class="channel-name">
-              @if (getChannelIcon(item)) {
-                <img
-                  [src]="getChannelIcon(item)"
-                  [alt]="getChannelName(item)"
-                  >
-              }
-              <span>{{ getChannelName(item) }}</span>
-            </div>
-          </foreignObject>
-        </g>
-      </g>
-    }
-  </svg>
-  <div id="epg-container" [style.height.px]="filteredChannels().length * barHeight + barHeight + 50">
-    <svg [attr.width]="hourWidth() * 24" [attr.height]="filteredChannels().length * barHeight + barHeight + 50" id="epg-svg">
-      <!-- time headline -->
-      @for (hour of timeHeader; track hour) {
-        <g>
-          <rect
-            [matTooltip]="hour + ':00'"
-            [attr.width]="hourWidth()"
-            [attr.height]="barHeight"
-            [attr.x]="hour * hourWidth()"
-            fill="#000"
-          ></rect>
-          <text
-            [attr.x]="hour * hourWidth()"
-            y="10"
-            font-size="14"
-            fill="white"
-            transform="translate(20,20)"
-            >
-            {{ hour }}:00
-          </text>
-          <!-- vertical hour separator line -->
-          <line
-            [attr.x1]="hour * hourWidth()"
-            [attr.y1]="barHeight"
-            [attr.x2]="hour * hourWidth()"
-            [attr.y2]="filteredChannels().length * barHeight + barHeight"
-            class="hour-separator"
-          ></line>
-        </g>
-      }
-
-      <!-- epg channels with programs -->
-      @for (item of filteredChannels(); track item.id; let i = $index) {
-        <g [class.active-row]="item.id === activeChannelId">
-          @for (program of item.programs; track trackByProgram($index, program)) {
-            <g
-              [attr.transform]="'translate(' + program.startPosition + ',' + (barHeight * i + barHeight) + ')'"
-              class="program"
-              [class.highlighted]="highlightedProgramKey() === getProgramKey(program)"
-              [class.is-now]="isProgramAiringNow(program)"
-              (click)="showDescription(program)"
-              >
-              <rect
-                [attr.width]="program.width"
-                [attr.height]="barHeight"
-                [matTooltip]="program.title"
-              ></rect>
-              <foreignObject
-                [attr.width]="program.width"
-                [attr.height]="barHeight"
-                >
-                <div class="program-title">{{ program.title }}</div>
-              </foreignObject>
+    <svg
+        id="channels-column"
+        [attr.height]="filteredChannels().length * barHeight + barHeight + 50"
+    >
+        @for (item of filteredChannels(); track item.id; let i = $index) {
+            <g>
+                <!-- channel name (column widened to 180px per UX audit) -->
+                <g class="channel" [class.active]="item.id === activeChannelId">
+                    <rect
+                        width="180"
+                        [attr.height]="barHeight"
+                        [attr.y]="barHeight * i + barHeight"
+                        stroke="black"
+                    />
+                    <foreignObject
+                        width="180"
+                        [attr.height]="barHeight"
+                        [attr.y]="barHeight * i + barHeight"
+                    >
+                        <div class="channel-name">
+                            @if (item.safeIconUrl) {
+                                <img
+                                    [src]="item.safeIconUrl"
+                                    [alt]="getChannelName(item)"
+                                />
+                            }
+                            <span>{{ getChannelName(item) }}</span>
+                        </div>
+                    </foreignObject>
+                </g>
             </g>
-          }
-        </g>
-      }
+        }
+    </svg>
+    <div
+        id="epg-container"
+        #timelineContainer
+        [style.height.px]="
+            filteredChannels().length * barHeight + barHeight + 50
+        "
+    >
+        <svg
+            [attr.width]="hourWidth() * 24"
+            [attr.height]="
+                filteredChannels().length * barHeight + barHeight + 50
+            "
+            id="epg-svg"
+        >
+            <!-- time headline -->
+            @for (hour of timeHeader; track hour) {
+                <g>
+                    <rect
+                        [matTooltip]="hour + ':00'"
+                        [attr.width]="hourWidth()"
+                        [attr.height]="barHeight"
+                        [attr.x]="hour * hourWidth()"
+                        fill="#000"
+                    ></rect>
+                    <text
+                        [attr.x]="hour * hourWidth()"
+                        y="10"
+                        font-size="14"
+                        fill="white"
+                        transform="translate(20,20)"
+                    >
+                        {{ hour }}:00
+                    </text>
+                    <!-- vertical hour separator line -->
+                    <line
+                        [attr.x1]="hour * hourWidth()"
+                        [attr.y1]="barHeight"
+                        [attr.x2]="hour * hourWidth()"
+                        [attr.y2]="
+                            filteredChannels().length * barHeight + barHeight
+                        "
+                        class="hour-separator"
+                    ></line>
+                </g>
+            }
 
-      <!-- current time line + label badge.
+            <!-- epg channels with programs -->
+            @for (item of filteredChannels(); track item.id; let i = $index) {
+                <g [class.active-row]="item.id === activeChannelId">
+                    @if (item.programs.length === 0) {
+                        <text
+                            class="empty-row-note"
+                            [attr.x]="
+                                isToday() ? currentTimeLine() + 12 : 16
+                            "
+                            [attr.y]="barHeight * i + barHeight * 1.5 + 4"
+                        >
+                            {{ 'EPG.NO_PROGRAMS_FOUND' | translate }}
+                        </text>
+                    }
+                    @for (
+                        program of item.programs;
+                        track trackByProgram($index, program)
+                    ) {
+                        <g
+                            [attr.transform]="
+                                'translate(' +
+                                program.startPosition +
+                                ',' +
+                                (barHeight * i + barHeight) +
+                                ')'
+                            "
+                            class="program"
+                            [class.highlighted]="
+                                highlightedProgramKey() ===
+                                getProgramKey(program)
+                            "
+                            [class.is-now]="isProgramAiringNow(program)"
+                            role="button"
+                            tabindex="0"
+                            [attr.aria-label]="getProgramAriaLabel(program)"
+                            (click)="openProgramDialog(program, '600px')"
+                            (keydown)="
+                                activateProgramFromKeyboard($event, program)
+                            "
+                        >
+                            <rect
+                                [attr.width]="program.width"
+                                [attr.height]="barHeight"
+                                [matTooltip]="program.title"
+                            ></rect>
+                            <foreignObject
+                                [attr.width]="program.width"
+                                [attr.height]="barHeight"
+                            >
+                                <div
+                                    class="program-cell"
+                                    [class.has-accent]="
+                                        !!program.categoryAccent
+                                    "
+                                    [style.--cat-accent]="
+                                        program.categoryAccent
+                                    "
+                                >
+                                    @if (
+                                        artwork.cellArtworkUrl(
+                                            program,
+                                            item.safeIconUrl || null
+                                        ) ?? tmdbArtwork.cellArtwork(program);
+                                        as artUrl
+                                    ) {
+                                        <img
+                                            class="program-art"
+                                            [src]="artUrl"
+                                            alt=""
+                                            loading="lazy"
+                                            decoding="async"
+                                            draggable="false"
+                                            referrerpolicy="no-referrer"
+                                            (load)="onArtworkLoad($event)"
+                                            (error)="artwork.markFailed(artUrl)"
+                                        />
+                                    }
+                                    @if (artwork.showsTitle(program)) {
+                                        <div class="program-text">
+                                            <div class="program-title">
+                                                {{ program.title }}
+                                            </div>
+                                            @if (
+                                                artwork.showsTimeLabel(program)
+                                            ) {
+                                                <div class="program-time">
+                                                    {{ program.timeLabel }}
+                                                    @if (
+                                                        program.episodeBadge
+                                                    ) {
+                                                        <span
+                                                            class="program-episode"
+                                                            >{{
+                                                                program.episodeBadge
+                                                            }}</span
+                                                        >
+                                                    }
+                                                </div>
+                                            }
+                                        </div>
+                                    }
+                                </div>
+                            </foreignObject>
+                        </g>
+                    }
+                </g>
+            }
+
+            @if (isToday()) {
+                <!-- current time line + label badge.
            The badge sits on top of the time-header row so users can read the
            current time at a glance — addresses the UX-audit complaint that
            the now-line was a "decorative gradient" without a time anchor. -->
-      <line
-        [attr.x1]="currentTimeLine()"
-        y1="0"
-        [attr.x2]="currentTimeLine()"
-        [attr.y2]="filteredChannels().length * barHeight + barHeight"
-        stroke="red"
-        stroke-width="2"
-        id="current-time-line"
-      ></line>
-      <g class="now-label" [attr.transform]="'translate(' + currentTimeLine() + ', ' + (barHeight - 14) + ')'">
-        <rect
-          x="-26"
-          y="-9"
-          width="52"
-          height="18"
-          rx="9"
-          ry="9"
-        ></rect>
-        <text x="0" y="4" text-anchor="middle">{{ currentTimeLabel() }}</text>
-      </g>
-    </svg>
-  </div>
+                <line
+                    [attr.x1]="currentTimeLine()"
+                    y1="0"
+                    [attr.x2]="currentTimeLine()"
+                    [attr.y2]="
+                        filteredChannels().length * barHeight + barHeight
+                    "
+                    stroke="red"
+                    stroke-width="2"
+                    id="current-time-line"
+                ></line>
+                <g
+                    class="now-label"
+                    [attr.transform]="
+                        'translate(' +
+                        currentTimeLine() +
+                        ', ' +
+                        (barHeight - 9) +
+                        ')'
+                    "
+                >
+                    <rect
+                        x="-26"
+                        y="-9"
+                        width="52"
+                        height="18"
+                        rx="9"
+                        ry="9"
+                    ></rect>
+                    <text x="0" y="4" text-anchor="middle">
+                        {{ currentTimeLabel() }}
+                    </text>
+                </g>
+            }
+        </svg>
+    </div>
 </div>
+
+@if (isLoading() && originalEpgData().length === 0) {
+    <div class="guide-state" role="status">
+        <span class="guide-spinner" aria-hidden="true"></span>
+        <p>{{ 'CHANNELS.LOADING' | translate }}</p>
+    </div>
+} @else if (loadError() && originalEpgData().length === 0) {
+    <div class="guide-state guide-state--error" role="alert">
+        <mat-icon svgIcon="error"></mat-icon>
+        <strong>{{ 'EPG.TIMELINE.ERROR_TITLE' | translate }}</strong>
+        <p>{{ 'EPG.TIMELINE.ERROR_DESCRIPTION' | translate }}</p>
+        <button mat-button (click)="isLastPage.set(false); requestPrograms()">
+            {{ 'EPG.TIMELINE.RETRY' | translate }}
+        </button>
+    </div>
+} @else if (channels().length === 0 && !channelFilter()) {
+    <div class="guide-state">
+        <mat-icon svgIcon="live_tv"></mat-icon>
+        <p>{{ 'CHANNELS.NO_CHANNELS_FOUND' | translate }}</p>
+    </div>
+}
+
+@if (isLoading() && originalEpgData().length > 0) {
+    <div class="guide-pagination-status" role="status">
+        <span class="guide-spinner" aria-hidden="true"></span>
+        {{ 'CHANNELS.LOADING_MORE' | translate }}
+    </div>
+} @else if (loadError() && originalEpgData().length > 0) {
+    <button
+        mat-button
+        class="guide-pagination-status guide-pagination-status--error"
+        (click)="isLastPage.set(false); requestPrograms()"
+    >
+        <mat-icon svgIcon="refresh"></mat-icon>
+        {{ 'EPG.TIMELINE.RETRY' | translate }}
+    </button>
+}
 
 <!-- Empty state when no channels match filter -->
 @if (filteredChannels().length === 0 && channelFilter()) {
-  <div class="no-results">
-    <mat-icon svgIcon="search_off"></mat-icon>
-    <p>No channels match "{{ channelFilter() }}"</p>
-    <button mat-button (click)="clearFilter()">Clear filter</button>
-  </div>
+    <div class="no-results">
+        <mat-icon svgIcon="search_off"></mat-icon>
+        <p>
+            {{
+                'EPG.NO_CHANNELS_MATCH'
+                    | translate: { query: channelFilter() }
+            }}
+        </p>
+        <button mat-button (click)="channelFilter.set('')">
+            {{ 'EPG.CLEAR_FILTER' | translate }}
+        </button>
+    </div>
 }

@@ -11,7 +11,12 @@ import {
 import { MatIcon } from '@angular/material/icon';
 import { EpgProgram } from '@iptvnator/shared/interfaces';
 import { TranslatePipe } from '@ngx-translate/core';
-import { areProgramsSame } from '../epg-program.utils';
+import {
+    adjustArtworkFit,
+    areProgramsSame,
+    getEpgCategoryAccent,
+    getProgramArtworkUrl,
+} from '../epg-program.utils';
 import {
     TimelineBlock,
     TimelineDayDivider,
@@ -24,6 +29,7 @@ import {
 interface PopoverState {
     readonly title: string;
     readonly desc: string | null;
+    readonly artworkUrl: string | null;
     readonly startMs: number;
     readonly stopMs: number;
     readonly durationMin: number;
@@ -61,6 +67,11 @@ export class EpgTimelineTrackComponent {
     readonly groupExpand = output<TimelineRenderGroup>();
 
     readonly popover = signal<PopoverState | null>(null);
+    readonly onArtworkLoad = adjustArtworkFit;
+
+    categoryAccent(item: TimelineRenderBlock): string | null {
+        return getEpgCategoryAccent(item.block.program.category);
+    }
 
     @HostBinding('style.width.px') get hostWidth(): number {
         return this.trackWidthPx();
@@ -109,8 +120,13 @@ export class EpgTimelineTrackComponent {
             return;
         }
         const rect = target.getBoundingClientRect();
+        const candidateArtwork = getProgramArtworkUrl(item.block.program);
+        const artworkUrl =
+            candidateArtwork && !this.failedArtworkUrls.has(candidateArtwork)
+                ? candidateArtwork
+                : null;
         const width = 248;
-        const estHeight = 132;
+        const estHeight = artworkUrl ? 224 : 132;
         // The EPG panel sits at the bottom of the screen, so flip the popover
         // above the block when there isn't room for it below.
         const below = rect.bottom + 8;
@@ -118,6 +134,7 @@ export class EpgTimelineTrackComponent {
         this.popover.set({
             title: item.block.program.title,
             desc: item.block.program.desc,
+            artworkUrl,
             startMs: item.block.startMs,
             stopMs: item.block.stopMs,
             durationMin: Math.round(item.block.durationMin),
@@ -137,4 +154,14 @@ export class EpgTimelineTrackComponent {
     onBlockLeave(): void {
         this.popover.set(null);
     }
+
+    /** Broken artwork is remembered so hovering the block again skips it. */
+    onArtworkError(url: string): void {
+        this.failedArtworkUrls.add(url);
+        this.popover.update((pop) =>
+            pop?.artworkUrl === url ? { ...pop, artworkUrl: null } : pop
+        );
+    }
+
+    private readonly failedArtworkUrls = new Set<string>();
 }

@@ -1,5 +1,22 @@
 <div class="epg-dialog">
-    <div class="epg-dialog__hero">
+    <div
+        class="epg-dialog__hero"
+        [class.epg-dialog__hero--art]="programArtwork && !artworkFailed"
+    >
+        @if (programArtwork && !artworkFailed) {
+            <img
+                class="epg-dialog__backdrop"
+                [src]="programArtwork"
+                alt=""
+                loading="lazy"
+                decoding="async"
+                draggable="false"
+                referrerpolicy="no-referrer"
+                (load)="onArtworkLoad($event)"
+                (error)="artworkFailed = true"
+            />
+            <div class="epg-dialog__backdrop-scrim" aria-hidden="true"></div>
+        }
         @if (channelName) {
             <span class="epg-dialog__chan">
                 <mat-icon svgIcon="live_tv"></mat-icon>
@@ -22,7 +39,7 @@
                 [alt]="channelName ?? ''"
                 (error)="logoFailed = true"
             />
-        } @else {
+        } @else if (!programArtwork || artworkFailed) {
             <mat-icon
                 class="epg-dialog__hero-glyph"
                 svgIcon="live_tv"
@@ -46,24 +63,40 @@
             }
             @if (epgProgram.category) {
                 <span class="epg-dialog__dot"></span>
-                <span>{{ epgProgram.category }}</span>
+                <span
+                    class="epg-dialog__category"
+                    [style.color]="categoryAccent"
+                    >{{ epgProgram.category }}</span
+                >
+            }
+            @if (epgProgram.isNew) {
+                <span class="epg-dialog__new">{{
+                    'EPG.PROGRAM_DIALOG.NEW' | translate
+                }}</span>
             }
         </div>
 
         <h3 class="epg-dialog__title">{{ epgProgram.title }}</h3>
 
+        @if (
+            epgProgram.episodeTitle &&
+            epgProgram.episodeTitle !== epgProgram.title
+        ) {
+            <p class="epg-dialog__subtitle">{{ epgProgram.episodeTitle }}</p>
+        }
+
         @if (epgProgram.desc) {
             <p class="epg-dialog__desc">{{ epgProgram.desc }}</p>
         }
 
-        @if (epgProgram.episodeNum || epgProgram.rating) {
+        @if (episodeLabel || epgProgram.rating) {
             <div class="epg-dialog__tags">
-                @if (epgProgram.episodeNum) {
+                @if (episodeLabel) {
                     <span class="epg-dialog__tag">
                         <small>{{
                             'EPG.PROGRAM_DIALOG.EPISODE' | translate
                         }}</small>
-                        {{ epgProgram.episodeNum }}
+                        {{ episodeLabel }}
                     </span>
                 }
                 @if (epgProgram.rating) {
@@ -83,7 +116,7 @@
                 source="epg"
                 [seriesTitle]="epgProgram.seriesTitle || epgProgram.title"
                 [seriesId]="epgProgram.seriesId || null"
-                [artworkUrl]="epgProgram.iconUrl || null"
+                [artworkUrl]="programArtwork"
                 [epgProgram]="epgProgram"
             />
             @if (primaryAction === 'live') {

@@ -5,9 +5,16 @@ import {
     computed,
     input,
     output,
+    signal,
 } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
 import { TranslatePipe } from '@ngx-translate/core';
+import {
+    adjustArtworkFit,
+    formatEpisodeBadge,
+    getEpgCategoryAccent,
+    getProgramArtworkUrl,
+} from '../../epg-program.utils';
 import { EpgListRow } from '../epg-list-view.utils';
 
 /**
@@ -40,10 +47,40 @@ export class EpgListViewRowComponent {
     readonly currentLocale = input('en');
     /** Current wall-clock ms from the list's 30s tick (drives minutes-left). */
     readonly nowMs = input(0);
+    /** Channel logo shown when the programme has no artwork of its own. */
+    readonly fallbackArtworkUrl = input<string | null>(null);
 
     readonly activate = output<void>();
     readonly watch = output<void>();
     readonly info = output<void>();
+
+    /** URL that failed to load — hides the thumb instead of retrying. */
+    private readonly failedArtworkUrl = signal<string | null>(null);
+
+    /** Programme artwork thumbnail (http(s)-only, per the shared guard),
+     * falling back to the channel logo so rows keep their imagery. */
+    readonly artworkUrl = computed(() => {
+        const url =
+            getProgramArtworkUrl(this.row().program) ??
+            getProgramArtworkUrl({ iconUrl: this.fallbackArtworkUrl() });
+        return url && url !== this.failedArtworkUrl() ? url : null;
+    });
+
+    readonly onArtworkLoad = adjustArtworkFit;
+
+    /** Compact "S2 E13" chip when episode-num is parseable. */
+    readonly episodeBadge = computed(() =>
+        formatEpisodeBadge(this.row().program.episodeNum)
+    );
+
+    /** Category colour coding shared with the guide grid. */
+    readonly categoryAccent = computed(() =>
+        getEpgCategoryAccent(this.row().program.category)
+    );
+
+    onArtworkError(url: string): void {
+        this.failedArtworkUrl.set(url);
+    }
 
     /** Archive-playback highlight: the active programme is a past one. */
     readonly isPlaying = computed(() => {

@@ -1,6 +1,5 @@
 import { DatePipe } from '@angular/common';
 import { OverlayRef } from '@angular/cdk/overlay';
-
 import {
     AfterViewInit,
     ChangeDetectionStrategy,
@@ -11,6 +10,7 @@ import {
     Input,
     OnDestroy,
     OnInit,
+    output,
     signal,
     viewChild,
 } from '@angular/core';
@@ -21,44 +21,36 @@ import { MatIcon } from '@angular/material/icon';
 import { MatTooltip } from '@angular/material/tooltip';
 import { normalizeDateLocale } from '@iptvnator/pipes';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { addDays, differenceInMinutes, format, parse, subDays } from 'date-fns';
+import { addDays, format, parse, subDays } from 'date-fns';
 import { Observable, Subscription, startWith } from 'rxjs';
-import {
-    Channel,
-    ElectronBridgeEpgChannelWithPrograms,
-    EpgChannel,
-    EpgProgram,
-} from '@iptvnator/shared/interfaces';
+import { Channel, EpgProgram } from '@iptvnator/shared/interfaces';
 import { EpgRuntimeBridgeService } from '@iptvnator/epg/data-access';
-import { EpgItemDescriptionComponent } from '../epg-item-description/epg-item-description.component';
+import { SettingsStore, TmdbEnrichmentService } from '@iptvnator/services';
+import {
+    adjustArtworkFit,
+    formatEpisodeBadge,
+    getEpgCategoryAccent,
+} from '../epg-program.utils';
+import { MultiEpgArtwork } from './multi-epg-artwork';
+import { MultiEpgChannelBrowser } from './multi-epg-channel-browser';
+import { MultiEpgTmdbArtwork } from './multi-epg-tmdb-artwork';
+import {
+    MultiEpgCatchupResolver,
+    MultiEpgPlayRequest,
+    openMultiEpgProgramDialog,
+} from './multi-epg-program-dialog';
+import {
+    buildProgramAriaLabel,
+    getEpgChannelName,
+    isSelectedEpgDayToday,
+    layoutEpgChannelsForDay,
+    MultiEpgLayoutProgram,
+} from './multi-epg-layout.util';
+import {
+    MultiEpgProgramSearch,
+    ProgramSearchResult,
+} from './multi-epg-program-search';
 import { COMPONENT_OVERLAY_REF } from './overlay-ref.token';
-
-type MultiEpgChannel = ElectronBridgeEpgChannelWithPrograms;
-
-interface EnrichedProgram extends EpgProgram {
-    startDate: Date;
-    stopDate: Date;
-    startPosition: number;
-    width: number;
-}
-
-interface EnrichedChannel extends MultiEpgChannel {
-    programs: EnrichedProgram[];
-}
-
-interface ProgramSearchResult extends EpgProgram {
-    channel_id?: string;
-    channelName?: string | null;
-    channel_name?: string | null;
-    display_name?: string | null;
-}
-
-export function isSelectedEpgDayToday(
-    selectedDay: string,
-    now: Date = new Date()
-): boolean {
-    return selectedDay === format(now, 'yyyyMMdd');
-}
 
 @Component({
     imports: [DatePipe, MatButtonModule, MatIcon, MatTooltip, TranslatePipe],
@@ -71,6 +63,17 @@ export class MultiEpgContainerComponent
     implements OnInit, AfterViewInit, OnDestroy
 {
     readonly epgContainer = viewChild.required<ElementRef>('epgContainer');
+    readonly timelineContainer =
+        viewChild<ElementRef<HTMLElement>>('timelineContainer');
+
+    private readonly dialog = inject(MatDialog);
+    private readonly epgBridge = inject(EpgRuntimeBridgeService);
+    private readonly settingsStore = inject(SettingsStore);
+    readonly programSearch = new MultiEpgProgramSearch(
+        (query, limit) => this.epgBridge.searchPrograms(query, limit),
+        () => this.epgBridge.supportsProgramSearch
+    );
+    private readonly browser = new MultiEpgChannelBrowser(this.epgBridge);
 
     @Input() set playlistChannels(value: Observable<Channel[]>) {
         if (this.playlistChannelsSubscription) {
@@ -79,33 +82,49 @@ export class MultiEpgContainerComponent
 
         if (value) {
             this.playlistChannelsSubscription = value.subscribe(() => {
-                this.channelsLowerRange = 0;
-                this.originalEpgData.set([]);
-                this.isLastPage.set(false);
+                this.resetChannelBrowser();
                 this.initializeVisibleChannels();
-                this.requestPrograms();
+                void this.requestPrograms();
             });
         }
     }
 
     @Input() activeChannelId: string | null = null;
 
-    // Signals
+    /** Host-supplied per-channel catch-up capability; enables the dialog's
+     * "Watch from start" action for past programmes. */
+    @Input() catchupResolver: MultiEpgCatchupResolver | null = null;
+
+    /** "Watch live" / "Watch from start" chosen in a programme dialog. */
+    readonly playRequested = output<MultiEpgPlayRequest>();
+
     readonly hourWidth = signal(150);
     readonly today = signal(format(new Date(), 'yyyyMMdd'));
-    readonly originalEpgData = signal<MultiEpgChannel[]>([]);
-    readonly isLoading = signal(false);
-    readonly isLastPage = signal(false);
+    readonly originalEpgData = this.browser.data;
+    readonly isLoading = this.browser.isLoading;
+    readonly loadError = this.browser.loadError;
+    readonly isLastPage = this.browser.isLastPage;
     readonly channelFilter = signal('');
     readonly isSearchExpanded = signal(false);
+    private readonly clockTick = signal(Date.now());
 
-    // Program search signals
-    readonly isProgramSearchOpen = signal(false);
-    readonly programSearchQuery = signal('');
-    readonly programSearchResults = signal<ProgramSearchResult[]>([]);
-    readonly isSearchingPrograms = signal(false);
+    readonly isProgramSearchOpen = this.programSearch.isOpen;
+    readonly programSearchQuery = this.programSearch.query;
+    readonly programSearchResults = this.programSearch.results;
+    readonly isSearchingPrograms = this.programSearch.isSearching;
+    readonly programSearchError = this.programSearch.error;
     readonly highlightedProgramKey = signal<string | null>(null);
-    private searchDebounceTimer: ReturnType<typeof setTimeout> | null = null;
+    /** Guide-artwork setting; off = denser text-only grid, no TMDB lookups. */
+    private readonly artworkEnabled = () =>
+        this.settingsStore.guideArtwork?.() ?? true;
+    readonly artwork = new MultiEpgArtwork(this.artworkEnabled);
+    readonly tmdbArtwork = new MultiEpgTmdbArtwork(
+        inject(TmdbEnrichmentService),
+        undefined,
+        undefined,
+        undefined,
+        this.artworkEnabled
+    );
     private readonly translate = inject(TranslateService);
     private readonly languageTick = toSignal(
         this.translate.onLangChange.pipe(startWith(null)),
@@ -120,11 +139,20 @@ export class MultiEpgContainerComponent
     readonly selectedDayDate = computed(() =>
         parse(this.today(), 'yyyyMMdd', new Date())
     );
+    readonly isToday = computed(() => {
+        this.clockTick();
+        return isSelectedEpgDayToday(this.today());
+    });
 
-    // Computed signal for enriched channels - automatically updates when dependencies change
-    readonly channels = computed(() => this.enrichProgramData());
+    readonly channels = computed(() =>
+        layoutEpgChannelsForDay(
+            this.originalEpgData(),
+            this.today(),
+            this.hourWidth(),
+            this.dateCache
+        )
+    );
 
-    // Computed signal for filtered channels based on search term
     readonly filteredChannels = computed(() => {
         const filter = this.channelFilter().toLowerCase().trim();
         const allChannels = this.channels();
@@ -139,49 +167,35 @@ export class MultiEpgContainerComponent
         });
     });
 
-    // Computed signal for current time line position
     readonly currentTimeLine = computed(() => {
-        const now = new Date();
+        const now = new Date(this.clockTick());
         return (now.getHours() + now.getMinutes() / 60) * this.hourWidth();
     });
 
-    // "16:32"-style label rendered as a badge above the now-line. Recomputes
-    // on the same 60-second tick that drives `currentTimeLine` (both depend
-    // on hourWidth's update pulse from `ngOnInit`).
     readonly currentTimeLabel = computed(() => {
-        // Subscribe to the same tick source as currentTimeLine.
-        this.hourWidth();
-        const now = new Date();
+        const now = new Date(this.clockTick());
         return `${now.getHours().toString().padStart(2, '0')}:${now
             .getMinutes()
             .toString()
             .padStart(2, '0')}`;
     });
 
-    // Constants
     readonly timeHeader = Array.from({ length: 24 }, (_, i) => i);
     readonly barHeight = 50;
 
-    // Pagination state
-    visibleChannels = 20;
-    channelsLowerRange = 0;
-    channelsUpperRange = this.visibleChannels;
-    totalChannels = 0;
-
     private dateCache = new Map<string, Date>();
-    private interval!: ReturnType<typeof setInterval>;
+    private interval?: ReturnType<typeof setInterval>;
     private playlistChannelsSubscription?: Subscription;
 
-    private readonly dialog = inject(MatDialog);
-    private readonly overlayRef = inject<OverlayRef>(COMPONENT_OVERLAY_REF);
-    private readonly epgBridge = inject(EpgRuntimeBridgeService);
+    private readonly overlayRef = inject<OverlayRef | null>(
+        COMPONENT_OVERLAY_REF,
+        { optional: true }
+    );
+    readonly isOverlay = this.overlayRef !== null;
 
     ngOnInit() {
-        // Update current time line every minute
         this.interval = setInterval(() => {
-            // Force recomputation by updating hourWidth to same value
-            // This triggers the computed signal to recalculate
-            this.hourWidth.update((v) => v);
+            this.clockTick.set(Date.now());
         }, 60000);
     }
 
@@ -190,20 +204,9 @@ export class MultiEpgContainerComponent
         this.scrollToCurrentTime();
     }
 
-    private scrollToCurrentTime(): void {
-        const timeNow = new Date();
-        const scrollPosition =
-            (timeNow.getHours() + timeNow.getMinutes() / 60) * this.hourWidth();
-
-        requestAnimationFrame(() => {
-            const container = document.getElementById('epg-container');
-            if (container) {
-                container.scrollTo(
-                    scrollPosition < 1000 ? 0 : scrollPosition - 150,
-                    0
-                );
-            }
-        });
+    scrollToCurrentTime(): void {
+        const scrollPosition = this.currentTimeLine();
+        this.scrollTimelineTo(scrollPosition < 1000 ? 0 : scrollPosition - 150);
     }
 
     private initializeVisibleChannels(): void {
@@ -214,85 +217,40 @@ export class MultiEpgContainerComponent
                 (containerHeight - this.barHeight) / this.barHeight
             );
 
-            this.visibleChannels = Math.max(
+            this.browser.visibleChannels = Math.max(
                 10,
                 Math.min(calculatedVisibleChannels, 20)
             );
-            this.channelsUpperRange = this.visibleChannels;
         }
     }
 
     ngOnDestroy(): void {
-        clearInterval(this.interval);
+        if (this.interval) clearInterval(this.interval);
 
         if (this.playlistChannelsSubscription) {
             this.playlistChannelsSubscription.unsubscribe();
         }
 
-        if (this.searchDebounceTimer) {
-            clearTimeout(this.searchDebounceTimer);
-        }
+        this.programSearch.destroy();
+        this.browser.invalidate();
+        this.dateCache.clear();
     }
 
-    trackByIndex(index: number): number {
-        return index;
-    }
-
-    trackByProgram(_: number, program: EnrichedProgram): string {
+    trackByProgram(_: number, program: MultiEpgLayoutProgram): string {
         return `${program.start}|${program?.title?.toString() ?? ''}`;
     }
 
-    /**
-     * Returns true when the now-line falls within this program's rendered
-     * span — used to add a `.is-now` class so the cyan border lights up
-     * every airing program at once. The template reads `currentTimeLine()`
-     * (a signal) here so the highlight refreshes on the same 60-second tick
-     * as the line itself.
-     */
-    isProgramAiringNow(program: EnrichedProgram): boolean {
+    isProgramAiringNow(program: MultiEpgLayoutProgram): boolean {
         const nowX = this.currentTimeLine();
-        if (!isSelectedEpgDayToday(this.today())) {
-            return false;
-        }
+        if (!this.isToday()) return false;
         return (
             nowX >= program.startPosition &&
             nowX <= program.startPosition + program.width
         );
     }
 
-    async requestPrograms(): Promise<void> {
-        if (!this.epgBridge.supportsChannelBrowser) {
-            console.warn('Multi-EPG not available in this runtime');
-            return;
-        }
-
-        if (this.isLoading() || this.isLastPage()) {
-            return;
-        }
-
-        this.isLoading.set(true);
-
-        try {
-            const response = await this.epgBridge.getChannelsByRange(
-                this.channelsLowerRange,
-                this.visibleChannels
-            );
-
-            if (response && Array.isArray(response)) {
-                // Append new data to existing data
-                this.originalEpgData.update((data) => [...data, ...response]);
-
-                // Update isLastPage based on the number of channels received
-                this.isLastPage.set(response.length < this.visibleChannels);
-
-                // Update range for next fetch
-                this.channelsLowerRange += response.length;
-            }
-        } catch (error) {
-            console.error('Error fetching EPG data:', error);
-        } finally {
-            this.isLoading.set(false);
-        }
+    requestPrograms(): Promise<void> {
+        return this.browser.requestPrograms();
     }
 
     onScroll(event: Event): void {
@@ -303,90 +261,15 @@ export class MultiEpgContainerComponent
 
         // Load more when user scrolls to within 200px of the bottom
         if (scrollHeight - scrollTop - clientHeight < 200) {
-            this.requestPrograms();
+            void this.requestPrograms();
         }
     }
 
-    private getCachedDate(dateStr: string): Date {
-        let date = this.dateCache.get(dateStr);
-        if (!date) {
-            date = new Date(dateStr);
-            this.dateCache.set(dateStr, date);
-        }
-        return date;
-    }
-
-    private enrichProgramData(): EnrichedChannel[] {
-        const hourWidthValue = this.hourWidth();
-        const todayValue = this.today();
-        const data = this.originalEpgData();
-
-        return data.map((channel) => {
-            const filteredPrograms = (channel.programs || [])
-                .filter((item: EpgProgram) => {
-                    const itemDate = format(
-                        this.getCachedDate(item.start),
-                        'yyyyMMdd'
-                    );
-                    return itemDate === todayValue;
-                })
-                .map((program: EpgProgram) => {
-                    const startDate = this.getCachedDate(program.start);
-                    const stopDate = this.getCachedDate(program.stop);
-                    const startPosition =
-                        (startDate.getHours() + startDate.getMinutes() / 60) *
-                        hourWidthValue;
-                    const duration = differenceInMinutes(stopDate, startDate);
-                    const width = (duration * hourWidthValue) / 60;
-
-                    return {
-                        ...program,
-                        startDate,
-                        stopDate,
-                        startPosition,
-                        width,
-                    };
-                });
-
-            return {
-                ...channel,
-                programs: filteredPrograms,
-            };
-        });
-    }
-
-    /**
-     * Get display name from EpgChannel
-     */
-    getChannelName(channel: EpgChannel | MultiEpgChannel): string {
-        if (typeof channel.displayName === 'string') {
-            return channel.displayName;
-        }
-        if (
-            Array.isArray(channel.displayName) &&
-            channel.displayName.length > 0
-        ) {
-            return channel.displayName[0].value;
-        }
-        return '';
-    }
-
-    /**
-     * Get icon from EpgChannel
-     */
-    getChannelIcon(channel: EpgChannel | MultiEpgChannel): string {
-        if ('iconUrl' in channel && channel.iconUrl) {
-            return channel.iconUrl;
-        }
-        if (
-            'icon' in channel &&
-            Array.isArray(channel.icon) &&
-            channel.icon.length > 0
-        ) {
-            return channel.icon[0].src;
-        }
-        return '';
-    }
+    readonly getChannelName = getEpgChannelName;
+    readonly getProgramAriaLabel = buildProgramAriaLabel;
+    readonly episodeBadge = formatEpisodeBadge;
+    readonly onArtworkLoad = adjustArtworkFit;
+    readonly categoryAccent = getEpgCategoryAccent;
 
     zoomIn(): void {
         if (this.hourWidth() >= 800) return;
@@ -405,15 +288,6 @@ export class MultiEpgContainerComponent
         }
     }
 
-    clearFilter(): void {
-        this.channelFilter.set('');
-    }
-
-    onFilterInput(event: Event): void {
-        const input = event.target as HTMLInputElement;
-        this.channelFilter.set(input.value);
-    }
-
     switchDay(direction: 'prev' | 'next'): void {
         const currentDate = parse(this.today(), 'yyyyMMdd', new Date());
         this.today.set(
@@ -421,80 +295,40 @@ export class MultiEpgContainerComponent
                 ? format(subDays(currentDate, 1), 'yyyyMMdd')
                 : format(addDays(currentDate, 1), 'yyyyMMdd')
         );
+        this.scrollTimelineTo(0);
     }
 
-    showDescription(program: EpgProgram): void {
-        this.dialog.open(EpgItemDescriptionComponent, {
-            width: '600px',
-            data: program,
-        });
+    returnToToday(): void {
+        this.today.set(format(new Date(), 'yyyyMMdd'));
+        this.clockTick.set(Date.now());
+        this.scrollToCurrentTime();
     }
 
-    // Program search methods
-    toggleProgramSearch(): void {
-        this.isProgramSearchOpen.update((v) => !v);
-        if (!this.isProgramSearchOpen()) {
-            this.programSearchQuery.set('');
-            this.programSearchResults.set([]);
-        }
+    activateProgramFromKeyboard(
+        event: KeyboardEvent,
+        program: EpgProgram
+    ): void {
+        if (event.key !== 'Enter' && event.key !== ' ') return;
+        event.preventDefault();
+        this.openProgramDialog(program, '600px');
     }
 
     onProgramSearchInput(event: Event): void {
-        const input = event.target as HTMLInputElement;
-        const query = input.value.trim();
-        this.programSearchQuery.set(query);
-
-        // Clear previous debounce timer
-        if (this.searchDebounceTimer) {
-            clearTimeout(this.searchDebounceTimer);
-        }
-
-        if (query.length < 2) {
-            this.programSearchResults.set([]);
-            this.isSearchingPrograms.set(false);
-            return;
-        }
-
-        if (!this.epgBridge.supportsProgramSearch) {
-            this.programSearchResults.set([]);
-            this.isSearchingPrograms.set(false);
-            return;
-        }
-
-        // Debounce search by 500ms - show spinner only when search actually starts
-        this.searchDebounceTimer = setTimeout(async () => {
-            this.isSearchingPrograms.set(true);
-            try {
-                const results = await this.epgBridge.searchPrograms(query, 20);
-                this.programSearchResults.set(
-                    (results as ProgramSearchResult[]) || []
-                );
-            } catch (error) {
-                console.error('Error searching programs:', error);
-                this.programSearchResults.set([]);
-            } finally {
-                this.isSearchingPrograms.set(false);
-            }
-        }, 500);
+        this.programSearch.update((event.target as HTMLInputElement).value);
     }
 
-    clearProgramSearch(): void {
-        this.programSearchQuery.set('');
-        this.programSearchResults.set([]);
-    }
-
-    showProgramDetails(program: ProgramSearchResult): void {
-        // Get channel id (DB returns channel_id, EPG uses channel)
+    openProgramDialog(
+        program: EpgProgram & { channel_id?: string },
+        width: string
+    ): void {
         const channelId = program.channel_id || program.channel;
-
-        // Find channel name
-        const channel = this.channels().find((ch) => ch.id === channelId);
-        const channelName = channel ? this.getChannelName(channel) : null;
-
-        // Open the program details dialog with channel name
-        this.dialog.open(EpgItemDescriptionComponent, {
-            width: '800px',
-            data: { ...program, channelName },
+        openMultiEpgProgramDialog({
+            dialog: this.dialog,
+            program,
+            channel: this.channels().find((ch) => ch.id === channelId),
+            catchupResolver: this.catchupResolver,
+            width,
+            onPlay: (request) => this.playRequested.emit(request),
         });
     }
 
@@ -504,6 +338,17 @@ export class MultiEpgContainerComponent
     }
 
     close() {
-        this.overlayRef.detach();
+        this.overlayRef?.detach();
+    }
+
+    private resetChannelBrowser(): void {
+        this.browser.reset();
+        this.dateCache.clear();
+    }
+
+    private scrollTimelineTo(left: number): void {
+        requestAnimationFrame(() => {
+            this.timelineContainer()?.nativeElement.scrollTo(left, 0);
+        });
     }
 }

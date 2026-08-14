@@ -35,6 +35,8 @@
         <div
             class="epg-timeline__block"
             [attr.data-tier]="item.tier"
+            [class.has-accent]="!!categoryAccent(item)"
+            [style.--cat-accent]="categoryAccent(item)"
             [class.is-past]="item.block.when === 'past'"
             [class.is-now]="item.block.when === 'now'"
             [class.is-future]="item.block.when === 'future'"
@@ -131,6 +133,19 @@
         [style.top.px]="pop.top"
         role="tooltip"
     >
+        @if (pop.artworkUrl) {
+            <img
+                class="epg-timeline__pop-art"
+                [src]="pop.artworkUrl"
+                alt=""
+                loading="lazy"
+                decoding="async"
+                draggable="false"
+                referrerpolicy="no-referrer"
+                (load)="onArtworkLoad($event)"
+                (error)="onArtworkError(pop.artworkUrl)"
+            />
+        }
         <div class="epg-timeline__pop-time">
             {{ pop.startMs | date: 'HH:mm' }} – {{ pop.stopMs | date: 'HH:mm' }} ·
             {{ pop.durationMin }} {{ 'EPG.TIMELINE.MINUTES_SHORT' | translate }}

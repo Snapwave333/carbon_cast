@@ -8,6 +8,10 @@
 }
 
 .sidebar {
+    &.sidebar-guide-hidden {
+        display: none;
+    }
+
     > app-channel-list-loading-state {
         flex: 1;
         min-height: 0;
@@ -41,6 +45,25 @@
 .content-container {
     min-width: 0;
     background: var(--mat-sys-surface);
+}
+
+// TV-guide section: the grid owns the stage. A playing channel keeps running
+// in a compact strip above it — the guide-over-live layout — so
+// opening the guide never interrupts playback.
+.content-container.guide-mode {
+    flex: 1 1 100%;
+    width: 100%;
+
+    .video-player {
+        flex: 0 0 38%;
+        min-height: 180px;
+        max-height: 420px;
+    }
+
+    app-multi-epg-container.inline-guide {
+        flex: 1 1 0;
+        min-height: 0;
+    }
 }
 
 .video-player {

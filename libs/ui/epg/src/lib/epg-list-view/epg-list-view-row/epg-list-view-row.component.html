@@ -10,22 +10,49 @@
 </div>
 
 <div class="body">
-    <div class="title">{{ r.program.title }}</div>
-    @if (r.program.desc) {
-        <div class="desc">{{ r.program.desc }}</div>
+    @if (artworkUrl(); as artUrl) {
+        <img
+            class="thumb"
+            [src]="artUrl"
+            alt=""
+            loading="lazy"
+            decoding="async"
+            draggable="false"
+            referrerpolicy="no-referrer"
+            (load)="onArtworkLoad($event)"
+            (error)="onArtworkError(artUrl)"
+        />
     }
+    <div class="body-text">
+        <div class="title">
+            @if (categoryAccent(); as accent) {
+                <span
+                    class="catdot"
+                    [style.background]="accent"
+                    aria-hidden="true"
+                ></span>
+            }
+            {{ r.program.title }}
+            @if (episodeBadge(); as badge) {
+                <span class="epbadge">{{ badge }}</span>
+            }
+        </div>
+        @if (r.program.desc) {
+            <div class="desc">{{ r.program.desc }}</div>
+        }
 
-    @if (r.when === 'now' && r.progress !== null) {
-        <div class="g-now-bar" aria-hidden="true">
-            <i [style.width.%]="r.progress"></i>
-        </div>
-    }
-    @if (isPlaying()) {
-        <div class="playtag">
-            <mat-icon svgIcon="play_arrow"></mat-icon>
-            {{ 'EPG.TIMELINE.FROM_ARCHIVE' | translate }}
-        </div>
-    }
+        @if (r.when === 'now' && r.progress !== null) {
+            <div class="g-now-bar" aria-hidden="true">
+                <i [style.width.%]="r.progress"></i>
+            </div>
+        }
+        @if (isPlaying()) {
+            <div class="playtag">
+                <mat-icon svgIcon="play_arrow"></mat-icon>
+                {{ 'EPG.TIMELINE.FROM_ARCHIVE' | translate }}
+            </div>
+        }
+    </div>
 </div>
 
 <div class="aux">

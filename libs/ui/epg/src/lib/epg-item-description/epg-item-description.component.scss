@@ -48,6 +48,40 @@ $font-mono: var(--font-mono, ui-monospace, 'SF Mono', Menlo, monospace);
         #0b0e16;
 }
 
+// A taller hero when real programme artwork is available, so the still
+// reads as an image and not a sliver.
+.epg-dialog__hero--art {
+    height: 200px;
+}
+
+.epg-dialog__backdrop {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+
+    // Portrait posters and square logos crop badly as a cover backdrop —
+    // contain them on the hero's dark base instead.
+    &.art-contain {
+        object-fit: contain;
+        background: #0b0e16;
+    }
+}
+
+// Dark gradient over the artwork so the channel chip, close button and
+// logo plate stay legible on bright stills.
+.epg-dialog__backdrop-scrim {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        180deg,
+        rgba(11, 14, 22, 0.3) 0%,
+        rgba(11, 14, 22, 0.12) 45%,
+        rgba(11, 14, 22, 0.72) 100%
+    );
+}
+
 .epg-dialog__hero-glyph {
     font-size: 40px;
     width: 40px;
@@ -159,6 +193,23 @@ $font-mono: var(--font-mono, ui-monospace, 'SF Mono', Menlo, monospace);
     line-height: 1.25;
     letter-spacing: -0.01em;
     color: $text-primary;
+}
+
+.epg-dialog__subtitle {
+    margin: -8px 0 12px;
+    font-size: 14px;
+    font-weight: 500;
+    color: $text-secondary;
+}
+
+.epg-dialog__new {
+    padding: 2px 7px;
+    border-radius: 999px;
+    background: rgba(92, 214, 255, 0.14);
+    color: $accent-cyan;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
 }
 
 .epg-dialog__desc {

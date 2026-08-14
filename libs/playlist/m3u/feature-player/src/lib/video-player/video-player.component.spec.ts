@@ -41,6 +41,7 @@ import {
 import {
     Channel,
     EpgProgram,
+    Playlist,
     Settings,
     VideoPlayer,
 } from '@iptvnator/shared/interfaces';
@@ -120,6 +121,22 @@ class StubWebPlayerViewComponent {
     readonly externalFallbackRequested = output<PlaybackFallbackRequest>();
 }
 
+@Component({
+    selector: 'app-multi-epg-container',
+    standalone: true,
+    template: '',
+})
+class StubMultiEpgContainerComponent {
+    readonly playlistChannels = input<unknown>();
+    readonly activeChannelId = input<string | null>(null);
+    readonly playRequested = output<{
+        channelId: string;
+        channelName: string | null;
+        mode: 'live' | 'timeshift';
+    }>();
+    readonly catchupResolver = input<unknown>(null);
+}
+
 // Matches both live-panel selectors so the host's timeline ↔ list swap can be
 // asserted by tag name; both branches share the identical contract.
 @Component({
@@ -172,8 +189,16 @@ describe('VideoPlayerComponent', () => {
     let headerContext: WorkspaceHeaderContextService;
 
     const playlistId = signal('playlist-1');
+    const routeParams$ = new BehaviorSubject({
+        id: playlistId(),
+        view: 'all',
+    });
     const activeChannel = signal<Channel | null>(null);
     const activePlaybackUrl = signal<string | null>(null);
+    const activePlaylist = signal<Pick<
+        Playlist,
+        '_id' | 'recentlyViewed'
+    > | null>(null);
     const channels = signal<Channel[]>([]);
     const channelsLoading = signal(false);
     const currentEpgProgram = signal<EpgProgram | null>(null);
@@ -310,12 +335,14 @@ describe('VideoPlayerComponent', () => {
         } as typeof window.electron;
 
         syncStoreState(null);
+        routeParams$.next({ id: playlistId(), view: 'all' });
         localStorage.removeItem('m3u-sidebar-width');
         localStorage.removeItem(LIVE_EPG_PANEL_STATE_STORAGE_KEY);
         player.set(VideoPlayer.VideoJs);
         showCaptions.set(false);
         stripCountryPrefix.set(false);
         activePlaybackUrl.set(null);
+        activePlaylist.set(null);
         channelsLoading.set(false);
         currentEpgProgram.set(null);
         activeEpgProgram.set(null);
@@ -336,7 +363,7 @@ describe('VideoPlayerComponent', () => {
                 {
                     provide: ActivatedRoute,
                     useValue: {
-                        params: of({ id: playlistId(), view: 'all' }),
+                        params: routeParams$.asObservable(),
                         queryParams: of({}),
                         snapshot: {
                             data: { layout: 'workspace' },
@@ -383,6 +410,7 @@ describe('VideoPlayerComponent', () => {
                     provide: PlaylistContextFacade,
                     useValue: {
                         resolvedPlaylistId: playlistId,
+                        activePlaylist,
                     },
                 },
                 {
@@ -420,6 +448,7 @@ describe('VideoPlayerComponent', () => {
                         StubAudioPlayerComponent,
                         StubChannelListLoadingStateComponent,
                         StubEpgTimelineComponent,
+                        StubMultiEpgContainerComponent,
                         StubPortalEmptyStateComponent,
                         StubResizableDirective,
                         StubSidebarComponent,
@@ -456,6 +485,33 @@ describe('VideoPlayerComponent', () => {
 
         fixture.destroy();
         expect(headerContext.action()).toBeNull();
+    });
+
+    it('gives the routed TV guide the full stage while preserving playback', () => {
+        routeParams$.next({ id: playlistId(), view: 'guide' });
+        syncStoreState(sampleChannel);
+
+        fixture.detectChanges();
+
+        expect(
+            fixture.nativeElement
+                .querySelector('.sidebar')
+                ?.classList.contains('sidebar-guide-hidden')
+        ).toBe(true);
+        expect(
+            fixture.nativeElement
+                .querySelector('.content-container')
+                ?.classList.contains('guide-mode')
+        ).toBe(true);
+        expect(
+            fixture.nativeElement.querySelector('app-multi-epg-container')
+        ).not.toBeNull();
+        expect(
+            fixture.nativeElement.querySelector('app-web-player-view')
+        ).not.toBeNull();
+        expect(
+            fixture.nativeElement.querySelector('app-epg-timeline')
+        ).toBeNull();
     });
 
     it('strips country prefixes from the timeline and player titles when enabled', () => {
@@ -534,7 +590,9 @@ describe('VideoPlayerComponent', () => {
             fixture.nativeElement.querySelector('app-web-player-view')
         ).not.toBeNull();
         expect(fixture.nativeElement.querySelector('.epg')).toBeNull();
-        expect(fixture.nativeElement.querySelector('app-epg-timeline')).toBeNull();
+        expect(
+            fixture.nativeElement.querySelector('app-epg-timeline')
+        ).toBeNull();
         expect(headerContext.action()).toBeNull();
     });
 
@@ -639,8 +697,7 @@ describe('VideoPlayerComponent', () => {
             By.directive(StubWebPlayerViewComponent)
         );
         expect(playerView).not.toBeNull();
-        const stub =
-            playerView.componentInstance as StubWebPlayerViewComponent;
+        const stub = playerView.componentInstance as StubWebPlayerViewComponent;
         expect(stub.playerOverride()).toBe(VideoPlayer.Html5Player);
         expect(dataServiceMock.sendIpcEvent).not.toHaveBeenCalled();
     });
@@ -656,8 +713,7 @@ describe('VideoPlayerComponent', () => {
             By.directive(StubWebPlayerViewComponent)
         );
         expect(playerView).not.toBeNull();
-        const stub =
-            playerView.componentInstance as StubWebPlayerViewComponent;
+        const stub = playerView.componentInstance as StubWebPlayerViewComponent;
         expect(stub.playerOverride()).toBe(VideoPlayer.Html5Player);
     });
 
@@ -674,9 +730,7 @@ describe('VideoPlayerComponent', () => {
         // The external-player guard declines DASH channels, so the inline
         // player must stay — otherwise the session has no player at all.
         expect(
-            fixture.debugElement.query(
-                By.directive(StubWebPlayerViewComponent)
-            )
+            fixture.debugElement.query(By.directive(StubWebPlayerViewComponent))
         ).not.toBeNull();
     });
 
@@ -1082,6 +1136,38 @@ describe('VideoPlayerComponent', () => {
         );
     });
 
+    it('resumes the playlist most recently watched channel when nothing is playing', () => {
+        const lastChannel = {
+            ...sampleChannel,
+            id: 'last-channel',
+            url: 'http://localhost/last-live.m3u8',
+            name: 'Last Live Channel',
+        } as Channel;
+        activePlaylist.set({
+            _id: 'playlist-1',
+            recentlyViewed: [
+                {
+                    source: 'm3u',
+                    id: lastChannel.id,
+                    url: lastChannel.url,
+                    title: lastChannel.name,
+                    category_id: 'live',
+                    added_at: new Date().toISOString(),
+                },
+            ],
+        });
+        activeChannel.set(null);
+        activeChannel$.next(null);
+        channels.set([sampleChannel, lastChannel]);
+        channels$.next([sampleChannel, lastChannel]);
+
+        fixture.detectChanges();
+
+        expect(storeMock.dispatch).toHaveBeenCalledWith(
+            ChannelActions.setActiveChannel({ channel: lastChannel })
+        );
+    });
+
     it('changes channels from remote navigation through a playback request', () => {
         const nextChannel = {
             ...sampleChannel,
@@ -1107,6 +1193,106 @@ describe('VideoPlayerComponent', () => {
                 startPlayback: true,
             })
         );
+    });
+
+    it('starts playback when the TV guide requests a channel', () => {
+        const guideChannel = {
+            ...sampleChannel,
+            id: 'channel-3',
+            url: 'http://localhost/guide.m3u8',
+            name: 'Guide TV',
+            tvg: { ...sampleChannel.tvg, id: 'epg-guide-1' },
+        } as Channel;
+        channels.set([sampleChannel, guideChannel]);
+        channels$.next([sampleChannel, guideChannel]);
+        fixture.detectChanges();
+        storeMock.dispatch.mockClear();
+
+        // tvg-id match
+        component.onGuidePlayRequested({
+            channelId: 'epg-guide-1',
+            channelName: null,
+            mode: 'live',
+        });
+        expect(storeMock.dispatch).toHaveBeenCalledWith(
+            ChannelActions.setActiveChannel({
+                channel: guideChannel,
+                startPlayback: true,
+            })
+        );
+
+        // display-name fallback when the EPG id is unknown
+        storeMock.dispatch.mockClear();
+        component.onGuidePlayRequested({
+            channelId: 'unknown-epg-id',
+            channelName: '  guide tv ',
+            mode: 'live',
+        });
+        expect(storeMock.dispatch).toHaveBeenCalledWith(
+            ChannelActions.setActiveChannel({
+                channel: guideChannel,
+                startPlayback: true,
+            })
+        );
+
+        // no match → no dispatch
+        storeMock.dispatch.mockClear();
+        component.onGuidePlayRequested({
+            channelId: 'unknown-epg-id',
+            channelName: 'Not In Playlist',
+            mode: 'live',
+        });
+        expect(storeMock.dispatch).not.toHaveBeenCalled();
+    });
+
+    it('switches channel then time-shifts when the guide requests catch-up', () => {
+        const catchupChannel = {
+            ...sampleChannel,
+            id: 'channel-4',
+            url: 'http://localhost/catchup.m3u8',
+            name: 'Catchup TV',
+            tvg: { ...sampleChannel.tvg, id: 'epg-catchup-1', rec: '3' },
+            timeshift: '3',
+        } as Channel;
+        channels.set([sampleChannel, catchupChannel]);
+        channels$.next([sampleChannel, catchupChannel]);
+        fixture.detectChanges();
+        storeMock.dispatch.mockClear();
+
+        const program = {
+            start: '2026-08-13T10:00:00.000Z',
+            stop: '2026-08-13T11:00:00.000Z',
+            channel: 'epg-catchup-1',
+            title: 'Morning Movie',
+            desc: null,
+            category: null,
+        };
+        component.onGuidePlayRequested({
+            channelId: 'epg-catchup-1',
+            channelName: null,
+            mode: 'timeshift',
+            program,
+        });
+
+        expect(storeMock.dispatch).toHaveBeenNthCalledWith(
+            1,
+            ChannelActions.setActiveChannel({
+                channel: catchupChannel,
+                startPlayback: true,
+            })
+        );
+        expect(storeMock.dispatch).toHaveBeenNthCalledWith(
+            2,
+            EpgActions.setActiveEpgProgram({ program })
+        );
+
+        // catch-up capability resolves through the same channel matching
+        expect(
+            component.guideCatchupResolver('epg-catchup-1', null)
+        ).toEqual({ available: expect.any(Boolean), archiveDays: 3 });
+        expect(
+            component.guideCatchupResolver('unknown', 'Not In Playlist')
+        ).toBeNull();
     });
 
     it('does not reset active timeshift on the now-tick during an EPG gap', () => {

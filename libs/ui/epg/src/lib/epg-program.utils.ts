@@ -26,6 +26,128 @@ export function getProgramDateKey(
     return format(new Date(programTimeMs), EPG_DATE_KEY_FORMAT);
 }
 
+/**
+ * Programme artwork (XMLTV `<icon src>`) safe to render in the UI. XMLTV
+ * feeds are untrusted input, so anything that is not an absolute http(s)
+ * URL — `javascript:`, `data:`, `file:`, relative paths — is dropped.
+ */
+export function getProgramArtworkUrl(
+    program: Pick<EpgProgram, 'iconUrl'>
+): string | null {
+    const url = program.iconUrl?.trim();
+    return url && /^https?:\/\//i.test(url) ? url : null;
+}
+
+// Category accent palette — theme-friendly hues that read on the dark grid.
+const CATEGORY_PALETTE = [
+    '#60a5fa', // blue — series / drama / entertainment
+    '#f472b6', // pink — movies
+    '#f87171', // red — news
+    '#4ade80', // green — sports
+    '#fbbf24', // amber — kids
+    '#a78bfa', // violet — music
+    '#2dd4bf', // teal — documentary / factual
+    '#fb923c', // orange — lifestyle / misc
+] as const;
+
+// Keyword buckets cover the common XMLTV category vocabularies (several
+// languages); anything else hashes onto the palette so every category gets
+// a stable colour rather than only the known ones.
+const MOVIE_CATEGORY_PATTERN = /movie|film|cine|kino/i;
+
+/** Whether an XMLTV category describes a film (vs. series/other). Used to
+ * pick the TMDB lookup type for artwork fallbacks. */
+export function isMovieLikeCategory(
+    category: string | null | undefined
+): boolean {
+    return MOVIE_CATEGORY_PATTERN.test(category ?? '');
+}
+
+const CATEGORY_RULES: readonly [RegExp, string][] = [
+    [MOVIE_CATEGORY_PATTERN, CATEGORY_PALETTE[1]],
+    [/news|report|nachricht|noticia|actualit/i, CATEGORY_PALETTE[2]],
+    [/sport|fu[sß]ball|f[uú]tbol|soccer|racing/i, CATEGORY_PALETTE[3]],
+    [/kids|child|anima|cartoon|kinder|infantil|jeunesse/i, CATEGORY_PALETTE[4]],
+    [/music|musik|m[uú]sica|concert/i, CATEGORY_PALETTE[5]],
+    [/doc|nature|science|history|wissen|natur/i, CATEGORY_PALETTE[6]],
+    [/series|serie|drama|show|comedy|entertain|talk/i, CATEGORY_PALETTE[0]],
+];
+
+/**
+ * Stable accent colour for an XMLTV programme category, used to colour-code
+ * the guide surfaces. Returns null for missing/blank categories.
+ */
+export function getEpgCategoryAccent(
+    category: string | null | undefined
+): string | null {
+    const value = category?.trim();
+    if (!value) return null;
+
+    for (const [pattern, color] of CATEGORY_RULES) {
+        if (pattern.test(value)) return color;
+    }
+
+    let hash = 0;
+    for (let i = 0; i < value.length; i++) {
+        hash = (hash * 31 + value.toLowerCase().charCodeAt(i)) | 0;
+    }
+    return CATEGORY_PALETTE[Math.abs(hash) % CATEGORY_PALETTE.length];
+}
+
+/**
+ * `(load)` handler for artwork `<img>` tags whose CSS uses `object-fit:
+ * cover`. Cover crops near-square and portrait images (channel logos,
+ * posters) badly, so those get an `art-contain` class the stylesheet maps
+ * to `object-fit: contain`. Wide stills (16:9-ish) keep the cover crop.
+ */
+export function adjustArtworkFit(event: Event): void {
+    const img = event.target as HTMLImageElement | null;
+    if (!img?.naturalWidth || !img.naturalHeight) return;
+    if (img.naturalHeight / img.naturalWidth > 0.8) {
+        img.classList.add('art-contain');
+    }
+}
+
+/**
+ * Formats an XMLTV `episode-num` value as a compact "S2 E13" badge.
+ * Feeds store either `onscreen` values ("S02E13", "2x13", "E5") or
+ * `xmltv_ns` values ("1.12." — zero-based season.episode.part where each
+ * field may be blank or carry a "/total"). Returns null when unparseable
+ * so callers can fall back to the raw value or hide the badge.
+ */
+export function formatEpisodeBadge(
+    episodeNum: string | null | undefined
+): string | null {
+    const value = episodeNum?.trim().replace(/\s+/g, '');
+    if (!value) return null;
+
+    const onscreen = /^s?(\d{1,3})[ex×](\d{1,4})$/i.exec(value);
+    if (onscreen) {
+        return `S${Number(onscreen[1])} E${Number(onscreen[2])}`;
+    }
+
+    const episodeOnly = /^e(?:p)?(\d{1,4})$/i.exec(value);
+    if (episodeOnly) {
+        return `E${Number(episodeOnly[1])}`;
+    }
+
+    const nsParts = value.split('.');
+    const nsField = /^(?:(\d+)(?:\/\d+)?)?$/;
+    if (nsParts.length === 3 && nsParts.every((part) => nsField.test(part))) {
+        const season = nsParts[0] ? Number(nsParts[0].split('/')[0]) + 1 : null;
+        const episode = nsParts[1]
+            ? Number(nsParts[1].split('/')[0]) + 1
+            : null;
+        if (season !== null && episode !== null) {
+            return `S${season} E${episode}`;
+        }
+        if (episode !== null) return `E${episode}`;
+        if (season !== null) return `S${season}`;
+    }
+
+    return null;
+}
+
 export function deduplicateProgramsByTimeSlot(
     programs: EpgProgram[]
 ): EpgProgram[] {

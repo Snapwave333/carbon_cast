@@ -1,6 +1,7 @@
 <div
     class="sidebar"
     [class.sidebar-collapsed]="isSidebarCollapsed()"
+    [class.sidebar-guide-hidden]="activeView() === 'guide'"
     appResizable
     [minWidth]="sidebarMinWidth"
     [maxWidth]="sidebarMaxWidth"
@@ -10,7 +11,11 @@
     (widthChange)="onSidebarWidthChange($event)"
     (resizeEnd)="onSidebarResizeEnd($event)"
 >
-    @if (activeView() !== 'groups' && activeView() !== 'all') {
+    @if (
+        activeView() !== 'groups' &&
+        activeView() !== 'all' &&
+        activeView() !== 'guide'
+    ) {
         <button
             mat-icon-button
             type="button"
@@ -43,7 +48,7 @@
     }
 </div>
 
-<div class="content-container">
+<div class="content-container" [class.guide-mode]="activeView() === 'guide'">
     @if (isSidebarCollapsed()) {
         <button
             mat-icon-button
@@ -90,7 +95,11 @@
             </div>
         }
 
-        @if (supportsEpg && activeChannel.radio !== 'true') {
+        @if (
+            supportsEpg &&
+            activeChannel.radio !== 'true' &&
+            activeView() !== 'guide'
+        ) {
             @let canCollapseEpgPanel = shouldShowInlinePlayer(activeChannel);
             <div
                 class="epg"
@@ -166,9 +175,25 @@
             </div>
         }
     } @else {
-        <app-portal-empty-state
-            icon="live_tv"
-            [message]="'CHANNELS.SELECT_CHANNEL_PLAYBACK' | translate"
+        <!-- The guide replaces the empty state; a hand-typed /guide URL on a
+             runtime without EPG still gets the empty state, not a blank pane. -->
+        @if (activeView() !== 'guide' || !supportsEpg) {
+            <app-portal-empty-state
+                icon="live_tv"
+                [message]="'CHANNELS.SELECT_CHANNEL_PLAYBACK' | translate"
+            />
+        }
+    }
+
+    <!-- TV-guide section: the multi-EPG grid owns the stage; an active
+         channel keeps playing in a compact strip above it. -->
+    @if (activeView() === 'guide' && supportsEpg) {
+        <app-multi-epg-container
+            class="inline-guide"
+            [playlistChannels]="channels$"
+            [activeChannelId]="activeChannel()?.tvg?.id ?? null"
+            [catchupResolver]="guideCatchupResolver"
+            (playRequested)="onGuidePlayRequested($event)"
         />
     }
 </div>

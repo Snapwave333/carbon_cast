@@ -11,6 +11,7 @@ import {
     effect,
     inject,
     signal,
+    untracked,
 } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
@@ -38,6 +39,7 @@ import {
     EpgTimelineComponent,
     getTodayEpgDateKey,
     MultiEpgContainerComponent,
+    MultiEpgPlayRequest,
     shiftEpgDateKey,
 } from '@iptvnator/ui/epg';
 import { EpgService } from '@iptvnator/epg/data-access';
@@ -110,6 +112,7 @@ import {
     STORE_KEY,
     Settings,
     VideoPlayer,
+    isM3uRecentlyViewedItem,
 } from '@iptvnator/shared/interfaces';
 import { createM3uChannelPlaybackRequest } from './m3u-channel-playback-actions';
 
@@ -132,6 +135,7 @@ const M3U_SIDEBAR_DEFAULT_WIDTH = 460;
         MatButtonModule,
         MatIconModule,
         MatTooltipModule,
+        MultiEpgContainerComponent,
         PortalEmptyStateComponent,
         ResizableDirective,
         SidebarComponent,
@@ -379,6 +383,7 @@ export class VideoPlayerComponent implements OnInit, OnDestroy {
     private unsubscribeRemoteCommand?: () => void;
     private statusSubscription?: Subscription;
     private lastKnownVolume = 1;
+    private resumeAttemptedForPlaylist: string | null = null;
     private lastRecordedRecentKey = '';
     private lastExternalSessionStateKey = this.getExternalSessionStateKey(
         this.externalPlayback.activeSession()
@@ -540,6 +545,59 @@ export class VideoPlayerComponent implements OnInit, OnDestroy {
             }
 
             this.store.dispatch(ChannelActions.resetActiveChannel());
+        });
+
+        // "Turn the TV back on": when the playlist opens with nothing
+        // playing, resume its most recently watched channel. Explicit deep
+        // links (recent/global-search navigation state) activate their own
+        // channel and win; the attempt runs once per playlist so a user who
+        // deliberately stops playback is not fought with.
+        effect(() => {
+            const playlistId = this.activePlaylistId();
+            const channels = this.channels();
+            const activeChannel = this.activeChannel();
+
+            if (!playlistId || channels.length === 0 || activeChannel) {
+                return;
+            }
+
+            untracked(() => {
+                if (this.resumeAttemptedForPlaylist === playlistId) {
+                    return;
+                }
+                if (this.settingsStore.resumeLastChannel?.() === false) {
+                    return;
+                }
+
+                const state = (window.history.state ?? {}) as Record<
+                    string,
+                    unknown
+                >;
+                if (
+                    typeof state['openRecentChannelUrl'] === 'string' ||
+                    typeof state['openM3uChannelUrl'] === 'string'
+                ) {
+                    return;
+                }
+
+                this.resumeAttemptedForPlaylist = playlistId;
+                const lastViewed = this.playlistContext
+                    .activePlaylist()
+                    ?.recentlyViewed?.find(isM3uRecentlyViewedItem);
+                const lastViewedUrl = lastViewed?.url;
+                if (!lastViewedUrl) {
+                    return;
+                }
+
+                const channel = channels.find(
+                    (item) => item.url === lastViewedUrl
+                );
+                if (channel) {
+                    this.store.dispatch(
+                        ChannelActions.setActiveChannel({ channel })
+                    );
+                }
+            });
         });
     }
 
@@ -924,6 +982,65 @@ export class VideoPlayerComponent implements OnInit, OnDestroy {
             this.switchToChannelByNumber(parseInt(this.channelNumberInput, 10));
             this.clearChannelNumberInput();
         }, 2000);
+    }
+
+    /**
+     * "Watch live" / "Watch from start" chosen in the TV guide's programme
+     * dialog: find the playlist channel behind the EPG channel and start
+     * playback. For timeshift, the channel switch dispatches first (reducers
+     * run synchronously), so the catch-up resolution effect sees the new
+     * active channel; when its URL can't be built it already falls back to
+     * live with a snackbar.
+     */
+    onGuidePlayRequested(request: MultiEpgPlayRequest): void {
+        const channel = this.resolveGuideChannel(
+            request.channelId,
+            request.channelName
+        );
+        if (!channel) {
+            return;
+        }
+        this.store.dispatch(createM3uChannelPlaybackRequest(channel));
+        if (request.mode === 'timeshift' && request.program) {
+            this.store.dispatch(
+                EpgActions.setActiveEpgProgram({ program: request.program })
+            );
+        }
+    }
+
+    /** Per-channel catch-up capability for the guide's programme dialogs. */
+    readonly guideCatchupResolver = (
+        channelId: string,
+        channelName: string | null
+    ) => {
+        const channel = this.resolveGuideChannel(channelId, channelName);
+        if (!channel) {
+            return null;
+        }
+        return {
+            available: isM3uCatchupPlaybackSupported(channel),
+            archiveDays: getM3uArchiveDays(channel),
+        };
+    };
+
+    /**
+     * The guide lists EPG-store channels, which may include channels outside
+     * this playlist — match by tvg-id first, display name as fallback.
+     */
+    private resolveGuideChannel(
+        channelId: string,
+        channelName: string | null
+    ): Channel | undefined {
+        const channels = this.channels();
+        const wantedName = channelName?.trim().toLowerCase();
+        return (
+            channels.find((item) => item.tvg?.id === channelId) ??
+            (wantedName
+                ? channels.find(
+                      (item) => item.name?.trim().toLowerCase() === wantedName
+                  )
+                : undefined)
+        );
     }
 
     /**

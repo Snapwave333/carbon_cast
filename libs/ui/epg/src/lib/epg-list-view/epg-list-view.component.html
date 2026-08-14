@@ -194,6 +194,7 @@
                                 [selected]="row.key === selectedKey()"
                                 [currentLocale]="currentLocale()"
                                 [nowMs]="nowMs()"
+                                [fallbackArtworkUrl]="channelLogo() || null"
                                 (activate)="onRowActivate(row)"
                                 (watch)="onWatch(row)"
                                 (info)="openDetails(row)"
