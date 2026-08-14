@@ -73,6 +73,9 @@
         </main>
     </div>
 
+    <!-- Lives in the shell, not in a page, so playback survives navigation. -->
+    <app-workspace-playback-bar />
+
     @if (facade.showExternalPlaybackBar()) {
         @if (facade.externalPlaybackSession(); as session) {
             <footer class="workspace-now-playing">

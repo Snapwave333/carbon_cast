@@ -665,19 +665,23 @@ describe('WorkspaceShellFacade', () => {
         );
     });
 
-    it('removes the dashboard rail link when dashboard is hidden', () => {
+    it('drops the sources tile the brand duplicates when dashboard is hidden', () => {
         showDashboardSignal.set(false);
 
+        // Brand → sources (first available), so the sources tile is filtered
+        // out to avoid two rail buttons leading to the same place. Radio sits
+        // with the content sources, ahead of the personal collections.
         expect(facade.workspaceLinks()).toEqual([
-            {
-                icon: 'library_books',
-                tooltip: 'WORKSPACE.SHELL.RAIL_SOURCES',
-                path: ['/workspace/sources'],
-            },
             {
                 icon: 'search',
                 tooltip: 'WORKSPACE.SHELL.RAIL_GLOBAL_SEARCH',
                 path: ['/workspace/search'],
+                exact: true,
+            },
+            {
+                icon: 'radio',
+                tooltip: 'WORKSPACE.SHELL.RAIL_RADIO_PODCASTS',
+                path: ['/workspace/radio'],
                 exact: true,
             },
             {
@@ -692,6 +696,12 @@ describe('WorkspaceShellFacade', () => {
                 path: ['/workspace/global-recent'],
                 exact: true,
             },
+            {
+                icon: 'calendar_month',
+                tooltip: 'WORKSPACE.SHELL.RAIL_FOLLOWED_SERIES',
+                path: ['/workspace/followed-series'],
+                exact: true,
+            },
         ]);
         expect(facade.brandLink()).toBe('/workspace/sources');
     });
@@ -700,10 +710,12 @@ describe('WorkspaceShellFacade', () => {
         runtime.isElectron = false;
         showDashboardSignal.set(false);
 
+        // Sources filtered (brand target); radio leads the remaining tiles.
         expect(facade.workspaceLinks().map((link) => link.path)).toEqual([
-            ['/workspace/sources'],
+            ['/workspace/radio'],
             ['/workspace/global-favorites'],
             ['/workspace/global-recent'],
+            ['/workspace/followed-series'],
         ]);
     });
 

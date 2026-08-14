@@ -11,6 +11,7 @@ export type WorkspaceShellPageKind =
     | 'global-recent'
     | 'global-search'
     | 'portal'
+    | 'radio'
     | 'settings'
     | 'sources'
     | 'unknown';
@@ -293,7 +294,9 @@ export function parseWorkspaceShellRoute(url: string): WorkspaceShellRoute {
                         ? 'global-search'
                         : page === 'downloads'
                           ? 'downloads'
-                          : 'unknown';
+                          : page === 'radio'
+                            ? 'radio'
+                            : 'unknown';
     const searchMode = resolveRouteSearchMode(kind, null, null);
 
     return {

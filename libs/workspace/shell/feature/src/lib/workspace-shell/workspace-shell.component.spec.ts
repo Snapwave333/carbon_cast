@@ -100,6 +100,13 @@ class MockExternalPlaybackDockComponent {
 }
 
 @Component({
+    selector: 'app-workspace-playback-bar',
+    template: '',
+    standalone: true,
+})
+class MockWorkspacePlaybackBarComponent {}
+
+@Component({
     selector: 'app-playlist-drop-overlay',
     template: '',
     standalone: true,
@@ -215,6 +222,7 @@ describe('WorkspaceShellComponent', () => {
                     imports: [
                         RouterOutlet,
                         MockExternalPlaybackDockComponent,
+                        MockWorkspacePlaybackBarComponent,
                         MockPlaylistDropOverlayComponent,
                         MockPlaylistDropZoneDirective,
                         MockWorkspaceShellContextSidebarComponent,
@@ -268,6 +276,7 @@ describe('WorkspaceShellComponent', () => {
                     imports: [
                         RouterOutlet,
                         MockExternalPlaybackDockComponent,
+                        MockWorkspacePlaybackBarComponent,
                         MockPlaylistDropOverlayComponent,
                         MockPlaylistDropZoneDirective,
                         MockWorkspaceShellContextSidebarComponent,
@@ -320,6 +329,7 @@ describe('WorkspaceShellComponent', () => {
                     imports: [
                         RouterOutlet,
                         MockExternalPlaybackDockComponent,
+                        MockWorkspacePlaybackBarComponent,
                         MockPlaylistDropOverlayComponent,
                         MockPlaylistDropZoneDirective,
                         MockWorkspaceShellContextSidebarComponent,
@@ -368,6 +378,7 @@ describe('WorkspaceShellComponent', () => {
                     imports: [
                         RouterOutlet,
                         MockExternalPlaybackDockComponent,
+                        MockWorkspacePlaybackBarComponent,
                         MockPlaylistDropOverlayComponent,
                         MockPlaylistDropZoneDirective,
                         MockWorkspaceShellContextSidebarComponent,

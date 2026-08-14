@@ -1,12 +1,19 @@
-<nav class="rail-links">
+<nav
+    class="rail-links"
+    [class.has-labels]="showLabels() && !expanded()"
+    [class.is-expanded]="expanded()"
+>
     @for (link of links(); track link.path.join('/')) {
         <a
             class="portal-rail-link nav-item"
+            [class.is-labelled]="showLabels() && !expanded()"
+            [class.is-expanded]="expanded()"
             [routerLink]="link.path"
             [routerLinkActive]="activeClass()"
             [routerLinkActiveOptions]="{ exact: link.exact ?? false }"
             [matTooltip]="link.tooltip"
-            [matTooltipPosition]="'right'"
+            [matTooltipPosition]="tooltipPosition()"
+            [matTooltipDisabled]="labelled()"
             [attr.aria-label]="link.tooltip"
             [attr.aria-current]="isActive(link) ? 'page' : null"
             [class.active]="activeClass() === 'active' && isActive(link)"
@@ -15,6 +22,11 @@
             "
         >
             <mat-icon [svgIcon]="resolveIcon(link)"></mat-icon>
+            @if (labelled()) {
+                <span class="portal-rail-link__label" aria-hidden="true">{{
+                    link.tooltip
+                }}</span>
+            }
         </a>
     }
 </nav>

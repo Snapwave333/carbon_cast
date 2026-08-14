@@ -1,7 +1,15 @@
 import { Injectable, inject } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { PlaylistsService, SettingsStore } from '@iptvnator/services';
-import { StartupBehavior } from '@iptvnator/shared/interfaces';
+import {
+    PlaylistsService,
+    RuntimeCapabilitiesService,
+    SettingsStore,
+} from '@iptvnator/services';
+import {
+    DefaultWorkspacePage,
+    Playlist,
+    StartupBehavior,
+} from '@iptvnator/shared/interfaces';
 import { parseWorkspaceShellRoute } from './navigation/workspace-shell-route.utils';
 
 const LAST_RESTORABLE_ROUTE_STORAGE_KEY = 'workspace-last-restorable-route-v1';
@@ -10,21 +18,24 @@ const LAST_RESTORABLE_ROUTE_STORAGE_KEY = 'workspace-last-restorable-route-v1';
 export class WorkspaceStartupPreferencesService {
     private readonly settingsStore = inject(SettingsStore);
     private readonly playlistsService = inject(PlaylistsService);
+    private readonly runtime = inject(RuntimeCapabilitiesService);
 
     async resolveInitialWorkspacePath(): Promise<string> {
         await this.settingsStore.loadSettings();
 
         const showDashboard = this.showDashboard();
         const firstViewPath =
-            this.getFirstAvailableWorkspacePath(showDashboard);
+            await this.resolveDefaultWorkspacePath(showDashboard);
 
         if (this.startupBehavior() !== StartupBehavior.RestoreLastView) {
             return firstViewPath;
         }
 
         return (
-            (await this.getValidatedLastRestorablePath(showDashboard)) ??
-            firstViewPath
+            (await this.getValidatedLastRestorablePath(
+                showDashboard,
+                firstViewPath
+            )) ?? firstViewPath
         );
     }
 
@@ -50,6 +61,39 @@ export class WorkspaceStartupPreferencesService {
         return (
             this.settingsStore.startupBehavior?.() ?? StartupBehavior.FirstView
         );
+    }
+
+    defaultWorkspacePage(): DefaultWorkspacePage {
+        return this.settingsStore.defaultWorkspacePage?.() ?? 'tv-guide';
+    }
+
+    async resolveDefaultWorkspacePath(
+        showDashboard = this.showDashboard()
+    ): Promise<string> {
+        const fallback = this.getFirstAvailableWorkspacePath(showDashboard);
+
+        switch (this.defaultWorkspacePage()) {
+            case 'tv-guide':
+                return (await this.resolveTvGuidePath()) ?? fallback;
+            case 'dashboard':
+                return showDashboard ? '/workspace/dashboard' : fallback;
+            case 'sources':
+                return '/workspace/sources';
+            case 'followed-series':
+                return '/workspace/followed-series';
+            case 'radio':
+                return '/workspace/radio';
+            case 'global-favorites':
+                return '/workspace/global-favorites';
+            case 'global-recent':
+                return '/workspace/global-recent';
+            case 'downloads':
+                return this.runtime.supportsDownloads
+                    ? '/workspace/downloads'
+                    : fallback;
+            default:
+                return fallback;
+        }
     }
 
     persistLastRestorablePath(url: string): void {
@@ -106,7 +150,8 @@ export class WorkspaceStartupPreferencesService {
     }
 
     async getValidatedLastRestorablePath(
-        showDashboard = this.showDashboard()
+        showDashboard = this.showDashboard(),
+        fallbackPath = this.getFirstAvailableWorkspacePath(showDashboard)
     ): Promise<string | null> {
         const storedPath = this.readLastRestorablePath();
         if (!storedPath) {
@@ -136,9 +181,26 @@ export class WorkspaceStartupPreferencesService {
                 (playlist) => playlist._id === route.context?.playlistId
             )
                 ? canonicalPath
-                : this.getFirstAvailableWorkspacePath(showDashboard);
+                : fallbackPath;
         } catch {
-            return this.getFirstAvailableWorkspacePath(showDashboard);
+            return fallbackPath;
+        }
+    }
+
+    private async resolveTvGuidePath(): Promise<string | null> {
+        try {
+            const playlists = await firstValueFrom(
+                this.playlistsService.getAllPlaylists()
+            );
+            const m3uPlaylists = playlists
+                .filter(isM3uPlaylist)
+                .sort(comparePlaylistUsage);
+            const playlist = m3uPlaylists[0];
+            return playlist?._id
+                ? `/workspace/playlists/${playlist._id}/guide`
+                : null;
+        } catch {
+            return null;
         }
     }
 
@@ -152,4 +214,15 @@ export class WorkspaceStartupPreferencesService {
             return null;
         }
     }
+}
+
+function isM3uPlaylist(playlist: Playlist): boolean {
+    return !playlist.serverUrl && !playlist.macAddress && !playlist.portalUrl;
+}
+
+function comparePlaylistUsage(left: Playlist, right: Playlist): number {
+    const leftUsage = Date.parse(left.lastUsage ?? left.importDate ?? '') || 0;
+    const rightUsage =
+        Date.parse(right.lastUsage ?? right.importDate ?? '') || 0;
+    return rightUsage - leftUsage;
 }

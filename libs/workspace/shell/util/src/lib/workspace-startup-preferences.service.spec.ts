@@ -1,8 +1,15 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
-import { PlaylistsService, SettingsStore } from '@iptvnator/services';
-import { StartupBehavior } from '@iptvnator/shared/interfaces';
+import {
+    PlaylistsService,
+    RuntimeCapabilitiesService,
+    SettingsStore,
+} from '@iptvnator/services';
+import {
+    DefaultWorkspacePage,
+    StartupBehavior,
+} from '@iptvnator/shared/interfaces';
 import { WorkspaceStartupPreferencesService } from './workspace-startup-preferences.service';
 
 describe('WorkspaceStartupPreferencesService', () => {
@@ -12,7 +19,9 @@ describe('WorkspaceStartupPreferencesService', () => {
         loadSettings: jest.Mock;
         showDashboard: ReturnType<typeof signal<boolean>>;
         startupBehavior: ReturnType<typeof signal<StartupBehavior>>;
+        defaultWorkspacePage: ReturnType<typeof signal<DefaultWorkspacePage>>;
     };
+    let runtime: { supportsDownloads: boolean };
 
     beforeEach(() => {
         localStorage.clear();
@@ -26,7 +35,9 @@ describe('WorkspaceStartupPreferencesService', () => {
             loadSettings: jest.fn().mockResolvedValue(undefined),
             showDashboard: signal(true),
             startupBehavior: signal(StartupBehavior.FirstView),
+            defaultWorkspacePage: signal<DefaultWorkspacePage>('dashboard'),
         };
+        runtime = { supportsDownloads: true };
 
         TestBed.configureTestingModule({
             providers: [
@@ -38,6 +49,10 @@ describe('WorkspaceStartupPreferencesService', () => {
                 {
                     provide: SettingsStore,
                     useValue: settingsStore,
+                },
+                {
+                    provide: RuntimeCapabilitiesService,
+                    useValue: runtime,
                 },
             ],
         });
@@ -56,6 +71,41 @@ describe('WorkspaceStartupPreferencesService', () => {
 
         await expect(service.resolveInitialWorkspacePath()).resolves.toBe(
             '/workspace/sources'
+        );
+    });
+
+    it('opens the most recently used M3U playlist on the TV guide by default', async () => {
+        settingsStore.defaultWorkspacePage.set('tv-guide');
+        playlistsService.getAllPlaylists.mockReturnValue(
+            of([
+                {
+                    _id: 'older',
+                    lastUsage: '2026-08-10T10:00:00Z',
+                },
+                {
+                    _id: 'newer',
+                    lastUsage: '2026-08-12T10:00:00Z',
+                },
+                {
+                    _id: 'xtream',
+                    lastUsage: '2026-08-13T10:00:00Z',
+                    serverUrl: 'https://example.invalid',
+                },
+            ])
+        );
+
+        await expect(service.resolveInitialWorkspacePath()).resolves.toBe(
+            '/workspace/playlists/newer/guide'
+        );
+    });
+
+    it('falls back safely when a removed startup page remains in storage', async () => {
+        settingsStore.defaultWorkspacePage.set(
+            'removed-page' as DefaultWorkspacePage
+        );
+
+        await expect(service.resolveInitialWorkspacePath()).resolves.toBe(
+            '/workspace/dashboard'
         );
     });
 

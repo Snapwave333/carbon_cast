@@ -101,6 +101,17 @@ export class WorkspaceShellRouteStateService {
             });
         }
 
+        // Ordered by intent: places to find content (dashboard, sources,
+        // search, radio) come first, then the personal collections (favourites,
+        // recent, followed series). Radio sits with the other content sources
+        // rather than trailing the collections.
+        links.push({
+            icon: 'radio',
+            tooltip: this.translateText('WORKSPACE.SHELL.RAIL_RADIO_PODCASTS'),
+            path: ['/workspace/radio'],
+            exact: true,
+        });
+
         links.push({
             icon: 'favorite',
             tooltip: this.translateText('HOME.PLAYLISTS.GLOBAL_FAVORITES'),
@@ -122,7 +133,11 @@ export class WorkspaceShellRouteStateService {
             exact: true,
         });
 
-        return links;
+        // The brand logo already navigates home (dashboard, or sources when the
+        // dashboard is off), so drop the nav tile that would send the user to
+        // the same place — otherwise the top two rail buttons are identical.
+        const brandTarget = this.brandLink();
+        return links.filter((link) => link.path.join('/') !== brandTarget);
     });
     readonly isDashboardRoute = computed(
         () => this.currentRoute().kind === 'dashboard'
@@ -204,6 +219,7 @@ export class WorkspaceShellRouteStateService {
                 provider: context.provider,
                 playlistId: context.playlistId,
                 supportsDownloads: this.runtime.supportsDownloads,
+                supportsEpg: this.runtime.supportsEpg,
                 workspace: true,
             }).primary,
             context.provider,
@@ -223,6 +239,7 @@ export class WorkspaceShellRouteStateService {
                 provider: context.provider,
                 playlistId: context.playlistId,
                 supportsDownloads: this.runtime.supportsDownloads,
+                supportsEpg: this.runtime.supportsEpg,
                 workspace: true,
             }).secondary.filter((link) => link.section !== 'downloads'),
             context.provider,

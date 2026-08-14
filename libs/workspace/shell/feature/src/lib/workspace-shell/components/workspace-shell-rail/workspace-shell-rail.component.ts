@@ -1,16 +1,20 @@
 import {
     ChangeDetectionStrategy,
     Component,
+    computed,
+    inject,
     input,
 } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
-import { MatTooltip } from '@angular/material/tooltip';
+import { MatTooltip, TooltipPosition } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import {
     PortalRailLink,
     PortalRailSection,
 } from '@iptvnator/portal/shared/util';
+import { RailExpansionService } from '@iptvnator/workspace/shell/util';
+import { SettingsStore } from '@iptvnator/services';
 import { WorkspaceShellRailLinksComponent } from '../workspace-shell-rail-links/workspace-shell-rail-links.component';
 
 @Component({
@@ -27,6 +31,9 @@ import { WorkspaceShellRailLinksComponent } from '../workspace-shell-rail-links/
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WorkspaceShellRailComponent {
+    private readonly railExpansion = inject(RailExpansionService);
+    private readonly settings = inject(SettingsStore);
+
     readonly isMacOS = input(false);
     readonly brandLink = input('/workspace/dashboard');
     readonly brandTooltipKey = input('WORKSPACE.SHELL.RAIL_DASHBOARD');
@@ -39,4 +46,26 @@ export class WorkspaceShellRailComponent {
     >(null);
     readonly railProviderClass = input('rail-context-region');
     readonly isSettingsRoute = input(false);
+
+    readonly expanded = this.railExpansion.expanded;
+
+    /** The rail sits on the right when mirrored, so hints point left there. */
+    private readonly mirrored = computed(
+        () => this.settings.mirrorLayout?.() ?? true
+    );
+    readonly tooltipPosition = computed<TooltipPosition>(() =>
+        this.mirrored() ? 'left' : 'right'
+    );
+    /** Chevron points the way the rail will grow / shrink. */
+    readonly expandIcon = computed(() => {
+        const towardEdge = this.mirrored() ? 'chevron_right' : 'chevron_left';
+        const towardContent = this.mirrored()
+            ? 'chevron_left'
+            : 'chevron_right';
+        return this.expanded() ? towardEdge : towardContent;
+    });
+
+    toggleExpanded(): void {
+        this.railExpansion.toggle();
+    }
 }

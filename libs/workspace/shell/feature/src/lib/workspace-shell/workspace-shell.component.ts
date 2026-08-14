@@ -9,6 +9,7 @@ import { WorkspaceShellContextSidebarComponent } from './components/workspace-sh
 import { WorkspaceShellHeaderComponent } from './components/workspace-shell-header/workspace-shell-header.component';
 import { WorkspaceShellImportOverlayComponent } from './components/workspace-shell-import-overlay/workspace-shell-import-overlay.component';
 import { WorkspaceShellRailComponent } from './components/workspace-shell-rail/workspace-shell-rail.component';
+import { WorkspacePlaybackBarComponent } from './components/workspace-playback-bar/workspace-playback-bar.component';
 import { WorkspaceShellFacade } from './services/workspace-shell.facade';
 import { WorkspaceShellXtreamImportService } from './services/workspace-shell-xtream-import.service';
 import { WorkspaceShellCommandPaletteService } from './services/workspace-shell-command-palette.service';
@@ -29,6 +30,7 @@ import { WorkspaceKeyboardShortcutsService } from '../workspace-keyboard-shortcu
         WorkspaceShellHeaderComponent,
         WorkspaceShellImportOverlayComponent,
         WorkspaceShellRailComponent,
+        WorkspacePlaybackBarComponent,
     ],
     templateUrl: './workspace-shell.component.html',
     styleUrl: './workspace-shell.component.scss',

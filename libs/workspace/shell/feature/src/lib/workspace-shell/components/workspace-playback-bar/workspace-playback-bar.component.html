@@ -1,0 +1,72 @@
+@if (hasMedia()) {
+    <section
+        class="playback-bar"
+        [class]="'playback-bar--' + size()"
+        [class.is-popped-out]="isPoppedOut()"
+        [style.--playback-bar-height]="height()"
+        [attr.aria-label]="'PLAYBACK_BAR.TITLE' | translate"
+    >
+        <div class="playback-bar__chrome">
+            <button
+                mat-icon-button
+                class="playback-bar__chrome-button"
+                [disabled]="isPoppedOut()"
+                [matTooltip]="sizeLabel() | translate"
+                [attr.aria-label]="sizeLabel() | translate"
+                (click)="cycleSize()"
+            >
+                <mat-icon [svgIcon]="sizeIcon()"></mat-icon>
+            </button>
+
+            @if (canPopOut) {
+                <button
+                    mat-icon-button
+                    class="playback-bar__chrome-button"
+                    [matTooltip]="
+                        (isPoppedOut()
+                            ? 'PLAYBACK_BAR.POP_IN'
+                            : 'PLAYBACK_BAR.POP_OUT'
+                        ) | translate
+                    "
+                    [attr.aria-label]="
+                        (isPoppedOut()
+                            ? 'PLAYBACK_BAR.POP_IN'
+                            : 'PLAYBACK_BAR.POP_OUT'
+                        ) | translate
+                    "
+                    (click)="togglePopOut()"
+                >
+                    <mat-icon
+                        [svgIcon]="
+                            isPoppedOut()
+                                ? 'picture_in_picture_alt'
+                                : 'picture_in_picture'
+                        "
+                    ></mat-icon>
+                </button>
+            }
+        </div>
+
+        <!-- The player is moved out of `slot` into the PiP window and back,
+             so it must stay a single stable element. -->
+        <div class="playback-bar__slot" #slot>
+            <div class="playback-bar__content" #content>
+                @if (radioTrack()) {
+                    <app-radio-player />
+                }
+            </div>
+        </div>
+
+        @if (isPoppedOut()) {
+            <p class="playback-bar__detached">
+                {{ 'PLAYBACK_BAR.PLAYING_IN_WINDOW' | translate }}
+            </p>
+        }
+
+        @if (popOutFailed()) {
+            <p class="playback-bar__detached" role="alert">
+                {{ 'PLAYBACK_BAR.POP_OUT_UNAVAILABLE' | translate }}
+            </p>
+        }
+    </section>
+}

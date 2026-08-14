@@ -32,6 +32,19 @@ app-workspace-shell-rail {
     min-height: 0;
 }
 
+// Expanded rail: widen its column so the labelled tiles get room and the
+// content reflows beside them instead of being overlaid. Desktop only — the
+// mobile rail is a horizontal bar and keeps its own layout.
+@media (min-width: 641px) {
+    :host-context(body.rail-expanded) .workspace-shell {
+        grid-template-columns: 232px 1fr;
+    }
+
+    :host-context(body.rail-expanded.layout-mirrored) .workspace-shell {
+        grid-template-columns: 1fr 232px;
+    }
+}
+
 // Reserves the top-right corner for the floating window controls and keeps a
 // draggable strip along the top edge now that the header sits at the bottom.
 .workspace-titlebar-strip {
@@ -85,10 +98,43 @@ app-workspace-shell-context-sidebar {
 }
 
 
+// ─── Mirrored layout (navigation rail on the right) ─────────────────────────
+// Driven by the body-level `layout-mirrored` class, the same switch that flips
+// the player/channel panes. Guarded by min-width so the narrow layout below,
+// which stacks the rail as a row, is not defeated by :host-context()'s higher
+// specificity.
+@media (min-width: 641px) {
+    :host-context(body.layout-mirrored) {
+        .workspace-shell {
+            grid-template-columns: 1fr 100px;
+        }
+
+        app-workspace-shell-rail {
+            grid-column: 2;
+        }
+
+        .workspace-titlebar-strip,
+        app-workspace-shell-header,
+        .workspace-body,
+        .workspace-now-playing {
+            grid-column: 1;
+        }
+
+        .workspace-content {
+            border-radius: 0 16px 16px 0;
+            box-shadow: 4px 8px 20px var(--app-content-shadow, rgba(0, 0, 0, 0.18));
+        }
+    }
+}
+
 @media (max-width: 780px) {
     .workspace-shell {
         grid-template-columns: 96px 1fr;
         grid-template-rows: var(--titlebar-strip-h) 1fr auto 56px;
+    }
+
+    :host-context(body.layout-mirrored) .workspace-shell {
+        grid-template-columns: 1fr 96px;
     }
 }
 

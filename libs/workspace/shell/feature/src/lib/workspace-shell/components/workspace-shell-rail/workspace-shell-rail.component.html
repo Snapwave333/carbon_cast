@@ -1,51 +1,112 @@
-<aside class="app-rail" [class.is-macos]="isMacOS()">
-    <a
-        class="brand"
-        [routerLink]="brandLink()"
-        [matTooltip]="brandTooltipKey() | translate"
-        [matTooltipPosition]="'right'"
-        [attr.aria-label]="brandAriaLabelKey() | translate"
-    >
-        <img
-            src="./assets/icons/app-icon.svg"
-            [attr.alt]="'WORKSPACE.SHELL.BRAND_ALT' | translate"
-        />
-    </a>
-
-    <app-workspace-shell-rail-links [links]="workspaceLinks()" />
-
-    @if (primaryContextLinks().length > 0) {
-        <div
-            class="rail-context-region"
-            [class]="railProviderClass()"
+<aside
+    class="app-rail"
+    [class.is-macos]="isMacOS()"
+    [class.is-expanded]="expanded()"
+>
+    <!-- Destinations column. It hugs its icons and never scrolls — the tiles
+         shrink to fit — and the utility controls below stay pinned. -->
+    <div class="rail-scroll">
+        <a
+            class="brand"
+            [class.is-expanded]="expanded()"
+            [routerLink]="brandLink()"
+            [matTooltip]="brandTooltipKey() | translate"
+            [matTooltipPosition]="tooltipPosition()"
+            [matTooltipDisabled]="expanded()"
+            [attr.aria-label]="brandAriaLabelKey() | translate"
         >
-            <app-workspace-shell-rail-links
-                activeClass="is-active"
-                [selectedSection]="selectedSection()"
-                [links]="primaryContextLinks()"
+            <img
+                src="./assets/icons/app-icon.svg"
+                [attr.alt]="'WORKSPACE.SHELL.BRAND_ALT' | translate"
             />
+            @if (expanded()) {
+                <span class="rail-tile-label" aria-hidden="true">{{
+                    brandTooltipKey() | translate
+                }}</span>
+            }
+        </a>
 
-            @if (secondaryContextLinks().length > 0) {
-                <div class="rail-divider"></div>
+        <app-workspace-shell-rail-links
+            [links]="workspaceLinks()"
+            [expanded]="expanded()"
+            [tooltipPosition]="tooltipPosition()"
+        />
+
+        @if (primaryContextLinks().length > 0) {
+            <div
+                class="rail-context-region"
+                [class]="railProviderClass()"
+            >
                 <app-workspace-shell-rail-links
                     activeClass="is-active"
+                    showLabels
+                    [expanded]="expanded()"
+                    [tooltipPosition]="tooltipPosition()"
                     [selectedSection]="selectedSection()"
-                    [links]="secondaryContextLinks()"
+                    [links]="primaryContextLinks()"
                 />
-            }
-        </div>
-    }
+
+                @if (secondaryContextLinks().length > 0) {
+                    <div class="rail-divider"></div>
+                    <app-workspace-shell-rail-links
+                        activeClass="is-active"
+                        showLabels
+                        [expanded]="expanded()"
+                        [tooltipPosition]="tooltipPosition()"
+                        [selectedSection]="selectedSection()"
+                        [links]="secondaryContextLinks()"
+                    />
+                }
+            </div>
+        }
+    </div>
 
     <div class="rail-footer">
+        <button
+            type="button"
+            class="rail-shortcut rail-toggle nav-item"
+            [class.is-expanded]="expanded()"
+            [matTooltip]="
+                (expanded()
+                    ? 'WORKSPACE.SHELL.COLLAPSE_RAIL'
+                    : 'WORKSPACE.SHELL.EXPAND_RAIL'
+                ) | translate
+            "
+            [matTooltipPosition]="tooltipPosition()"
+            [matTooltipDisabled]="expanded()"
+            [attr.aria-label]="
+                (expanded()
+                    ? 'WORKSPACE.SHELL.COLLAPSE_RAIL'
+                    : 'WORKSPACE.SHELL.EXPAND_RAIL'
+                ) | translate
+            "
+            [attr.aria-expanded]="expanded()"
+            (click)="toggleExpanded()"
+        >
+            <mat-icon [svgIcon]="expandIcon()"></mat-icon>
+            @if (expanded()) {
+                <span class="rail-tile-label" aria-hidden="true">{{
+                    'WORKSPACE.SHELL.COLLAPSE_RAIL' | translate
+                }}</span>
+            }
+        </button>
+
         <a
             class="rail-shortcut nav-item"
+            [class.is-expanded]="expanded()"
             routerLink="/workspace/settings"
             [class.is-active]="isSettingsRoute()"
             [matTooltip]="'WORKSPACE.SHELL.RAIL_SETTINGS' | translate"
-            [matTooltipPosition]="'right'"
+            [matTooltipPosition]="tooltipPosition()"
+            [matTooltipDisabled]="expanded()"
             [attr.aria-label]="'WORKSPACE.SHELL.OPEN_SETTINGS' | translate"
         >
             <mat-icon svgIcon="settings"></mat-icon>
+            @if (expanded()) {
+                <span class="rail-tile-label" aria-hidden="true">{{
+                    'WORKSPACE.SHELL.RAIL_SETTINGS' | translate
+                }}</span>
+            }
         </a>
     </div>
 </aside>

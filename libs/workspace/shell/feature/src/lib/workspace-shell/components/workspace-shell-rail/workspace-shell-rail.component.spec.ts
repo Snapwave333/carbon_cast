@@ -18,6 +18,9 @@ class MockWorkspaceShellRailLinksComponent {
     readonly links = input<unknown[]>([]);
     readonly selectedSection = input<string | null>(null);
     readonly activeClass = input('active');
+    readonly showLabels = input(false);
+    readonly expanded = input(false);
+    readonly tooltipPosition = input('right');
 }
 
 describe('WorkspaceShellRailComponent', () => {
