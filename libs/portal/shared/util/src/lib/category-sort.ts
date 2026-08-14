@@ -21,15 +21,26 @@ export function restorePortalCategorySortMode(
     storageKey: string = WORKSPACE_CATEGORY_SORT_STORAGE_KEY,
     fallback: PortalCategorySortMode = DEFAULT_PORTAL_CATEGORY_SORT_MODE
 ): PortalCategorySortMode {
-    const storedValue = localStorage.getItem(storageKey);
-    return isPortalCategorySortMode(storedValue) ? storedValue : fallback;
+    // Both accessors are called from component field initializers, so a
+    // storage SecurityError (blocked cookies, private mode, sandboxed
+    // renderer) would otherwise stop the whole category sidebar rendering.
+    try {
+        const storedValue = localStorage.getItem(storageKey);
+        return isPortalCategorySortMode(storedValue) ? storedValue : fallback;
+    } catch {
+        return fallback;
+    }
 }
 
 export function persistPortalCategorySortMode(
     mode: PortalCategorySortMode,
     storageKey: string = WORKSPACE_CATEGORY_SORT_STORAGE_KEY
 ): void {
-    localStorage.setItem(storageKey, mode);
+    try {
+        localStorage.setItem(storageKey, mode);
+    } catch {
+        // The sort mode falls back to the default on the next boot.
+    }
 }
 
 export function sortPortalCategoryItems<T>(

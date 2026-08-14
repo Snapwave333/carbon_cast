@@ -5,6 +5,7 @@
     [cdkDragDisabled]="!isDraggable()"
     cdkDragPreviewContainer="parent"
     [class.active]="selected()"
+    [attr.aria-current]="selected() ? 'true' : null"
     (click)="onClick($event)"
     (dblclick)="onDoubleClick()"
     (contextmenu)="onContextMenu($event)"
@@ -23,7 +24,11 @@
                     class="channel-logo"
                     [src]="logo()"
                     (error)="onLogoError($event)"
-                    alt="Channel Logo"
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                    width="44"
+                    height="44"
                 />
             }
         </div>
@@ -101,6 +106,7 @@
                             : 'CHANNELS.ADD_FAVORITE'
                         ) | translate
                     "
+                    [attr.aria-pressed]="isFavorite()"
                     (click)="onFavoriteClick($event)"
                 >
                     <mat-icon [svgIcon]="isFavorite() ? 'star' : 'star_outline'"></mat-icon>

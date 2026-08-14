@@ -75,7 +75,8 @@
                     i +
                     1 +
                     '. ' +
-                    (channel?.name || 'CHANNELS.UNNAMED_CHANNEL' | translate)
+                    (channel?.name ||
+                        ('CHANNELS.UNNAMED_CHANNEL' | translate))
                 "
                 [logo]="getLogoForChannel(channel)"
                 [showEpg]="shouldShowEpg()"

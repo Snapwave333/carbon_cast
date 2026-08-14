@@ -65,6 +65,10 @@ import {
     normalizeEpgUrls,
 } from '@iptvnator/shared/m3u-utils';
 import { ChannelGroup } from './channel-group.model';
+import {
+    CHANNEL_ROW_COMPACT_HEIGHT_PX,
+    CHANNEL_ROW_HEIGHT_PX,
+} from './channel-row-metrics';
 import { AllChannelsViewComponent } from './all-channels-view/all-channels-view.component';
 import { FavoritesViewComponent } from './favorites-view/favorites-view.component';
 import { GroupsViewComponent } from './groups-view/groups-view.component';
@@ -194,8 +198,18 @@ export class ChannelListContainerComponent implements OnInit, OnDestroy {
         this.settingsStore.openStreamOnDoubleClick()
     );
 
-    /** Item size for virtual scroll - compact when no EPG */
-    readonly itemSize = computed(() => (this.shouldShowEpg() ? 68 : 48));
+    /**
+     * Item size for virtual scroll - compact when no EPG. Must match the row
+     * heights in channel-list-item.component.scss (.channel-list-item and its
+     * .compact variant): an undersized value makes the CDK misreport the
+     * scrollable height, which across 90k rows leaves the end of the list
+     * unreachable.
+     */
+    readonly itemSize = computed(() =>
+        this.shouldShowEpg()
+            ? CHANNEL_ROW_HEIGHT_PX
+            : CHANNEL_ROW_COMPACT_HEIGHT_PX
+    );
 
     /** Active view (all, groups, favorites, recent) */
     readonly activeView = input<string>('all');
@@ -281,7 +295,7 @@ export class ChannelListContainerComponent implements OnInit, OnDestroy {
         return playlist.hiddenGroupTitles ?? [];
     });
 
-    /** Displayed channels - filters out unfavorited channels in global favorites view */
+    /** Channels the views render, minus the ones the language filter hides. */
     readonly displayedChannels = computed(() => {
         const channels = this.channelListSignal();
         if (!this.settingsStore.hideSpanishChannels?.()) {

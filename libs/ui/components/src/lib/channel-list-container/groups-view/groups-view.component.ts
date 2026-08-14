@@ -24,6 +24,10 @@ import { resolveChannelEpgLookupKey } from '@iptvnator/m3u-state';
 import { Channel, EpgProgram } from '@iptvnator/shared/interfaces';
 import { canonicalCategoryKey } from '@iptvnator/shared/m3u-utils';
 import { ChannelGroup } from '../channel-group.model';
+import {
+    CHANNEL_ROW_COMPACT_HEIGHT_PX,
+    CHANNEL_ROW_HEIGHT_PX,
+} from '../channel-row-metrics';
 import { categoryIconFor } from './category-icon.util';
 import { buildChannelEpgMetadataMap } from '../epg-enrichment.util';
 import {
@@ -146,7 +150,11 @@ export class GroupsViewComponent {
             this.searchTerm().trim().length > 0 ||
             this.localGroupSearchTerm().trim().length > 0
     );
-    readonly itemSize = computed(() => (this.shouldShowEpg() ? 68 : 48));
+    readonly itemSize = computed(() =>
+        this.shouldShowEpg()
+            ? CHANNEL_ROW_HEIGHT_PX
+            : CHANNEL_ROW_COMPACT_HEIGHT_PX
+    );
     readonly contextMenuChannel = signal<Channel | null>(null);
     readonly contextMenuPosition = signal({
         x: '0px',

@@ -16,7 +16,8 @@
                     i +
                     1 +
                     '. ' +
-                    (channel?.name || 'CHANNELS.UNNAMED_CHANNEL' | translate)
+                    (channel?.name ||
+                        ('CHANNELS.UNNAMED_CHANNEL' | translate))
                 "
                 [isDraggable]="!hasSearchTerm()"
                 [logo]="getLogoForChannel(channel)"
