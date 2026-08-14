@@ -47,7 +47,9 @@ export class WorkspaceKeyboardShortcutsService {
             width: 'min(960px, 94vw)',
             maxWidth: '94vw',
             panelClass: 'workspace-shortcuts-overlay',
-            autoFocus: false,
+            // Without this the overlay opens with focus left behind it, so
+            // the first Tab walks the page underneath the modal.
+            autoFocus: 'first-tabbable',
             data: {
                 groups: getKeyboardShortcutGroups({
                     isMac: platform === 'mac',

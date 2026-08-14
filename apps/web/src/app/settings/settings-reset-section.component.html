@@ -21,15 +21,12 @@
             </div>
             <button
                 mat-button
+                type="button"
                 class="danger-zone__button"
                 [class.danger-zone__button--busy]="isRemovingAllPlaylists()"
                 [disabled]="!canRemoveAllPlaylists()"
                 [attr.aria-busy]="isRemovingAllPlaylists()"
-                (click)="
-                    $event.preventDefault();
-                    $event.stopPropagation();
-                    removeAll.emit()
-                "
+                (click)="removeAll.emit()"
                 color="warn"
             >
                 @if (isRemovingAllPlaylists()) {

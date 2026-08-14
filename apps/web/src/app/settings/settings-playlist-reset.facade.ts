@@ -69,7 +69,10 @@ export class SettingsPlaylistResetFacade {
                 SettingsDeleteAllPlaylistsDialogData,
                 boolean
             >(SettingsDeleteAllPlaylistsDialogComponent, {
-                autoFocus: false,
+                // The dialog marks Cancel as cdkFocusInitial; autoFocus:false
+                // would suppress it and open this destructive confirm with
+                // focus on nothing.
+                autoFocus: '[cdkFocusInitial]',
                 data: {
                     summary: this.deleteSummary(),
                 },

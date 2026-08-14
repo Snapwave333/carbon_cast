@@ -77,6 +77,9 @@ export class WorkspacePlaybackBarComponent {
     async togglePopOut(): Promise<void> {
         if (this.pip.isOpen) {
             this.pip.close();
+            // Clear a previous failure so its alert cannot outlive the
+            // pop-out it referred to.
+            this.popOutFailed.set(false);
             return;
         }
 

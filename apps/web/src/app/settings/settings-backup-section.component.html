@@ -23,27 +23,21 @@
         <div class="setting-item__control inline-actions">
             <button
                 mat-button
+                type="button"
                 class="inline-actions__button"
                 [disabled]="isRemovingAllPlaylists() || isExportingData()"
-                (click)="
-                    $event.preventDefault();
-                    $event.stopPropagation();
-                    importData.emit()
-                "
+                (click)="importData.emit()"
             >
                 {{ 'SETTINGS.IMPORT_DATA' | translate }}
             </button>
             <button
                 mat-button
+                type="button"
                 class="inline-actions__button"
                 [class.inline-actions__button--busy]="isExportingData()"
                 [disabled]="isRemovingAllPlaylists() || isExportingData()"
                 [attr.aria-busy]="isExportingData()"
-                (click)="
-                    $event.preventDefault();
-                    $event.stopPropagation();
-                    exportData.emit()
-                "
+                (click)="exportData.emit()"
             >
                 @if (isExportingData()) {
                     <mat-progress-spinner
