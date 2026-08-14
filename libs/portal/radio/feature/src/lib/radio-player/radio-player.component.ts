@@ -330,10 +330,17 @@ export class RadioPlayerComponent {
 }
 
 function readStoredVolume(): number {
-    const stored = Number.parseFloat(
-        localStorage.getItem(VOLUME_STORAGE_KEY) ?? '1'
-    );
-    return Number.isFinite(stored) ? Math.max(0, Math.min(1, stored)) : 1;
+    // Runs as a field initializer, so an unguarded throw here (private mode,
+    // storage blocked in an embedded context) would take the whole playback
+    // bar down with it. The paired write in setVolume is already guarded.
+    try {
+        const stored = Number.parseFloat(
+            localStorage.getItem(VOLUME_STORAGE_KEY) ?? '1'
+        );
+        return Number.isFinite(stored) ? Math.max(0, Math.min(1, stored)) : 1;
+    } catch {
+        return 1;
+    }
 }
 
 function toErrorMessage(error: unknown): string {

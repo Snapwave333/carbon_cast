@@ -162,7 +162,6 @@
                         <div class="radio__state" role="alert">
                             <mat-icon svgIcon="cloud_off"></mat-icon>
                             <p>{{ 'RADIO.STATIONS_ERROR' | translate }}</p>
-                            <small>{{ stations().error }}</small>
                             <button mat-stroked-button (click)="retryStations()">
                                 {{ 'RADIO.RETRY' | translate }}
                             </button>
@@ -173,6 +172,21 @@
                         <div class="radio__state">
                             <mat-icon svgIcon="search_off"></mat-icon>
                             <p>{{ 'RADIO.STATIONS_EMPTY' | translate }}</p>
+                            @if (hasStationFilters()) {
+                                <button
+                                    mat-stroked-button
+                                    (click)="clearStationFilters()"
+                                >
+                                    {{ 'RADIO.CLEAR_FILTERS' | translate }}
+                                </button>
+                            } @else {
+                                <button
+                                    mat-stroked-button
+                                    (click)="retryStations()"
+                                >
+                                    {{ 'RADIO.RETRY' | translate }}
+                                </button>
+                            }
                         </div>
                     } @else {
                         @for (group of stationGroups(); track group.label) {
@@ -292,7 +306,6 @@
                                         }}
                                     </p>
                                     @if (!episodesBlocked()) {
-                                        <small>{{ episodes().error }}</small>
                                     }
                                     <button
                                         mat-stroked-button
@@ -372,7 +385,6 @@
                             <div class="radio__state" role="alert">
                                 <mat-icon svgIcon="cloud_off"></mat-icon>
                                 <p>{{ 'RADIO.PODCASTS_ERROR' | translate }}</p>
-                                <small>{{ shows().error }}</small>
                                 <button
                                     mat-stroked-button
                                     (click)="retryPodcasts()"

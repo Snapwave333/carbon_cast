@@ -30,6 +30,14 @@ const FALLBACK_MIRRORS = [
 ] as const;
 
 const REQUEST_TIMEOUT_MS = 12_000;
+/**
+ * Individual mirrors go down routinely, so a request walks the list — but
+ * discovery returns ~10 servers, and walking all of them at 12s each left a
+ * user with no connectivity watching a spinner for two minutes. Try a few and
+ * give up inside a bounded wall-clock budget instead.
+ */
+const MAX_MIRROR_ATTEMPTS = 3;
+const TOTAL_REQUEST_BUDGET_MS = 20_000;
 const FACET_CACHE_TTL_MS = 6 * 60 * 60 * 1000;
 const DEFAULT_STATION_LIMIT = 60;
 
@@ -83,10 +91,24 @@ function shuffle<T>(items: readonly T[]): T[] {
     return copy;
 }
 
+/**
+ * The catalogue is community-editable and the stream URL is later assigned
+ * straight to `audio.src`, which bypasses Angular's sanitizer — so anything
+ * that is not plain http(s) is dropped here rather than at playback time.
+ */
+function isPlayableStreamUrl(value: string): boolean {
+    try {
+        const { protocol } = new URL(value);
+        return protocol === 'http:' || protocol === 'https:';
+    } catch {
+        return false;
+    }
+}
+
 export function normalizeStation(raw: RawStation): RadioStation | null {
     const streamUrl = (raw.url_resolved || raw.url || '').trim();
     const id = (raw.stationuuid ?? '').trim();
-    if (!id || !streamUrl) {
+    if (!id || !streamUrl || !isPlayableStreamUrl(streamUrl)) {
         return null;
     }
 
@@ -263,10 +285,19 @@ export class RadioBrowserService {
 
         const search = params ? `?${new URLSearchParams(params)}` : '';
         let lastError: unknown = new Error('No Radio Browser mirror available');
+        const deadline = Date.now() + TOTAL_REQUEST_BUDGET_MS;
 
-        for (const mirror of [...this.mirrors]) {
+        for (const mirror of [...this.mirrors].slice(0, MAX_MIRROR_ATTEMPTS)) {
+            const remainingMs = deadline - Date.now();
+            if (remainingMs <= 0) {
+                break;
+            }
+
             try {
-                const payload = await fetchJson<T>(`${mirror}${path}${search}`);
+                const payload = await fetchJson<T>(
+                    `${mirror}${path}${search}`,
+                    Math.min(REQUEST_TIMEOUT_MS, remainingMs)
+                );
                 this.promoteMirror(mirror);
                 return payload;
             } catch (error) {
@@ -309,9 +340,12 @@ export class RadioBrowserService {
     }
 }
 
-async function fetchJson<T>(url: string): Promise<T> {
+async function fetchJson<T>(
+    url: string,
+    timeoutMs = REQUEST_TIMEOUT_MS
+): Promise<T> {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+    const timeout = setTimeout(() => controller.abort(), timeoutMs);
 
     try {
         const response = await fetch(url, {

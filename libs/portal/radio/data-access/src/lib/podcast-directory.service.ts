@@ -125,7 +125,9 @@ export class PodcastDirectoryService {
             batches.push(ids.slice(index, index + LOOKUP_BATCH_SIZE));
         }
 
-        const responses = await Promise.all(
+        // allSettled, not all: one failing batch must not discard the shows
+        // the other batches resolved fine.
+        const responses = await Promise.allSettled(
             batches.map((batch) =>
                 fetchJson<RawSearchResponse>(
                     `${LOOKUP_URL}?${new URLSearchParams({
@@ -136,9 +138,15 @@ export class PodcastDirectoryService {
             )
         );
 
+        if (responses.every((response) => response.status === 'rejected')) {
+            throw responses[0].reason;
+        }
+
         const collected: RawCollection[] = [];
         for (const response of responses) {
-            collected.push(...(response.results ?? []));
+            if (response.status === 'fulfilled') {
+                collected.push(...(response.value.results ?? []));
+            }
         }
         const shows = toShows(collected);
 

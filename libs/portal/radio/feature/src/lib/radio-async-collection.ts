@@ -47,11 +47,14 @@ export class AsyncCollection<T> {
             }
 
             onError?.(error);
-            this.state.set({
-                items: [],
+            // Keep whatever the user is already looking at: a failed refresh
+            // (one more keystroke, a mirror returning 503) must not clear a
+            // list that is still perfectly usable.
+            this.state.update((current) => ({
+                ...current,
                 isLoading: false,
                 error: error instanceof Error ? error.message : String(error),
-            });
+            }));
         }
     }
 
@@ -68,12 +71,17 @@ export class Debouncer {
     constructor(private readonly delayMs: number) {}
 
     schedule(run: () => void): void {
-        if (this.timer !== null) {
-            clearTimeout(this.timer);
-        }
+        this.cancel();
         this.timer = setTimeout(() => {
             this.timer = null;
             run();
         }, this.delayMs);
+    }
+
+    cancel(): void {
+        if (this.timer !== null) {
+            clearTimeout(this.timer);
+            this.timer = null;
+        }
     }
 }

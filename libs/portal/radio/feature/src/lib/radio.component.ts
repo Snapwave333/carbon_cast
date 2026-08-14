@@ -1,6 +1,7 @@
 import {
     ChangeDetectionStrategy,
     Component,
+    DestroyRef,
     ElementRef,
     computed,
     effect,
@@ -191,6 +192,16 @@ export class RadioComponent {
     constructor() {
         void this.loadFacets();
         void this.loadStations();
+
+        // A search debounced moments before navigating away would otherwise
+        // still fire its request and write to signals of a destroyed view.
+        inject(DestroyRef).onDestroy(() => {
+            this.stationDebounce.cancel();
+            this.podcastDebounce.cancel();
+            this.stationRequest.reset();
+            this.showRequest.reset();
+            this.episodeRequest.reset();
+        });
 
         effect(() => {
             const activeTab = this.tab();
