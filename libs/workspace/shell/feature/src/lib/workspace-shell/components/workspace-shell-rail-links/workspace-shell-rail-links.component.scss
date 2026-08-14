@@ -8,17 +8,60 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
+    // Geometry comes from the rail so every tile in the column matches, and
+    // shrinks together on short windows.
+    gap: var(--rail-gap, 6px);
     width: 100%;
+
+    &.is-expanded {
+        align-items: stretch;
+    }
+}
+
+// Expanded rail: a full-width row of glyph + untruncated label.
+.portal-rail-link.is-expanded {
+    width: 100%;
+    height: 40px;
+    min-height: 40px;
+    // Override the base grid tile: a left-aligned icon + label row.
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 12px;
+    padding: 0 12px;
+    border-radius: 10px;
+
+    mat-icon {
+        flex: 0 0 auto;
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+    }
+
+    .portal-rail-link__label {
+        // Full label, one line, no clamp or ellipsis.
+        max-width: none;
+        font-size: 0.82rem;
+        font-weight: 500;
+        line-height: 1.2;
+        letter-spacing: 0;
+        text-align: left;
+        white-space: nowrap;
+        overflow: visible;
+        opacity: 0.9;
+        -webkit-line-clamp: none;
+        line-clamp: none;
+    }
 }
 
 // Glass rail buttons: translucent squares floating on the glass panel.
 .portal-rail-link {
-    width: 52px;
-    height: 52px;
+    width: var(--rail-tile-size, 40px);
+    height: var(--rail-tile-size, 40px);
     padding: 0;
     gap: 0;
-    border-radius: 14px;
+    border-radius: var(--rail-tile-radius, 11px);
     position: relative;
     z-index: 1;
     display: grid;
@@ -51,10 +94,57 @@
     }
 
     mat-icon {
-        font-size: 20px;
-        width: 20px;
-        height: 20px;
+        font-size: var(--rail-icon-size, 18px);
+        width: var(--rail-icon-size, 18px);
+        height: var(--rail-icon-size, 18px);
     }
+}
+
+// Labelled variant: the tile grows just enough to seat a caption under the
+// glyph, so the playlist-context section reads as named destinations rather
+// than a run of identical squares.
+.portal-rail-link.is-labelled {
+    // 56px: wide enough that "channels" (the longest default caption word)
+    // fits on the second clamped line — at 50px it overflowed to a third
+    // line and the clamp ellipsized to "channe…".
+    width: 56px;
+    height: auto;
+    min-height: calc(var(--rail-tile-size, 40px) + 12px);
+    border-radius: 13px;
+    grid-template-rows: auto auto;
+    align-content: center;
+    row-gap: 2px;
+    padding: 5px 3px;
+
+    mat-icon {
+        font-size: calc(var(--rail-icon-size, 18px) - 1px);
+        width: calc(var(--rail-icon-size, 18px) - 1px);
+        height: calc(var(--rail-icon-size, 18px) - 1px);
+    }
+}
+
+// Wraps to at most two lines so longer names ("All channels", and longer
+// translations of it) stay readable instead of ellipsing to "All chann…".
+.portal-rail-link__label {
+    max-width: 100%;
+    font-size: 9.5px;
+    font-weight: 600;
+    line-height: 1.15;
+    letter-spacing: 0;
+    text-align: center;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow-wrap: anywhere;
+    opacity: 0.82;
+}
+
+.portal-rail-link.is-labelled.is-active .portal-rail-link__label,
+.portal-rail-link.is-labelled.active .portal-rail-link__label,
+.portal-rail-link.is-labelled:hover .portal-rail-link__label {
+    opacity: 1;
 }
 
 @for $i from 1 through 8 {

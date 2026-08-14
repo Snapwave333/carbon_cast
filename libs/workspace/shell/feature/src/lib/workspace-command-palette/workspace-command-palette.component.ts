@@ -56,6 +56,14 @@ export class WorkspaceCommandPaletteComponent implements AfterViewInit {
     readonly query = signal(this.data?.query ?? '');
     readonly selectedIndex = signal(0);
 
+    // The shortcut hint must match the key the shell actually listens for:
+    // ⌘K on macOS, Ctrl+K everywhere else (the ⌘ glyph was hardcoded before).
+    protected readonly shortcutHint = /mac/i.test(
+        globalThis.navigator?.platform ?? ''
+    )
+        ? '⌘K'
+        : 'Ctrl+K';
+
     readonly visibleCommands = computed(() =>
         this.data.commands.filter((command) => command.visible)
     );

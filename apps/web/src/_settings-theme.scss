@@ -1,3 +1,9 @@
+// NOTE: the app theme currently defines only --mat-sys-primary; the other
+// Material system tokens referenced here do not exist at runtime. A bare
+// var(--mat-sys-*) inside color-mix() therefore made the whole declaration
+// invalid at computed-value time, silently collapsing the header, group, and
+// action-bar surfaces to transparent. Every reference carries an explicit
+// per-theme fallback until the theme emits real system tokens.
 .settings-container {
     --settings-safe-bottom: env(safe-area-inset-bottom, 0px);
     // Action bar is a full-width sticky footer, so it sits flush against
@@ -16,12 +22,12 @@
     --settings-action-bar-space: 0px;
     --settings-page-header-bg: color-mix(
         in srgb,
-        var(--mat-sys-surface-container-low) 94%,
+        var(--mat-sys-surface-container-low, #eef1f6) 94%,
         rgba(255, 255, 255, 0.98)
     );
     --settings-page-header-border: color-mix(
         in srgb,
-        var(--mat-sys-outline-variant) 72%,
+        var(--mat-sys-outline-variant, #c3c9d6) 72%,
         transparent
     );
     --settings-page-header-shadow:
@@ -29,12 +35,12 @@
         0 1px 0 rgba(255, 255, 255, 0.68) inset;
     --settings-group-bg: color-mix(
         in srgb,
-        var(--mat-sys-surface) 96%,
+        var(--mat-sys-surface, #f7f8fb) 96%,
         rgba(255, 255, 255, 0.96)
     );
     --settings-group-border: color-mix(
         in srgb,
-        var(--mat-sys-outline-variant) 78%,
+        var(--mat-sys-outline-variant, #c3c9d6) 78%,
         transparent
     );
     --settings-group-shadow: 0 14px 28px -32px rgba(15, 23, 42, 0.14);
@@ -59,28 +65,28 @@
     --settings-item-border: var(--app-separator);
     --settings-item-danger-bg: color-mix(
         in srgb,
-        var(--mat-sys-error) 4%,
+        var(--mat-sys-error, #d3302f) 4%,
         rgba(255, 255, 255, 0.96)
     );
     --settings-item-danger-border: color-mix(
         in srgb,
-        var(--mat-sys-error) 14%,
+        var(--mat-sys-error, #d3302f) 14%,
         transparent
     );
     --settings-action-bar-bg: color-mix(
         in srgb,
-        var(--mat-sys-surface-container-low) 94%,
+        var(--mat-sys-surface-container-low, #eef1f6) 94%,
         rgba(255, 255, 255, 0.9)
     );
     --settings-action-bar-border: color-mix(
         in srgb,
-        var(--mat-sys-outline-variant) 62%,
+        var(--mat-sys-outline-variant, #c3c9d6) 62%,
         transparent
     );
     --settings-action-bar-shadow: 0 10px 26px -26px rgba(15, 23, 42, 0.22);
     --settings-muted: color-mix(
         in srgb,
-        var(--mat-sys-on-surface) 64%,
+        var(--mat-sys-on-surface, #1a1f28) 64%,
         transparent
     );
 }
@@ -89,12 +95,12 @@
     .settings-container {
     --settings-page-header-bg: color-mix(
         in srgb,
-        var(--mat-sys-surface-container) 92%,
+        var(--mat-sys-surface-container, #171b24) 92%,
         rgba(12, 16, 24, 0.94)
     );
     --settings-page-header-border: color-mix(
         in srgb,
-        var(--mat-sys-outline-variant) 38%,
+        var(--mat-sys-outline-variant, #454d5e) 38%,
         transparent
     );
     --settings-page-header-shadow:
@@ -102,7 +108,7 @@
         0 16px 26px -34px rgba(0, 0, 0, 0.4);
     --settings-group-bg: color-mix(
         in srgb,
-        var(--mat-sys-surface-container) 94%,
+        var(--mat-sys-surface-container, #171b24) 94%,
         rgba(10, 14, 22, 0.82)
     );
     --settings-group-border: rgba(255, 255, 255, 0.08);
@@ -127,36 +133,27 @@
         0 10px 22px -28px var(--settings-group-active-glow);
     --settings-item-danger-bg: color-mix(
         in srgb,
-        var(--mat-sys-error) 8%,
+        var(--mat-sys-error, #ff5f56) 8%,
         rgba(24, 10, 12, 0.86)
     );
     --settings-item-danger-border: color-mix(
         in srgb,
-        var(--mat-sys-error) 24%,
+        var(--mat-sys-error, #ff5f56) 24%,
         transparent
     );
+    // Near-opaque: at 92% the blurred bar showed clipped setting text as a
+    // legible smear when a row scrolled underneath the sticky footer.
     --settings-action-bar-bg: color-mix(
         in srgb,
-        var(--mat-sys-surface-container) 92%,
+        var(--mat-sys-surface-container, #171b24) 98%,
         transparent
     );
     --settings-action-bar-border: rgba(255, 255, 255, 0.08);
     --settings-action-bar-shadow: 0 8px 30px rgba(0, 0, 0, 0.18);
     --settings-muted: color-mix(
         in srgb,
-        var(--mat-sys-on-surface) 68%,
+        var(--mat-sys-on-surface, #e8ecf4) 68%,
         transparent
     );
 }
 
-.settings-container {
-
-
-
-
-
-
-
-
-
-}

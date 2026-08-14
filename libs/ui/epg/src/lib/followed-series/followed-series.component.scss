@@ -1,4 +1,20 @@
 :host {
+    // Bridge this page's local tokens onto the shared carbon theme. The
+    // custom properties below were previously undefined, so every per-usage
+    // fallback literal was in effect and the page ran its own detached
+    // palette. Red (selection) now drives the interactive accents, cyan
+    // (tertiary) stays the informational accent, and surfaces/text follow
+    // the system tokens.
+    --accent-cyan: var(--mat-sys-tertiary, #5cd6ff);
+    --accent-blue: var(--app-selection-color, #4f8eff);
+    --surface-1: var(--mat-sys-surface-container-low, #0f141c);
+    --surface-2: var(--mat-sys-surface-container, #161d28);
+    --surface-3: var(--mat-sys-surface-container-high, #1d2533);
+    --text-primary: var(--mat-sys-on-surface, #edf2f8);
+    --text-secondary: var(--mat-sys-on-surface-variant, #9aa3b2);
+    --text-tertiary: var(--app-body-color, #7c8697);
+    --line-strong: var(--app-separator, rgba(255, 255, 255, 0.12));
+
     display: block;
     min-height: 100%;
     color: var(--text-primary, #edf2f8);
@@ -18,7 +34,7 @@ button:focus-visible,
 input:focus-visible,
 select:focus-visible,
 summary:focus-visible {
-    outline: 2px solid var(--accent-cyan, #5cd6ff);
+    outline: 2px solid var(--app-focus-ring-color, #5cd6ff);
     outline-offset: 2px;
 }
 
@@ -28,7 +44,7 @@ summary:focus-visible {
     background:
         radial-gradient(
             circle at 84% 2%,
-            rgba(79, 142, 255, 0.13),
+            color-mix(in srgb, var(--accent-cyan, #4f8eff) 11%, transparent),
             transparent 30rem
         ),
         linear-gradient(180deg, rgba(8, 12, 19, 0.32), transparent 22rem);
@@ -301,7 +317,7 @@ summary:focus-visible {
     padding: 1rem 1.2rem;
     background: linear-gradient(
         90deg,
-        rgba(79, 142, 255, 0.1),
+        color-mix(in srgb, var(--accent-cyan, #4f8eff) 10%, transparent),
         transparent 60%
     );
 
@@ -503,7 +519,8 @@ summary:focus-visible {
 
 .alternatives-list {
     margin: 0.75rem 0 0 2rem;
-    border-left: 2px solid rgba(79, 142, 255, 0.22);
+    border-left: 2px solid
+        color-mix(in srgb, var(--accent-cyan, #4f8eff) 25%, transparent);
 }
 
 .alternative-row {

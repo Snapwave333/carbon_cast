@@ -37,8 +37,20 @@ app-html-video-player {
             rgb(255 176 76 / 6%),
             transparent 28%
         ),
-        rgb(0 0 0 / 96%);
+        rgb(0 0 0 / 100%);
     color: #f6f6f6;
+}
+
+// While the diagnostic owns the stage, silence the underlying player's own
+// error UI — Video.js's bright modal text otherwise bleeds through and the
+// two overlapping error surfaces read as a rendering glitch.
+:host(.has-diagnostic) ::ng-deep {
+    .vjs-error-display,
+    .vjs-modal-dialog,
+    .art-notice,
+    .art-mask {
+        display: none !important;
+    }
 }
 
 .web-player-diagnostic__content {
@@ -71,9 +83,10 @@ app-html-video-player {
 
 .web-player-diagnostic__badge span {
     min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    // Wrap instead of ellipsizing: the badge is the diagnostic's title, and
+    // cutting it mid-sentence ("…UNSUPPORTED BY THE BROWSER PLAY…") hides
+    // the actual problem statement.
+    white-space: normal;
 }
 
 .web-player-diagnostic__headline {

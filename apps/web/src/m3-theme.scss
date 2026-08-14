@@ -186,6 +186,29 @@ html {
         --app-selection-on-color: #ffffff;
         --mat-sys-primary: #ff3b3b;
         --mat-sys-on-primary: #240404;
+
+        // Material M3 *system* tokens. `mat.all-component-colors` emits only
+        // per-component tokens, so every `var(--mat-sys-*)` reference across
+        // the app (580+ of them) resolved to nothing and the declarations
+        // built on them — color-mix surfaces, borders, muted text — were
+        // silently dropped by the browser. Define the system set the
+        // codebase actually references, tuned to the carbon palette.
+        --mat-sys-surface: #0f1218;
+        --mat-sys-surface-container-low: #12151d;
+        --mat-sys-surface-container: #171b24;
+        --mat-sys-surface-container-high: #1d222e;
+        --mat-sys-surface-container-highest: #242a38;
+        --mat-sys-on-surface: #e6e1e5;
+        --mat-sys-on-surface-variant: #9aa3b8;
+        --mat-sys-outline: #5c6478;
+        --mat-sys-outline-variant: #39404f;
+        --mat-sys-primary-container: #5c1414;
+        --mat-sys-tertiary: #22d3ee;
+        --mat-sys-tertiary-container: #0b3a42;
+        --mat-sys-error: #ff5f56;
+        --mat-sys-on-error: #2b0505;
+        --mat-sys-error-container: #5c1a1a;
+        --mat-sys-on-error-container: #ffd9d6;
         --app-selection-surface: color-mix(
             in srgb,
             var(--app-selection-color) 18%,

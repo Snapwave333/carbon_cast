@@ -1,7 +1,7 @@
 @media (prefers-color-scheme: light) {
     .empty-state {
         .title {
-            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 50%, #1e40af 100%);
+            background: linear-gradient(135deg, var(--empty-accent-deep) 0%, var(--empty-accent-deep) 50%, var(--empty-accent-deep) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -28,11 +28,11 @@
 
     .no-data-state {
         .empty-icon {
-            color: #2563eb;
+            color: var(--empty-accent-deep);
         }
 
         .secondary-button {
-            color: #2563eb;
+            color: var(--empty-accent-deep);
         }
     }
 }

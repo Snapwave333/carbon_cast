@@ -36,7 +36,7 @@
         font-size: 72px;
         width: 72px;
         height: 72px;
-        color: #60a5fa;
+        color: var(--empty-accent-soft);
         opacity: 0.85;
     }
 
@@ -45,7 +45,7 @@
         font-weight: 500;
         font-size: 1.5rem;
         margin: 0 0 8px 0;
-        background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 50%, #2563eb 100%);
+        background: linear-gradient(135deg, var(--empty-accent-soft) 0%, var(--empty-accent) 50%, var(--empty-accent-deep) 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
@@ -77,10 +77,10 @@
         padding: clamp(14px, 2.2vh, 22px);
         background: linear-gradient(
             145deg,
-            rgba(96, 165, 250, 0.08),
-            rgba(37, 99, 235, 0.04)
+            color-mix(in srgb, var(--empty-accent-soft) 8%, transparent),
+            color-mix(in srgb, var(--empty-accent-deep) 4%, transparent)
         );
-        border: 1px solid rgba(96, 165, 250, 0.2);
+        border: 1px solid color-mix(in srgb, var(--empty-accent-soft) 20%, transparent);
         border-radius: 16px;
         transition:
             transform 0.2s ease,
@@ -90,8 +90,8 @@
 
         &:hover {
             transform: translateY(-3px);
-            box-shadow: 0 12px 28px rgba(59, 130, 246, 0.22);
-            border-color: rgba(96, 165, 250, 0.4);
+            box-shadow: 0 12px 28px color-mix(in srgb, var(--empty-accent) 22%, transparent);
+            border-color: color-mix(in srgb, var(--empty-accent-soft) 40%, transparent);
         }
     }
 
@@ -106,7 +106,7 @@
         font-size: 28px;
         width: 28px;
         height: 28px;
-        color: #60a5fa;
+        color: var(--empty-accent-soft);
         flex-shrink: 0;
     }
 
@@ -144,9 +144,9 @@
         font-weight: 500;
         padding: 3px 9px;
         border-radius: 999px;
-        background: rgba(96, 165, 250, 0.14);
-        color: #93c5fd;
-        border: 1px solid rgba(96, 165, 250, 0.22);
+        background: color-mix(in srgb, var(--empty-accent-soft) 14%, transparent);
+        color: var(--empty-accent-soft);
+        border: 1px solid color-mix(in srgb, var(--empty-accent-soft) 22%, transparent);
         text-transform: uppercase;
         letter-spacing: 0.04em;
     }
@@ -154,13 +154,13 @@
     .source-card__cta {
         margin-top: auto;
         align-self: stretch;
-        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        background: linear-gradient(135deg, var(--empty-accent) 0%, var(--empty-accent-deep) 100%);
         color: white;
         font-weight: 500;
         font-size: 0.875rem;
         padding: 8px 18px;
         border-radius: 10px;
-        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+        box-shadow: 0 4px 12px color-mix(in srgb, var(--empty-accent) 25%, transparent);
         transition:
             transform 0.2s ease,
             box-shadow 0.2s ease;
@@ -175,7 +175,7 @@
 
         &:hover {
             transform: translateY(-1px);
-            box-shadow: 0 6px 18px rgba(59, 130, 246, 0.35);
+            box-shadow: 0 6px 18px color-mix(in srgb, var(--empty-accent) 35%, transparent);
         }
     }
 }
@@ -216,11 +216,11 @@
 @media (prefers-color-scheme: light) {
     .welcome-sources {
         .welcome-sources__icon {
-            color: #2563eb;
+            color: var(--empty-accent-deep);
         }
 
         .welcome-sources__title {
-            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 50%, #1e40af 100%);
+            background: linear-gradient(135deg, var(--empty-accent-deep) 0%, var(--empty-accent-deep) 50%, var(--empty-accent-deep) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -232,17 +232,17 @@
         }
 
         .source-card {
-            background: linear-gradient(145deg, rgba(37, 99, 235, 0.06), rgba(29, 78, 216, 0.03));
-            border-color: rgba(37, 99, 235, 0.15);
+            background: linear-gradient(145deg, color-mix(in srgb, var(--empty-accent-deep) 6%, transparent), color-mix(in srgb, var(--empty-accent-deep) 3%, transparent));
+            border-color: color-mix(in srgb, var(--empty-accent-deep) 15%, transparent);
 
             &:hover {
-                background: linear-gradient(145deg, rgba(37, 99, 235, 0.1), rgba(29, 78, 216, 0.05));
-                border-color: rgba(37, 99, 235, 0.3);
+                background: linear-gradient(145deg, color-mix(in srgb, var(--empty-accent-deep) 10%, transparent), color-mix(in srgb, var(--empty-accent-deep) 5%, transparent));
+                border-color: color-mix(in srgb, var(--empty-accent-deep) 30%, transparent);
             }
         }
 
         .source-card__icon {
-            color: #2563eb;
+            color: var(--empty-accent-deep);
         }
 
         .source-card__needs {
@@ -251,9 +251,9 @@
         }
 
         .source-card__chip {
-            background: rgba(37, 99, 235, 0.08);
-            color: #1d4ed8;
-            border-color: rgba(37, 99, 235, 0.18);
+            background: color-mix(in srgb, var(--empty-accent-deep) 8%, transparent);
+            color: var(--empty-accent-deep);
+            border-color: color-mix(in srgb, var(--empty-accent-deep) 18%, transparent);
         }
     }
 }

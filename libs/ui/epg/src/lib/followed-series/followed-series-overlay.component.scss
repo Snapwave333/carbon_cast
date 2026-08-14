@@ -1,4 +1,14 @@
 :host {
+    // Same theme bridge as followed-series.component.scss — the overlay
+    // shares the page's local token names.
+    --accent-cyan: var(--mat-sys-tertiary, #5cd6ff);
+    --accent-blue: var(--app-selection-color, #4f8eff);
+    --surface-1: var(--mat-sys-surface-container-low, #0f141c);
+    --surface-2: var(--mat-sys-surface-container, #161d28);
+    --text-primary: var(--mat-sys-on-surface, #edf2f8);
+    --text-secondary: var(--mat-sys-on-surface-variant, #a5afbe);
+    --line-strong: var(--app-separator, rgba(255, 255, 255, 0.12));
+
     position: fixed;
     z-index: 1200;
     right: clamp(0.75rem, 2vw, 1.5rem);
@@ -37,7 +47,7 @@
     display: grid;
     place-items: center;
     border-radius: 50%;
-    background: rgba(92, 214, 255, 0.12);
+    background: color-mix(in srgb, var(--accent-cyan, #5cd6ff) 12%, transparent);
     color: var(--accent-cyan, #5cd6ff);
     font-size: 1.25rem;
     font-weight: 850;
@@ -127,6 +137,7 @@
 
 @keyframes timer-pulse {
     50% {
-        box-shadow: 0 0 0 7px rgba(92, 214, 255, 0.06);
+        box-shadow: 0 0 0 7px
+            color-mix(in srgb, var(--accent-cyan, #5cd6ff) 6%, transparent);
     }
 }

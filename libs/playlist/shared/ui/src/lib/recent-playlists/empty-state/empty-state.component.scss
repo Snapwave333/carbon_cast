@@ -5,6 +5,17 @@
 }
 
 .empty-state {
+    // Accent for all empty-state artwork, derived from the app theme (falls
+    // back to the old blue only when no theme is active). Keeps illustrations,
+    // titles and cards on the same accent as the buttons and rail instead of
+    // the previously hardcoded Tailwind blue.
+    --empty-accent: var(
+        --app-selection-color,
+        var(--mat-sys-primary, #3b82f6)
+    );
+    --empty-accent-soft: color-mix(in srgb, var(--empty-accent) 70%, white);
+    --empty-accent-deep: color-mix(in srgb, var(--empty-accent) 75%, black);
+
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -21,7 +32,7 @@
         font-family: Roboto, 'Helvetica Neue', sans-serif;
         font-weight: 500;
         margin: 0 0 12px 0;
-        background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 50%, #2563eb 100%);
+        background: linear-gradient(135deg, var(--empty-accent-soft) 0%, var(--empty-accent) 50%, var(--empty-accent-deep) 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
@@ -86,7 +97,7 @@
         font-size: 72px;
         width: 72px;
         height: 72px;
-        color: #60a5fa;
+        color: var(--empty-accent-soft);
         opacity: 0.85;
     }
 
