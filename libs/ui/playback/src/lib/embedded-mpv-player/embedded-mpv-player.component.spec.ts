@@ -256,7 +256,8 @@ describe('EmbeddedMpvPlayerComponent series navigation', () => {
 
             expect(seekTo).not.toHaveBeenCalled();
             expect(player.timelineValue()).toBe(60);
-            expect(fixture.nativeElement.textContent).toContain('01:00');
+            // formatTime renders minutes unpadded ("1:00", not "01:00").
+            expect(fixture.nativeElement.textContent).toContain('1:00');
         });
 
         it('commits a single seek on release and returns to session position', () => {

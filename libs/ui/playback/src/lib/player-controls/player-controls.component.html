@@ -40,7 +40,7 @@
             <button
                 mat-icon-button
                 type="button"
-                class="player-controls__button"
+                class="player-controls__button player-controls__button--primary"
                 [disabled]="!canTogglePlay()"
                 (click)="togglePlay()"
                 [attr.aria-label]="
@@ -57,7 +57,9 @@
                 "
                 matTooltipPosition="above"
             >
-                <mat-icon [svgIcon]="isPaused() ? 'play_arrow' : 'pause'"></mat-icon>
+                <mat-icon
+                    [svgIcon]="isPaused() ? 'play_arrow' : 'pause'"
+                ></mat-icon>
             </button>
 
             @if (capabilities().seriesNavigation) {
@@ -182,7 +184,13 @@
                     "
                     [attr.aria-live]="isRecording() ? 'off' : 'polite'"
                 >
-                    <mat-icon [svgIcon]="isRecording() ? 'fiber_manual_record' : 'check_circle'"></mat-icon>
+                    <mat-icon
+                        [svgIcon]="
+                            isRecording()
+                                ? 'fiber_manual_record'
+                                : 'check_circle'
+                        "
+                    ></mat-icon>
                     <span>{{ recordingStatus }}</span>
                 </div>
             }
@@ -312,7 +320,9 @@
                                     >
                                         <span>{{ track.label }}</span>
                                         @if (track.selected) {
-                                            <mat-icon svgIcon="check"></mat-icon>
+                                            <mat-icon
+                                                svgIcon="check"
+                                            ></mat-icon>
                                         }
                                     </button>
                                 }
@@ -338,9 +348,13 @@
                         "
                         matTooltipPosition="above"
                     >
-                        <mat-icon [svgIcon]="state().subtitlesEnabled
-                                ? 'subtitles'
-                                : 'subtitles_off'"></mat-icon>
+                        <mat-icon
+                            [svgIcon]="
+                                state().subtitlesEnabled
+                                    ? 'subtitles'
+                                    : 'subtitles_off'
+                            "
+                        ></mat-icon>
                     </button>
                     @if (menus.subtitleOpen()) {
                         <div
@@ -396,7 +410,9 @@
                                     >
                                         <span>{{ track.label }}</span>
                                         @if (track.selected) {
-                                            <mat-icon svgIcon="check"></mat-icon>
+                                            <mat-icon
+                                                svgIcon="check"
+                                            ></mat-icon>
                                         }
                                     </button>
                                 }
@@ -470,7 +486,9 @@
                                             preset.value ===
                                             state().playbackSpeed
                                         ) {
-                                            <mat-icon svgIcon="check"></mat-icon>
+                                            <mat-icon
+                                                svgIcon="check"
+                                            ></mat-icon>
                                         }
                                     </button>
                                 }
@@ -540,7 +558,9 @@
                                         @if (
                                             preset.value === state().aspectRatio
                                         ) {
-                                            <mat-icon svgIcon="check"></mat-icon>
+                                            <mat-icon
+                                                svgIcon="check"
+                                            ></mat-icon>
                                         }
                                     </button>
                                 }
@@ -575,7 +595,13 @@
                     "
                     matTooltipPosition="above"
                 >
-                    <mat-icon [svgIcon]="isRecording() ? 'stop_circle' : 'fiber_manual_record'"></mat-icon>
+                    <mat-icon
+                        [svgIcon]="
+                            isRecording()
+                                ? 'stop_circle'
+                                : 'fiber_manual_record'
+                        "
+                    ></mat-icon>
                 </button>
             }
 
@@ -601,9 +627,13 @@
                     "
                     matTooltipPosition="above"
                 >
-                    <mat-icon [svgIcon]="state().pictureInPictureActive
-                            ? 'picture_in_picture_alt'
-                            : 'picture_in_picture'"></mat-icon>
+                    <mat-icon
+                        [svgIcon]="
+                            state().pictureInPictureActive
+                                ? 'picture_in_picture_alt'
+                                : 'picture_in_picture'
+                        "
+                    ></mat-icon>
                 </button>
             }
 
@@ -628,7 +658,11 @@
                     "
                     matTooltipPosition="above"
                 >
-                    <mat-icon [svgIcon]="isFullscreen() ? 'fullscreen_exit' : 'fullscreen'"></mat-icon>
+                    <mat-icon
+                        [svgIcon]="
+                            isFullscreen() ? 'fullscreen_exit' : 'fullscreen'
+                        "
+                    ></mat-icon>
                 </button>
             }
         </div>

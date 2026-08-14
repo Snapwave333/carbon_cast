@@ -110,7 +110,10 @@ describe('WebPlayerViewComponent', () => {
     const storageMap = {
         get: jest.fn(() => of({ player: VideoPlayer.VideoJs })),
     };
-    let runtimeCapabilities: { supportsManagedExternalPlayers: boolean };
+    let runtimeCapabilities: {
+        supportsManagedExternalPlayers: boolean;
+        supportsEmbeddedMpv?: boolean;
+    };
 
     beforeAll(async () => {
         ({ WebPlayerViewComponent } =
@@ -248,6 +251,114 @@ describe('WebPlayerViewComponent', () => {
                 }),
             }),
         ]);
+    });
+
+    describe('in-app embedded MPV fallback', () => {
+        const electronWindow = window as unknown as {
+            electron?: { prepareEmbeddedMpv?: jest.Mock };
+        };
+
+        beforeEach(async () => {
+            const { resetEmbeddedMpvFallbackProbeForTesting } = await import(
+                './embedded-mpv-fallback-probe'
+            );
+            resetEmbeddedMpvFallbackProbeForTesting();
+        });
+
+        afterEach(() => {
+            delete electronWindow.electron;
+        });
+
+        it('switches an undecodable stream to embedded MPV inside the app', async () => {
+            runtimeCapabilities.supportsEmbeddedMpv = true;
+            electronWindow.electron = {
+                prepareEmbeddedMpv: jest
+                    .fn()
+                    .mockResolvedValue({ supported: true }),
+            };
+
+            fixture.detectChanges();
+            component.handlePlaybackIssue(
+                createUnsupportedContainerDiagnostic()
+            );
+            await fixture.whenStable();
+            fixture.detectChanges();
+
+            expect(component.selectedPlayer()).toBe(VideoPlayer.EmbeddedMpv);
+            expect(component.visiblePlaybackDiagnostic()).toBeNull();
+            expect(
+                fixture.debugElement.query(
+                    By.css('[data-test-id="stub-embedded-mpv-player"]')
+                )
+            ).not.toBeNull();
+        });
+
+        it('keeps the diagnostic when the embedded engine is unavailable', async () => {
+            runtimeCapabilities.supportsEmbeddedMpv = true;
+            electronWindow.electron = {
+                prepareEmbeddedMpv: jest
+                    .fn()
+                    .mockResolvedValue({ supported: false }),
+            };
+
+            fixture.detectChanges();
+            component.handlePlaybackIssue(
+                createUnsupportedContainerDiagnostic()
+            );
+            await fixture.whenStable();
+            fixture.detectChanges();
+
+            expect(component.selectedPlayer()).toBe(VideoPlayer.VideoJs);
+            expect(component.visiblePlaybackDiagnostic()).not.toBeNull();
+        });
+
+        it('never switches DRM-protected streams to embedded MPV', async () => {
+            runtimeCapabilities.supportsEmbeddedMpv = true;
+            electronWindow.electron = {
+                prepareEmbeddedMpv: jest
+                    .fn()
+                    .mockResolvedValue({ supported: true }),
+            };
+
+            fixture.detectChanges();
+            component.handlePlaybackIssue({
+                ...createUnsupportedContainerDiagnostic(),
+                code: PlaybackDiagnosticCode.DrmOrEncryption,
+            });
+            await fixture.whenStable();
+            fixture.detectChanges();
+
+            expect(
+                electronWindow.electron.prepareEmbeddedMpv
+            ).not.toHaveBeenCalled();
+            expect(component.selectedPlayer()).toBe(VideoPlayer.VideoJs);
+            expect(component.visiblePlaybackDiagnostic()).not.toBeNull();
+        });
+
+        it('returns to the preferred player for the next stream', async () => {
+            runtimeCapabilities.supportsEmbeddedMpv = true;
+            electronWindow.electron = {
+                prepareEmbeddedMpv: jest
+                    .fn()
+                    .mockResolvedValue({ supported: true }),
+            };
+
+            fixture.detectChanges();
+            component.handlePlaybackIssue(
+                createUnsupportedContainerDiagnostic()
+            );
+            await fixture.whenStable();
+            fixture.detectChanges();
+            expect(component.selectedPlayer()).toBe(VideoPlayer.EmbeddedMpv);
+
+            fixture.componentRef.setInput(
+                'streamUrl',
+                'https://example.com/live/next-channel.m3u8'
+            );
+            fixture.detectChanges();
+
+            expect(component.selectedPlayer()).toBe(VideoPlayer.VideoJs);
+        });
     });
 
     it('keeps query-declared HLS streams on the HLS mime type', () => {

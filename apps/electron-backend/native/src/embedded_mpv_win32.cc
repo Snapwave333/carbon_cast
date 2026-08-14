@@ -75,7 +75,7 @@ public:
         window_ = CreateWindowExW(
             WS_EX_TRANSPARENT,
             windowClassName(),
-            L"IPTVnator Embedded MPV",
+            L"CarbonCast IPTV Embedded MPV",
             WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
             0,
             0,

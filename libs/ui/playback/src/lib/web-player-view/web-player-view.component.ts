@@ -38,11 +38,13 @@ import {
 } from '../player-controls';
 import {
     type PlaybackDiagnostic,
+    PlaybackDiagnosticCode,
     type PlaybackFallbackRequest,
     getPlaybackMediaExtensionFromUrl,
 } from '../playback-diagnostics/playback-diagnostics.util';
 import type { SeriesPlaybackNavigation } from '../portal-inline-player/series-playback-navigation';
 import { VjsPlayerComponent } from '../vjs-player/vjs-player.component';
+import { probeEmbeddedMpvFallback } from './embedded-mpv-fallback-probe';
 import {
     getDiagnosticCodecHint,
     getDiagnosticDescriptionKey,
@@ -70,6 +72,7 @@ function resolvePlayerControlsSettings() {
     styleUrls: ['./web-player-view.component.scss'],
     host: {
         class: 'web-player-view',
+        '[class.has-diagnostic]': 'visiblePlaybackDiagnostic() !== null',
     },
     imports: [
         ArtPlayerComponent,
@@ -177,8 +180,16 @@ export class WebPlayerViewComponent {
             ? playback.isLive
             : !playback.contentInfo;
     });
+    /** In-app engine substitution for streams the web players can't decode:
+     * Embedded MPV renders inside the window and decodes everything, so a
+     * browser-undecodable stream switches to it instead of punting the user
+     * to an external player window. Reset per stream. */
+    private readonly inAppFallbackPlayer = signal<VideoPlayer | null>(null);
+    private lastFallbackStreamUrl: string | null = null;
+
     readonly selectedPlayer = computed(
         () =>
+            this.inAppFallbackPlayer() ??
             this.playerOverride() ??
             this.settings()?.player ??
             VideoPlayer.VideoJs
@@ -205,6 +216,12 @@ export class WebPlayerViewComponent {
             this.selectedPlayer();
 
             const playback = this.resolvedPlayback();
+            // A new stream starts over on the preferred player; the MPV
+            // substitution only ever applies to the stream that failed.
+            if (this.lastFallbackStreamUrl !== playback.streamUrl) {
+                this.lastFallbackStreamUrl = playback.streamUrl;
+                this.inAppFallbackPlayer.set(null);
+            }
             this.playbackDiagnostic.set(null);
             this.setChannel(playback);
             this.setVjsOptions(playback.streamUrl, this.resolvedIsLive());
@@ -276,6 +293,31 @@ export class WebPlayerViewComponent {
         }
 
         this.playbackDiagnostic.set(issue);
+        if (issue && this.shouldAttemptInAppFallback(issue)) {
+            void this.engageInAppFallback(issue);
+        }
+    }
+
+    /** Undecodable/unreachable-in-browser streams qualify; DRM does not —
+     * MPV cannot license Widevine/PlayReady either, so switching would
+     * trade a clear diagnostic for a silent black screen. */
+    private shouldAttemptInAppFallback(issue: PlaybackDiagnostic): boolean {
+        return (
+            issue.externalFallbackRecommended &&
+            issue.code !== PlaybackDiagnosticCode.DrmOrEncryption &&
+            this.runtime.supportsEmbeddedMpv
+        );
+    }
+
+    private async engageInAppFallback(issue: PlaybackDiagnostic): Promise<void> {
+        const supported = await probeEmbeddedMpvFallback();
+        // The diagnostic (with its external-player actions) stays up when the
+        // engine is unavailable, or when the situation changed while probing.
+        if (!supported || this.playbackDiagnostic() !== issue) {
+            return;
+        }
+        this.inAppFallbackPlayer.set(VideoPlayer.EmbeddedMpv);
+        this.playbackDiagnostic.set(null);
     }
 
     requestExternalFallback(player: ExternalPlayerName): void {

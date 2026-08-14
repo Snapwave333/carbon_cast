@@ -60,96 +60,109 @@ import { ChannelActions } from '@iptvnator/m3u-state';
                     [class.live]="playState() === 'play'"
                 >
                     @if (playState() === 'play') {
-                        <span class="pulse"></span> LIVE
+                        <span class="equalizer" aria-hidden="true">
+                            <i></i><i></i><i></i>
+                        </span>
+                        LIVE
                     } @else {
                         PAUSED
                     }
                 </span>
 
-                <div class="transport">
-                    <button
-                        mat-icon-button
-                        class="skip-btn"
-                        [matTooltip]="
-                            'AUDIO_PLAYER.PREVIOUS_STATION' | translate
-                        "
-                        [attr.aria-label]="
-                            'AUDIO_PLAYER.PREVIOUS_STATION' | translate
-                        "
-                        (click)="switchChannel('previous')"
-                    >
-                        <mat-icon svgIcon="skip_previous"></mat-icon>
-                    </button>
-
-                    <button
-                        class="play-btn"
-                        mat-fab
-                        [matTooltip]="
-                            (playState() === 'play'
-                                ? 'AUDIO_PLAYER.PAUSE'
-                                : 'AUDIO_PLAYER.PLAY'
-                            ) | translate
-                        "
-                        [attr.aria-label]="
-                            (playState() === 'play'
-                                ? 'AUDIO_PLAYER.PAUSE'
-                                : 'AUDIO_PLAYER.PLAY'
-                            ) | translate
-                        "
-                        (click)="playState() === 'play' ? stop() : play()"
-                    >
-                        <mat-icon [svgIcon]="playState() === 'play' ? 'pause' : 'play_arrow'"></mat-icon>
-                    </button>
-
-                    <button
-                        mat-icon-button
-                        class="skip-btn"
-                        [matTooltip]="'AUDIO_PLAYER.NEXT_STATION' | translate"
-                        [attr.aria-label]="
-                            'AUDIO_PLAYER.NEXT_STATION' | translate
-                        "
-                        (click)="switchChannel('next')"
-                    >
-                        <mat-icon svgIcon="skip_next"></mat-icon>
-                    </button>
-                </div>
-
-                <div class="volume-row">
-                    <button
-                        mat-icon-button
-                        class="vol-icon"
-                        [matTooltip]="
-                            (isMuted() || volume() === 0
-                                ? 'AUDIO_PLAYER.UNMUTE'
-                                : 'AUDIO_PLAYER.MUTE'
-                            ) | translate
-                        "
-                        [attr.aria-label]="
-                            (isMuted() || volume() === 0
-                                ? 'AUDIO_PLAYER.UNMUTE'
-                                : 'AUDIO_PLAYER.MUTE'
-                            ) | translate
-                        "
-                        (click)="mute()"
-                    >
-                        <mat-icon [svgIcon]="volumeIcon()"></mat-icon>
-                    </button>
-                    <mat-slider
-                        class="vol-slider"
-                        min="0"
-                        max="1"
-                        step="0.05"
-                        [matTooltip]="'AUDIO_PLAYER.VOLUME' | translate"
-                    >
-                        <input
-                            matSliderThumb
-                            [ngModel]="volume()"
-                            [attr.aria-label]="
-                                'AUDIO_PLAYER.VOLUME' | translate
+                <div class="control-deck">
+                    <div class="transport">
+                        <button
+                            mat-icon-button
+                            class="skip-btn"
+                            [matTooltip]="
+                                'AUDIO_PLAYER.PREVIOUS_STATION' | translate
                             "
-                            (ngModelChange)="setVolume($event)"
-                        />
-                    </mat-slider>
+                            [attr.aria-label]="
+                                'AUDIO_PLAYER.PREVIOUS_STATION' | translate
+                            "
+                            (click)="switchChannel('previous')"
+                        >
+                            <mat-icon svgIcon="skip_previous"></mat-icon>
+                        </button>
+
+                        <button
+                            class="play-btn"
+                            mat-fab
+                            [matTooltip]="
+                                (playState() === 'play'
+                                    ? 'AUDIO_PLAYER.PAUSE'
+                                    : 'AUDIO_PLAYER.PLAY'
+                                ) | translate
+                            "
+                            [attr.aria-label]="
+                                (playState() === 'play'
+                                    ? 'AUDIO_PLAYER.PAUSE'
+                                    : 'AUDIO_PLAYER.PLAY'
+                                ) | translate
+                            "
+                            (click)="playState() === 'play' ? stop() : play()"
+                        >
+                            <mat-icon
+                                [svgIcon]="
+                                    playState() === 'play'
+                                        ? 'pause'
+                                        : 'play_arrow'
+                                "
+                            ></mat-icon>
+                        </button>
+
+                        <button
+                            mat-icon-button
+                            class="skip-btn"
+                            [matTooltip]="
+                                'AUDIO_PLAYER.NEXT_STATION' | translate
+                            "
+                            [attr.aria-label]="
+                                'AUDIO_PLAYER.NEXT_STATION' | translate
+                            "
+                            (click)="switchChannel('next')"
+                        >
+                            <mat-icon svgIcon="skip_next"></mat-icon>
+                        </button>
+                    </div>
+
+                    <div class="volume-row">
+                        <button
+                            mat-icon-button
+                            class="vol-icon"
+                            [matTooltip]="
+                                (isMuted() || volume() === 0
+                                    ? 'AUDIO_PLAYER.UNMUTE'
+                                    : 'AUDIO_PLAYER.MUTE'
+                                ) | translate
+                            "
+                            [attr.aria-label]="
+                                (isMuted() || volume() === 0
+                                    ? 'AUDIO_PLAYER.UNMUTE'
+                                    : 'AUDIO_PLAYER.MUTE'
+                                ) | translate
+                            "
+                            (click)="mute()"
+                        >
+                            <mat-icon [svgIcon]="volumeIcon()"></mat-icon>
+                        </button>
+                        <mat-slider
+                            class="vol-slider"
+                            min="0"
+                            max="1"
+                            step="0.05"
+                            [matTooltip]="'AUDIO_PLAYER.VOLUME' | translate"
+                        >
+                            <input
+                                matSliderThumb
+                                [ngModel]="volume()"
+                                [attr.aria-label]="
+                                    'AUDIO_PLAYER.VOLUME' | translate
+                                "
+                                (ngModelChange)="setVolume($event)"
+                            />
+                        </mat-slider>
+                    </div>
                 </div>
             </div>
 
@@ -272,10 +285,7 @@ export class AudioPlayerComponent {
         this.playState.set('paused');
     }
 
-    setVolume(
-        value: number,
-        options: { emitChange?: boolean } = {}
-    ) {
+    setVolume(value: number, options: { emitChange?: boolean } = {}) {
         const clamped = Math.round(Math.max(0, Math.min(1, value)) * 100) / 100;
         this.volume.set(clamped);
         const audio = this.audioRef()?.nativeElement;

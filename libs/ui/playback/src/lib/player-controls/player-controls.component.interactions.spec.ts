@@ -89,7 +89,13 @@ describe('PlayerControlsComponent interactions', () => {
 
             expect(fake.commands.seekBy).toHaveBeenCalledWith(-10);
             const feedback = query('.player-controls__feedback');
-            expect(feedback?.textContent).toContain('replay_10');
+            // SVG icons carry no ligature text; the icon name lives in the
+            // data-mat-icon-name attribute.
+            expect(
+                feedback
+                    ?.querySelector('mat-icon')
+                    ?.getAttribute('data-mat-icon-name')
+            ).toBe('replay_10');
             expect(feedback?.textContent).toContain('-10s');
 
             jest.advanceTimersByTime(800);

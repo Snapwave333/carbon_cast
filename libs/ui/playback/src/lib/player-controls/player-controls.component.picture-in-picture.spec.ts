@@ -109,9 +109,13 @@ describe('PlayerControlsComponent picture-in-picture action', () => {
         expect(button).not.toBeNull();
         expect(button?.disabled).toBe(false);
         expect(button?.getAttribute('aria-pressed')).toBe('true');
-        expect(button?.querySelector('mat-icon')?.textContent?.trim()).toBe(
-            'picture_in_picture_alt'
-        );
+        // The controls use registered SVG icons; Material exposes the
+        // resolved name via data-mat-icon-name (there is no ligature text).
+        expect(
+            button
+                ?.querySelector('mat-icon')
+                ?.getAttribute('data-mat-icon-name')
+        ).toBe('picture_in_picture_alt');
         button?.click();
         expect(fake.commands.togglePictureInPicture).toHaveBeenCalledTimes(1);
     });

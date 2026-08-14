@@ -1,5 +1,5 @@
 :host {
-    --pc-accent: #ffffff;
+    --pc-accent: #f4f7ff;
     --pc-track: rgba(255, 255, 255, 0.3);
     --pc-thumb-ring: rgba(255, 255, 255, 0.95);
     --pc-panel-bg: rgba(18, 18, 20, 0.92);
@@ -150,7 +150,7 @@
     align-content: end;
     min-height: 64px;
     // Generous top padding lets the scrim rise above the controls and fade out.
-    padding: 48px 16px 12px;
+    padding: 56px 18px 14px;
     opacity: 0;
     pointer-events: none;
     transform: translateY(8px);
@@ -158,8 +158,8 @@
     // transparent at the top, so controls read clearly over full-bleed video.
     background: linear-gradient(
         to top,
-        rgba(0, 0, 0, 0.78) 0%,
-        rgba(0, 0, 0, 0.45) 45%,
+        rgba(7, 9, 13, 0.92) 0%,
+        rgba(7, 9, 13, 0.62) 42%,
         transparent 100%
     );
     transition:
@@ -185,6 +185,36 @@
     gap: 8px;
 }
 
+.player-controls__button {
+    transition:
+        background-color 160ms ease,
+        transform 160ms cubic-bezier(0.2, 0.8, 0.2, 1),
+        box-shadow 160ms ease;
+}
+
+.player-controls__button:active:not(:disabled) {
+    transform: scale(0.92);
+}
+
+.player-controls__button--primary {
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow:
+        0 5px 18px rgba(0, 0, 0, 0.3),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.75);
+}
+
+:host .player-controls__button--primary mat-icon {
+    color: #10131a;
+}
+
+:host .player-controls__bar .player-controls__button--primary:hover {
+    background: #ffffff;
+    box-shadow:
+        0 7px 24px rgba(0, 0, 0, 0.38),
+        0 0 0 3px rgba(255, 255, 255, 0.14);
+    transform: scale(1.05);
+}
+
 .player-controls__timeline {
     display: flex;
     flex-direction: column;
@@ -200,6 +230,7 @@
     color: var(--pc-text-dim);
     font-size: 0.78rem;
     font-variant-numeric: tabular-nums;
+    letter-spacing: 0.025em;
 }
 
 .player-controls__recording-status {
@@ -326,7 +357,7 @@
 }
 
 .player-controls__slider::-webkit-slider-runnable-track {
-    height: 4px;
+    height: 5px;
     border-radius: 999px;
     background: linear-gradient(
         to right,
@@ -340,17 +371,24 @@
     appearance: none;
     width: 14px;
     height: 14px;
-    margin-top: -5px;
+    margin-top: -4.5px;
     border: 2px solid var(--pc-thumb-ring);
     border-radius: 50%;
     background: var(--pc-accent);
-    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.55);
-    transition: transform 120ms ease-out;
+    box-shadow:
+        0 1px 7px rgba(0, 0, 0, 0.62),
+        0 0 0 0 rgba(255, 255, 255, 0.2);
+    transition:
+        transform 140ms ease-out,
+        box-shadow 140ms ease-out;
 }
 
 .player-controls__slider:hover::-webkit-slider-thumb,
 .player-controls__slider:focus-visible::-webkit-slider-thumb {
     transform: scale(1.18);
+    box-shadow:
+        0 2px 10px rgba(0, 0, 0, 0.65),
+        0 0 0 5px rgba(255, 255, 255, 0.16);
 }
 
 .player-controls__slider:disabled::-webkit-slider-runnable-track {
@@ -401,9 +439,11 @@
     color: var(--pc-text);
     background: var(--pc-panel-bg);
     border: 1px solid var(--pc-panel-border);
-    border-radius: 14px;
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
-    backdrop-filter: blur(18px);
+    border-radius: 16px;
+    box-shadow:
+        0 18px 48px rgba(3, 5, 10, 0.55),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(24px) saturate(1.2);
 }
 
 .player-controls__volume-popover {
@@ -498,6 +538,9 @@
     cursor: pointer;
     font: inherit;
     text-align: left;
+    transition:
+        background-color 150ms ease,
+        transform 150ms ease;
 }
 
 .player-controls__track span {
@@ -510,6 +553,23 @@
 .player-controls__track:focus-visible,
 .player-controls__track--selected {
     background: rgba(255, 255, 255, 0.16);
+}
+
+.player-controls__track:active {
+    transform: scale(0.985);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .player-controls__button,
+    .player-controls__slider::-webkit-slider-thumb,
+    .player-controls__slider::-moz-range-thumb,
+    .player-controls__track {
+        transition: none;
+    }
+
+    .player-controls__live-dot {
+        animation: none;
+    }
 }
 
 .player-controls__track mat-icon {
