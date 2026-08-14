@@ -1,0 +1,199 @@
+<div class="radio-player" [class.radio-player--error]="status() === 'error'">
+    @if (track(); as current) {
+        <app-radio-visualizer
+            [isPlaying]="isPlaying()"
+            [volume]="isMuted() ? 0 : volume()"
+            [trackId]="current.kind + ':' + current.id"
+        />
+
+        <div class="radio-player__identity">
+            <div class="radio-player__artwork" [class.is-playing]="isPlaying()">
+                @if (artwork()) {
+                    <img
+                        [src]="artwork()"
+                        alt=""
+                        (error)="artworkFailed.set(true)"
+                    />
+                } @else {
+                    <mat-icon
+                        [svgIcon]="isLive() ? 'radio' : 'podcasts'"
+                    ></mat-icon>
+                }
+            </div>
+
+            <div class="radio-player__meta">
+                <span class="radio-player__title" [title]="current.title">{{
+                    current.title
+                }}</span>
+                <span class="radio-player__subtitle">
+                    @if (isLive()) {
+                        <span
+                            class="radio-player__live"
+                            [class.is-on-air]="isPlaying()"
+                        >
+                            {{ 'RADIO.LIVE' | translate }}
+                        </span>
+                    }
+                    {{ current.subtitle }}
+                </span>
+            </div>
+        </div>
+
+        <div class="radio-player__transport">
+            <button
+                mat-icon-button
+                [disabled]="!hasPrevious()"
+                [matTooltip]="'RADIO.PREVIOUS' | translate"
+                [attr.aria-label]="'RADIO.PREVIOUS' | translate"
+                (click)="previous()"
+            >
+                <mat-icon svgIcon="skip_previous"></mat-icon>
+            </button>
+
+            @if (isSeekable()) {
+                <button
+                    mat-icon-button
+                    [matTooltip]="'RADIO.SKIP_BACK' | translate"
+                    [attr.aria-label]="'RADIO.SKIP_BACK' | translate"
+                    (click)="skipBack()"
+                >
+                    <mat-icon svgIcon="replay_10"></mat-icon>
+                </button>
+            }
+
+            <button
+                mat-fab
+                class="radio-player__play"
+                [matTooltip]="
+                    (isPlaying() ? 'RADIO.PAUSE' : 'RADIO.PLAY') | translate
+                "
+                [attr.aria-label]="
+                    (isPlaying() ? 'RADIO.PAUSE' : 'RADIO.PLAY') | translate
+                "
+                (click)="togglePlay()"
+            >
+                @if (isBuffering()) {
+                    <mat-icon
+                        class="radio-player__spinner"
+                        svgIcon="sync"
+                    ></mat-icon>
+                } @else {
+                    <mat-icon
+                        [svgIcon]="isPlaying() ? 'pause' : 'play_arrow'"
+                    ></mat-icon>
+                }
+            </button>
+
+            @if (isSeekable()) {
+                <button
+                    mat-icon-button
+                    [matTooltip]="'RADIO.SKIP_FORWARD' | translate"
+                    [attr.aria-label]="'RADIO.SKIP_FORWARD' | translate"
+                    (click)="skipForward()"
+                >
+                    <mat-icon svgIcon="forward_10"></mat-icon>
+                </button>
+            }
+
+            <button
+                mat-icon-button
+                [disabled]="!hasNext()"
+                [matTooltip]="'RADIO.NEXT' | translate"
+                [attr.aria-label]="'RADIO.NEXT' | translate"
+                (click)="next()"
+            >
+                <mat-icon svgIcon="skip_next"></mat-icon>
+            </button>
+        </div>
+
+        <div class="radio-player__progress">
+            @if (isSeekable()) {
+                <span class="radio-player__time">{{ positionLabel() }}</span>
+                <mat-slider
+                    class="radio-player__seek"
+                    min="0"
+                    [max]="duration() ?? 0"
+                    step="1"
+                >
+                    <input
+                        matSliderThumb
+                        [ngModel]="position()"
+                        [attr.aria-label]="'RADIO.SEEK' | translate"
+                        (ngModelChange)="seekTo($event)"
+                    />
+                </mat-slider>
+                <span class="radio-player__time">{{ durationLabel() }}</span>
+            } @else {
+                <div
+                    class="radio-player__wave"
+                    [class.is-active]="isPlaying()"
+                    aria-hidden="true"
+                >
+                    <span></span><span></span><span></span><span></span>
+                    <span></span>
+                </div>
+            }
+        </div>
+
+        <div class="radio-player__actions">
+            <button
+                mat-icon-button
+                [matTooltip]="
+                    (isMuted() ? 'RADIO.UNMUTE' : 'RADIO.MUTE') | translate
+                "
+                [attr.aria-label]="
+                    (isMuted() ? 'RADIO.UNMUTE' : 'RADIO.MUTE') | translate
+                "
+                (click)="toggleMute()"
+            >
+                <mat-icon [svgIcon]="volumeIcon()"></mat-icon>
+            </button>
+            <mat-slider
+                class="radio-player__volume"
+                min="0"
+                max="1"
+                step="0.05"
+                [matTooltip]="'RADIO.VOLUME' | translate"
+            >
+                <input
+                    matSliderThumb
+                    [ngModel]="volume()"
+                    [attr.aria-label]="'RADIO.VOLUME' | translate"
+                    (ngModelChange)="setVolume($event)"
+                />
+            </mat-slider>
+
+            <button
+                mat-icon-button
+                [matTooltip]="'RADIO.STOP' | translate"
+                [attr.aria-label]="'RADIO.STOP' | translate"
+                (click)="stop()"
+            >
+                <mat-icon svgIcon="close"></mat-icon>
+            </button>
+        </div>
+
+        @if (status() === 'error') {
+            <p class="radio-player__error" role="alert">
+                <mat-icon svgIcon="error"></mat-icon>
+                <span>{{ errorMessage() }}</span>
+                <button mat-button (click)="retry()">
+                    {{ 'RADIO.RETRY' | translate }}
+                </button>
+            </p>
+        }
+    }
+
+    <audio
+        #audio
+        preload="metadata"
+        (playing)="onPlaying()"
+        (pause)="onPause()"
+        (waiting)="onWaiting()"
+        (timeupdate)="onTimeUpdate()"
+        (loadedmetadata)="onLoadedMetadata()"
+        (durationchange)="onLoadedMetadata()"
+        (ended)="onEnded()"
+        (error)="onError()"
+    ></audio>
+</div>

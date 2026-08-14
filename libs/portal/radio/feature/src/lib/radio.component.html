@@ -1,0 +1,511 @@
+<div class="radio">
+    <header class="radio__header">
+        <div class="radio__heading">
+            <mat-icon svgIcon="radio"></mat-icon>
+            <div>
+                <h2>{{ 'RADIO.TITLE' | translate }}</h2>
+                <p>{{ 'RADIO.SUBTITLE' | translate }}</p>
+            </div>
+        </div>
+
+        <nav class="radio__tabs" role="tablist" [attr.aria-label]="'RADIO.TITLE' | translate">
+            @for (entry of tabs; track entry.id; let i = $index) {
+                <button
+                    #tabButton
+                    type="button"
+                    role="tab"
+                    class="radio__tab"
+                    [id]="'radio-tab-' + entry.id"
+                    [attr.aria-controls]="'radio-panel-' + entry.id"
+                    [attr.aria-selected]="tab() === entry.id"
+                    [tabindex]="tab() === entry.id ? 0 : -1"
+                    [class.is-active]="tab() === entry.id"
+                    (click)="selectTab(entry.id)"
+                    (keydown)="onTabKeydown($event, i)"
+                >
+                    <mat-icon [svgIcon]="entry.icon"></mat-icon>
+                    <span>{{ entry.label | translate }}</span>
+                </button>
+            }
+        </nav>
+    </header>
+
+    <div class="radio__body">
+        @switch (tab()) {
+            @case ('stations') {
+                <section
+                    class="radio__panel"
+                    role="tabpanel"
+                    id="radio-panel-stations"
+                    aria-labelledby="radio-tab-stations"
+                >
+                    <div class="radio__filters">
+                        <mat-form-field appearance="outline" class="radio__search">
+                            <mat-label>{{
+                                'RADIO.SEARCH_STATIONS' | translate
+                            }}</mat-label>
+                            <input
+                                matInput
+                                type="search"
+                                [ngModel]="stationSearch()"
+                                (ngModelChange)="onStationSearchChange($event)"
+                            />
+                            <mat-icon matSuffix svgIcon="search"></mat-icon>
+                        </mat-form-field>
+
+                        <mat-form-field appearance="outline">
+                            <mat-label>{{
+                                'RADIO.FILTER_COUNTRY' | translate
+                            }}</mat-label>
+                            <mat-select
+                                [ngModel]="countryFilter()"
+                                (ngModelChange)="
+                                    countryFilter.set($event);
+                                    onStationFilterChange()
+                                "
+                            >
+                                <mat-option value="">{{
+                                    'RADIO.FILTER_ANY' | translate
+                                }}</mat-option>
+                                @for (country of countries(); track country.name) {
+                                    <mat-option [value]="country.code">
+                                        {{ country.name }} ({{
+                                            country.stationCount
+                                        }})
+                                    </mat-option>
+                                }
+                            </mat-select>
+                        </mat-form-field>
+
+                        <mat-form-field appearance="outline">
+                            <mat-label>{{
+                                'RADIO.FILTER_GENRE' | translate
+                            }}</mat-label>
+                            <mat-select
+                                [ngModel]="tagFilter()"
+                                (ngModelChange)="
+                                    tagFilter.set($event); onStationFilterChange()
+                                "
+                            >
+                                <mat-option value="">{{
+                                    'RADIO.FILTER_ANY' | translate
+                                }}</mat-option>
+                                @for (tag of tags(); track tag.name) {
+                                    <mat-option [value]="tag.name">
+                                        {{ tag.name }} ({{ tag.stationCount }})
+                                    </mat-option>
+                                }
+                            </mat-select>
+                        </mat-form-field>
+
+                        <mat-form-field appearance="outline">
+                            <mat-label>{{
+                                'RADIO.SORT_BY' | translate
+                            }}</mat-label>
+                            <mat-select
+                                [ngModel]="stationSort()"
+                                (ngModelChange)="setStationSort($event)"
+                            >
+                                @for (sort of stationSorts; track sort.id) {
+                                    <mat-option [value]="sort.id">
+                                        {{ sort.labelKey | translate }}
+                                    </mat-option>
+                                }
+                            </mat-select>
+                        </mat-form-field>
+
+                        @if (hasStationFilters()) {
+                            <button
+                                mat-button
+                                class="radio__clear"
+                                (click)="clearStationFilters()"
+                            >
+                                <mat-icon svgIcon="close"></mat-icon>
+                                {{ 'RADIO.CLEAR_FILTERS' | translate }}
+                            </button>
+                        }
+                    </div>
+
+                    <h3 class="radio__section-title">
+                        {{ stationsHeading() | translate }}
+                        @if (!stations().isLoading && !stations().error) {
+                            <span class="radio__count">{{
+                                stations().items.length
+                            }}</span>
+                        }
+                    </h3>
+
+                    @if (stations().isLoading && stations().items.length === 0) {
+                        <ul class="skeleton-grid" role="presentation" aria-hidden="true">
+                            @for (slot of skeletonSlots; track slot) {
+                                <li class="skeleton-card">
+                                    <span class="skeleton-card__art shimmer"></span>
+                                    <span class="skeleton-card__line shimmer"></span>
+                                    <span
+                                        class="skeleton-card__line skeleton-card__line--wide shimmer"
+                                    ></span>
+                                    <span
+                                        class="skeleton-card__line skeleton-card__line--short shimmer"
+                                    ></span>
+                                    <span class="skeleton-card__tags">
+                                        <span class="skeleton-card__pill shimmer"></span>
+                                        <span class="skeleton-card__pill shimmer"></span>
+                                    </span>
+                                </li>
+                            }
+                        </ul>
+                    } @else if (stations().isLoading) {
+                        <mat-progress-bar mode="indeterminate" />
+                    }
+
+                    @if (stations().error) {
+                        <div class="radio__state" role="alert">
+                            <mat-icon svgIcon="cloud_off"></mat-icon>
+                            <p>{{ 'RADIO.STATIONS_ERROR' | translate }}</p>
+                            <small>{{ stations().error }}</small>
+                            <button mat-stroked-button (click)="retryStations()">
+                                {{ 'RADIO.RETRY' | translate }}
+                            </button>
+                        </div>
+                    } @else if (
+                        !stations().isLoading && stations().items.length === 0
+                    ) {
+                        <div class="radio__state">
+                            <mat-icon svgIcon="search_off"></mat-icon>
+                            <p>{{ 'RADIO.STATIONS_EMPTY' | translate }}</p>
+                        </div>
+                    } @else {
+                        @for (group of stationGroups(); track group.label) {
+                            @if (group.label) {
+                                <h4 class="radio__group-title">
+                                    {{ group.label }}
+                                    <span class="radio__count">{{
+                                        group.stations.length
+                                    }}</span>
+                                </h4>
+                            }
+                            <app-radio-station-grid
+                                [stations]="group.stations"
+                                [currentStationId]="currentStationId()"
+                                [isFavorite]="isFavoriteStation()"
+                                (played)="playStationFromResults($event)"
+                                (favoriteToggled)="toggleFavoriteStation($event)"
+                            />
+                        }
+                    }
+
+                    <p class="radio__attribution">
+                        {{ 'RADIO.ATTRIBUTION_STATIONS' | translate }}
+                    </p>
+                </section>
+            }
+
+            @case ('podcasts') {
+                <section
+                    class="radio__panel"
+                    role="tabpanel"
+                    id="radio-panel-podcasts"
+                    aria-labelledby="radio-tab-podcasts"
+                >
+                    @if (selectedShow(); as show) {
+                        <div class="show-detail">
+                            <button
+                                mat-button
+                                class="show-detail__back"
+                                (click)="closeShow()"
+                            >
+                                <mat-icon svgIcon="arrow_back"></mat-icon>
+                                {{ 'RADIO.BACK_TO_PODCASTS' | translate }}
+                            </button>
+
+                            <div class="show-detail__head">
+                                @if (show.artwork) {
+                                    <img
+                                        class="show-detail__artwork"
+                                        [src]="show.artwork"
+                                        alt=""
+                                    />
+                                }
+                                <div class="show-detail__info">
+                                    <h3>{{ show.title }}</h3>
+                                    <p class="show-detail__author">
+                                        {{ show.author }}
+                                    </p>
+                                    @if (show.genres.length > 0) {
+                                        <p class="show-detail__genres">
+                                            {{ show.genres.join(' · ') }}
+                                        </p>
+                                    }
+                                    @if (show.description) {
+                                        <p class="show-detail__description">
+                                            {{ show.description }}
+                                        </p>
+                                    }
+                                    <div class="show-detail__actions">
+                                        <button
+                                            mat-stroked-button
+                                            (click)="toggleSubscription(show)"
+                                        >
+                                            <mat-icon
+                                                [svgIcon]="
+                                                    isSubscribed()(show.id)
+                                                        ? 'check_circle'
+                                                        : 'add_circle'
+                                                "
+                                            ></mat-icon>
+                                            {{
+                                                (isSubscribed()(show.id)
+                                                    ? 'RADIO.UNSUBSCRIBE'
+                                                    : 'RADIO.SUBSCRIBE'
+                                                ) | translate
+                                            }}
+                                        </button>
+                                        <button
+                                            mat-icon-button
+                                            [matTooltip]="
+                                                'RADIO.REFRESH_FEED' | translate
+                                            "
+                                            [attr.aria-label]="
+                                                'RADIO.REFRESH_FEED' | translate
+                                            "
+                                            (click)="refreshShow()"
+                                        >
+                                            <mat-icon svgIcon="refresh"></mat-icon>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            @if (episodes().isLoading) {
+                                <mat-progress-bar mode="indeterminate" />
+                            }
+
+                            @if (episodes().error) {
+                                <div class="radio__state" role="alert">
+                                    <mat-icon svgIcon="cloud_off"></mat-icon>
+                                    <p>
+                                        {{
+                                            (episodesBlocked()
+                                                ? 'RADIO.FEED_BLOCKED'
+                                                : 'RADIO.EPISODES_ERROR'
+                                            ) | translate
+                                        }}
+                                    </p>
+                                    @if (!episodesBlocked()) {
+                                        <small>{{ episodes().error }}</small>
+                                    }
+                                    <button
+                                        mat-stroked-button
+                                        (click)="refreshShow()"
+                                    >
+                                        {{ 'RADIO.RETRY' | translate }}
+                                    </button>
+                                </div>
+                            } @else if (
+                                !episodes().isLoading &&
+                                episodes().items.length === 0
+                            ) {
+                                <div class="radio__state">
+                                    <mat-icon svgIcon="podcasts"></mat-icon>
+                                    <p>{{ 'RADIO.EPISODES_EMPTY' | translate }}</p>
+                                </div>
+                            } @else {
+                                <app-radio-episode-list
+                                    [episodes]="episodes().items"
+                                    [currentEpisodeId]="currentEpisodeId()"
+                                    [resumePercent]="episodeResumePercent()"
+                                    (played)="playEpisode($event)"
+                                />
+                            }
+                        </div>
+                    } @else {
+                        <div class="radio__filters">
+                            <mat-form-field
+                                appearance="outline"
+                                class="radio__search"
+                            >
+                                <mat-label>{{
+                                    'RADIO.SEARCH_PODCASTS' | translate
+                                }}</mat-label>
+                                <input
+                                    matInput
+                                    type="search"
+                                    [ngModel]="podcastSearch()"
+                                    (ngModelChange)="onPodcastSearchChange($event)"
+                                />
+                                <mat-icon matSuffix svgIcon="search"></mat-icon>
+                            </mat-form-field>
+                        </div>
+
+                        <h3 class="radio__section-title">
+                            {{ podcastsHeading() | translate }}
+                            @if (!shows().isLoading && !shows().error) {
+                                <span class="radio__count">{{
+                                    shows().items.length
+                                }}</span>
+                            }
+                        </h3>
+
+                        @if (shows().isLoading && shows().items.length === 0) {
+                            <ul
+                                class="skeleton-grid skeleton-grid--square"
+                                role="presentation"
+                                aria-hidden="true"
+                            >
+                                @for (slot of skeletonSlots; track slot) {
+                                    <li class="skeleton-card">
+                                        <span
+                                            class="skeleton-card__art skeleton-card__art--square shimmer"
+                                        ></span>
+                                        <span class="skeleton-card__line shimmer"></span>
+                                        <span
+                                            class="skeleton-card__line skeleton-card__line--short shimmer"
+                                        ></span>
+                                    </li>
+                                }
+                            </ul>
+                        } @else if (shows().isLoading) {
+                            <mat-progress-bar mode="indeterminate" />
+                        }
+
+                        @if (shows().error) {
+                            <div class="radio__state" role="alert">
+                                <mat-icon svgIcon="cloud_off"></mat-icon>
+                                <p>{{ 'RADIO.PODCASTS_ERROR' | translate }}</p>
+                                <small>{{ shows().error }}</small>
+                                <button
+                                    mat-stroked-button
+                                    (click)="retryPodcasts()"
+                                >
+                                    {{ 'RADIO.RETRY' | translate }}
+                                </button>
+                            </div>
+                        } @else if (
+                            !shows().isLoading && shows().items.length === 0
+                        ) {
+                            <div class="radio__state">
+                                <mat-icon svgIcon="search_off"></mat-icon>
+                                <p>{{ 'RADIO.PODCASTS_EMPTY' | translate }}</p>
+                            </div>
+                        } @else {
+                            <app-radio-podcast-grid
+                                [shows]="shows().items"
+                                [isSubscribed]="isSubscribed()"
+                                (opened)="openShow($event)"
+                                (subscriptionToggled)="toggleSubscription($event)"
+                            />
+                        }
+
+                        <p class="radio__attribution">
+                            {{ 'RADIO.ATTRIBUTION_PODCASTS' | translate }}
+                        </p>
+                    }
+                </section>
+            }
+
+            @case ('library') {
+                <section
+                    class="radio__panel"
+                    role="tabpanel"
+                    id="radio-panel-library"
+                    aria-labelledby="radio-tab-library"
+                >
+                    @if (isLibraryEmpty()) {
+                        <div class="radio__state">
+                            <mat-icon svgIcon="favorite"></mat-icon>
+                            <p>{{ 'RADIO.LIBRARY_EMPTY' | translate }}</p>
+                            <button
+                                mat-stroked-button
+                                (click)="selectTab('stations')"
+                            >
+                                {{ 'RADIO.BROWSE_STATIONS' | translate }}
+                            </button>
+                        </div>
+                    }
+
+                    @if (favoriteStations().length > 0) {
+                        <h3 class="radio__section-title">
+                            {{ 'RADIO.FAVORITE_STATIONS' | translate }}
+                            <span class="radio__count">{{
+                                favoriteStations().length
+                            }}</span>
+                        </h3>
+                        <app-radio-station-grid
+                            [stations]="favoriteStations()"
+                            [currentStationId]="currentStationId()"
+                            [isFavorite]="isFavoriteStation()"
+                            (played)="playStationFromFavorites($event)"
+                            (favoriteToggled)="toggleFavoriteStation($event)"
+                        />
+                    }
+
+                    @if (subscribedShows().length > 0) {
+                        <h3 class="radio__section-title">
+                            {{ 'RADIO.SUBSCRIPTIONS' | translate }}
+                            <span class="radio__count">{{
+                                subscribedShows().length
+                            }}</span>
+                        </h3>
+                        <app-radio-podcast-grid
+                            [shows]="subscribedShows()"
+                            [isSubscribed]="isSubscribed()"
+                            (opened)="selectTab('podcasts'); openShow($event)"
+                            (subscriptionToggled)="toggleSubscription($event)"
+                        />
+                    }
+
+                    @if (recentTracks().length > 0) {
+                        <h3 class="radio__section-title">
+                            {{ 'RADIO.RECENTLY_PLAYED' | translate }}
+                            <button
+                                mat-button
+                                class="radio__section-action"
+                                (click)="clearRecent()"
+                            >
+                                {{ 'RADIO.CLEAR_RECENT' | translate }}
+                            </button>
+                        </h3>
+                        <ul class="recent-list" role="list">
+                            @for (track of recentTracks(); track track.kind + track.id) {
+                                <li class="recent">
+                                    <button
+                                        type="button"
+                                        class="recent__button"
+                                        (click)="playRecent(track)"
+                                    >
+                                        <span class="recent__artwork">
+                                            @if (track.artwork) {
+                                                <img
+                                                    [src]="track.artwork"
+                                                    alt=""
+                                                    loading="lazy"
+                                                />
+                                            } @else {
+                                                <mat-icon
+                                                    [svgIcon]="
+                                                        track.kind === 'station'
+                                                            ? 'radio'
+                                                            : 'podcasts'
+                                                    "
+                                                ></mat-icon>
+                                            }
+                                        </span>
+                                        <span class="recent__meta">
+                                            <span class="recent__title">{{
+                                                track.title
+                                            }}</span>
+                                            <span class="recent__subtitle">{{
+                                                track.subtitle
+                                            }}</span>
+                                        </span>
+                                    </button>
+                                </li>
+                            }
+                        </ul>
+                    }
+                </section>
+            }
+        }
+    </div>
+
+</div>

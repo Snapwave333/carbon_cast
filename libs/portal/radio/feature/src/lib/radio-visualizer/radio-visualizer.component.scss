@@ -1,0 +1,24 @@
+:host {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    // Softens the blobs against the dock's top edge. Kept shallow: the orbs
+    // are about dock-height now, so a deep fade would eat most of them.
+    mask-image: linear-gradient(to bottom, transparent 0%, #000 7%, #000 100%);
+}
+
+.radio-visualizer__canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    // Slightly oversampled and blurred: the blur softens the shader's
+    // threshold edge into something that reads as liquid rather than plastic.
+    filter: blur(7px) saturate(1.3);
+    opacity: 0.72;
+    transform: scale(1.08);
+
+    &.is-hidden {
+        display: none;
+    }
+}

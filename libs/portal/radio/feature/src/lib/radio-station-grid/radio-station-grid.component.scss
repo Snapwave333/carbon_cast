@@ -1,0 +1,168 @@
+.station-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 14px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.station-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px;
+    border: 1px solid var(--mat-sys-outline-variant);
+    border-radius: 14px;
+    background: var(--mat-sys-surface-container-low);
+    // A soft resting shadow lifts the card off the carbon weave; a top inset
+    // highlight gives the surface a faint edge so it reads as a raised object.
+    box-shadow:
+        0 1px 0 rgb(255 255 255 / 4%) inset,
+        0 4px 14px rgb(0 0 0 / 22%);
+    transition:
+        transform 0.18s ease,
+        border-color 0.18s ease,
+        background 0.18s ease,
+        box-shadow 0.18s ease;
+
+    &:hover {
+        transform: translateY(-3px);
+        border-color: var(--mat-sys-outline);
+        background: var(--mat-sys-surface-container-high);
+        box-shadow:
+            0 1px 0 rgb(255 255 255 / 6%) inset,
+            0 12px 28px rgb(0 0 0 / 34%);
+    }
+
+    // The playing station keeps a persistent accent ring and glow.
+    &.is-current {
+        border-color: var(--mat-sys-primary);
+        box-shadow:
+            0 0 0 1px var(--mat-sys-primary) inset,
+            0 8px 22px rgb(0 0 0 / 30%);
+    }
+
+    &__main {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: 0;
+        border: 0;
+        background: none;
+        color: inherit;
+        font: inherit;
+        text-align: left;
+        cursor: pointer;
+        min-width: 0;
+    }
+
+    &__logo {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        aspect-ratio: 16 / 9;
+        border-radius: 10px;
+        overflow: hidden;
+        background: var(--mat-sys-surface-container-highest);
+        color: var(--mat-sys-on-surface-variant);
+
+        img {
+            max-width: 72%;
+            max-height: 72%;
+            object-fit: contain;
+        }
+    }
+
+    &__play {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        background: rgb(0 0 0 / 45%);
+        color: #fff;
+        transition: opacity 0.18s ease;
+    }
+
+    &:hover &__play,
+    &.is-current &__play {
+        opacity: 1;
+    }
+
+    &__name {
+        font-weight: 600;
+        font-size: 0.9rem;
+        line-height: 1.25;
+        color: var(--mat-sys-on-surface);
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    &__meta {
+        font-size: 0.75rem;
+        color: var(--mat-sys-on-surface-variant);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    &__tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        margin-top: auto;
+    }
+
+    &__tag {
+        padding: 1px 7px;
+        border-radius: 999px;
+        font-size: 0.68rem;
+        background: var(--mat-sys-surface-container-highest);
+        color: var(--mat-sys-on-surface-variant);
+        white-space: nowrap;
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+
+        &--tech {
+            font-variant-numeric: tabular-nums;
+        }
+    }
+
+    &__favorite {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+        opacity: 0;
+        color: var(--mat-sys-on-surface-variant);
+        background: color-mix(in srgb, var(--mat-sys-surface) 70%, transparent);
+        transition: opacity 0.18s ease;
+
+        &.is-active {
+            opacity: 1;
+            color: var(--mat-sys-error);
+        }
+    }
+
+    &:hover &__favorite,
+    &__favorite:focus-visible {
+        opacity: 1;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .station-card {
+        transition: none;
+
+        &:hover {
+            transform: none;
+        }
+    }
+}

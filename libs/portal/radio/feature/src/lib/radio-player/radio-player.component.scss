@@ -1,0 +1,247 @@
+:host {
+    display: block;
+}
+
+.radio-player {
+    position: relative;
+    // New stacking context so the visualizer can never paint over anything
+    // outside the dock.
+    isolation: isolate;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1.1fr) auto;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 16px;
+    min-height: 86px;
+    overflow: hidden;
+    border-top: 1px solid var(--mat-sys-outline-variant);
+    background: color-mix(
+        in srgb,
+        var(--mat-sys-surface-container-high) 88%,
+        transparent
+    );
+    backdrop-filter: blur(14px);
+
+    // Everything except the visualizer sits above it.
+    > *:not(app-radio-visualizer) {
+        position: relative;
+        z-index: 1;
+    }
+
+    &--error {
+        border-top-color: var(--mat-sys-error);
+    }
+
+    &__identity {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-width: 0;
+    }
+
+    &__artwork {
+        position: relative;
+        flex: 0 0 auto;
+        width: 48px;
+        height: 48px;
+        border-radius: 10px;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--mat-sys-surface-container-highest);
+        color: var(--mat-sys-on-surface-variant);
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        &.is-playing::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border: 2px solid var(--mat-sys-primary);
+            border-radius: inherit;
+            animation: radio-player-pulse 2.4s ease-in-out infinite;
+        }
+    }
+
+    &__meta {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+    }
+
+    &__title {
+        font-weight: 600;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        color: var(--mat-sys-on-surface);
+    }
+
+    &__subtitle {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.78rem;
+        color: var(--mat-sys-on-surface-variant);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    &__live {
+        flex: 0 0 auto;
+        padding: 1px 7px;
+        border-radius: 999px;
+        font-size: 0.66rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        border: 1px solid var(--mat-sys-outline);
+        color: var(--mat-sys-on-surface-variant);
+
+        &.is-on-air {
+            border-color: transparent;
+            background: var(--mat-sys-error);
+            color: var(--mat-sys-on-error);
+        }
+    }
+
+    &__transport {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    &__play {
+        --mdc-fab-container-shape: 50%;
+        transform: scale(0.82);
+    }
+
+    &__spinner {
+        animation: radio-player-spin 1.1s linear infinite;
+    }
+
+    &__progress {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 0;
+    }
+
+    &__seek {
+        flex: 1;
+        min-width: 0;
+    }
+
+    &__time {
+        font-variant-numeric: tabular-nums;
+        font-size: 0.75rem;
+        color: var(--mat-sys-on-surface-variant);
+    }
+
+    &__wave {
+        display: flex;
+        align-items: flex-end;
+        gap: 3px;
+        height: 22px;
+
+        span {
+            width: 3px;
+            height: 20%;
+            border-radius: 2px;
+            background: var(--mat-sys-outline);
+        }
+
+        &.is-active span {
+            background: var(--mat-sys-primary);
+            animation: radio-player-wave 1.1s ease-in-out infinite;
+        }
+
+        &.is-active span:nth-child(2) {
+            animation-delay: 0.15s;
+        }
+        &.is-active span:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+        &.is-active span:nth-child(4) {
+            animation-delay: 0.45s;
+        }
+        &.is-active span:nth-child(5) {
+            animation-delay: 0.6s;
+        }
+    }
+
+    &__actions {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    &__volume {
+        width: 104px;
+    }
+
+    &__error {
+        grid-column: 1 / -1;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 0;
+        font-size: 0.82rem;
+        color: var(--mat-sys-error);
+
+        mat-icon {
+            flex: 0 0 auto;
+        }
+    }
+}
+
+@keyframes radio-player-pulse {
+    0%,
+    100% {
+        opacity: 0.85;
+    }
+    50% {
+        opacity: 0.25;
+    }
+}
+
+@keyframes radio-player-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes radio-player-wave {
+    0%,
+    100% {
+        height: 20%;
+    }
+    50% {
+        height: 100%;
+    }
+}
+
+@media (max-width: 900px) {
+    .radio-player {
+        grid-template-columns: minmax(0, 1fr) auto;
+        row-gap: 8px;
+
+        &__progress,
+        &__actions {
+            grid-column: 1 / -1;
+        }
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .radio-player__artwork.is-playing::after,
+    .radio-player__spinner,
+    .radio-player__wave.is-active span {
+        animation: none;
+    }
+}
