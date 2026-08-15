@@ -18,6 +18,7 @@ import {
     type AgentAuthenticatedToken,
 } from './agent-control-auth.service';
 import { registerAgentControlTokenRoutes } from './agent-control-token.routes';
+import { captureAgentScreenshot } from './agent-control-screenshot';
 
 const API_PREFIX = '/api/agent-control/v1';
 const BODY_LIMIT_BYTES = 64 * 1024;
@@ -58,6 +59,7 @@ const operationScopes: Record<AgentControlOperation, AgentControlScope> = {
     'settings.get': 'state.read',
     'settings.update': 'settings.write',
     'diagnostics.get': 'diagnostics.read',
+    'diagnostics.screenshot': 'diagnostics.read',
     'app.navigate': 'player.control',
 };
 
@@ -188,6 +190,14 @@ export class AgentControlEvents {
             return this.result(false, request.operation, requested, correlationId, 'renderer-unavailable', 'The CarbonCast IPTV window is unavailable.', true);
         }
         this.audit(request.operation, tokenId, { correlationId, params: requested });
+
+        // Handled entirely in the main process: the usual reason to ask for a
+        // screenshot is that the renderer is not answering, so routing it
+        // through the renderer acknowledgement would fail exactly when needed.
+        if (request.operation === 'diagnostics.screenshot') {
+            return this.captureScreenshot(request.operation, requested, correlationId);
+        }
+
         return new Promise<AgentControlResult>((resolve) => {
             const timer = setTimeout(() => {
                 this.pending.delete(correlationId);
@@ -285,6 +295,22 @@ export class AgentControlEvents {
             } catch {
                 this.events.delete(response);
             }
+        }
+    }
+
+    private async captureScreenshot(operation: string, requested: JsonObject, correlationId: string): Promise<AgentControlResult> {
+        try {
+            const screenshot = await captureAgentScreenshot();
+            const result: AgentControlResult = {
+                ...this.result(true, operation, requested, correlationId),
+                state: { screenshot: { ...screenshot } },
+            };
+            this.remember(result);
+            return result;
+        } catch (error) {
+            const failure = this.result(false, operation, requested, correlationId, 'internal-error', error instanceof Error ? error.message : 'Screenshot failed.', true);
+            this.remember(failure);
+            return failure;
         }
     }
 

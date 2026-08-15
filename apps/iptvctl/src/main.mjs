@@ -70,6 +70,9 @@ function parseCommand(args) {
         if (action === 'set') return command('settings.update', { [rest[0]]: value(rest.slice(1).join(' ')) });
     }
     if (area === 'diagnostics' && action === 'get') return command('diagnostics.get', {}, false);
+    // Read-only: the main process captures the window and writes the file, so
+    // it still answers when the renderer is wedged.
+    if (area === 'diagnostics' && action === 'screenshot') return command('diagnostics.screenshot', {}, false);
     if (area === 'navigate') return command('app.navigate', { route: action });
     if (area === 'tokens') {
         if (action === 'list') return { write: false, run: (control) => control.listTokens() };
@@ -139,5 +142,5 @@ function pick(source, keys) {
 }
 
 function usage() {
-    return `iptvctl <group> <command> [options]\n\nGroups: player, channels, epg, favorites, follows, recording, settings, diagnostics, navigate, tokens, events\n\nGlobal options: --url URL --token TOKEN --json --jsonl --quiet --verbose --dry-run --confirm\nExamples: iptvctl player state --json | iptvctl channels switch --number 12 | iptvctl follows follow epg "The Office"`;
+    return `iptvctl <group> <command> [options]\n\nGroups: player, channels, epg, favorites, follows, recording, settings, diagnostics, navigate, tokens, events\n\nGlobal options: --url URL --token TOKEN --json --jsonl --quiet --verbose --dry-run --confirm\nExamples: iptvctl player state --json | iptvctl channels switch --number 12 | iptvctl diagnostics screenshot | iptvctl follows follow epg "The Office"`;
 }

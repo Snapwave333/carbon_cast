@@ -47,6 +47,7 @@ export type AgentControlOperation =
     | 'settings.get'
     | 'settings.update'
     | 'diagnostics.get'
+    | 'diagnostics.screenshot'
     | 'app.navigate';
 
 export type AgentControlErrorCode =

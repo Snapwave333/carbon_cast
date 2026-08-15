@@ -49,6 +49,22 @@ An engine-specific action such as recording, audio-track selection, or PiP
 returns `operation-unsupported` when the active engine cannot execute it;
 callers must not infer success from an unavailable capability.
 
+`diagnostics.screenshot` is the one exception to the renderer-acknowledgement
+rule: it is served entirely from the main process with
+`BrowserWindow.capturePage()`. The reason to ask for a screenshot is usually
+that the renderer has stopped answering, and a capture gated on the renderer's
+acknowledgement would fail in exactly that case. Two constraints follow from it
+being reachable over an authenticated HTTP endpoint:
+
+- The file name is generated, never taken from the request. Captures land in
+  `<userData>/agent-screenshots/`, timestamped plus a random suffix (two
+  captures inside one millisecond would otherwise overwrite each other), and
+  the directory is pruned to its newest 40 entries. Accepting a caller-supplied
+  path would be an arbitrary file write.
+- The absolute path is returned as `file`, not `path`. Every response is passed
+  through the credential redactor, whose key pattern includes `path`, so the
+  one value the caller needs came back as `[redacted]`.
+
 ## Security model
 
 - Every state, event, command, and token-management route requires a bearer
