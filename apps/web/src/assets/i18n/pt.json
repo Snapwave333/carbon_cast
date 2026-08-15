@@ -516,6 +516,10 @@
         }
     },
     "PLAYBACK_DIAGNOSTICS": {
+        "MISSING_STREAM_URL": {
+            "TITLE": "Este item não tem nenhuma transmissão para reproduzir",
+            "DESCRIPTION": "O provedor retornou esta entrada sem um URL reproduzível. Atualize a playlist ou o portal — se continuar vazio, o item não está disponível no seu provedor."
+        },
         "UNSUPPORTED_CONTAINER": {
             "TITLE": "This stream container is likely unsupported by the browser player",
             "DESCRIPTION": "The browser player may not decode this container inline. Copy the stream URL and open it in an external player such as MPV, VLC, or IINA for broader codec support."
@@ -594,6 +598,14 @@
         "SORT_BY_DATE": "Ordenar por Data de Adição (Mais Recente Primeiro)",
         "SORT_BY_RATING": "Ordenar por Classificação",
         "SORT_BY_NAME": "Ordenar por Nome (A-Z)",
+        "SORT_CHANNELS": "Ordenar canais",
+        "SORT_TOOLTIP": "Ordenar: {{mode}}",
+        "SORT_PLAYLIST_ORDER": "Ordem da lista",
+        "SORT_SERVER_ORDER": "Ordem do servidor",
+        "SORT_NAME_ASC": "Nome A-Z",
+        "SORT_NAME_DESC": "Nome Z-A",
+        "CHANNEL_COUNT_ONE": "1 canal",
+        "CHANNEL_COUNT_OTHER": "{{count}} canais",
         "LOAD_MORE": "Carregar mais",
         "REMAINING": "restantes",
         "LOADING": "Carregando canais...",
@@ -1435,5 +1447,15 @@
         "REMOVE_FAVORITE": "Remover dos favoritos",
         "ATTRIBUTION_STATIONS": "Catálogo de estações fornecido pelo diretório comunitário Radio Browser.",
         "ATTRIBUTION_PODCASTS": "Pesquisa de podcasts fornecida pela API Apple iTunes Search."
+    },
+    "PAGINATOR": {
+        "ITEMS_PER_PAGE": "Itens por página:",
+        "NEXT_PAGE": "Próxima página",
+        "PREVIOUS_PAGE": "Página anterior",
+        "FIRST_PAGE": "Primeira página",
+        "LAST_PAGE": "Última página",
+        "RANGE": "{{start}} – {{end}} de {{total}}",
+        "RANGE_EMPTY": "0 de {{total}}",
+        "SELECT_PAGE": "Selecionar página"
     }
 }

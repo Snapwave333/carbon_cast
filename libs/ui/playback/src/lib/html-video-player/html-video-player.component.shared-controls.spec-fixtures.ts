@@ -209,6 +209,15 @@ export function renderSharedControlsDefaults(
     return renderedFixture(fixture);
 }
 
+/**
+ * `playChannel` awaits the header-configuration IPC before it starts a source
+ * engine, so rendering with a `channel` input finishes on a microtask.
+ */
+export async function flushPlayChannel(): Promise<void> {
+    await Promise.resolve();
+    await Promise.resolve();
+}
+
 export function readHtmlPlayerInternals(
     component: HtmlVideoPlayerComponentInstance
 ): HtmlPlayerInternals {

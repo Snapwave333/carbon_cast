@@ -1,5 +1,6 @@
 ---
 import footerWatermark from '../assets/footer-watermark.png';
+import BuyMeACoffee from './BuyMeACoffee.astro';
 
 const socialLinks = [
   {
@@ -57,7 +58,8 @@ const socialLinks = [
       </div>
 
       <!-- Social links -->
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-4">
+        <BuyMeACoffee variant="link" />
         {
           socialLinks.map((link) => (
             <a

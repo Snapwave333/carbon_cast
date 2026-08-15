@@ -5,6 +5,10 @@ import {
     DEFAULT_PLAYER_CAPABILITIES,
     DEFAULT_SPEED_PRESETS,
 } from './player-controls-defaults';
+import {
+    playerCapabilitiesEqual,
+    playerTracksEqual,
+} from './player-controls-equality';
 import type {
     PlayerController,
     PlayerControlsCapabilities,
@@ -78,34 +82,58 @@ export class WebVideoControlsAdapter implements PlayerController {
         this.seriesNavigationSource()()
     );
 
-    readonly capabilities = computed<PlayerControlsCapabilities>(() => {
-        this.tick();
-        if (!this.video) {
-            return DEFAULT_PLAYER_CAPABILITIES;
-        }
+    /**
+     * Track reads hit the engine (hls.js arrays, the native `TextTrackList`)
+     * and are needed by both {@link capabilities} and {@link state}. Reading
+     * them through a memoized signal keeps that to one call per tick.
+     */
+    private readonly audioTracks = computed<PlayerTrack[]>(
+        () => {
+            this.tick();
+            return this.opts.getAudioTracks?.() ?? [];
+        },
+        { equal: playerTracksEqual }
+    );
 
-        const hasAudioTracks =
-            typeof this.opts.setAudioTrack === 'function' &&
-            (this.opts.getAudioTracks?.().length ?? 0) > 1;
-        const hasSubtitles =
-            typeof this.opts.setSubtitleTrack === 'function' &&
-            (this.opts.getSubtitleTracks?.().length ?? 0) > 0;
-        const isLive = readVideoIsLive(this.video, this.opts);
-        const pictureInPicture = this.pictureInPicture.snapshot();
-        return {
-            ...DEFAULT_PLAYER_CAPABILITIES,
-            seek: !isLive,
-            volume: true,
-            playbackSpeed: true,
-            fullscreen: true,
-            audioTracks: hasAudioTracks,
-            subtitles: hasSubtitles,
-            aspectRatio: false,
-            recording: false,
-            pictureInPicture: pictureInPicture.supported,
-            seriesNavigation: !isLive && this.seriesNavigation() !== null,
-        };
-    });
+    private readonly subtitleTracks = computed<PlayerTrack[]>(
+        () => {
+            this.tick();
+            return this.opts.getSubtitleTracks?.() ?? [];
+        },
+        { equal: playerTracksEqual }
+    );
+
+    readonly capabilities = computed<PlayerControlsCapabilities>(
+        () => {
+            this.tick();
+            if (!this.video) {
+                return DEFAULT_PLAYER_CAPABILITIES;
+            }
+
+            const hasAudioTracks =
+                typeof this.opts.setAudioTrack === 'function' &&
+                this.audioTracks().length > 1;
+            const hasSubtitles =
+                typeof this.opts.setSubtitleTrack === 'function' &&
+                this.subtitleTracks().length > 0;
+            const isLive = readVideoIsLive(this.video, this.opts);
+            const pictureInPicture = this.pictureInPicture.snapshot();
+            return {
+                ...DEFAULT_PLAYER_CAPABILITIES,
+                seek: !isLive,
+                volume: true,
+                playbackSpeed: true,
+                fullscreen: true,
+                audioTracks: hasAudioTracks,
+                subtitles: hasSubtitles,
+                aspectRatio: false,
+                recording: false,
+                pictureInPicture: pictureInPicture.supported,
+                seriesNavigation: !isLive && this.seriesNavigation() !== null,
+            };
+        },
+        { equal: playerCapabilitiesEqual }
+    );
 
     readonly state = computed<PlayerControlsState>(() => {
         this.tick();
@@ -122,8 +150,8 @@ export class WebVideoControlsAdapter implements PlayerController {
         const seriesNav = this.seriesNavigation();
         const seriesNavCapable = !isLive && seriesNav !== null;
 
-        const audioTracks = this.opts.getAudioTracks?.() ?? [];
-        const subtitleTracks = this.opts.getSubtitleTracks?.() ?? [];
+        const audioTracks = this.audioTracks();
+        const subtitleTracks = this.subtitleTracks();
         const pictureInPicture = this.pictureInPicture.snapshot();
 
         return {

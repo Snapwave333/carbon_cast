@@ -13,6 +13,13 @@ import {
     ElectronBridgeAppUpdateStatus,
 } from '@iptvnator/shared/interfaces';
 
+/**
+ * Buy Me a Coffee page for the project, e.g.
+ * 'https://www.buymeacoffee.com/<account>'. Empty until an account is set,
+ * which keeps the card hidden rather than shipping a dead donation link.
+ */
+const SUPPORT_URL = '';
+
 @Component({
     selector: 'app-settings-about-section',
     imports: [MatButtonModule, MatIconModule, TranslateModule],
@@ -24,6 +31,12 @@ import {
     ],
 })
 export class SettingsAboutSectionComponent {
+    /**
+     * Where the "Buy me a coffee" card points. Blank hides the card, so a
+     * build without a configured account never shows a dead donation link.
+     */
+    protected readonly supportUrl = SUPPORT_URL;
+
     readonly activeSection = input.required<string>();
     readonly isDesktop = input(false);
     readonly version = input<string | undefined>();

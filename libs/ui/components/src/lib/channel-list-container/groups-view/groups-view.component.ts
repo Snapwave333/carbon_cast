@@ -1,4 +1,3 @@
-import { KeyValue } from '@angular/common';
 import {
     ChangeDetectionStrategy,
     Component,
@@ -12,34 +11,51 @@ import {
     signal,
     viewChild,
 } from '@angular/core';
-import { ScrollingModule } from '@angular/cdk/scrolling';
+import {
+    CdkVirtualScrollViewport,
+    ScrollingModule,
+} from '@angular/cdk/scrolling';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslatePipe } from '@ngx-translate/core';
-import { EpgRuntimeBridgeService } from '@iptvnator/epg/data-access';
-import { resolveChannelEpgLookupKey } from '@iptvnator/m3u-state';
-import { Channel, EpgProgram } from '@iptvnator/shared/interfaces';
-import { canonicalCategoryKey } from '@iptvnator/shared/m3u-utils';
+import {
+    Channel,
+    ChannelSortMode,
+    EpgProgram,
+    getChannelSortModeLabelKey,
+    persistChannelSortMode,
+    restoreChannelSortMode,
+    sortChannelItems,
+} from '@iptvnator/shared/interfaces';
 import { ChannelGroup } from '../channel-group.model';
+import { GroupsNavResizeController } from './groups-nav-resize.controller';
+import {
+    buildGroupKeyByChannelUrl,
+    FilteredGroupView,
+    filterGroupsByChannelSearch,
+    filterGroupsByLabel,
+    filterHiddenGroups,
+    GroupView,
+    toSortedGroupViews,
+} from './groups-view.filters';
+import {
+    resolveGroupSelection,
+    scrollGroupIntoView,
+} from './groups-view.selection';
 import {
     CHANNEL_ROW_COMPACT_HEIGHT_PX,
     CHANNEL_ROW_HEIGHT_PX,
 } from '../channel-row-metrics';
 import { categoryIconFor } from './category-icon.util';
 import { buildChannelEpgMetadataMap } from '../epg-enrichment.util';
-import {
-    PlaylistChannelSortMode,
-    getPlaylistChannelSortModeLabel,
-    persistPlaylistChannelSortMode,
-    restorePlaylistChannelSortMode,
-    sortPlaylistChannelItems,
-} from '../channel-list-sort.util';
+import { channelEpgLookupKey } from '../channel-epg-key.util';
+import { channelTrackKey } from '../channel-track-key.util';
+import { ListboxCursor } from '../listbox-cursor';
 import { resolveChannelLogo } from '../channel-logo-fallback.util';
-import { EpgMappingDialogComponent } from '../epg-mapping-dialog/epg-mapping-dialog.component';
-import { ChannelDetailsDialogComponent } from '../channel-details-dialog/channel-details-dialog.component';
+import { ChannelContextMenuComponent } from '../channel-context-menu/channel-context-menu.component';
 import { ChannelListItemComponent } from '../channel-list-item/channel-list-item.component';
 import { ResizableDirective } from '../../resizable/resizable.directive';
 import {
@@ -49,27 +65,13 @@ import {
 
 const GROUP_CHANNEL_SORT_STORAGE_KEY = 'm3u-groups-channel-sort-mode';
 
-interface GroupView {
-    readonly channels: Channel[];
-    readonly count: number;
-    readonly key: string;
-    readonly label: string;
-}
-
-interface FilteredGroupView {
-    readonly channels: Channel[];
-    readonly count: number;
-    readonly key: string;
-    readonly label: string;
-    readonly titleMatches: boolean;
-}
-
 @Component({
     selector: 'app-groups-view',
     templateUrl: './groups-view.component.html',
     styleUrls: ['./groups-view.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [
+        ChannelContextMenuComponent,
         ChannelListItemComponent,
         MatButtonModule,
         MatIconModule,
@@ -82,14 +84,31 @@ interface FilteredGroupView {
 })
 export class GroupsViewComponent {
     private readonly dialog = inject(MatDialog);
-    private readonly epgBridge = inject(EpgRuntimeBridgeService);
-    readonly supportsEpgMapping = this.epgBridge.supportsEpgMapping;
     private readonly hostEl = inject(ElementRef<HTMLElement>);
+    private readonly navResize = new GroupsNavResizeController(
+        this.hostEl.nativeElement,
+        () => this.sidebarWidth()
+    );
 
-    readonly contextMenuTrigger =
-        viewChild.required<MatMenuTrigger>('contextMenuTrigger');
     readonly groupSearchInput =
         viewChild<ElementRef<HTMLInputElement>>('groupSearchInput');
+    private readonly channelsViewport = viewChild(CdkVirtualScrollViewport);
+
+    private readonly cursor = new ListboxCursor({
+        count: () => this.selectedGroupChannels().length,
+        optionId: (index) => `group-channel-option-${index}`,
+        activate: (index) => {
+            const channel = this.selectedGroupChannels()[index];
+            if (channel) {
+                this.channelSelected.emit(channel);
+            }
+        },
+        scrollToIndex: (index) =>
+            this.channelsViewport()?.scrollToIndex(index, 'smooth'),
+    });
+
+    readonly focusedIndex = this.cursor.focusedIndex;
+    readonly activeDescendantId = this.cursor.activeDescendantId;
 
     /** Merged, canonical category buckets */
     readonly groupedChannels = input.required<readonly ChannelGroup[]>();
@@ -139,11 +158,11 @@ export class GroupsViewComponent {
     readonly isGroupSearchOpen = signal(false);
     readonly localGroupSearchTerm = signal('');
     readonly selectedGroupKey = signal<string | null>(null);
-    readonly groupChannelSortMode = signal<PlaylistChannelSortMode>(
-        restorePlaylistChannelSortMode(GROUP_CHANNEL_SORT_STORAGE_KEY)
+    readonly groupChannelSortMode = signal<ChannelSortMode>(
+        restoreChannelSortMode(GROUP_CHANNEL_SORT_STORAGE_KEY)
     );
     readonly groupChannelSortLabel = computed(() =>
-        getPlaylistChannelSortModeLabel(this.groupChannelSortMode())
+        getChannelSortModeLabelKey(this.groupChannelSortMode())
     );
     readonly hasSearchQuery = computed(
         () =>
@@ -155,47 +174,23 @@ export class GroupsViewComponent {
             ? CHANNEL_ROW_HEIGHT_PX
             : CHANNEL_ROW_COMPACT_HEIGHT_PX
     );
-    readonly contextMenuChannel = signal<Channel | null>(null);
-    readonly contextMenuPosition = signal({
-        x: '0px',
-        y: '0px',
-    });
 
     private previousActiveChannelUrl: string | undefined;
-    private preservedContentWidth = 0;
 
     constructor() {
         effect(() => {
             const filteredGroups = this.filteredGroups();
-            const visibleGroupKeys = new Set(
-                filteredGroups.map((group) => group.key)
-            );
-            const currentSelection = this.selectedGroupKey();
-            const activeGroupKey = this.activeChannelGroupKey();
             const activeChannelUrl = this.activeChannelUrl();
-            const activeChannelChanged =
-                activeChannelUrl !== this.previousActiveChannelUrl;
+            const currentSelection = this.selectedGroupKey();
+            const nextSelection = resolveGroupSelection({
+                visibleKeys: filteredGroups.map((group) => group.key),
+                currentSelection,
+                activeGroupKey: this.activeChannelGroupKey(),
+                activeChannelChanged:
+                    activeChannelUrl !== this.previousActiveChannelUrl,
+            });
 
             this.previousActiveChannelUrl = activeChannelUrl;
-
-            let nextSelection: string | null = null;
-
-            if (
-                activeChannelChanged &&
-                activeGroupKey &&
-                visibleGroupKeys.has(activeGroupKey)
-            ) {
-                nextSelection = activeGroupKey;
-            } else if (
-                currentSelection &&
-                visibleGroupKeys.has(currentSelection)
-            ) {
-                nextSelection = currentSelection;
-            } else if (activeGroupKey && visibleGroupKeys.has(activeGroupKey)) {
-                nextSelection = activeGroupKey;
-            } else {
-                nextSelection = filteredGroups[0]?.key ?? null;
-            }
 
             if (nextSelection !== currentSelection) {
                 this.selectedGroupKey.set(nextSelection);
@@ -208,41 +203,12 @@ export class GroupsViewComponent {
                 return;
             }
 
+            // Wait for the rail to render the selected row before measuring it.
             queueMicrotask(() => {
-                const container = this.hostEl.nativeElement.querySelector(
-                    '.groups-nav-list'
-                ) as HTMLElement | null;
-                const candidates = Array.from(
-                    this.hostEl.nativeElement.querySelectorAll(
-                        '[data-group-key]'
-                    )
-                ) as HTMLElement[];
-                const selected =
-                    candidates.find(
-                        (candidate) =>
-                            candidate.dataset['groupKey'] === selectedGroupKey
-                    ) ?? null;
-
-                if (!container || !selected) {
-                    return;
-                }
-
-                const containerRect = container.getBoundingClientRect();
-                const selectedRect = selected.getBoundingClientRect();
-                const targetTop =
-                    container.scrollTop +
-                    (selectedRect.top - containerRect.top) -
-                    container.clientHeight / 2 +
-                    selectedRect.height / 2;
-                const maxScrollTop = Math.max(
-                    0,
-                    container.scrollHeight - container.clientHeight
+                scrollGroupIntoView(
+                    this.hostEl.nativeElement,
+                    selectedGroupKey
                 );
-
-                container.scrollTo({
-                    behavior: 'smooth',
-                    top: Math.min(maxScrollTop, Math.max(0, targetTop)),
-                });
             });
         });
 
@@ -257,79 +223,24 @@ export class GroupsViewComponent {
         });
     }
 
-    readonly allGroups = computed<GroupView[]>(() => {
-        const groups = this.groupedChannels().map((group) => ({
-            channels: group.channels,
-            count: group.channels.length,
-            key: group.key,
-            label: group.label,
-        }));
+    readonly allGroups = computed<GroupView[]>(() =>
+        toSortedGroupViews(this.groupedChannels())
+    );
 
-        return groups.sort(this.groupsComparator);
-    });
+    readonly visibleGroups = computed(() =>
+        filterHiddenGroups(this.allGroups(), this.hiddenGroupTitles())
+    );
 
-    readonly visibleGroups = computed(() => {
-        // Stored hidden titles may be raw (pre-canonicalization) legacy values,
-        // so coerce both sides to canonical keys before matching.
-        const hiddenKeys = new Set(
-            this.hiddenGroupTitles().map((title) => canonicalCategoryKey(title))
-        );
+    readonly workspaceFilteredGroups = computed<FilteredGroupView[]>(() =>
+        filterGroupsByChannelSearch(this.visibleGroups(), this.searchTerm())
+    );
 
-        return this.allGroups().filter(
-            (group) =>
-                !hiddenKeys.has(group.key) && group.channels.length > 0
-        );
-    });
-
-    readonly workspaceFilteredGroups = computed<FilteredGroupView[]>(() => {
-        const term = this.searchTerm().trim().toLowerCase();
-        const groups = this.visibleGroups();
-
-        if (!term) {
-            return groups.map((group) => ({
-                channels: group.channels,
-                count: group.count,
-                key: group.key,
-                label: group.label,
-                titleMatches: false,
-            }));
-        }
-
-        return groups.reduce<FilteredGroupView[]>((acc, group) => {
-            const titleMatches = group.label.toLowerCase().includes(term);
-            const channels = titleMatches
-                ? group.channels
-                : group.channels.filter((channel) =>
-                      `${channel.name ?? ''}`.toLowerCase().includes(term)
-                  );
-
-            if (channels.length === 0) {
-                return acc;
-            }
-
-            acc.push({
-                channels,
-                count: channels.length,
-                key: group.key,
-                label: group.label,
-                titleMatches,
-            });
-            return acc;
-        }, []);
-    });
-
-    readonly filteredGroups = computed<FilteredGroupView[]>(() => {
-        const term = this.localGroupSearchTerm().trim().toLowerCase();
-        const groups = this.workspaceFilteredGroups();
-
-        if (!term) {
-            return groups;
-        }
-
-        return groups.filter((group) =>
-            group.label.toLowerCase().includes(term)
-        );
-    });
+    readonly filteredGroups = computed<FilteredGroupView[]>(() =>
+        filterGroupsByLabel(
+            this.workspaceFilteredGroups(),
+            this.localGroupSearchTerm()
+        )
+    );
 
     readonly hasAnyGroups = computed(() => this.allGroups().length > 0);
 
@@ -355,7 +266,7 @@ export class GroupsViewComponent {
             return [];
         }
 
-        return sortPlaylistChannelItems(
+        return sortChannelItems(
             group.channels,
             sortMode,
             (channel) => channel?.name
@@ -376,7 +287,7 @@ export class GroupsViewComponent {
 
     /** Resolves the EPG lookup key the side-car map is keyed by. */
     getChannelEpgKey(channel: Channel): string {
-        return resolveChannelEpgLookupKey(channel) ?? '';
+        return channelEpgLookupKey(channel);
     }
 
     /** Resolves the channel logo. Called per visible row from the template. */
@@ -384,22 +295,9 @@ export class GroupsViewComponent {
         return resolveChannelLogo(channel, this.channelIconMap());
     }
 
-    private readonly groupKeyByChannelUrl = computed(() => {
-        const groupKeys = new Map<string, string>();
-
-        // First-seen wins, so a channel appearing in several buckets maps to
-        // its first canonical group — matching activeChannelGroupKey selection.
-        for (const group of this.groupedChannels()) {
-            for (const channel of group.channels) {
-                const channelUrl = channel.url;
-                if (!groupKeys.has(channelUrl)) {
-                    groupKeys.set(channelUrl, group.key);
-                }
-            }
-        }
-
-        return groupKeys;
-    });
+    private readonly groupKeyByChannelUrl = computed(() =>
+        buildGroupKeyByChannelUrl(this.groupedChannels())
+    );
 
     readonly activeChannelGroupKey = computed(() => {
         const activeChannelUrl = this.activeChannelUrl();
@@ -458,13 +356,13 @@ export class GroupsViewComponent {
         });
     }
 
-    setGroupChannelSortMode(mode: PlaylistChannelSortMode): void {
+    setGroupChannelSortMode(mode: ChannelSortMode): void {
         this.groupChannelSortMode.set(mode);
-        persistPlaylistChannelSortMode(GROUP_CHANNEL_SORT_STORAGE_KEY, mode);
+        persistChannelSortMode(GROUP_CHANNEL_SORT_STORAGE_KEY, mode);
     }
 
     onGroupsNavResizeStart(): void {
-        this.preservedContentWidth = this.measureContentPanelWidth();
+        this.navResize.start();
     }
 
     onGroupsNavWidthChange(width: number): void {
@@ -473,11 +371,11 @@ export class GroupsViewComponent {
 
     onGroupsNavResizeEnd(width: number): void {
         this.emitSidebarWidthRequest(width, this.sidebarWidthRequestEnded);
-        this.preservedContentWidth = 0;
+        this.navResize.end();
     }
 
-    trackByChannel(_: number, channel: Channel): string {
-        return channel?.id;
+    trackByChannel(index: number, channel: Channel): string {
+        return channelTrackKey(channel, index);
     }
 
     trackByGroupKey(_: number, group: FilteredGroupView): string {
@@ -488,8 +386,16 @@ export class GroupsViewComponent {
         return categoryIconFor(key);
     }
 
-    onChannelClick(channel: Channel): void {
+    onChannelClick(channel: Channel, index?: number): void {
+        if (index !== undefined) {
+            this.cursor.focus(index);
+        }
+
         this.channelSelected.emit(channel);
+    }
+
+    onListKeydown(event: KeyboardEvent): void {
+        this.cursor.handleKeydown(event);
     }
 
     onChannelActivate(channel: Channel): void {
@@ -502,148 +408,14 @@ export class GroupsViewComponent {
         this.favoriteToggled.emit({ channel, event });
     }
 
-    onChannelContextMenu(channel: Channel, event: MouseEvent): void {
-        this.contextMenuChannel.set(channel);
-        this.contextMenuPosition.set({
-            x: `${event.clientX}px`,
-            y: `${event.clientY}px`,
-        });
-
-        const trigger = this.contextMenuTrigger();
-        if (trigger.menuOpen) {
-            trigger.closeMenu();
-        }
-
-        queueMicrotask(() => {
-            this.contextMenuTrigger().openMenu();
-        });
-    }
-
-    openEpgMapping(): void {
-        const channel = this.contextMenuChannel();
-        if (!channel) {
-            return;
-        }
-
-        this.contextMenuTrigger().closeMenu();
-        const channelKey = resolveChannelEpgLookupKey(channel);
-        if (!channelKey) {
-            return;
-        }
-
-        EpgMappingDialogComponent.open(this.dialog, {
-            channelKey,
-            channelName: channel.name ?? channelKey,
-        });
-    }
-
-
-    openChannelDetails(): void {
-        const channel = this.contextMenuChannel();
-        if (!channel) {
-            return;
-        }
-
-        this.contextMenuTrigger().closeMenu();
-        this.dialog.open(ChannelDetailsDialogComponent, {
-            data: channel,
-            maxWidth: '720px',
-            width: 'calc(100vw - 32px)',
-        });
-    }
-
-    /**
-     * Comparator for sorting groups - numeric groups first, then alphabetical
-     */
-    readonly groupsComparator = (
-        a: KeyValue<string, Channel[]> | { key: string },
-        b: KeyValue<string, Channel[]> | { key: string }
-    ): number => {
-        const numA = parseInt(a.key.replace(/\D/g, ''), 10);
-        const numB = parseInt(b.key.replace(/\D/g, ''), 10);
-
-        if (!Number.isNaN(numA) && !Number.isNaN(numB) && numA !== numB) {
-            return numA - numB;
-        }
-
-        if (!Number.isNaN(numA) && Number.isNaN(numB)) {
-            return -1;
-        }
-
-        if (Number.isNaN(numA) && !Number.isNaN(numB)) {
-            return 1;
-        }
-
-        return a.key.localeCompare(b.key);
-    };
-
     private emitSidebarWidthRequest(
         navWidth: number,
         emitter: OutputEmitterRef<number>
     ): void {
-        const preservedContentWidth =
-            this.preservedContentWidth ||
-            this.measureContentPanelWidth(navWidth);
-        const requestedWidth = Math.round(navWidth + preservedContentWidth);
+        const requestedWidth = this.navResize.requestedWidthFor(navWidth);
 
         if (requestedWidth > 0) {
             emitter.emit(requestedWidth);
         }
-    }
-
-    private measureContentPanelWidth(currentNavWidth?: number): number {
-        const contentPanel = this.hostEl.nativeElement.querySelector(
-            '.groups-content-panel'
-        );
-        const measuredContentWidth = this.readWidth(contentPanel);
-        if (measuredContentWidth > 0) {
-            return measuredContentWidth;
-        }
-
-        const hostWidth = this.readWidth(this.hostEl.nativeElement);
-        const totalWidth =
-            hostWidth > 0 ? hostWidth : Math.max(0, this.sidebarWidth() ?? 0);
-        const navPanel =
-            this.hostEl.nativeElement.querySelector('.groups-nav-panel');
-        const navWidth = currentNavWidth ?? this.readWidth(navPanel);
-
-        if (totalWidth > 0 && navWidth > 0) {
-            return Math.max(0, totalWidth - navWidth);
-        }
-
-        return 0;
-    }
-
-    private readWidth(element: Element | null): number {
-        if (!element) {
-            return 0;
-        }
-
-        const rectWidth = element.getBoundingClientRect().width;
-        if (rectWidth > 0) {
-            return rectWidth;
-        }
-
-        if (!(element instanceof HTMLElement)) {
-            return 0;
-        }
-
-        if (element.offsetWidth > 0) {
-            return element.offsetWidth;
-        }
-
-        const inlineWidth = Number.parseFloat(element.style.width);
-        if (Number.isFinite(inlineWidth) && inlineWidth > 0) {
-            return inlineWidth;
-        }
-
-        const computedWidth = Number.parseFloat(
-            window.getComputedStyle(element).width
-        );
-        if (Number.isFinite(computedWidth) && computedWidth > 0) {
-            return computedWidth;
-        }
-
-        return 0;
     }
 }

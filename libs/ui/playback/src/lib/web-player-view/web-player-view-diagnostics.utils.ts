@@ -89,6 +89,8 @@ export function getDiagnosticDetails(
 
 function getDiagnosticTranslationBase(issue: PlaybackDiagnostic): string {
     switch (issue.code) {
+        case PlaybackDiagnosticCode.MissingStreamUrl:
+            return 'PLAYBACK_DIAGNOSTICS.MISSING_STREAM_URL';
         case PlaybackDiagnosticCode.UnsupportedContainer:
             return 'PLAYBACK_DIAGNOSTICS.UNSUPPORTED_CONTAINER';
         case PlaybackDiagnosticCode.UnsupportedCodec:

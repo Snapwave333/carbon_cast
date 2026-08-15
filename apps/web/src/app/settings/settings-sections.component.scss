@@ -1,0 +1,221 @@
+.theme-switcher {
+    width: min(100%, 360px);
+    display: inline-flex;
+    padding: 3px;
+    gap: 2px;
+    background: color-mix(
+        in srgb,
+        var(--mat-sys-surface-container-low) 80%,
+        transparent
+    );
+    border: 1px solid
+        color-mix(in srgb, var(--mat-sys-outline-variant) 60%, transparent);
+    border-radius: 10px;
+}
+
+.theme-switcher__option {
+    flex: 1 1 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 30px;
+    padding: 4px 12px;
+    border: 0;
+    border-radius: 7px;
+    background: transparent;
+    color: var(--mat-sys-on-surface-variant);
+    font: inherit;
+    font-size: 0.82rem;
+    font-weight: 500;
+    letter-spacing: 0;
+    cursor: pointer;
+    transition:
+        background 0.16s ease,
+        color 0.16s ease,
+        box-shadow 0.16s ease;
+
+    mat-icon {
+        width: 16px;
+        height: 16px;
+        font-size: 16px;
+        line-height: 16px;
+    }
+
+    &:hover {
+        background: color-mix(
+            in srgb,
+            var(--mat-sys-surface-container-highest) 70%,
+            transparent
+        );
+        color: var(--mat-sys-on-surface);
+    }
+
+    &:focus-visible {
+        outline: none;
+        box-shadow: 0 0 0 2px
+            color-mix(in srgb, var(--app-selection-color) 50%, transparent);
+    }
+}
+
+.theme-switcher__option--selected {
+    background: var(--app-widget-bg, var(--mat-sys-surface));
+    color: var(--app-selection-color);
+    font-weight: 600;
+    box-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.18),
+        inset 0 0 0 1px
+            color-mix(in srgb, var(--app-selection-border) 36%, transparent);
+}
+
+.epg-sources {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.epg-sources-empty {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 8px;
+    padding: 24px 16px 16px;
+    color: var(--mat-sys-on-surface-variant);
+
+    .epg-sources-empty__icon {
+        font-size: 40px;
+        width: 40px;
+        height: 40px;
+        opacity: 0.55;
+        margin-bottom: 4px;
+    }
+
+    .epg-sources-empty__title {
+        margin: 0;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--mat-sys-on-surface);
+    }
+
+    .epg-sources-empty__hint {
+        margin: 0;
+        font-size: 0.825rem;
+        line-height: 1.5;
+        max-width: 360px;
+        opacity: 0.75;
+    }
+}
+
+.epg-source-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    .w-full {
+        width: 100%;
+    }
+
+    app-epg-source-status {
+        flex-shrink: 0;
+    }
+}
+
+.inline-actions {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.button-spinner {
+    display: inline-block;
+    margin-right: 6px;
+    vertical-align: middle;
+}
+
+.inline-actions__button {
+    min-width: 118px;
+}
+
+.inline-actions__button--busy {
+    background: color-mix(
+        in srgb,
+        var(--app-selection-surface) 74%,
+        transparent
+    );
+    color: var(--app-selection-color);
+    box-shadow:
+        inset 0 0 0 1px
+            color-mix(in srgb, var(--app-selection-border) 48%, transparent),
+        0 8px 18px -18px var(--settings-group-active-glow);
+}
+
+.inline-actions__label {
+    display: inline-flex;
+    align-items: center;
+}
+
+.remote-control-urls {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+}
+
+.player-controls-preferences {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(150px, 1fr));
+    gap: 10px 14px;
+    align-items: center;
+}
+
+.player-controls-preferences mat-checkbox {
+    grid-column: 1 / -1;
+}
+
+.remote-control-url-item {
+    width: min(100%, 340px);
+}
+
+.url-row {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 4px;
+}
+
+.remote-control-url {
+    font-family:
+        'JetBrains Mono', 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+    color: inherit;
+    text-decoration: none;
+    font-size: 0.84rem;
+
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+.qr-code-container {
+    display: flex;
+    justify-content: flex-end;
+    padding: 8px 0;
+}
+
+.version-block {
+    flex-direction: column;
+    align-items: flex-end;
+
+    span {
+        font-weight: 700;
+    }
+
+    small {
+        margin-top: 4px;
+        color: var(--mat-sys-on-surface-variant);
+        text-align: right;
+    }
+}

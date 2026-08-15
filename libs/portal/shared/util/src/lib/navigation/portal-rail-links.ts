@@ -178,10 +178,27 @@ export function buildPortalRailLinks(
             }
         );
 
-        return {
-            primary,
-            secondary: [],
-        };
+        // Favourites and Recent are routed sections of the M3U player
+        // (m3u-workspace.routes.ts), but without these entries the rail
+        // offered no way to reach them.
+        const secondary: PortalRailLink[] = [
+            {
+                icon: 'favorite',
+                tooltip: 'Favorites (this playlist)',
+                path: [...root, 'favorites'],
+                exact: true,
+                section: 'favorites',
+            },
+            {
+                icon: 'history',
+                tooltip: 'Recently viewed (this playlist)',
+                path: [...root, 'recent'],
+                exact: true,
+                section: 'recent',
+            },
+        ];
+
+        return { primary, secondary };
     }
 
     return { primary: [], secondary: [] };

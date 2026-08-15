@@ -125,27 +125,33 @@ export class PodcastDirectoryService {
             batches.push(ids.slice(index, index + LOOKUP_BATCH_SIZE));
         }
 
-        // allSettled, not all: one failing batch must not discard the shows
-        // the other batches resolved fine.
-        const responses = await Promise.allSettled(
-            batches.map((batch) =>
-                fetchJson<RawSearchResponse>(
-                    `${LOOKUP_URL}?${new URLSearchParams({
-                        id: batch.join(','),
-                        entity: 'podcast',
-                    })}`
-                )
-            )
+        // Each batch resolves independently: one failing request must not
+        // discard the shows the other batches returned successfully.
+        let firstError: unknown;
+        const responses = await Promise.all(
+            batches.map(async (batch) => {
+                try {
+                    return await fetchJson<RawSearchResponse>(
+                        `${LOOKUP_URL}?${new URLSearchParams({
+                            id: batch.join(','),
+                            entity: 'podcast',
+                        })}`
+                    );
+                } catch (error) {
+                    firstError ??= error;
+                    return null;
+                }
+            })
         );
 
-        if (responses.every((response) => response.status === 'rejected')) {
-            throw responses[0].reason;
+        if (responses.every((response) => response === null)) {
+            throw firstError;
         }
 
         const collected: RawCollection[] = [];
         for (const response of responses) {
-            if (response.status === 'fulfilled') {
-                collected.push(...(response.value.results ?? []));
+            if (response) {
+                collected.push(...(response.results ?? []));
             }
         }
         const shows = toShows(collected);

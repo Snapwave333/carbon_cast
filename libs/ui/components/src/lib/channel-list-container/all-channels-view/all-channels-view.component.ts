@@ -1,38 +1,45 @@
-import { ScrollingModule } from '@angular/cdk/scrolling';
+import {
+    CdkVirtualScrollViewport,
+    ScrollingModule,
+} from '@angular/cdk/scrolling';
 
 import {
     ChangeDetectionStrategy,
     Component,
     computed,
-    inject,
+    effect,
     input,
     output,
     signal,
     viewChild,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslatePipe } from '@ngx-translate/core';
-import { EpgRuntimeBridgeService } from '@iptvnator/epg/data-access';
-import { resolveChannelEpgLookupKey } from '@iptvnator/m3u-state';
-import { Channel, EpgProgram } from '@iptvnator/shared/interfaces';
 import {
-    PlaylistChannelSortMode,
-    getPlaylistChannelSortModeLabel,
-    persistPlaylistChannelSortMode,
-    restorePlaylistChannelSortMode,
-    sortPlaylistChannelItems,
-} from '../channel-list-sort.util';
+    Channel,
+    ChannelSortMode,
+    EpgProgram,
+    getChannelSortModeLabelKey,
+    persistChannelSortMode,
+    restoreChannelSortMode,
+    sortChannelItems,
+} from '@iptvnator/shared/interfaces';
 import { resolveChannelLogo } from '../channel-logo-fallback.util';
 import { buildChannelEpgMetadataMap } from '../epg-enrichment.util';
-import { ChannelDetailsDialogComponent } from '../channel-details-dialog/channel-details-dialog.component';
-import { EpgMappingDialogComponent } from '../epg-mapping-dialog/epg-mapping-dialog.component';
+import { channelEpgLookupKey } from '../channel-epg-key.util';
+import { channelTrackKey } from '../channel-track-key.util';
+import { ListboxCursor } from '../listbox-cursor';
+import { ChannelContextMenuComponent } from '../channel-context-menu/channel-context-menu.component';
 import { ChannelListItemComponent } from '../channel-list-item/channel-list-item.component';
 
 const ALL_CHANNELS_SORT_STORAGE_KEY = 'm3u-all-channels-sort-mode';
+
+export function channelOptionId(index: number): string {
+    return `channel-option-${index}`;
+}
 
 export type { ChannelEpgMetadata } from '../epg-enrichment.util';
 
@@ -42,6 +49,7 @@ export type { ChannelEpgMetadata } from '../epg-enrichment.util';
     styleUrls: ['./all-channels-view.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [
+        ChannelContextMenuComponent,
         ChannelListItemComponent,
         MatButtonModule,
         MatIconModule,
@@ -52,12 +60,45 @@ export type { ChannelEpgMetadata } from '../epg-enrichment.util';
     ],
 })
 export class AllChannelsViewComponent {
-    private readonly dialog = inject(MatDialog);
-    private readonly epgBridge = inject(EpgRuntimeBridgeService);
-    readonly supportsEpgMapping = this.epgBridge.supportsEpgMapping;
+    private readonly viewport = viewChild(CdkVirtualScrollViewport);
 
-    readonly contextMenuTrigger =
-        viewChild.required<MatMenuTrigger>('contextMenuTrigger');
+    constructor() {
+        // Reveal the active channel when it is set from outside the list —
+        // resume-last-channel, a global-search result or the number-pad
+        // shortcut all activate a row that can be tens of thousands of rows
+        // away, and the highlight alone is invisible until the user finds it.
+        let lastRevealedUrl: string | undefined;
+        effect(() => {
+            const activeUrl = this.activeChannelUrl();
+            const channels = this.filteredChannels();
+
+            if (!activeUrl || activeUrl === lastRevealedUrl) {
+                return;
+            }
+
+            const index = channels.findIndex(
+                (channel) => channel?.url === activeUrl
+            );
+            if (index < 0) {
+                return;
+            }
+
+            lastRevealedUrl = activeUrl;
+            const viewport = this.viewport();
+            if (!viewport) {
+                return;
+            }
+
+            // Leave the position alone when the row is already on screen, so
+            // clicking a visible channel never yanks the list.
+            const range = viewport.getRenderedRange();
+            if (index >= range.start && index < range.end) {
+                return;
+            }
+
+            viewport.scrollToIndex(index, 'smooth');
+        });
+    }
 
     /** All channels (will be filtered by search) */
     readonly channels = input.required<Channel[]>();
@@ -96,16 +137,26 @@ export class AllChannelsViewComponent {
     /** Emits when the user clicks the inline collapse toggle in the list header */
     readonly sidebarToggleRequested = output<void>();
 
-    readonly contextMenuChannel = signal<Channel | null>(null);
-    readonly contextMenuPosition = signal({
-        x: '0px',
-        y: '0px',
+    private readonly cursor = new ListboxCursor({
+        count: () => this.filteredChannels().length,
+        optionId: channelOptionId,
+        activate: (index) => {
+            const channel = this.filteredChannels()[index];
+            if (channel) {
+                this.channelSelected.emit(channel);
+            }
+        },
+        scrollToIndex: (index) => this.viewport()?.scrollToIndex(index, 'smooth'),
     });
-    readonly allChannelsSortMode = signal<PlaylistChannelSortMode>(
-        restorePlaylistChannelSortMode(ALL_CHANNELS_SORT_STORAGE_KEY)
+
+    readonly focusedIndex = this.cursor.focusedIndex;
+    readonly activeDescendantId = this.cursor.activeDescendantId;
+
+    readonly allChannelsSortMode = signal<ChannelSortMode>(
+        restoreChannelSortMode(ALL_CHANNELS_SORT_STORAGE_KEY)
     );
     readonly allChannelsSortLabel = computed(() =>
-        getPlaylistChannelSortModeLabel(this.allChannelsSortMode())
+        getChannelSortModeLabelKey(this.allChannelsSortMode())
     );
 
     /**
@@ -119,7 +170,7 @@ export class AllChannelsViewComponent {
             ? channels.filter((ch) => ch.name?.toLowerCase().includes(term))
             : channels;
 
-        return sortPlaylistChannelItems(
+        return sortChannelItems(
             filteredChannels,
             this.allChannelsSortMode(),
             (channel) => channel?.name
@@ -141,7 +192,7 @@ export class AllChannelsViewComponent {
 
     /** Resolves the EPG lookup key the side-car map is keyed by. */
     getChannelEpgKey(channel: Channel): string {
-        return resolveChannelEpgLookupKey(channel) ?? '';
+        return channelEpgLookupKey(channel);
     }
 
     /**
@@ -153,12 +204,22 @@ export class AllChannelsViewComponent {
         return resolveChannelLogo(channel, this.channelIconMap());
     }
 
-    trackByFn(_: number, channel: Channel): string {
-        return channel?.id;
+    trackByFn(index: number, channel: Channel): string {
+        return channelTrackKey(channel, index);
     }
 
-    onChannelClick(channel: Channel): void {
+    onChannelClick(channel: Channel, index?: number): void {
+        // Keep the keyboard cursor where the pointer last acted, so arrowing
+        // after a click continues from that row instead of the top.
+        if (index !== undefined) {
+            this.cursor.focus(index);
+        }
+
         this.channelSelected.emit(channel);
+    }
+
+    onListKeydown(event: KeyboardEvent): void {
+        this.cursor.handleKeydown(event);
     }
 
     onChannelActivate(channel: Channel): void {
@@ -171,57 +232,8 @@ export class AllChannelsViewComponent {
         this.favoriteToggled.emit({ channel, event });
     }
 
-    setAllChannelsSortMode(mode: PlaylistChannelSortMode): void {
+    setAllChannelsSortMode(mode: ChannelSortMode): void {
         this.allChannelsSortMode.set(mode);
-        persistPlaylistChannelSortMode(ALL_CHANNELS_SORT_STORAGE_KEY, mode);
-    }
-
-    onChannelContextMenu(channel: Channel, event: MouseEvent): void {
-        this.contextMenuChannel.set(channel);
-        this.contextMenuPosition.set({
-            x: `${event.clientX}px`,
-            y: `${event.clientY}px`,
-        });
-
-        const trigger = this.contextMenuTrigger();
-        if (trigger.menuOpen) {
-            trigger.closeMenu();
-        }
-
-        queueMicrotask(() => {
-            this.contextMenuTrigger().openMenu();
-        });
-    }
-
-    openChannelDetails(): void {
-        const channel = this.contextMenuChannel();
-        if (!channel) {
-            return;
-        }
-
-        this.contextMenuTrigger().closeMenu();
-        this.dialog.open(ChannelDetailsDialogComponent, {
-            data: channel,
-            maxWidth: '720px',
-            width: 'calc(100vw - 32px)',
-        });
-    }
-
-    openEpgMapping(): void {
-        const channel = this.contextMenuChannel();
-        if (!channel) {
-            return;
-        }
-
-        this.contextMenuTrigger().closeMenu();
-        const channelKey = resolveChannelEpgLookupKey(channel);
-        if (!channelKey) {
-            return;
-        }
-
-        EpgMappingDialogComponent.open(this.dialog, {
-            channelKey,
-            channelName: channel.name ?? channelKey,
-        });
+        persistChannelSortMode(ALL_CHANNELS_SORT_STORAGE_KEY, mode);
     }
 }

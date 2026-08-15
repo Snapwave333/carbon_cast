@@ -4,17 +4,16 @@ import {
     ElementRef,
     OnDestroy,
     computed,
-    effect,
     inject,
     input,
     output,
     signal,
-    untracked,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { registerControlsEffects } from './controls-effects';
 import { ControlsFeedback } from './controls-feedback';
 import { ControlsFullscreen } from './controls-fullscreen';
 import { ControlsMenuSelection } from './controls-menu-selection';
@@ -136,6 +135,7 @@ export class PlayerControlsComponent implements OnDestroy {
     });
 
     readonly isLoading = this.vm.isLoading;
+    readonly isBuffering = this.vm.isBuffering;
     readonly isPaused = this.vm.isPaused;
     readonly isPlaying = this.vm.isPlaying;
     readonly canTogglePlay = this.vm.canTogglePlay;
@@ -163,73 +163,31 @@ export class PlayerControlsComponent implements OnDestroy {
             togglePaused: () => this.togglePlay(),
             toggleFullscreen: () => void this.toggleFullscreen(),
             seekBy: (delta) => this.seekBy(delta),
+            seekToFraction: (fraction) => this.seekToFraction(fraction),
             adjustVolume: (delta) => this.adjustVolume(delta),
             toggleMute: () => this.toggleMute(),
         });
-        effect((onCleanup) => {
-            const playerSurface = this.playerSurface();
-            const surface = this.resolvedShowControls() ? playerSurface : null;
-            this.fullscreen.sync();
-            onCleanup(this.surface.attachSurface(surface));
-        });
-        effect(() => {
-            const controller = this.controller();
-            if (
-                !this.volume.beginCapabilityEpoch(
-                    controller,
-                    this.capabilities().volume
-                )
-            ) {
-                return;
-            }
-            const volume = this.controllerVolume();
-            untracked(() =>
-                this.volume.initializeController(controller, volume)
-            );
-        });
-        effect(() => {
-            const controller = this.controller();
-            const volume = this.controllerVolume();
-            untracked(() =>
-                this.volume.reconcileController(controller, volume)
-            );
-        });
-        effect((onCleanup) => {
-            const surface = this.playerSurface();
-            if (!surface || !this.hideCursor()) {
-                return;
-            }
-            const previousCursor = surface.style.cursor;
-            surface.style.cursor = 'none';
-            onCleanup(() => {
-                if (surface.style.cursor === 'none') {
-                    surface.style.cursor = previousCursor;
-                }
-            });
-        });
-        effect(() => {
-            const state = this.state();
-            const showControls = this.resolvedShowControls();
-            const capabilities = this.capabilities();
-            untracked(() => {
-                if (!capabilities.seek || !state.canSeek) {
-                    this.scrubPosition.set(null);
-                }
-                this.menus.reconcileControllerAvailability(
-                    showControls,
-                    capabilities,
-                    state
-                );
-                this.visibility.scheduleHide();
-                this.feedback.flashRecordingState(state.recording, {
-                    active: this.translate.instant(
-                        'EMBEDDED_MPV.PLAYER.RECORDING'
-                    ),
-                    inactive: this.translate.instant(
-                        'EMBEDDED_MPV.PLAYER.RECORDING_SAVED'
-                    ),
-                });
-            });
+        registerControlsEffects({
+            controller: this.controller,
+            state: this.state,
+            capabilities: this.capabilities,
+            controllerVolume: this.controllerVolume,
+            playerSurface: this.playerSurface,
+            showControls: this.resolvedShowControls,
+            hideCursor: this.hideCursor,
+            scrubPosition: this.scrubPosition,
+            surface: this.surface,
+            fullscreen: this.fullscreen,
+            volume: this.volume,
+            menus: this.menus,
+            visibility: this.visibility,
+            feedback: this.feedback,
+            recordingLabels: () => ({
+                active: this.translate.instant('EMBEDDED_MPV.PLAYER.RECORDING'),
+                inactive: this.translate.instant(
+                    'EMBEDDED_MPV.PLAYER.RECORDING_SAVED'
+                ),
+            }),
         });
     }
     ngOnDestroy(): void {
@@ -260,6 +218,23 @@ export class PlayerControlsComponent implements OnDestroy {
             `${deltaSeconds >= 0 ? '+' : ''}${Math.round(deltaSeconds)}s`
         );
     }
+    seekToFraction(fraction: number): void {
+        this.reveal();
+        if (!this.capabilities().seek || !this.state().canSeek) {
+            return;
+        }
+        const duration = this.timelineDuration();
+        if (duration <= 0) {
+            return;
+        }
+        const target = Math.max(0, Math.min(1, fraction)) * duration;
+        this.controller().commands.seekTo(target);
+        this.feedback.flash(
+            target >= this.state().positionSeconds ? 'forward_10' : 'replay_10',
+            formatTime(target)
+        );
+    }
+
     onTimelineInput(event: Event): void {
         this.reveal();
         this.scrubPosition.set(this.timeline.readEventValue(event));

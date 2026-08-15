@@ -5,7 +5,11 @@
     [cdkDragDisabled]="!isDraggable()"
     cdkDragPreviewContainer="parent"
     [class.active]="selected()"
-    [attr.aria-current]="selected() ? 'true' : null"
+    [class.is-keyboard-focused]="keyboardFocused()"
+    [attr.role]="rowId() ? 'option' : null"
+    [attr.id]="rowId() || null"
+    [attr.aria-selected]="rowId() ? selected() : null"
+    [attr.aria-current]="!rowId() && selected() ? 'true' : null"
     (click)="onClick($event)"
     (dblclick)="onDoubleClick()"
     (contextmenu)="onContextMenu($event)"
@@ -19,11 +23,11 @@
             @if (showLogoFallback()) {
                 <mat-icon class="channel-logo-fallback" svgIcon="live_tv"></mat-icon>
             }
-            @if (logo()) {
+            @if (showLogo()) {
                 <img
                     class="channel-logo"
                     [src]="logo()"
-                    (error)="onLogoError($event)"
+                    (error)="onLogoError()"
                     alt=""
                     loading="lazy"
                     decoding="async"

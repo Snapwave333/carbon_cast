@@ -2,6 +2,7 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Hero from '../components/Hero.astro';
+import SourcesStrip from '../components/SourcesStrip.astro';
 import FeatureGrid from '../components/FeatureGrid.astro';
 import ScreenshotShowcase from '../components/ScreenshotShowcase.astro';
 import DownloadCTA from '../components/DownloadCTA.astro';
@@ -56,24 +57,20 @@ const homeSchema = [
   jsonLd={homeSchema}
 >
   <Hero />
-  <FeatureGrid />
+  <SourcesStrip />
   <ScreenshotShowcase />
+  <FeatureGrid />
   <DownloadCTA />
 
   <!-- Recent Blog Posts -->
   {
     posts.length > 0 && (
-      <section class="py-28">
-        <hr class="section-divider mb-28" />
-
-        <div class="mx-auto max-w-6xl px-6">
-          <div class="flex items-end justify-between">
+      <section class="py-24">
+        <div class="mx-auto max-w-[1400px] px-6 lg:px-10">
+          <div class="reveal flex items-end justify-between">
             <div>
-              <span class="font-mono text-xs uppercase tracking-[0.2em] text-accent-500">
-                Blog
-              </span>
-              <h2 class="mt-4 font-display text-3xl font-bold tracking-tight text-surface-50 sm:text-4xl lg:text-5xl">
-                Latest <em class="font-medium text-accent-400" style="font-style: italic;">updates</em>
+              <h2 class="font-display text-3xl font-bold tracking-tight text-surface-50 sm:text-4xl">
+                Latest updates
               </h2>
               <p class="mt-4 text-lg text-surface-400">
                 Release notes, tutorials, and project updates.

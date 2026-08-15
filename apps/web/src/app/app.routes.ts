@@ -2,6 +2,7 @@ import { inject } from '@angular/core';
 import { Router, Routes } from '@angular/router';
 import { RuntimeCapabilitiesService, SettingsStore } from '@iptvnator/services';
 import { WorkspaceStartupPreferencesService } from '@iptvnator/workspace/shell/util';
+import { settingsUnsavedChangesGuard } from './settings/settings-unsaved-changes.guard';
 
 const settingsReadyResolver = () => inject(SettingsStore).loadSettings();
 
@@ -152,6 +153,7 @@ export const routes: Routes = [
                     import('./settings/settings.component').then(
                         (c) => c.SettingsComponent
                     ),
+                canDeactivate: [settingsUnsavedChangesGuard],
             },
         ],
     },

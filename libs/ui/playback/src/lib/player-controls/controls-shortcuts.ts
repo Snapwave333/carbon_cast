@@ -8,6 +8,8 @@ export interface ControlsShortcutHandlers {
     togglePaused: () => void;
     toggleFullscreen: () => void;
     seekBy: (deltaSeconds: number) => void;
+    /** Seek to a fraction (0..1) of the duration; used by Home/End and 0-9. */
+    seekToFraction: (fraction: number) => void;
     adjustVolume: (delta: number) => void;
     toggleMute: () => void;
 }
@@ -32,6 +34,14 @@ const INTERACTIVE_SELECTOR = [
     '[role="switch"]',
     '[role="textbox"]',
 ].join(',');
+
+/** `3` seeks to 30% of the duration, matching the common web-player idiom. */
+function readDigitSeekFraction(key: string): number | null {
+    if (key.length !== 1 || key < '0' || key > '9') {
+        return null;
+    }
+    return Number(key) / 10;
+}
 
 export class ControlsShortcuts {
     private static readonly instances = new Set<ControlsShortcuts>();
@@ -90,7 +100,31 @@ export class ControlsShortcuts {
             return;
         }
 
+        const digitFraction = readDigitSeekFraction(event.key);
+        if (digitFraction !== null) {
+            if (!handlers.canSeek()) {
+                return;
+            }
+            event.preventDefault();
+            handlers.seekToFraction(digitFraction);
+            return;
+        }
+
         switch (event.key) {
+            case 'Home':
+                if (!handlers.canSeek()) {
+                    return;
+                }
+                event.preventDefault();
+                handlers.seekToFraction(0);
+                return;
+            case 'End':
+                if (!handlers.canSeek()) {
+                    return;
+                }
+                event.preventDefault();
+                handlers.seekToFraction(1);
+                return;
             case ' ':
             case 'k':
             case 'K':

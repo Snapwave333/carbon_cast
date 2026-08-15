@@ -51,21 +51,21 @@ describe('HtmlVideoPlayerComponent DASH', () => {
         jest.restoreAllMocks();
     });
 
-    it('does not resume the previous source when a channel declares unsupported DRM', () => {
+    it('does not resume the previous source when a channel declares unsupported DRM', async () => {
         const video = component.videoPlayer.nativeElement;
         const loadSpy = jest
             .spyOn(video, 'load')
             .mockImplementation(() => undefined);
         const playSpy = jest.spyOn(video, 'play').mockResolvedValue(undefined);
 
-        component.playChannel({
+        await component.playChannel({
             ...TEST_CHANNEL,
             url: 'https://stream.example/movie.mp4',
         });
         playSpy.mockClear();
         loadSpy.mockClear();
 
-        component.playChannel({
+        await component.playChannel({
             ...TEST_CHANNEL,
             drm: {
                 licenseType: 'com.widevine.alpha',

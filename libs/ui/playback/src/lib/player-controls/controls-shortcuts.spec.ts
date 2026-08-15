@@ -12,6 +12,7 @@ describe('ControlsShortcuts', () => {
         togglePaused: jest.Mock;
         toggleFullscreen: jest.Mock;
         seekBy: jest.Mock;
+        seekToFraction: jest.Mock;
         adjustVolume: jest.Mock;
         toggleMute: jest.Mock;
     };
@@ -28,6 +29,7 @@ describe('ControlsShortcuts', () => {
             togglePaused: jest.fn(),
             toggleFullscreen: jest.fn(),
             seekBy: jest.fn(),
+            seekToFraction: jest.fn(),
             adjustVolume: jest.fn(),
             toggleMute: jest.fn(),
         };
@@ -54,6 +56,31 @@ describe('ControlsShortcuts', () => {
         expect(handlers.adjustVolume).toHaveBeenCalledWith(-0.05);
         expect(handlers.toggleFullscreen).toHaveBeenCalledTimes(1);
         expect(handlers.toggleMute).toHaveBeenCalledTimes(1);
+    });
+
+    it('seeks to a fraction of the duration for digits, Home, and End', () => {
+        expect(dispatchKey('0')).toBe(true);
+        expect(dispatchKey('3')).toBe(true);
+        expect(dispatchKey('9')).toBe(true);
+        expect(dispatchKey('Home')).toBe(true);
+        expect(dispatchKey('End')).toBe(true);
+
+        expect(handlers.seekToFraction.mock.calls).toEqual([
+            [0],
+            [0.3],
+            [0.9],
+            [0],
+            [1],
+        ]);
+    });
+
+    it('leaves fraction-seek keys alone when seeking is unavailable', () => {
+        handlers.canSeek.mockReturnValue(false);
+
+        expect(dispatchKey('5')).toBe(false);
+        expect(dispatchKey('Home')).toBe(false);
+        expect(dispatchKey('End')).toBe(false);
+        expect(handlers.seekToFraction).not.toHaveBeenCalled();
     });
 
     it('does not consume keys for unsupported actions', () => {
@@ -197,6 +224,7 @@ describe('ControlsShortcuts', () => {
             togglePaused: jest.fn(),
             toggleFullscreen: jest.fn(),
             seekBy: jest.fn(),
+            seekToFraction: jest.fn(),
             adjustVolume: jest.fn(),
             toggleMute: jest.fn(),
         };
@@ -232,6 +260,7 @@ describe('ControlsShortcuts', () => {
             togglePaused: jest.fn(),
             toggleFullscreen: jest.fn(),
             seekBy: jest.fn(),
+            seekToFraction: jest.fn(),
             adjustVolume: jest.fn(),
             toggleMute: jest.fn(),
         };

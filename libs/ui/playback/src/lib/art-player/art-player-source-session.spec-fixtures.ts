@@ -114,9 +114,8 @@ let sessionConstructor:
 
 /** Loads the session module after the engine mocks above are registered. */
 export async function initArtPlayerSourceSessionModule(): Promise<void> {
-    ({ ArtPlayerSourceSession: sessionConstructor } = await import(
-        './art-player-source-session'
-    ));
+    ({ ArtPlayerSourceSession: sessionConstructor } =
+        await import('./art-player-source-session'));
 }
 
 export function resetArtPlayerSourceFixtures(): void {

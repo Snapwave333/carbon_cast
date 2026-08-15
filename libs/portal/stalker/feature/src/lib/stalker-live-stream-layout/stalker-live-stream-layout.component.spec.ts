@@ -949,14 +949,11 @@ describe('StalkerLiveStreamLayoutComponent', () => {
         itvFullListActive.set(true);
         fixture.detectChanges();
 
-        const buttons = Array.from(
-            fixture.nativeElement.querySelectorAll(
-                '.category-content-header button'
-            )
-        ) as HTMLButtonElement[];
-        const refreshButton = buttons.find((button) =>
-            button.textContent?.includes('refresh')
-        );
+        // Matched by label, not by icon text: the app's icons are SVGs, so an
+        // icon button renders no text content to match on.
+        const refreshButton = fixture.nativeElement.querySelector(
+            '.category-content-header button[aria-label="PORTALS.REFRESH_CHANNEL_LIST"]'
+        ) as HTMLButtonElement | null;
 
         expect(refreshButton).toBeTruthy();
         refreshButton?.click();

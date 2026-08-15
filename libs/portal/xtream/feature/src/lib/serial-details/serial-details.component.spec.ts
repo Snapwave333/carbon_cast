@@ -72,7 +72,9 @@ class StubPortalInlinePlayerComponent {
     standalone: true,
     template: '<ng-content />',
 })
-class StubMatIconComponent {}
+class StubMatIconComponent {
+    readonly svgIcon = input<string>();
+}
 
 describe('SerialDetailsComponent', () => {
     let fixture: ComponentFixture<SerialDetailsComponent>;

@@ -19,6 +19,7 @@ import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
 import {
     ChannelDetailsDialogComponent,
     ChannelListItemComponent,
+    ListboxCursor,
 } from '@iptvnator/ui/components';
 import { SettingsStore } from '@iptvnator/services';
 import {
@@ -70,6 +71,23 @@ export class GlobalFavoritesListComponent {
     );
 
     readonly channels = input.required<UnifiedFavoriteChannel[]>();
+    // Plain list, so the browser keeps the focused row visible without a
+    // scrollToIndex. Keyboard drives selection only — reordering stays a
+    // pointer gesture.
+    private readonly cursor = new ListboxCursor({
+        count: () => this.enrichedChannels().length,
+        optionId: (index) => `favorite-option-${index}`,
+        activate: (index) => {
+            const channel = this.enrichedChannels()[index];
+            if (channel) {
+                this.channelSelected.emit(channel);
+            }
+        },
+    });
+
+    readonly focusedIndex = this.cursor.focusedIndex;
+    readonly activeDescendantId = this.cursor.activeDescendantId;
+
     readonly mode = input<GlobalFavoritesListMode>('favorites');
     readonly favoriteUids = input<ReadonlySet<string>>(new Set<string>());
     readonly epgMap = input<Map<string, EpgProgram | null>>(new Map());
@@ -139,8 +157,50 @@ export class GlobalFavoritesListComponent {
         });
     });
 
-    onChannelClick(channel: UnifiedFavoriteChannel): void {
+    onChannelClick(channel: UnifiedFavoriteChannel, index?: number): void {
+        // Keep the keyboard cursor where the pointer last acted.
+        if (index !== undefined) {
+            this.cursor.focus(index);
+        }
+
         this.channelSelected.emit(channel);
+    }
+
+    onListKeydown(event: KeyboardEvent): void {
+        if (this.tryKeyboardReorder(event)) {
+            return;
+        }
+
+        this.cursor.handleKeydown(event);
+    }
+
+    /**
+     * Alt+Arrow moves the focused favourite, mirroring the drag handle. Without
+     * it reordering was pointer-only, so keyboard and assistive-tech users
+     * could not arrange their own favourites at all.
+     */
+    private tryKeyboardReorder(event: KeyboardEvent): boolean {
+        if (
+            !event.altKey ||
+            (event.key !== 'ArrowUp' && event.key !== 'ArrowDown') ||
+            !this.canDragDrop()
+        ) {
+            return false;
+        }
+
+        const from = this.focusedIndex();
+        const to = from + (event.key === 'ArrowDown' ? 1 : -1);
+        const list = [...this.channels()];
+        if (from < 0 || to < 0 || to >= list.length) {
+            return false;
+        }
+
+        event.preventDefault();
+        moveItemInArray(list, from, to);
+        this.channelsReordered.emit(list);
+        // Follow the item, not the position, so a held key keeps moving it.
+        this.cursor.focus(to);
+        return true;
     }
 
     onChannelActivate(channel: UnifiedFavoriteChannel): void {

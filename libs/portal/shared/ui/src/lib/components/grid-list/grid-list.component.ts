@@ -2,6 +2,7 @@ import {
     ChangeDetectionStrategy,
     Component,
     computed,
+    ElementRef,
     inject,
     input,
     output,
@@ -19,6 +20,7 @@ import {
     WatchedBadgeComponent,
 } from '@iptvnator/ui/components';
 import { PlaylistErrorViewComponent } from '../playlist-error-view/playlist-error-view.component';
+import { GridCardFocus } from './grid-card-focus';
 
 interface GridListItem {
     id?: number | string;
@@ -80,7 +82,11 @@ function normalizeArtworkUrl(value: string | undefined): string | undefined {
 
 @Component({
     selector: 'app-grid-list',
-    template: `<div class="grid-list__grid">
+    template: `<div
+            class="grid-list__grid"
+            role="list"
+            [attr.aria-busy]="isLoading() ? 'true' : null"
+        >
             @if (isLoading()) {
                 @for (row of skeletonRows(); track row) {
                     <div class="grid-skeleton-card" aria-hidden="true">
@@ -98,11 +104,23 @@ function normalizeArtworkUrl(value: string | undefined): string | undefined {
                     </div>
                 }
             } @else {
-                @for (item of items(); track $index) {
+                @for (item of items(); track trackItem($index, item)) {
                     @let i = $any(item);
+                    <div
+                        class="grid-list__cell"
+                        role="listitem"
+                        [attr.aria-posinset]="positionInSet($index)"
+                        [attr.aria-setsize]="totalItems()"
+                    >
                     <mat-card
                         [class.grid-card--logo]="variant() === 'logo'"
+                        role="button"
+                        [attr.tabindex]="isCardFocusTarget($index) ? 0 : -1"
+                        [attr.data-card-index]="$index"
+                        [attr.aria-label]="channelTitle(i)"
                         (click)="itemClicked.emit(item)"
+                        (focus)="onCardFocus($index)"
+                        (keydown)="onCardKeydown($event, $index)"
                     >
                         @let poster = resolvePoster(i);
                         <div class="card-thumbnail-container">
@@ -112,7 +130,7 @@ function normalizeArtworkUrl(value: string | undefined): string | undefined {
                                     [src]="poster"
                                     (error)="onImageError($event, poster)"
                                     loading="lazy"
-                                    alt="logo"
+                                    alt=""
                                 />
                             } @else if (
                                 shouldRenderArtworkPlaceholder(poster)
@@ -128,7 +146,7 @@ function normalizeArtworkUrl(value: string | undefined): string | undefined {
                                     class="stream-icon"
                                     src="./assets/images/default-poster.png"
                                     loading="lazy"
-                                    alt="logo"
+                                    alt=""
                                 />
                             }
                             @if (i.progress && i.progress > 0) {
@@ -161,6 +179,7 @@ function normalizeArtworkUrl(value: string | undefined): string | undefined {
                             </div>
                         </mat-card-actions>
                     </mat-card>
+                    </div>
                 } @empty {
                     <div class="grid-empty-state">
                         @if (hasActiveSearch()) {
@@ -197,11 +216,11 @@ function normalizeArtworkUrl(value: string | undefined): string | undefined {
         @if (showPaginator() && items().length > 0) {
             <mat-paginator
                 [pageIndex]="pageIndex()"
-                [length]="totalPages() * limit()"
+                [length]="totalItems()"
                 [pageSize]="limit()"
                 [pageSizeOptions]="pageSizeOptions()"
                 (page)="pageChange.emit($event)"
-                aria-label="Select page"
+                [attr.aria-label]="'PAGINATOR.SELECT_PAGE' | translate"
             />
         } `,
     styleUrl: './grid-list.component.scss',
@@ -220,6 +239,17 @@ function normalizeArtworkUrl(value: string | undefined): string | undefined {
 export class GridListComponent {
     private readonly failedArtworkUrls = signal<ReadonlySet<string>>(new Set());
     private readonly settingsStore = inject(SettingsStore);
+    private readonly hostRef = inject<ElementRef<HTMLElement>>(ElementRef);
+    private readonly cardFocus = new GridCardFocus({
+        count: () => this.items().length,
+        host: () => this.hostRef.nativeElement,
+        activate: (index) => {
+            const item = this.items()[index];
+            if (item) {
+                this.itemClicked.emit(item);
+            }
+        },
+    });
 
     readonly items = input<GridListItem[]>([]);
     readonly isLoading = input<boolean>(false);
@@ -257,11 +287,57 @@ export class GridListComponent {
         return stripped || 'No name';
     };
 
+    /**
+     * Item count the paginator and list positions report. Portals do not all
+     * send a page count; falling back to `totalPages * limit` alone left the
+     * paginator claiming "0 of 0" and disabling its next button while a full
+     * page of items was on screen.
+     */
+    protected readonly totalItems = computed(() => {
+        const fromPageCount = this.totalPages() * this.limit();
+        return fromPageCount > 0
+            ? fromPageCount
+            : this.pageIndex() * this.limit() + this.items().length;
+    });
+
+    protected positionInSet(index: number): number {
+        return this.pageIndex() * this.limit() + index + 1;
+    }
+
     readonly skeletonRows = computed(() => {
         const preferredCount = this.limit() ?? 12;
         const count = Math.max(8, Math.min(18, preferredCount));
         return Array.from({ length: count }, (_, index) => index);
     });
+
+    /**
+     * Position plus item identity. Tracking by position alone made Angular
+     * reuse each card's `<img>` across a page change, and the browser keeps
+     * painting the decoded poster until the new one arrives — so page 2's
+     * titles sat under page 1's artwork for as long as the fetch took.
+     * Including the id recreates the card instead; keeping the index in the
+     * key means a portal repeating an id on one page cannot collide.
+     */
+    protected readonly trackItem = (
+        index: number,
+        item: GridListItem
+    ): string => {
+        const id =
+            item.stream_id ?? item.series_id ?? item.xtream_id ?? item.id ?? '';
+        return `${index}:${id}`;
+    };
+
+    protected isCardFocusTarget(index: number): boolean {
+        return this.cardFocus.isFocusTarget(index);
+    }
+
+    protected onCardFocus(index: number): void {
+        this.cardFocus.onFocus(index);
+    }
+
+    protected onCardKeydown(event: KeyboardEvent, index: number): void {
+        this.cardFocus.onKeydown(event, index);
+    }
 
     protected hasArtworkFailed(poster: string): boolean {
         return this.failedArtworkUrls().has(poster);

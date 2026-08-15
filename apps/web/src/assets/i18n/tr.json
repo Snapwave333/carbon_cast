@@ -516,6 +516,10 @@
         }
     },
     "PLAYBACK_DIAGNOSTICS": {
+        "MISSING_STREAM_URL": {
+            "TITLE": "Bu öğede oynatılacak bir yayın yok",
+            "DESCRIPTION": "Sağlayıcı bu kaydı oynatılabilir bir URL olmadan döndürdü. Oynatma listesini veya portalı yenileyin — boş kalırsa öğe sağlayıcınızda mevcut değildir."
+        },
         "UNSUPPORTED_CONTAINER": {
             "TITLE": "This stream container is likely unsupported by the browser player",
             "DESCRIPTION": "The browser player may not decode this container inline. Copy the stream URL and open it in an external player such as MPV, VLC, or IINA for broader codec support."
@@ -594,6 +598,14 @@
         "SORT_BY_DATE": "Eklenme tarihine göre sırala (Önce En Yeni)",
         "SORT_BY_RATING": "Puana göre sırala",
         "SORT_BY_NAME": "İsme göre sırala (A-Z)",
+        "SORT_CHANNELS": "Kanalları sırala",
+        "SORT_TOOLTIP": "Sıralama: {{mode}}",
+        "SORT_PLAYLIST_ORDER": "Oynatma listesi sırası",
+        "SORT_SERVER_ORDER": "Sunucu sırası",
+        "SORT_NAME_ASC": "Ad A-Z",
+        "SORT_NAME_DESC": "Ad Z-A",
+        "CHANNEL_COUNT_ONE": "1 kanal",
+        "CHANNEL_COUNT_OTHER": "{{count}} kanal",
         "LOAD_MORE": "Daha fazla yükle",
         "REMAINING": "kalan",
         "LOADING": "Kanallar yükleniyor...",
@@ -1435,5 +1447,15 @@
         "REMOVE_FAVORITE": "Favorilerden kaldır",
         "ATTRIBUTION_STATIONS": "İstasyon kataloğu, topluluk tarafından yürütülen Radio Browser dizini tarafından sağlanmaktadır.",
         "ATTRIBUTION_PODCASTS": "Podcast araması Apple iTunes Search API ile desteklenmektedir."
+    },
+    "PAGINATOR": {
+        "ITEMS_PER_PAGE": "Sayfa başına öğe:",
+        "NEXT_PAGE": "Sonraki sayfa",
+        "PREVIOUS_PAGE": "Önceki sayfa",
+        "FIRST_PAGE": "İlk sayfa",
+        "LAST_PAGE": "Son sayfa",
+        "RANGE": "{{start}} – {{end}} / {{total}}",
+        "RANGE_EMPTY": "0 / {{total}}",
+        "SELECT_PAGE": "Sayfa seç"
     }
 }

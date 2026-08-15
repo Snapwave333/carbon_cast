@@ -6,6 +6,7 @@ import {
     effect,
     inject,
     signal,
+    untracked,
     viewChild,
 } from '@angular/core';
 import {
@@ -167,6 +168,31 @@ export class WorkspaceCommandPaletteComponent implements AfterViewInit {
             .filter((index) => index >= 0)
     );
 
+    /**
+     * Resolved once per selection change rather than per rendered row: the
+     * template asks every item whether it is selected, which previously cost
+     * a findIndex scan over the whole command list for each one.
+     */
+    private readonly selectedCommandId = computed(
+        () => this.flatCommands()[this.selectedIndex()]?.id ?? null
+    );
+
+    /**
+     * Combobox/listbox wiring. Arrow keys move a visual highlight without
+     * moving DOM focus (it stays in the search field), so the highlighted
+     * command has to be published through aria-activedescendant or assistive
+     * tech has no idea what Enter will run.
+     */
+    readonly listboxId = 'workspace-command-palette-listbox';
+    readonly activeDescendantId = computed(() => {
+        const id = this.selectedCommandId();
+        return id ? this.commandOptionId(id) : null;
+    });
+
+    commandOptionId(commandId: string): string {
+        return `palette-option-${commandId}`;
+    }
+
     constructor() {
         effect(() => {
             const items = this.flatCommands();
@@ -181,7 +207,9 @@ export class WorkspaceCommandPaletteComponent implements AfterViewInit {
                 return;
             }
 
-            const currentIndex = this.selectedIndex();
+            // untracked: this effect writes selectedIndex, so reading it
+            // reactively would make every write re-run the effect.
+            const currentIndex = untracked(() => this.selectedIndex());
             if (!selectableIndices.includes(currentIndex)) {
                 this.selectedIndex.set(selectableIndices[0]);
             }
@@ -250,10 +278,7 @@ export class WorkspaceCommandPaletteComponent implements AfterViewInit {
     }
 
     isCommandSelected(command: WorkspaceResolvedCommandItem): boolean {
-        const index = this.flatCommands().findIndex(
-            (item) => item.id === command.id
-        );
-        return index >= 0 && this.selectedIndex() === index;
+        return this.selectedCommandId() === command.id;
     }
 
     getGroupTitleKey(group: PaletteSectionGroup): string {

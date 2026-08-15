@@ -203,4 +203,40 @@ describe('parsePodcastFeed', () => {
             'Podcast feed is not valid XML'
         );
     });
+
+    function feedWithItems(items: string): string {
+        return `<?xml version="1.0"?><rss version="2.0"><channel>${items}</channel></rss>`;
+    }
+
+    it('gives repeated guids distinct ids so resume points cannot collide', () => {
+        const item = (title: string) =>
+            `<item><guid>same-guid</guid><title>${title}</title>
+             <enclosure url="https://cdn.example/${title}.mp3" type="audio/mpeg"/></item>`;
+
+        const feed = parsePodcastFeed(
+            feedWithItems(item('one') + item('two') + item('three')),
+            CONTEXT
+        );
+
+        expect(feed.episodes.map((episode) => episode.id)).toEqual([
+            'same-guid',
+            'same-guid#2',
+            'same-guid#3',
+        ]);
+    });
+
+    it('caps how many episodes a single feed contributes', () => {
+        const items = Array.from(
+            { length: 520 },
+            (_, index) =>
+                `<item><guid>ep-${index}</guid><title>Episode ${index}</title>
+                 <enclosure url="https://cdn.example/${index}.mp3" type="audio/mpeg"/></item>`
+        ).join('');
+
+        const feed = parsePodcastFeed(feedWithItems(items), CONTEXT);
+
+        expect(feed.episodes).toHaveLength(500);
+        // RSS lists newest first, so the cap keeps the most recent run.
+        expect(feed.episodes[0].id).toBe('ep-0');
+    });
 });

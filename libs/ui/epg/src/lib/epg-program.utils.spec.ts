@@ -3,7 +3,47 @@ import {
     formatEpisodeBadge,
     getEpgCategoryAccent,
     getProgramArtworkUrl,
+    getProgramTimeMs,
 } from './epg-program.utils';
+
+describe('getProgramTimeMs', () => {
+    const isoOfSeconds = (seconds: number) =>
+        new Date(seconds * 1000).toISOString();
+
+    it('reads a normal epoch-seconds timestamp', () => {
+        const seconds = Math.floor(Date.UTC(2026, 0, 2, 10, 30) / 1000);
+
+        expect(getProgramTimeMs(isoOfSeconds(seconds), seconds)).toBe(
+            seconds * 1000
+        );
+    });
+
+    it('accepts a timestamp a feed already sent in milliseconds', () => {
+        const ms = Date.UTC(2026, 0, 2, 10, 30);
+
+        // Multiplying this by 1000 used to place the programme ~55,000 years
+        // out, which stretched the timeline axis until the tab locked up.
+        expect(getProgramTimeMs(new Date(ms).toISOString(), ms)).toBe(ms);
+    });
+
+    it('rejects timestamps outside a plausible range', () => {
+        const farFuture = Math.floor(Date.UTC(9999, 0, 1) / 1000);
+        const longPast = Math.floor(Date.UTC(1970, 0, 1) / 1000) + 1;
+
+        expect(getProgramTimeMs('', farFuture)).toBeNaN();
+        expect(getProgramTimeMs('', longPast)).toBeNaN();
+    });
+
+    it('falls back to the ISO value when no timestamp is supplied', () => {
+        const iso = new Date(Date.UTC(2026, 0, 2, 10, 30)).toISOString();
+
+        expect(getProgramTimeMs(iso)).toBe(Date.parse(iso));
+    });
+
+    it('returns NaN for an unparseable date', () => {
+        expect(getProgramTimeMs('not-a-date')).toBeNaN();
+    });
+});
 
 describe('getEpgCategoryAccent', () => {
     it('maps known category vocabularies onto their bucket colour', () => {

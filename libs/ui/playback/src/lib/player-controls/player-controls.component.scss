@@ -598,3 +598,84 @@
         left: auto;
     }
 }
+
+// Buffering indicator — a Remotion-authored sprite strip (30 frames of the
+// CarbonCast arcs, authored in apps/remotion-brand). The strip is stepped with
+// a transform rather than background-position so the URL stays a plain
+// template `src`, which resolves under both the PWA base href (`/`) and
+// Electron's (`./`).
+$pc-buffering-frames: 30;
+$pc-buffering-size: 48px;
+$pc-buffering-duration: 1.25s;
+
+.player-controls__buffering {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 3;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    display: grid;
+    place-items: center;
+}
+
+// The wide bloom is reproduced here rather than baked into every sprite frame:
+// a full-frame soft gradient dominated the encoded size, and as a gradient it
+// scales for free. Its rhythm matches the two pulses per loop in the sprite.
+.player-controls__buffering::before {
+    content: '';
+    position: absolute;
+    width: $pc-buffering-size * 2;
+    height: $pc-buffering-size * 2;
+    border-radius: 50%;
+    background: radial-gradient(
+        circle,
+        rgba(255, 59, 59, 0.28),
+        transparent 62%
+    );
+    animation: player-controls-buffering-bloom ($pc-buffering-duration * 0.5)
+        ease-in-out infinite;
+}
+
+.player-controls__buffering-viewport {
+    position: relative;
+    width: $pc-buffering-size;
+    height: $pc-buffering-size;
+    overflow: hidden;
+}
+
+.player-controls__buffering-strip {
+    display: block;
+    height: $pc-buffering-size;
+    // Frames are rendered at 2x the display size, so the strip is exactly
+    // frames x display-size wide and each step advances one frame.
+    width: $pc-buffering-size * $pc-buffering-frames;
+    max-width: none;
+    animation: player-controls-buffering-strip $pc-buffering-duration
+        steps($pc-buffering-frames) infinite;
+}
+
+@keyframes player-controls-buffering-strip {
+    to {
+        transform: translateX(-$pc-buffering-size * $pc-buffering-frames);
+    }
+}
+
+@keyframes player-controls-buffering-bloom {
+    0%,
+    100% {
+        opacity: 0.55;
+    }
+    50% {
+        opacity: 1;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    // Hold the first frame: the indicator still communicates "buffering", it
+    // just stops spinning.
+    .player-controls__buffering-strip,
+    .player-controls__buffering::before {
+        animation: none;
+    }
+}

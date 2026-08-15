@@ -12,17 +12,52 @@
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(#{$min-width}, 1fr));
     gap: $gap;
+
+    // Tiles arrive in a short cascade instead of snapping in as a block.
+    // `app-card-enter` lives in the global stylesheet (keyframe names are not
+    // view-encapsulated). The stagger stops after the first rows: delaying
+    // hundreds of tiles would hold back the ones the user is waiting on, and
+    // the effect is spent below the fold anyway.
+    > * {
+        animation: app-card-enter var(--app-motion-slow, 320ms)
+            var(--app-ease-out, ease) both;
+    }
+
+    @for $i from 1 through 12 {
+        > *:nth-child(#{$i}) {
+            animation-delay: #{($i - 1) * 22}ms;
+        }
+    }
 }
 
 @mixin content-card {
     cursor: pointer;
     border-radius: 10px;
     overflow: hidden;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition:
+        transform var(--app-motion-base, 200ms) var(--app-ease-spring, ease),
+        box-shadow var(--app-motion-base, 200ms) var(--app-ease, ease);
 
     &:hover {
         transform: translateY(-3px);
         box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+
+        // The artwork drifts in slightly behind the lifting card, which reads
+        // as depth rather than the whole tile sliding.
+        .poster,
+        img {
+            transform: scale(1.04);
+        }
+    }
+
+    &:active {
+        transform: translateY(-1px) scale(0.99);
+    }
+
+    .poster,
+    img {
+        transition: transform var(--app-motion-slow, 320ms)
+            var(--app-ease-out, ease);
     }
 }
 

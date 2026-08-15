@@ -64,7 +64,11 @@ export interface SeasonContainerPlaybackToggleRequest {
 @Component({
     selector: 'app-season-container',
     templateUrl: './season-container.component.html',
-    styleUrls: ['./season-container.component.scss'],
+    styleUrls: [
+        './season-container.component.scss',
+        './season-container-card.component.scss',
+        './season-container-list.component.scss',
+    ],
     changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [
         MatButtonModule,

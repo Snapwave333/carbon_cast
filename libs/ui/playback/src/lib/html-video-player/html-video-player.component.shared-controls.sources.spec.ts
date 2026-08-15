@@ -4,6 +4,7 @@ import {
     TEST_CHANNEL,
     cleanupSharedControlsTests,
     configureSharedControlsTests,
+    flushPlayChannel,
     hlsInstances,
     lifecycle,
     mpegTsCreatePlayer,
@@ -32,7 +33,7 @@ describe('HtmlVideoPlayerComponent shared controls sources', () => {
         cleanupSharedControlsTests(fixtures);
     });
 
-    it('retains an HLS source created before bridge initialization', () => {
+    it('retains an HLS source created before bridge initialization', async () => {
         const { adapter } = renderSharedControls(
             HtmlVideoPlayerComponent,
             fixtures,
@@ -42,6 +43,7 @@ describe('HtmlVideoPlayerComponent shared controls sources', () => {
                 showCaptions: true,
             }
         );
+        await flushPlayChannel();
 
         expect(hlsInstances).toHaveLength(1);
         expect(adapter.capabilities().audioTracks).toBe(true);
@@ -51,14 +53,14 @@ describe('HtmlVideoPlayerComponent shared controls sources', () => {
         ]);
     });
 
-    it('binds HLS controls after media attach and before source loading', () => {
+    it('binds HLS controls after media attach and before source loading', async () => {
         const { component } = renderSharedControls(
             HtmlVideoPlayerComponent,
             fixtures
         );
         lifecycle.length = 0;
 
-        component.playChannel(TEST_CHANNEL);
+        await component.playChannel(TEST_CHANNEL);
 
         const attachIndex = lifecycle.indexOf('hls:attachMedia');
         const bindIndex = lifecycle.indexOf(
@@ -74,7 +76,7 @@ describe('HtmlVideoPlayerComponent shared controls sources', () => {
 
     it.each([false, true])(
         'passes authoritative isLive=%s to raw MPEG-TS playback',
-        (isLive) => {
+        async (isLive) => {
             mpegTsIsSupported.mockReturnValue(true);
 
             renderSharedControls(HtmlVideoPlayerComponent, fixtures, {
@@ -84,6 +86,7 @@ describe('HtmlVideoPlayerComponent shared controls sources', () => {
                 },
                 isLive,
             });
+            await flushPlayChannel();
 
             expect(mpegTsCreatePlayer).toHaveBeenCalledWith({
                 type: 'mpegts',
@@ -93,7 +96,7 @@ describe('HtmlVideoPlayerComponent shared controls sources', () => {
         }
     );
 
-    it('owns one MPEG-TS source between media attachment and loading', () => {
+    it('owns one MPEG-TS source between media attachment and loading', async () => {
         mpegTsIsSupported.mockReturnValue(true);
         const { component } = renderSharedControls(
             HtmlVideoPlayerComponent,
@@ -103,7 +106,7 @@ describe('HtmlVideoPlayerComponent shared controls sources', () => {
         const setSource = observeBridgeSourceBinding(component);
         lifecycle.length = 0;
 
-        component.playChannel({
+        await component.playChannel({
             ...TEST_CHANNEL,
             url: 'https://example.test/raw.ts',
         });
@@ -126,14 +129,14 @@ describe('HtmlVideoPlayerComponent shared controls sources', () => {
         );
     });
 
-    it('owns one Shaka source for DASH (.mpd) streams', () => {
+    it('owns one Shaka source for DASH (.mpd) streams', async () => {
         const { component } = renderSharedControls(
             HtmlVideoPlayerComponent,
             fixtures
         );
         const setSource = observeBridgeSourceBinding(component);
 
-        component.playChannel({
+        await component.playChannel({
             ...TEST_CHANNEL,
             url: 'https://example.test/live.mpd',
             drm: {
@@ -157,7 +160,7 @@ describe('HtmlVideoPlayerComponent shared controls sources', () => {
         expect(mpegTsInstances).toHaveLength(0);
     });
 
-    it('owns one native source before loading native media', () => {
+    it('owns one native source before loading native media', async () => {
         const { component, fixture } = renderSharedControls(
             HtmlVideoPlayerComponent,
             fixtures
@@ -170,7 +173,7 @@ describe('HtmlVideoPlayerComponent shared controls sources', () => {
             .mockImplementation(() => lifecycle.push('native:load'));
         lifecycle.length = 0;
 
-        component.playChannel({
+        await component.playChannel({
             ...TEST_CHANNEL,
             url: 'https://example.test/movie.mp4',
         });
@@ -189,7 +192,7 @@ describe('HtmlVideoPlayerComponent shared controls sources', () => {
         );
     });
 
-    it('refreshes live and caption inputs through authoritative closures', () => {
+    it('refreshes live and caption inputs through authoritative closures', async () => {
         const { fixture, adapter } = renderSharedControls(
             HtmlVideoPlayerComponent,
             fixtures,
@@ -199,6 +202,7 @@ describe('HtmlVideoPlayerComponent shared controls sources', () => {
                 showCaptions: false,
             }
         );
+        await flushPlayChannel();
         const hls = hlsInstances[0];
 
         expect(adapter.state().isLive).toBe(true);
@@ -212,7 +216,7 @@ describe('HtmlVideoPlayerComponent shared controls sources', () => {
         expect(hls.subtitleDisplay).toBe(true);
     });
 
-    it('clears old HLS listeners and tracks before destroying the engine', () => {
+    it('clears old HLS listeners and tracks before destroying the engine', async () => {
         const { component, adapter } = renderSharedControls(
             HtmlVideoPlayerComponent,
             fixtures,
@@ -222,11 +226,12 @@ describe('HtmlVideoPlayerComponent shared controls sources', () => {
                 showCaptions: true,
             }
         );
+        await flushPlayChannel();
         const hls = hlsInstances[0];
         const setSource = observeBridgeSourceBinding(component);
         lifecycle.length = 0;
 
-        component.playChannel({
+        await component.playChannel({
             ...TEST_CHANNEL,
             url: 'https://example.test/movie.mp4',
         });
@@ -251,7 +256,7 @@ describe('HtmlVideoPlayerComponent shared controls sources', () => {
         expect(adapter.state().subtitleTracks).toEqual([]);
     });
 
-    it('destroys the bridge before HLS and detaches the adapter once', () => {
+    it('destroys the bridge before HLS and detaches the adapter once', async () => {
         const { component, adapter } = renderSharedControls(
             HtmlVideoPlayerComponent,
             fixtures,
@@ -260,6 +265,7 @@ describe('HtmlVideoPlayerComponent shared controls sources', () => {
                 showCaptions: true,
             }
         );
+        await flushPlayChannel();
         const originalDetach = adapter.detach.bind(adapter);
         const detach = jest.spyOn(adapter, 'detach').mockImplementation(() => {
             lifecycle.push('adapter:detach');

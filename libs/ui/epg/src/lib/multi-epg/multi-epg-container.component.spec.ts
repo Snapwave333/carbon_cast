@@ -91,6 +91,19 @@ describe('MultiEpgContainerComponent runtime gates', () => {
         jest.useRealTimers();
     });
 
+    it('keys duplicated programmes apart so a repeated feed entry cannot crash the grid', () => {
+        const repeated = {
+            start: '2026-01-02T10:00:00.000Z',
+            title: 'Repeated Show',
+        } as never;
+
+        const keys = [repeated, repeated].map((program, index) =>
+            component.trackByProgram(index, program)
+        );
+
+        expect(new Set(keys).size).toBe(2);
+    });
+
     it('does not request EPG channel ranges when the EPG bridge cannot browse channels', async () => {
         jest.spyOn(console, 'warn').mockImplementation(() => undefined);
 
@@ -157,8 +170,8 @@ describe('MultiEpgContainerComponent runtime gates', () => {
             preventDefault: jest.fn(),
         } as unknown as KeyboardEvent;
 
-        component.activateProgramFromKeyboard(enter, program);
-        component.activateProgramFromKeyboard(space, program);
+        component.onProgramKeydown(enter, program as never, 0, 0);
+        component.onProgramKeydown(space, program as never, 0, 0);
 
         expect(enter.preventDefault).toHaveBeenCalled();
         expect(space.preventDefault).toHaveBeenCalled();

@@ -4,11 +4,10 @@ import {
     ChangeDetectionStrategy,
     Component,
     computed,
-    effect,
     inject,
     input,
+    linkedSignal,
     output,
-    signal,
 } from '@angular/core';
 import { MatIconButton } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
@@ -37,8 +36,16 @@ import { applyChannelNameStrip } from '@iptvnator/shared/m3u-utils';
 })
 export class ChannelListItemComponent {
     private readonly dialog = inject(MatDialog);
-    private readonly logoFailed = signal(false);
     private readonly settingsStore = inject(SettingsStore);
+
+    /** Reset whenever the row is handed a different logo. */
+    private readonly logoFailed = linkedSignal<
+        string | null | undefined,
+        boolean
+    >({
+        source: () => this.logo(),
+        computation: () => false,
+    });
 
     readonly isDraggable = input(false);
     readonly logo = input<string | null | undefined>('');
@@ -55,6 +62,13 @@ export class ChannelListItemComponent {
     readonly showDetailsContextMenu = input(false);
     readonly isFavorite = input(false);
     readonly selected = input(false);
+    /**
+     * Identifies the row for the owning listbox's aria-activedescendant. The
+     * list is virtualized, so keyboard focus stays on the viewport and moves
+     * this pointer rather than moving DOM focus between recycled rows.
+     */
+    readonly rowId = input('');
+    readonly keyboardFocused = input(false);
     readonly showEpg = input(true);
     readonly isRadio = input(false);
     readonly epgProgram = input<EpgProgram | null | undefined>();
@@ -63,18 +77,19 @@ export class ChannelListItemComponent {
     readonly auxActionIcon = input('delete');
     readonly auxActionTooltip = input('');
 
+    /**
+     * Virtual-scroll rows are recycled, so the failed state has to be derived
+     * from the current logo rather than left on the DOM node: a row that once
+     * showed a broken image is reused for a channel whose logo is fine.
+     */
+    readonly showLogo = computed(() => !!this.logo() && !this.logoFailed());
+    readonly showLogoFallback = computed(() => !this.showLogo());
+
     readonly clicked = output<void>();
     readonly activated = output<void>();
     readonly favoriteToggled = output<MouseEvent>();
     readonly auxActionClicked = output<MouseEvent>();
     readonly contextMenuRequested = output<MouseEvent>();
-
-    constructor() {
-        effect(() => {
-            this.logo();
-            this.logoFailed.set(false);
-        });
-    }
 
     /**
      * Opens the dialog with details about the current EPG program
@@ -120,15 +135,7 @@ export class ChannelListItemComponent {
         this.contextMenuRequested.emit(event);
     }
 
-    showLogoFallback(): boolean {
-        return !this.logo() || this.logoFailed();
-    }
-
-    onLogoError(event: Event): void {
+    onLogoError(): void {
         this.logoFailed.set(true);
-        (event.target as HTMLImageElement | null)?.style.setProperty(
-            'display',
-            'none'
-        );
     }
 }

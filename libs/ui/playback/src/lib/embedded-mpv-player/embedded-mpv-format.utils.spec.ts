@@ -48,9 +48,9 @@ describe('embedded MPV format utilities', () => {
                 0
             )
         ).toContain('Default');
-        expect(
-            subtitleTrackLabel({ id: 2, selected: false }, 1)
-        ).toContain('Subtitle 2');
+        expect(subtitleTrackLabel({ id: 2, selected: false }, 1)).toContain(
+            'Subtitle 2'
+        );
         expect(aspectLabel('16:9')).toBe('16:9');
         expect(aspectLabel('custom')).toBe('custom');
         expect(volumeIcon(0)).toBe('volume_off');

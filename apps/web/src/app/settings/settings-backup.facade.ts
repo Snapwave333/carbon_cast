@@ -18,6 +18,7 @@ export class SettingsBackupFacade {
     private readonly translate = inject(TranslateService);
 
     readonly isExportingData = signal(false);
+    readonly isImportingData = signal(false);
 
     async exportData(waitForUiFeedbackFrame: () => Promise<void>) {
         if (this.isExportingData()) {
@@ -53,58 +54,79 @@ export class SettingsBackupFacade {
                 );
             }
 
-            this.settingsSnackbar.open('Playlist backup exported.');
+            this.settingsSnackbar.open(
+                this.translate.instant('SETTINGS.BACKUP_EXPORT_SUCCESS')
+            );
         } catch (error) {
             console.error('Failed to export playlist backup:', error);
-            this.settingsSnackbar.open('Playlist backup export failed.');
+            this.settingsSnackbar.open(
+                this.translate.instant('SETTINGS.BACKUP_EXPORT_ERROR')
+            );
         } finally {
             this.isExportingData.set(false);
         }
     }
 
     importData(onImported: () => void): void {
+        if (this.isImportingData()) {
+            return;
+        }
+
         const input = document.createElement('input');
         input.type = 'file';
         input.accept = 'application/json';
 
-        input.addEventListener('change', async (event: Event) => {
-            const target = event.target as HTMLInputElement;
-            const file = target.files?.[0];
+        // once: the element and its closure are discarded after the pick, so
+        // repeated Import clicks do not accumulate listeners.
+        input.addEventListener(
+            'change',
+            async (event: Event) => {
+                const target = event.target as HTMLInputElement;
+                const file = target.files?.[0];
 
-            if (!file) {
-                return;
-            }
-
-            try {
-                const summary = await this.playlistBackupService.importBackup(
-                    await file.text()
-                );
-
-                if (summary.imported > 0 || summary.merged > 0) {
-                    this.store.dispatch(PlaylistActions.removeAllPlaylists());
-                    this.store.dispatch(PlaylistActions.loadPlaylists());
+                if (!file) {
+                    return;
                 }
 
-                onImported();
-                this.settingsSnackbar.open(
-                    this.buildBackupImportSummary(summary)
-                );
+                this.isImportingData.set(true);
 
-                if (summary.errors.length > 0) {
-                    console.error(
-                        'Playlist backup import completed with issues:',
-                        summary.errors
+                try {
+                    const summary =
+                        await this.playlistBackupService.importBackup(
+                            await file.text()
+                        );
+
+                    if (summary.imported > 0 || summary.merged > 0) {
+                        this.store.dispatch(
+                            PlaylistActions.removeAllPlaylists()
+                        );
+                        this.store.dispatch(PlaylistActions.loadPlaylists());
+                    }
+
+                    onImported();
+                    this.settingsSnackbar.open(
+                        this.buildBackupImportSummary(summary)
                     );
+
+                    if (summary.errors.length > 0) {
+                        console.error(
+                            'Playlist backup import completed with issues:',
+                            summary.errors
+                        );
+                    }
+                } catch (error) {
+                    console.error('Failed to import playlist backup:', error);
+                    this.settingsSnackbar.open(
+                        error instanceof Error
+                            ? error.message
+                            : this.translate.instant('SETTINGS.IMPORT_ERROR')
+                    );
+                } finally {
+                    this.isImportingData.set(false);
                 }
-            } catch (error) {
-                console.error('Failed to import playlist backup:', error);
-                this.settingsSnackbar.open(
-                    error instanceof Error
-                        ? error.message
-                        : this.translate.instant('SETTINGS.IMPORT_ERROR')
-                );
-            }
-        });
+            },
+            { once: true }
+        );
 
         input.click();
     }
@@ -121,12 +143,18 @@ export class SettingsBackupFacade {
         link.href = url;
         link.download = defaultFileName;
         link.click();
-        window.URL.revokeObjectURL(url);
+        // Revoking synchronously can cancel the download in some browsers.
+        setTimeout(() => window.URL.revokeObjectURL(url), 0);
     }
 
     private buildBackupImportSummary(
         summary: PlaylistBackupImportSummary
     ): string {
-        return `Backup import finished: ${summary.imported} imported, ${summary.merged} merged, ${summary.skipped} skipped, ${summary.failed} failed.`;
+        return this.translate.instant('SETTINGS.BACKUP_IMPORT_SUMMARY', {
+            failed: summary.failed,
+            imported: summary.imported,
+            merged: summary.merged,
+            skipped: summary.skipped,
+        });
     }
 }

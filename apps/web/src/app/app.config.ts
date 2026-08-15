@@ -43,6 +43,7 @@ import { provideAppIcons } from './icons/app-icons.provider';
 import { providePortalPlaybackPositions } from './services/portal-playback-positions.service';
 import { PwaService } from './services/pwa.service';
 import { shouldEnableServiceWorker } from './services/runtime-config';
+import { provideTranslatedPaginator } from './translated-paginator.provider';
 import { provideWorkspaceShellActions } from './services/workspace-shell-actions.service';
 
 // AoT requires an exported function for factories
@@ -108,6 +109,7 @@ export const appConfig: ApplicationConfig = {
         provideZoneChangeDetection({ eventCoalescing: true }),
         provideRouter(routes, withComponentInputBinding()),
         provideAppIcons(),
+        provideTranslatedPaginator(),
         provideAnimations(),
         provideHttpClient(withInterceptorsFromDi()),
         provideStore({

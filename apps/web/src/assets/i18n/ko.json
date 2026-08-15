@@ -516,6 +516,10 @@
         }
     },
     "PLAYBACK_DIAGNOSTICS": {
+        "MISSING_STREAM_URL": {
+            "TITLE": "이 항목에는 재생할 스트림이 없습니다",
+            "DESCRIPTION": "제공자가 재생 가능한 URL 없이 이 항목을 반환했습니다. 재생목록이나 포털을 새로 고치세요. 계속 비어 있다면 제공자에서 이용할 수 없는 항목입니다."
+        },
         "UNSUPPORTED_CONTAINER": {
             "TITLE": "This stream container is likely unsupported by the browser player",
             "DESCRIPTION": "The browser player may not decode this container inline. Copy the stream URL and open it in an external player such as MPV, VLC, or IINA for broader codec support."
@@ -594,6 +598,14 @@
         "SORT_BY_DATE": "추가 날짜순 정렬 (최신순)",
         "SORT_BY_RATING": "평점순 정렬",
         "SORT_BY_NAME": "이름순 정렬 (A-Z)",
+        "SORT_CHANNELS": "채널 정렬",
+        "SORT_TOOLTIP": "정렬: {{mode}}",
+        "SORT_PLAYLIST_ORDER": "재생목록 순서",
+        "SORT_SERVER_ORDER": "서버 순서",
+        "SORT_NAME_ASC": "이름 A-Z",
+        "SORT_NAME_DESC": "이름 Z-A",
+        "CHANNEL_COUNT_ONE": "채널 1개",
+        "CHANNEL_COUNT_OTHER": "채널 {{count}}개",
         "LOAD_MORE": "더 불러오기",
         "REMAINING": "남음",
         "LOADING": "채널을 불러오는 중...",
@@ -1435,5 +1447,15 @@
         "REMOVE_FAVORITE": "즐겨 찾기에서 삭제하기",
         "ATTRIBUTION_STATIONS": "방송국 카탈로그는 커뮤니티가 운영하는 Radio Browser 디렉터리에서 제공합니다.",
         "ATTRIBUTION_PODCASTS": "팟캐스트 검색은 Apple iTunes Search API를 사용합니다."
+    },
+    "PAGINATOR": {
+        "ITEMS_PER_PAGE": "페이지당 항목 수:",
+        "NEXT_PAGE": "다음 페이지",
+        "PREVIOUS_PAGE": "이전 페이지",
+        "FIRST_PAGE": "첫 페이지",
+        "LAST_PAGE": "마지막 페이지",
+        "RANGE": "{{start}} – {{end}} / {{total}}",
+        "RANGE_EMPTY": "0 / {{total}}",
+        "SELECT_PAGE": "페이지 선택"
     }
 }

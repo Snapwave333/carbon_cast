@@ -1,4 +1,13 @@
-import { Component, computed, inject, input, output } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    inject,
+    input,
+    output,
+} from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { startWith } from 'rxjs';
 import { MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { MatTooltip } from '@angular/material/tooltip';
@@ -22,6 +31,7 @@ import { ChannelListContainerComponent } from '@iptvnator/ui/components';
         RouterLink,
         TranslatePipe,
     ],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SidebarComponent {
     readonly channels = input<Channel[]>([]);
@@ -49,7 +59,17 @@ export class SidebarComponent {
         );
     });
 
+    /** `translate.instant` is not reactive, so the subtitle needs its own
+     * dependency on the active language or it keeps the previous wording
+     * until the channel list happens to change. */
+    private readonly languageTick = toSignal(
+        this.translate.onLangChange.pipe(startWith(null)),
+        { initialValue: null }
+    );
+
     readonly subtitle = computed(() => {
+        this.languageTick();
+
         if (this.channelsLoading()) {
             return this.translate.instant('CHANNELS.LOADING');
         }

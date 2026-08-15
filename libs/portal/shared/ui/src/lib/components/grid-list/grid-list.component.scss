@@ -10,9 +10,17 @@ mat-card {
     background: transparent;
 }
 
-mat-card:hover {
+mat-card:hover,
+mat-card:focus-visible {
     transform: translateY(-3px);
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+
+// The card's own box is the poster edge, so the app-wide ring needs to sit
+// clear of the artwork rather than on top of it.
+mat-card:focus-visible {
+    outline-offset: 3px;
+    border-radius: 10px;
 }
 
 // ─── Grid layout ─────────────────────────────────────────────────────────────
@@ -24,9 +32,17 @@ mat-card:hover {
     );
     gap: var(--cover-gap, 16px);
 
+    // `role="listitem"` wrapper: the card keeps `role="button"`, so the list
+    // position lives on its own element rather than replacing the card's role.
+    .grid-list__cell {
+        display: flex;
+        min-width: 0;
+    }
+
     mat-card {
         cursor: pointer;
         width: 100%;
+        min-width: 0;
 
         mat-card-content {
             padding: 0;

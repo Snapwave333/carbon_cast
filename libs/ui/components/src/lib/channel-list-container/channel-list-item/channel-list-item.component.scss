@@ -27,6 +27,14 @@
 
     &:hover {
         background: color-mix(in srgb, currentColor 8%, transparent);
+
+        .channel-logo-shell {
+            transform: scale(1.06);
+        }
+    }
+
+    &:active {
+        transform: scale(0.995);
     }
 
     &.active {
@@ -46,6 +54,14 @@
     &.compact {
         min-height: 52px;
         padding-block: 7px;
+    }
+
+    // The listbox keeps DOM focus on the viewport, so the row cursor needs its
+    // own indicator — without this, keyboard users have nothing to follow.
+    &.is-keyboard-focused {
+        outline: var(--app-focus-ring-width, 2px) solid
+            var(--app-focus-ring-color, currentColor);
+        outline-offset: -2px;
     }
 }
 
@@ -69,6 +85,10 @@
     height: 44px;
     flex-shrink: 0;
     border-radius: 10px;
+    // Transform-only, so hovering a row in a 90k virtual list stays on the
+    // compositor and never triggers layout.
+    transition: transform var(--app-motion-base, 200ms)
+        var(--app-ease-spring, ease);
     display: grid;
     place-items: center;
     overflow: hidden;

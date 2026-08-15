@@ -163,9 +163,7 @@ describe('PlayerControlsComponent fullscreen media title', () => {
         enterFullscreen();
 
         expect(
-            queryTitle()?.classList.contains(
-                'player-controls__title--visible'
-            )
+            queryTitle()?.classList.contains('player-controls__title--visible')
         ).toBe(true);
 
         setState({ status: 'playing' });
@@ -175,17 +173,13 @@ describe('PlayerControlsComponent fullscreen media title', () => {
 
         expect(component.controlsAreVisible()).toBe(false);
         expect(
-            queryTitle()?.classList.contains(
-                'player-controls__title--visible'
-            )
+            queryTitle()?.classList.contains('player-controls__title--visible')
         ).toBe(false);
 
         surface.dispatchEvent(new MouseEvent('pointermove'));
         fixture.detectChanges();
         expect(
-            queryTitle()?.classList.contains(
-                'player-controls__title--visible'
-            )
+            queryTitle()?.classList.contains('player-controls__title--visible')
         ).toBe(true);
     });
 });

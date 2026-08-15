@@ -4,6 +4,7 @@ import { By } from '@angular/platform-browser';
 import { TranslatePipe } from '@ngx-translate/core';
 import { MockPipe } from 'ng-mocks';
 import { SettingsStore } from '@iptvnator/services';
+import { provideStubIconRegistry } from '@iptvnator/shared/testing';
 import {
     formatGridRating,
     GridListComponent,
@@ -42,6 +43,7 @@ describe('GridListComponent', () => {
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             imports: [GridListComponent],
+            providers: [provideStubIconRegistry()],
         })
             .overrideComponent(GridListComponent, {
                 remove: { imports: [TranslatePipe] },
@@ -115,9 +117,7 @@ describe('GridListComponent', () => {
 
         expect(image).toBeNull();
         expect(placeholder).not.toBeNull();
-        expect(placeholderIcon.nativeElement.textContent.trim()).toBe(
-            'live_tv'
-        );
+        expect(placeholderIcon.componentInstance.svgIcon).toBe('live_tv');
     });
 
     it('treats Xtream blank icon URLs as missing live artwork', () => {
@@ -138,9 +138,7 @@ describe('GridListComponent', () => {
         );
 
         expect(image).toBeNull();
-        expect(placeholderIcon.nativeElement.textContent.trim()).toBe(
-            'live_tv'
-        );
+        expect(placeholderIcon.componentInstance.svgIcon).toBe('live_tv');
     });
 
     it('renders the live placeholder when logo artwork fails to load', () => {
@@ -168,9 +166,7 @@ describe('GridListComponent', () => {
         );
 
         expect(imageAfterError).toBeNull();
-        expect(placeholderIcon.nativeElement.textContent.trim()).toBe(
-            'live_tv'
-        );
+        expect(placeholderIcon.componentInstance.svgIcon).toBe('live_tv');
     });
 
     it('renders raw titles while prefix stripping is disabled', () => {
@@ -200,6 +196,7 @@ describe('GridListComponent with strip country prefix enabled', () => {
         await TestBed.configureTestingModule({
             imports: [GridListComponent],
             providers: [
+                provideStubIconRegistry(),
                 {
                     provide: SettingsStore,
                     useValue: { stripCountryPrefix: signal(true) },

@@ -59,7 +59,11 @@ import { SettingsSnackbarService } from './settings-snackbar.service';
  */
 @Component({
     templateUrl: './settings.component.html',
-    styleUrls: ['./settings.component.scss'],
+    styleUrls: [
+        './settings.component.scss',
+        './settings-sections.component.scss',
+        './settings-about.component.scss',
+    ],
     host: {
         class: 'settings-page-host',
     },

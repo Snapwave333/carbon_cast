@@ -1168,6 +1168,49 @@ describe('VideoPlayerComponent', () => {
         );
     });
 
+    it('starts the first channel when the playlist has nothing to resume', () => {
+        activePlaylist.set({
+            _id: 'playlist-1',
+            recentlyViewed: [],
+        });
+        activeChannel.set(null);
+        activeChannel$.next(null);
+        channels.set([sampleChannel]);
+        channels$.next([sampleChannel]);
+
+        fixture.detectChanges();
+
+        expect(storeMock.dispatch).toHaveBeenCalledWith(
+            ChannelActions.setActiveChannel({ channel: sampleChannel })
+        );
+    });
+
+    it('starts the first channel when the remembered channel has left the playlist', () => {
+        activePlaylist.set({
+            _id: 'playlist-1',
+            recentlyViewed: [
+                {
+                    source: 'm3u',
+                    id: 'removed-channel',
+                    url: 'http://localhost/removed.m3u8',
+                    title: 'Removed Channel',
+                    category_id: 'live',
+                    added_at: new Date().toISOString(),
+                },
+            ],
+        });
+        activeChannel.set(null);
+        activeChannel$.next(null);
+        channels.set([sampleChannel]);
+        channels$.next([sampleChannel]);
+
+        fixture.detectChanges();
+
+        expect(storeMock.dispatch).toHaveBeenCalledWith(
+            ChannelActions.setActiveChannel({ channel: sampleChannel })
+        );
+    });
+
     it('changes channels from remote navigation through a playback request', () => {
         const nextChannel = {
             ...sampleChannel,

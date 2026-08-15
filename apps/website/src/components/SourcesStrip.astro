@@ -1,0 +1,31 @@
+---
+const sources = [
+  {
+    name: 'M3U / M3U8',
+    detail: 'Load a file from disk or a URL. 90,000 channels stay scrollable.',
+  },
+  {
+    name: 'Xtream Codes',
+    detail: 'Live TV, movies and series with categories, search and resume.',
+  },
+  {
+    name: 'Stalker / Ministra',
+    detail: 'Portal login by MAC address, including VOD and series sections.',
+  },
+];
+---
+
+<section class="mx-auto max-w-[1400px] px-6 pb-8 lg:px-10">
+  <div class="grid gap-px overflow-hidden rounded-xl bg-surface-700/40 sm:grid-cols-3">
+    {
+      sources.map((source, index) => (
+        <div class="reveal bg-surface-950 px-6 py-7" data-delay={index}>
+          <h2 class="font-mono text-[11px] uppercase tracking-[0.16em] text-accent-500">
+            {source.name}
+          </h2>
+          <p class="mt-3 text-sm leading-relaxed text-surface-400">{source.detail}</p>
+        </div>
+      ))
+    }
+  </div>
+</section>

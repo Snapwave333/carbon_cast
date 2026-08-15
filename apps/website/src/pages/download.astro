@@ -1,0 +1,82 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import DownloadHeader from '../components/download/DownloadHeader.astro';
+import PlatformDownloads from '../components/download/PlatformDownloads.astro';
+import SelfHostSection from '../components/download/SelfHostSection.astro';
+import BuyMeACoffee from '../components/BuyMeACoffee.astro';
+import { BUY_ME_A_COFFEE_URL } from '../data/support';
+import {
+  ALL_RELEASES_URL,
+  LATEST_VERSION,
+  REPO_URL,
+  platforms,
+} from '../data/downloads';
+
+const downloadSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareApplication',
+  name: 'CarbonCast IPTV',
+  applicationCategory: 'MultimediaApplication',
+  operatingSystem: 'Windows, macOS, Linux, Web',
+  softwareVersion: LATEST_VERSION,
+  url: 'https://snapwave333.github.io/carbon_cast/download/',
+  downloadUrl: `${REPO_URL}/releases/latest`,
+  releaseNotes: ALL_RELEASES_URL,
+  offers: {
+    '@type': 'Offer',
+    price: '0',
+    priceCurrency: 'USD',
+  },
+  sameAs: [REPO_URL],
+  description:
+    'Download the CarbonCast IPTV desktop app for Windows, macOS and Linux, or self-host the Progressive Web App with Docker.',
+};
+---
+
+<BaseLayout
+  title="Download CarbonCast IPTV - Windows, macOS, Linux & Docker"
+  description="Download CarbonCast IPTV for Windows, macOS and Linux, or run the Progressive Web App yourself with Docker. Free, open source, no account required."
+  keywords={['download IPTV player', 'IPTV player Windows', 'IPTV player macOS', 'IPTV player Linux', 'IPTV Docker', 'M3U player download']}
+  jsonLd={downloadSchema}
+>
+  <DownloadHeader />
+
+  {platforms.map((platform) => <PlatformDownloads platform={platform} />)}
+
+  <SelfHostSection />
+
+  <section class="border-t border-surface-800/70 py-20">
+    <div class="mx-auto grid max-w-[1400px] gap-10 px-6 md:grid-cols-2 lg:px-10">
+      <div class="reveal">
+        <h2 class="font-display text-2xl font-bold tracking-tight text-surface-50">
+          Something not working?
+        </h2>
+        <p class="mt-4 max-w-[46ch] text-surface-400">
+          Installation problems and playback bugs are both welcome on the issue
+          tracker, and the release notes list every known limitation.
+        </p>
+        <div class="mt-7 flex flex-wrap gap-3">
+          <a href={`${REPO_URL}/issues`} class="btn-secondary">Report an issue</a>
+          <a href="/carbon_cast/blog/" class="btn-secondary">Read the guides</a>
+        </div>
+      </div>
+
+      {
+        BUY_ME_A_COFFEE_URL && (
+          <div class="reveal panel p-8" data-delay="1">
+            <h2 class="font-display text-2xl font-bold tracking-tight text-surface-50">
+              It stays free
+            </h2>
+            <p class="mt-4 max-w-[42ch] text-surface-400">
+              There is no paid tier and nothing to unlock. If the app earned a spot
+              on your machine, a coffee keeps the work going.
+            </p>
+            <div class="mt-7">
+              <BuyMeACoffee />
+            </div>
+          </div>
+        )
+      }
+    </div>
+  </section>
+</BaseLayout>

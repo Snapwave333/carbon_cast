@@ -39,12 +39,10 @@ describe('PortalInlinePlayerComponent', () => {
     let component: PortalInlinePlayerComponentInstance;
 
     beforeAll(async () => {
-        ({ PortalInlinePlayerComponent } = await import(
-            './portal-inline-player.component'
-        ));
-        ({ WebPlayerViewComponent } = await import(
-            '../web-player-view/web-player-view.component'
-        ));
+        ({ PortalInlinePlayerComponent } =
+            await import('./portal-inline-player.component'));
+        ({ WebPlayerViewComponent } =
+            await import('../web-player-view/web-player-view.component'));
     });
 
     beforeEach(async () => {
@@ -91,13 +89,17 @@ describe('PortalInlinePlayerComponent', () => {
         (
             component as unknown as {
                 playbackEnded: { subscribe: (fn: () => void) => void };
-                previousEpisodeRequested: { subscribe: (fn: () => void) => void };
+                previousEpisodeRequested: {
+                    subscribe: (fn: () => void) => void;
+                };
                 nextEpisodeRequested: { subscribe: (fn: () => void) => void };
             }
         ).playbackEnded.subscribe(() => events.push('ended'));
         (
             component as unknown as {
-                previousEpisodeRequested: { subscribe: (fn: () => void) => void };
+                previousEpisodeRequested: {
+                    subscribe: (fn: () => void) => void;
+                };
             }
         ).previousEpisodeRequested.subscribe(() => events.push('previous'));
         (

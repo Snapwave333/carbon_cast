@@ -57,10 +57,7 @@ export class WebVideoShakaControls {
         return (this.getPlayer()?.getAudioTracks() ?? []).map(
             (track, index) => ({
                 id: index,
-                label:
-                    track.label ||
-                    track.language ||
-                    `Audio ${index + 1}`,
+                label: track.label || track.language || `Audio ${index + 1}`,
                 selected: track.active,
             })
         );

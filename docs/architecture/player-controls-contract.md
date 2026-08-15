@@ -266,7 +266,10 @@ label. The Xtream and Stalker series detail views pass the series name via
 
 ### Keyboard ownership
 
-Unmodified Space/K, F, arrow keys, and M are playback shortcuts. Playback keys
+Unmodified Space/K, F, arrow keys, M, Home/End, and the digits 0-9 are playback
+shortcuts. Home, End, and each digit seek to a fraction of the duration (`3`
+seeks to 30%), so they share the seek gate below and never apply to live
+streams. Playback keys
 with Meta/Cmd, Control, or Alt are ignored and are not prevented, so app and OS
 accelerators retain ownership. Escape remains available to close controls
 popovers even when a modifier is held or playback shortcuts are unavailable.
@@ -443,6 +446,14 @@ without a corresponding media event, including track lists, corrected duration,
 or live/VOD classification. Source, readiness, progress, seeking, and playback
 events that can invalidate the snapshot are observed directly.
 
+`timeupdate` and `progress` alone refresh the adapter several times a second,
+so the injected track getters are read through memoized signals — one engine
+read per refresh, shared by `capabilities` and `state`. Capabilities and track
+lists additionally compare structurally (`player-controls-equality.ts`), so a
+position-only refresh hands consumers the identities they already hold and does
+not cascade through the derived view model or the open track menus. Any new
+adapter field that must reach the UI has to participate in those comparators.
+
 Audio and subtitle capabilities are advertised only when the injected getter
 returns a selectable list and the corresponding setter exists. Track setters
 may complete synchronously or asynchronously; the adapter refreshes after
@@ -455,6 +466,25 @@ only positive infinity implies live playback, so unknown duration is not
 temporarily mislabeled as live. An attached element with no resource maps to
 `idle`, paused preload/warm-up remains playable, and only actively playing media
 with insufficient data maps to `loading`.
+
+### Buffering indicator
+
+A `loading` status or a `stalled` state shows a centred buffering indicator over
+the player. Previously both states only greyed the transport buttons out, so a
+stream that was fetching or had run dry of buffered data gave no feedback at
+all. It carries `role="status"` with the translated `LOADING_STREAM` label and
+follows the shared-controls rollout like the rest of this surface, so it also
+covers frame-copy Embedded MPV.
+
+The visual is a sprite strip authored in `apps/remotion-brand` and rendered to
+`apps/web/src/assets/animations/loading-loop.webp` — 30 frames of 96px, stepped
+with a CSS `steps(30)` transform over 1.25s and displayed at 48px. Three
+couplings the SCSS hardcodes, all of which must change together with the
+composition: frame count, display size, and loop duration. The `src` is a
+document-relative template attribute rather than a stylesheet `url()`, because
+an absolute `/assets` path does not resolve under Electron's `./` base href.
+The wide bloom is a CSS `radial-gradient` rather than baked frames, which more
+than halved the encoded asset.
 
 `WebVideoSourceControlsBridge` is the neutral source bridge shared by the HTML5
 and ArtPlayer integrations. The HTML5-local bridge/helper filenames remain
@@ -611,9 +641,11 @@ Landed in #1148:
 libs/ui/playback/src/lib/player-controls/
 ├── player-controls.model.ts
 ├── player-controls-defaults.ts
+├── player-controls-equality.ts
 ├── player-controls.component.ts
 ├── player-controls.component.html
 ├── player-controls.component.scss
+├── controls-effects.ts
 ├── controls-feedback.ts
 ├── controls-format.utils.ts
 ├── controls-fullscreen.ts

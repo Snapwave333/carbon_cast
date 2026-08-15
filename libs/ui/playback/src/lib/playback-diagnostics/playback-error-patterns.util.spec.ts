@@ -42,9 +42,9 @@ describe('playback-error-patterns.util', () => {
             const error = Object.assign(new Error('load failed'), {
                 url: '/x',
             });
-            expect(
-                normalizeErrorDetails({ details: 'd', error })
-            ).toContain('load failed');
+            expect(normalizeErrorDetails({ details: 'd', error })).toContain(
+                'load failed'
+            );
             expect(normalizeErrorDetails({ details: 'd', error })).toContain(
                 '"url":"/x"'
             );

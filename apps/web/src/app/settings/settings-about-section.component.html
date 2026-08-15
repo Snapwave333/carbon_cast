@@ -222,6 +222,31 @@
                         svgIcon="arrow_outward"
                     ></mat-icon>
                 </a>
+                @if (supportUrl) {
+                    <a
+                        class="link-card link-card--support"
+                        [href]="supportUrl"
+                        target="_blank"
+                        rel="noreferrer noopener"
+                        data-test-id="link-support"
+                    >
+                        <span class="link-card__glyph">
+                            <mat-icon svgIcon="coffee"></mat-icon>
+                        </span>
+                        <span class="link-card__text">
+                            <strong>{{
+                                'SETTINGS.LINK_SUPPORT' | translate
+                            }}</strong>
+                            <span>{{
+                                'SETTINGS.LINK_SUPPORT_DESCRIPTION' | translate
+                            }}</span>
+                        </span>
+                        <mat-icon
+                            class="link-card__arrow"
+                            svgIcon="arrow_outward"
+                        ></mat-icon>
+                    </a>
+                }
             </div>
         </div>
     </div>

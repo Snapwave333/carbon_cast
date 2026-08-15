@@ -25,8 +25,11 @@
             <button
                 mat-icon-button
                 [matMenuTriggerFor]="channelSortMenu"
-                [matTooltip]="'Sort: ' + liveChannelSortLabel()"
-                aria-label="Sort channels"
+                [matTooltip]="
+                    'CHANNELS.SORT_TOOLTIP'
+                        | translate: { mode: liveChannelSortLabel() | translate }
+                "
+                [attr.aria-label]="'CHANNELS.SORT_CHANNELS' | translate"
             >
                 <mat-icon svgIcon="sort_by_alpha"></mat-icon>
             </button>
@@ -45,7 +48,7 @@
                     mat-menu-item
                     (click)="setLiveChannelSortMode('server')"
                 >
-                    <span>Server Order</span>
+                    <span>{{ 'CHANNELS.SORT_SERVER_ORDER' | translate }}</span>
                     @if (liveChannelSortMode() === 'server') {
                         <mat-icon svgIcon="check"></mat-icon>
                     }
@@ -54,7 +57,7 @@
                     mat-menu-item
                     (click)="setLiveChannelSortMode('name-asc')"
                 >
-                    <span>Name A-Z</span>
+                    <span>{{ 'CHANNELS.SORT_NAME_ASC' | translate }}</span>
                     @if (liveChannelSortMode() === 'name-asc') {
                         <mat-icon svgIcon="check"></mat-icon>
                     }
@@ -63,7 +66,7 @@
                     mat-menu-item
                     (click)="setLiveChannelSortMode('name-desc')"
                 >
-                    <span>Name Z-A</span>
+                    <span>{{ 'CHANNELS.SORT_NAME_DESC' | translate }}</span>
                     @if (liveChannelSortMode() === 'name-desc') {
                         <mat-icon svgIcon="check"></mat-icon>
                     }
@@ -143,7 +146,7 @@
                             [pageSize]="liveRootLimit()"
                             [pageSizeOptions]="liveRootPageSizeOptions"
                             (page)="onLiveRootPageChange($event)"
-                            aria-label="Select page"
+                            [attr.aria-label]="'PAGINATOR.SELECT_PAGE' | translate"
                         />
                     }
                 </div>

@@ -58,15 +58,12 @@ export class ArtPlayerSourceSession {
     private pendingControlsSource: WebVideoControlsSource = { kind: 'native' };
     private hls: Hls | null = null;
     private hlsManifestListener:
-        | ((event: unknown, data: ManifestParsedData) => void)
-        | null = null;
+        ((event: unknown, data: ManifestParsedData) => void) | null = null;
     private hlsErrorListener:
-        | ((event: unknown, data: ErrorData) => void)
-        | null = null;
+        ((event: unknown, data: ErrorData) => void) | null = null;
     private mpegTsPlayer: mpegts.Player | null = null;
     private mpegTsErrorListener:
-        | ((type: string, details: string, info: unknown) => void)
-        | null = null;
+        ((type: string, details: string, info: unknown) => void) | null = null;
     private shakaSession: ShakaVideoSession | null = null;
     private destroyed = false;
 
@@ -239,8 +236,7 @@ export class ArtPlayerSourceSession {
     private getShakaSession(): ShakaVideoSession {
         this.shakaSession ??= new ShakaVideoSession({
             player: InlinePlaybackPlayer.ArtPlayer,
-            emitPlaybackIssue: (issue) =>
-                this.config.emitPlaybackIssue(issue),
+            emitPlaybackIssue: (issue) => this.config.emitPlaybackIssue(issue),
             showCaptions: this.config.showCaptions,
             loadShaka: this.config.loadShaka,
         });

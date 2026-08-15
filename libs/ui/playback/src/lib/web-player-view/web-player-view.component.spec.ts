@@ -172,6 +172,26 @@ describe('WebPlayerViewComponent', () => {
         expect(fixture.nativeElement.classList).toContain('web-player-view');
     });
 
+    it('names a stream-less item instead of showing a silent black player', () => {
+        fixture.componentRef.setInput('streamUrl', '   ');
+        fixture.detectChanges();
+
+        expect(component.playbackDiagnostic()).toEqual(
+            expect.objectContaining({
+                code: PlaybackDiagnosticCode.MissingStreamUrl,
+                externalFallbackRecommended: false,
+            })
+        );
+
+        fixture.componentRef.setInput(
+            'streamUrl',
+            'https://example.com/archive/movie.mkv'
+        );
+        fixture.detectChanges();
+
+        expect(component.playbackDiagnostic()).toBeNull();
+    });
+
     describe('resolvedMediaTitle', () => {
         it('prefers an explicit media title over the playback title', async () => {
             fixture.componentRef.setInput('mediaTitle', {
@@ -259,9 +279,8 @@ describe('WebPlayerViewComponent', () => {
         };
 
         beforeEach(async () => {
-            const { resetEmbeddedMpvFallbackProbeForTesting } = await import(
-                './embedded-mpv-fallback-probe'
-            );
+            const { resetEmbeddedMpvFallbackProbeForTesting } =
+                await import('./embedded-mpv-fallback-probe');
             resetEmbeddedMpvFallbackProbeForTesting();
         });
 
@@ -389,8 +408,7 @@ describe('WebPlayerViewComponent', () => {
     });
 
     it('uses the Matroska mime type for query-declared MKV streams', () => {
-        const streamUrl =
-            'https://example.com/play?container=mkv&token=signed';
+        const streamUrl = 'https://example.com/play?container=mkv&token=signed';
 
         component.setVjsOptions(streamUrl);
 

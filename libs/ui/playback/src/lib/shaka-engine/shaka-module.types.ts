@@ -66,10 +66,7 @@ export type ShakaModuleLoader = () => Promise<ShakaModuleLike>;
  */
 export const loadShakaModule: ShakaModuleLoader = async () => {
     const module = (await import('shaka-player')) as unknown as
-        | { default?: ShakaModuleLike }
-        | ShakaModuleLike;
-    return (
-        ((module as { default?: ShakaModuleLike }).default ??
-            module) as ShakaModuleLike
-    );
+        { default?: ShakaModuleLike } | ShakaModuleLike;
+    return ((module as { default?: ShakaModuleLike }).default ??
+        module) as ShakaModuleLike;
 };

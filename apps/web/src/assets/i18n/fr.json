@@ -516,6 +516,10 @@
         }
     },
     "PLAYBACK_DIAGNOSTICS": {
+        "MISSING_STREAM_URL": {
+            "TITLE": "Cet élément n'a aucun flux à lire",
+            "DESCRIPTION": "Le fournisseur a renvoyé cette entrée sans URL lisible. Actualisez la playlist ou le portail — si elle reste vide, l'élément n'est pas disponible chez votre fournisseur."
+        },
         "UNSUPPORTED_CONTAINER": {
             "TITLE": "This stream container is likely unsupported by the browser player",
             "DESCRIPTION": "The browser player may not decode this container inline. Copy the stream URL and open it in an external player such as MPV, VLC, or IINA for broader codec support."
@@ -594,6 +598,14 @@
         "SORT_BY_DATE": "Trier par date d'ajout (Plus récent)",
         "SORT_BY_RATING": "Trier par note",
         "SORT_BY_NAME": "Trier par nom (A-Z)",
+        "SORT_CHANNELS": "Trier les chaînes",
+        "SORT_TOOLTIP": "Tri : {{mode}}",
+        "SORT_PLAYLIST_ORDER": "Ordre de la playlist",
+        "SORT_SERVER_ORDER": "Ordre du serveur",
+        "SORT_NAME_ASC": "Nom A-Z",
+        "SORT_NAME_DESC": "Nom Z-A",
+        "CHANNEL_COUNT_ONE": "1 chaîne",
+        "CHANNEL_COUNT_OTHER": "{{count}} chaînes",
         "LOAD_MORE": "Charger plus",
         "REMAINING": "restantes",
         "LOADING": "Chargement des chaînes…",
@@ -1435,5 +1447,15 @@
         "REMOVE_FAVORITE": "Retirer des favoris",
         "ATTRIBUTION_STATIONS": "Catalogue de stations fourni par l'annuaire communautaire Radio Browser.",
         "ATTRIBUTION_PODCASTS": "Recherche de podcasts fournie par l'API Apple iTunes Search."
+    },
+    "PAGINATOR": {
+        "ITEMS_PER_PAGE": "Éléments par page :",
+        "NEXT_PAGE": "Page suivante",
+        "PREVIOUS_PAGE": "Page précédente",
+        "FIRST_PAGE": "Première page",
+        "LAST_PAGE": "Dernière page",
+        "RANGE": "{{start}} – {{end}} sur {{total}}",
+        "RANGE_EMPTY": "0 sur {{total}}",
+        "SELECT_PAGE": "Sélectionner la page"
     }
 }

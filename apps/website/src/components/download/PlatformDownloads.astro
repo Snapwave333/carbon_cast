@@ -1,0 +1,105 @@
+---
+import { assetUrl, formatSize, type DownloadAsset, type Platform } from '../../data/downloads';
+
+interface Props {
+  platform: Platform;
+}
+
+const { platform } = Astro.props;
+
+/**
+ * Linux ships ten artifacts. Rendered as one flat list that is a wall of
+ * hairlines, so assets carrying a `group` are chunked under its heading.
+ */
+const groups: { heading: string | null; assets: DownloadAsset[] }[] = [];
+
+for (const asset of platform.assets) {
+  const heading = asset.group ?? null;
+  const last = groups[groups.length - 1];
+
+  if (last && last.heading === heading) {
+    last.assets.push(asset);
+  } else {
+    groups.push({ heading, assets: [asset] });
+  }
+}
+---
+
+<section id={platform.id} class="scroll-mt-24 border-t border-surface-800/70 py-20">
+  <div class="mx-auto grid max-w-[1400px] gap-12 px-6 lg:grid-cols-[minmax(0,320px)_minmax(0,1fr)] lg:gap-16 lg:px-10">
+    <!-- Install steps stay in view while the asset list scrolls beside them. -->
+    <div class="reveal lg:sticky lg:top-28 lg:self-start">
+      <div class="flex items-center gap-3.5">
+        <svg class="h-7 w-7 text-accent-500" fill="currentColor" viewBox="0 0 24 24">
+          <path d={platform.icon} />
+        </svg>
+        <h2 class="font-display text-3xl font-bold tracking-tight text-surface-50">
+          {platform.name}
+        </h2>
+      </div>
+
+      <ol class="mt-8 space-y-7">
+        {
+          platform.install.map((step, index) => (
+            <li class="flex gap-4">
+              <span class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-surface-700/70 font-mono text-[11px] text-surface-400">
+                {index + 1}
+              </span>
+              <div>
+                <h3 class="text-sm font-semibold text-surface-100">{step.title}</h3>
+                <p class="mt-1.5 text-sm leading-relaxed text-surface-400">{step.body}</p>
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+
+    <div class="reveal space-y-10" data-delay="1">
+      {
+        groups.map((group) => (
+          <div>
+            {group.heading && (
+              <h3 class="mb-4 font-mono text-[11px] uppercase tracking-[0.16em] text-surface-500">
+                {group.heading}
+              </h3>
+            )}
+            <div class="grid gap-3 sm:grid-cols-2">
+              {group.assets.map((asset) => (
+                <a
+                  href={assetUrl(asset.file)}
+                  class="group flex flex-col justify-between gap-4 rounded-xl border border-surface-700/50 bg-surface-900/40 p-5 transition-all duration-200 hover:border-accent-500/50 hover:bg-accent-500/[0.05]"
+                >
+                  <div>
+                    <div class="flex items-start justify-between gap-3">
+                      <span class="font-semibold text-surface-100">{asset.label}</span>
+                      <svg
+                        class="h-4 w-4 shrink-0 text-surface-600 transition-all duration-200 group-hover:translate-y-0.5 group-hover:text-accent-400"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                        />
+                      </svg>
+                    </div>
+                    <div class="mt-1 font-mono text-[11px] uppercase tracking-[0.1em] text-surface-500">
+                      {asset.detail}
+                    </div>
+                  </div>
+                  <div class="font-mono text-[11px] text-surface-600">
+                    {formatSize(asset.bytes)}
+                  </div>
+                </a>
+              ))}
+            </div>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>

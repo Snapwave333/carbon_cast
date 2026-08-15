@@ -205,6 +205,29 @@ function itemElements(root: Element): Element[] {
     );
 }
 
+/**
+ * Long-running shows publish feeds with thousands of entries. Episode ids key
+ * the stored resume points, so this is the newest run the app keeps rather
+ * than a display page size; RSS orders newest first.
+ */
+const MAX_EPISODES_PER_FEED = 500;
+
+/**
+ * Feeds do repeat `<guid>` values, and resume points are keyed by episode id —
+ * two episodes sharing one meant playing either moved the other's progress.
+ * First occurrence keeps the raw id so existing resume points still resolve.
+ */
+function uniqueEpisodeId(id: string, seen: Set<string>): string {
+    let candidate = id;
+    let suffix = 2;
+    while (seen.has(candidate)) {
+        candidate = `${id}#${suffix++}`;
+    }
+
+    seen.add(candidate);
+    return candidate;
+}
+
 export interface PodcastFeedContext {
     showId: string;
     showTitle: string;
@@ -234,7 +257,12 @@ export function parsePodcastFeed(
     const showId = context.showId || websiteUrl(channel) || feedTitle;
 
     const episodes: PodcastEpisode[] = [];
+    const seenIds = new Set<string>();
     for (const item of itemElements(channel)) {
+        if (episodes.length >= MAX_EPISODES_PER_FEED) {
+            break;
+        }
+
         const url = audioUrl(item);
         if (!url) {
             continue;
@@ -247,7 +275,10 @@ export function parsePodcastFeed(
             text(item, 'summary');
 
         episodes.push({
-            id: text(item, 'guid') || text(item, 'id') || url,
+            id: uniqueEpisodeId(
+                text(item, 'guid') || text(item, 'id') || url,
+                seenIds
+            ),
             showId,
             showTitle: feedTitle,
             title,

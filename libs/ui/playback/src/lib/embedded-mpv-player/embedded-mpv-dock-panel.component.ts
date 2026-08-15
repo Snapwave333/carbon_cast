@@ -44,8 +44,7 @@ export class EmbeddedMpvDockPanelComponent implements OnDestroy {
     readonly canScrollEnd = signal(false);
 
     private readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
-    private readonly ribbon =
-        viewChild<ElementRef<HTMLDivElement>>('ribbon');
+    private readonly ribbon = viewChild<ElementRef<HTMLDivElement>>('ribbon');
     private readonly chips =
         viewChildren<ElementRef<HTMLButtonElement>>('chip');
 
@@ -162,8 +161,9 @@ export class EmbeddedMpvDockPanelComponent implements OnDestroy {
     private focusAndRevealSelectedChip(): void {
         const chips = this.chips().map((chip) => chip.nativeElement);
         const selected =
-            chips.find((chip) => chip.getAttribute('aria-checked') === 'true') ??
-            chips[0];
+            chips.find(
+                (chip) => chip.getAttribute('aria-checked') === 'true'
+            ) ?? chips[0];
         if (!selected) {
             return;
         }

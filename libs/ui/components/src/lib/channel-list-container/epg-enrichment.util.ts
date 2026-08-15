@@ -1,5 +1,5 @@
-import { resolveChannelEpgLookupKey } from '@iptvnator/m3u-state';
 import { Channel, EpgProgram } from '@iptvnator/shared/interfaces';
+import { channelEpgLookupKey } from './channel-epg-key.util';
 
 /**
  * Per-channel EPG metadata stored in a side-car map keyed by EPG lookup key.
@@ -49,7 +49,7 @@ export function resolveChannelEpgProgram(
     channel: Channel,
     channelEpgMap: Map<string, EpgProgram | null>
 ): EpgProgram | null {
-    const key = resolveChannelEpgLookupKey(channel);
+    const key = channelEpgLookupKey(channel);
     return key ? (channelEpgMap.get(key) ?? null) : null;
 }
 

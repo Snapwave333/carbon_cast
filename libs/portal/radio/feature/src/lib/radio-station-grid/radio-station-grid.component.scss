@@ -86,11 +86,21 @@
         background: rgb(0 0 0 / 45%);
         color: #fff;
         transition: opacity 0.18s ease;
+
+        mat-icon {
+            transform: scale(0.7);
+            transition: transform var(--app-motion-base, 200ms)
+                var(--app-ease-spring, ease);
+        }
     }
 
     &:hover &__play,
     &.is-current &__play {
         opacity: 1;
+
+        mat-icon {
+            transform: scale(1);
+        }
     }
 
     &__name {

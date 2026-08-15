@@ -516,6 +516,10 @@
         }
     },
     "PLAYBACK_DIAGNOSTICS": {
+        "MISSING_STREAM_URL": {
+            "TITLE": "هاد العنصر ما فيه حتى بث باش يتشغل",
+            "DESCRIPTION": "المزود رجّع هاد العنصر بلا رابط قابل للتشغيل. عاود حدّث اللائحة ولا البوابة — إلا بقا خاوي، العنصر ماكاينش عند المزود ديالك."
+        },
         "UNSUPPORTED_CONTAINER": {
             "TITLE": "This stream container is likely unsupported by the browser player",
             "DESCRIPTION": "The browser player may not decode this container inline. Copy the stream URL and open it in an external player such as MPV, VLC, or IINA for broader codec support."
@@ -594,6 +598,14 @@
         "SORT_BY_DATE": "رتب بتاريخ الإضافة (الأحدث أولاً)",
         "SORT_BY_RATING": "رتب بالتقييم",
         "SORT_BY_NAME": "رتب بالاسم (أ-ي)",
+        "SORT_CHANNELS": "رتب القنوات",
+        "SORT_TOOLTIP": "الترتيب: {{mode}}",
+        "SORT_PLAYLIST_ORDER": "ترتيب لائحة التشغيل",
+        "SORT_SERVER_ORDER": "ترتيب السيرفر",
+        "SORT_NAME_ASC": "الاسم أ-ي",
+        "SORT_NAME_DESC": "الاسم ي-أ",
+        "CHANNEL_COUNT_ONE": "قناة وحدة",
+        "CHANNEL_COUNT_OTHER": "{{count}} قناة",
         "LOAD_MORE": "شارجي كثر",
         "REMAINING": "باقي",
         "LOADING": "جاري تشريج القنوات...",
@@ -1435,5 +1447,15 @@
         "REMOVE_FAVORITE": "حيد من المفضلة",
         "ATTRIBUTION_STATIONS": "كاتالوگ المحطات جاي من دليل Radio Browser اللي كيسيرو المجتمع.",
         "ATTRIBUTION_PODCASTS": "البحث ديال البودكاست خدام بـ Apple iTunes Search API."
+    },
+    "PAGINATOR": {
+        "ITEMS_PER_PAGE": "العناصر ف كل صفحة:",
+        "NEXT_PAGE": "الصفحة الجاية",
+        "PREVIOUS_PAGE": "الصفحة اللي فاتت",
+        "FIRST_PAGE": "الصفحة اللولة",
+        "LAST_PAGE": "الصفحة التالية",
+        "RANGE": "{{start}} – {{end}} من {{total}}",
+        "RANGE_EMPTY": "0 من {{total}}",
+        "SELECT_PAGE": "ختار الصفحة"
     }
 }

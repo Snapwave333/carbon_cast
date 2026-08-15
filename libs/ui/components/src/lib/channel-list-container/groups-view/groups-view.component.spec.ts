@@ -5,7 +5,6 @@ import { TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
 import { Channel } from '@iptvnator/shared/interfaces';
 import { expandChannelCategories } from '@iptvnator/shared/m3u-utils';
-import { ChannelDetailsDialogComponent } from '../channel-details-dialog/channel-details-dialog.component';
 import { ChannelGroup } from '../channel-group.model';
 import { GroupManagementDialogComponent } from './group-management-dialog/group-management-dialog.component';
 import { GroupsViewComponent } from './groups-view.component';
@@ -220,28 +219,59 @@ describe('GroupsViewComponent', () => {
         fixture.detectChanges();
     }
 
-    it('sorts groups with numeric buckets before alphabetic buckets', () => {
+    it('sorts numbered groups first, in numeric order', () => {
         setInputs({
             groupedChannels: {
-                'Group 10': [sportsCenter],
-                'Group 2': [movieClassic],
+                '10 | Sports': [sportsCenter],
+                '2 | Movies': [movieClassic],
                 Alpha: [scienceNow],
             },
         });
 
-        expect(component.filteredGroups().map((group) => group.key)).toEqual([
-            'group 2',
-            'group 10',
-            'alpha',
+        expect(component.filteredGroups().map((group) => group.label)).toEqual([
+            '2 | Movies',
+            '10 | Sports',
+            'Alpha',
         ]);
-        expect(
-            component.filteredGroups().map((group) => group.label)
-        ).toEqual(['Group 2', 'Group 10', 'Alpha']);
+    });
+
+    it('ranks only a leading digit run, so "Sports HD 2" is not a numbered group', () => {
+        setInputs({
+            groupedChannels: {
+                'Sports HD 2': [sportsCenter],
+                Action: [movieClassic],
+                '1 | Top': [scienceNow],
+            },
+        });
+
+        // Stripping every non-digit instead ranked "Sports HD 2" as 2 and put
+        // it ahead of "Action".
+        expect(component.filteredGroups().map((group) => group.label)).toEqual([
+            '1 | Top',
+            'Action',
+            'Sports HD 2',
+        ]);
+    });
+
+    it('orders same-prefix groups naturally rather than lexically', () => {
+        setInputs({
+            groupedChannels: {
+                'Group 10': [sportsCenter],
+                'Group 2': [movieClassic],
+            },
+        });
+
+        expect(component.filteredGroups().map((group) => group.label)).toEqual([
+            'Group 2',
+            'Group 10',
+        ]);
     });
 
     it('defaults to playlist order when no saved sort mode exists', () => {
         expect(component.groupChannelSortMode()).toBe('server');
-        expect(component.groupChannelSortLabel()).toBe('Playlist Order');
+        expect(component.groupChannelSortLabel()).toBe(
+            'CHANNELS.SORT_PLAYLIST_ORDER'
+        );
     });
 
     it('restores a saved valid sort mode and ignores invalid stored values', () => {
@@ -250,7 +280,7 @@ describe('GroupsViewComponent', () => {
         createComponent();
 
         expect(component.groupChannelSortMode()).toBe('name-asc');
-        expect(component.groupChannelSortLabel()).toBe('Name A-Z');
+        expect(component.groupChannelSortLabel()).toBe('CHANNELS.SORT_NAME_ASC');
 
         fixture.destroy();
         localStorage.setItem(GROUP_CHANNEL_SORT_STORAGE_KEY, 'invalid');
@@ -620,35 +650,6 @@ describe('GroupsViewComponent', () => {
         });
     });
 
-    it('positions the context menu at the viewport click and opens channel details from the selected group pane', async () => {
-        const openMenuSpy = jest
-            .spyOn(component.contextMenuTrigger(), 'openMenu')
-            .mockImplementation();
-
-        component.onChannelContextMenu(movieClassic, {
-            clientX: 212,
-            clientY: 264,
-        } as MouseEvent);
-        await Promise.resolve();
-
-        expect(component.contextMenuChannel()).toBe(movieClassic);
-        expect(component.contextMenuPosition()).toEqual({
-            x: '212px',
-            y: '264px',
-        });
-        expect(openMenuSpy).toHaveBeenCalled();
-
-        component.openChannelDetails();
-
-        expect(dialog.open).toHaveBeenCalledWith(
-            ChannelDetailsDialogComponent,
-            expect.objectContaining({
-                data: movieClassic,
-                maxWidth: '720px',
-                width: 'calc(100vw - 32px)',
-            })
-        );
-    });
 
     it('emits total sidebar width requests while resizing the groups rail', () => {
         const requested = jest.fn();

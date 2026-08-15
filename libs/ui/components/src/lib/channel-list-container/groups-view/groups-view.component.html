@@ -178,15 +178,23 @@
                             }
                         </h2>
                         <span class="category-subtitle">
-                            {{ group.count }}
-                            {{ group.count === 1 ? 'item' : 'items' }}
+                            {{
+                                (group.count === 1
+                                    ? 'CHANNELS.CHANNEL_COUNT_ONE'
+                                    : 'CHANNELS.CHANNEL_COUNT_OTHER'
+                                ) | translate: { count: group.count }
+                            }}
                         </span>
                     </div>
                     <button
                         mat-icon-button
                         [matMenuTriggerFor]="channelSortMenu"
-                        [matTooltip]="'Sort: ' + groupChannelSortLabel()"
-                        aria-label="Sort channels"
+                        [matTooltip]="
+                            'CHANNELS.SORT_TOOLTIP'
+                                | translate
+                                    : { mode: groupChannelSortLabel() | translate }
+                        "
+                        [attr.aria-label]="'CHANNELS.SORT_CHANNELS' | translate"
                     >
                         <mat-icon svgIcon="sort_by_alpha"></mat-icon>
                     </button>
@@ -210,7 +218,7 @@
                             (click)="setGroupChannelSortMode('server')"
                         >
                             <mat-icon svgIcon="drag_indicator"></mat-icon>
-                            <span>Playlist Order</span>
+                            <span>{{ 'CHANNELS.SORT_PLAYLIST_ORDER' | translate }}</span>
                             @if (groupChannelSortMode() === 'server') {
                                 <mat-icon svgIcon="check"></mat-icon>
                             }
@@ -220,7 +228,7 @@
                             (click)="setGroupChannelSortMode('name-asc')"
                         >
                             <mat-icon svgIcon="sort_by_alpha"></mat-icon>
-                            <span>Name A-Z</span>
+                            <span>{{ 'CHANNELS.SORT_NAME_ASC' | translate }}</span>
                             @if (groupChannelSortMode() === 'name-asc') {
                                 <mat-icon svgIcon="check"></mat-icon>
                             }
@@ -230,7 +238,7 @@
                             (click)="setGroupChannelSortMode('name-desc')"
                         >
                             <mat-icon svgIcon="sort_by_alpha"></mat-icon>
-                            <span>Name Z-A</span>
+                            <span>{{ 'CHANNELS.SORT_NAME_DESC' | translate }}</span>
                             @if (groupChannelSortMode() === 'name-desc') {
                                 <mat-icon svgIcon="check"></mat-icon>
                             }
@@ -241,6 +249,11 @@
                 <cdk-virtual-scroll-viewport
                     [itemSize]="itemSize()"
                     class="groups-channels-viewport app-scrollbar"
+                    role="listbox"
+                    tabindex="0"
+                    [attr.aria-label]="'CHANNELS.GROUPS' | translate"
+                    [attr.aria-activedescendant]="activeDescendantId()"
+                    (keydown)="onListKeydown($event)"
                 >
                     <app-channel-list-item
                         *cdkVirtualFor="
@@ -274,11 +287,11 @@
                                 ? favoriteIds().has(channel.url)
                                 : false
                         "
-                        (clicked)="onChannelClick(channel)"
+                        [rowId]="'group-channel-option-' + i"
+                        [keyboardFocused]="focusedIndex() === i"
+                        (clicked)="onChannelClick(channel, i)"
                         (activated)="onChannelActivate(channel)"
-                        (contextMenuRequested)="
-                            onChannelContextMenu(channel, $event)
-                        "
+                        (contextMenuRequested)="channelContextMenu.open(channel, $event)"
                         (favoriteToggled)="onFavoriteToggle(channel, $event)"
                     />
                 </cdk-virtual-scroll-viewport>
@@ -315,24 +328,4 @@
     </div>
 }
 
-<div
-    aria-hidden="true"
-    class="channel-context-menu-anchor"
-    [style.left]="contextMenuPosition().x"
-    [style.top]="contextMenuPosition().y"
-    [matMenuTriggerFor]="channelContextMenu"
-    #contextMenuTrigger="matMenuTrigger"
-></div>
-
-<mat-menu #channelContextMenu="matMenu">
-    @if (supportsEpgMapping) {
-        <button mat-menu-item (click)="openEpgMapping()">
-            <mat-icon svgIcon="settings_remote"></mat-icon>
-            <span>{{ 'CHANNELS.MAP_EPG' | translate }}</span>
-        </button>
-    }
-    <button mat-menu-item (click)="openChannelDetails()">
-        <mat-icon svgIcon="info"></mat-icon>
-        <span>{{ 'CHANNELS.SHOW_DETAILS' | translate }}</span>
-    </button>
-</mat-menu>
+<app-channel-context-menu #channelContextMenu />

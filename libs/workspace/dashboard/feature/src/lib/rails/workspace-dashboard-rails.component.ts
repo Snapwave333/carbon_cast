@@ -18,11 +18,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import {
-    EmptyStateComponent,
     PlaylistInfoComponent,
     PlaylistRefreshActionService,
 } from '@iptvnator/playlist/shared/ui';
@@ -87,7 +86,6 @@ import type { DashboardSourceActionId } from './dashboard-rail.utils';
     selector: 'lib-workspace-dashboard-rails',
     imports: [
         DashboardRailComponent,
-        EmptyStateComponent,
         MatButtonModule,
         MatIcon,
         RouterLink,
@@ -117,6 +115,7 @@ export class WorkspaceDashboardRailsComponent {
     );
     private readonly shellActions = inject(WORKSPACE_SHELL_ACTIONS);
     private readonly epgService = inject(EpgService);
+    private readonly router = inject(Router);
     private readonly runtime = inject(RuntimeCapabilitiesService);
     private readonly settingsStore = inject(SettingsStore);
     private readonly heroTmdb = inject(DashboardHeroTmdbService);
@@ -124,6 +123,23 @@ export class WorkspaceDashboardRailsComponent {
 
     readonly hasPlaylists = computed(() => this.data.playlists().length > 0);
     readonly ready = this.data.dashboardReady;
+
+    /**
+     * With no sources yet the dashboard has nothing to render, so send the
+     * user to Sources rather than showing them an empty page. replaceUrl keeps
+     * Back from bouncing them straight back here.
+     */
+    private readonly redirectWhenNoSources = effect(() => {
+        if (!this.data.playlistsLoaded() || this.hasPlaylists()) {
+            return;
+        }
+
+        untracked(() => {
+            void this.router.navigate(['/workspace/sources'], {
+                replaceUrl: true,
+            });
+        });
+    });
     readonly xtreamPlaylistCount = this.data.xtreamPlaylistCount;
     readonly isElectron = this.runtime.isElectron;
 
@@ -423,9 +439,6 @@ export class WorkspaceDashboardRailsComponent {
         });
     }
 
-    onAddPlaylist(type?: WorkspacePlaylistType): void {
-        this.shellActions.openAddPlaylistDialog(type);
-    }
 
     markHeroImageFailed(url: string): void {
         this.failedHeroImages.update((state) =>

@@ -4,18 +4,7 @@ import { MatIcon } from '@angular/material/icon';
 import { TranslatePipe } from '@ngx-translate/core';
 import type { PlaylistType } from '../../add-playlist-menu/playlist-type';
 
-export type EmptyStateType =
-    | 'welcome-dashboard'
-    | 'welcome-sources'
-    | 'no-results'
-    | 'no-data';
-
-interface FeatureCard {
-    icon: string;
-    titleKey: string;
-    descKey: string;
-    electronOnly?: boolean;
-}
+export type EmptyStateType = 'welcome-sources' | 'no-results' | 'no-data';
 
 interface SourceCard {
     type: PlaylistType;
@@ -25,30 +14,6 @@ interface SourceCard {
     addLabelKey: string;
     contentKeys: readonly string[];
 }
-
-const FEATURE_CARDS: readonly FeatureCard[] = [
-    {
-        icon: 'live_tv',
-        titleKey: 'HOME.PLAYLISTS.FEATURE_LIVE_TITLE',
-        descKey: 'HOME.PLAYLISTS.FEATURE_LIVE_DESC',
-    },
-    {
-        icon: 'movie',
-        titleKey: 'HOME.PLAYLISTS.FEATURE_VOD_TITLE',
-        descKey: 'HOME.PLAYLISTS.FEATURE_VOD_DESC',
-    },
-    {
-        icon: 'event_note',
-        titleKey: 'HOME.PLAYLISTS.FEATURE_EPG_TITLE',
-        descKey: 'HOME.PLAYLISTS.FEATURE_EPG_DESC',
-    },
-    {
-        icon: 'download_for_offline',
-        titleKey: 'HOME.PLAYLISTS.FEATURE_OFFLINE_TITLE',
-        descKey: 'HOME.PLAYLISTS.FEATURE_OFFLINE_DESC',
-        electronOnly: true,
-    },
-];
 
 const SOURCE_CARDS: readonly SourceCard[] = [
     {
@@ -95,7 +60,6 @@ const SOURCE_CARDS: readonly SourceCard[] = [
     templateUrl: './empty-state.component.html',
     styleUrls: [
         './empty-state.component.scss',
-        './empty-state.welcome-dashboard.scss',
         './empty-state.welcome-sources.scss',
         './empty-state.responsive.scss',
         './empty-state.themes.scss',
@@ -117,7 +81,6 @@ export class EmptyStateComponent {
     readonly primaryActionClicked = output<void>();
     readonly secondaryActionClicked = output<void>();
 
-    readonly featureCards = FEATURE_CARDS;
     readonly sourceCards = SOURCE_CARDS;
 
     onAddPlaylist(type?: PlaylistType): void {
@@ -130,9 +93,5 @@ export class EmptyStateComponent {
 
     onSecondaryAction(): void {
         this.secondaryActionClicked.emit();
-    }
-
-    isFeatureCardVisible(card: FeatureCard): boolean {
-        return !card.electronOnly || this.showElectronOnlyValueProps();
     }
 }

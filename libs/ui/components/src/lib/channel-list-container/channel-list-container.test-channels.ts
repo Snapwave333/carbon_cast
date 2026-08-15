@@ -29,22 +29,3 @@ export function createGroupedChannel(
 ): Channel {
     return { ...createChannel(id, url), group: { title } };
 }
-
-export function createTrackedUrlChannel(
-    id: string,
-    url: string,
-    onUrlRead: () => void
-): Channel {
-    const channel = createChannel(id, url);
-
-    Object.defineProperty(channel, 'url', {
-        configurable: true,
-        enumerable: true,
-        get: () => {
-            onUrlRead();
-            return url;
-        },
-    });
-
-    return channel;
-}

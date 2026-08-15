@@ -1,7 +1,7 @@
 ---
 services:
   iptvnator:
-    image: 4gray/iptvnator:latest
+    image: ghcr.io/snapwave333/carbon_cast:latest
     build:
       context: ..
       dockerfile: docker/Dockerfile

@@ -191,8 +191,9 @@ export interface Settings {
      */
     playlistDefaultSection?: PlaylistDefaultSection;
     /**
-     * Automatically resume the playlist's most recently watched channel when
-     * the playlist opens with nothing playing. On by default.
+     * Automatically start playback when the playlist opens with nothing
+     * playing: its most recently watched channel, or the first channel when
+     * there is no history to resume. On by default.
      */
     resumeLastChannel?: boolean;
     /** Show the desktop footer bar for external playback status */

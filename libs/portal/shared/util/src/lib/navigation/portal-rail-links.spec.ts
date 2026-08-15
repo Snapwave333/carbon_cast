@@ -94,7 +94,22 @@ describe('buildPortalRailLinks', () => {
                 section: 'groups',
             },
         ]);
-        expect(links.secondary).toEqual([]);
+        expect(links.secondary).toEqual([
+            {
+                icon: 'favorite',
+                tooltip: 'Favorites (this playlist)',
+                path: ['/workspace', 'playlists', 'm3u-1', 'favorites'],
+                exact: true,
+                section: 'favorites',
+            },
+            {
+                icon: 'history',
+                tooltip: 'Recently viewed (this playlist)',
+                path: ['/workspace', 'playlists', 'm3u-1', 'recent'],
+                exact: true,
+                section: 'recent',
+            },
+        ]);
     });
 
     it('leads M3U playlist links with the TV guide when EPG is supported', () => {

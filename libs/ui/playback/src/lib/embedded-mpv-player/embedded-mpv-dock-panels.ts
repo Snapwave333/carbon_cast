@@ -4,10 +4,7 @@ import { ASPECT_PRESETS, SPEED_PRESETS } from './embedded-mpv-format.utils';
 import type { EmbeddedMpvMenuState } from './embedded-mpv-ui-state';
 
 export type EmbeddedMpvDockPanelKind =
-    | 'audio'
-    | 'subtitle'
-    | 'speed'
-    | 'aspect';
+    'audio' | 'subtitle' | 'speed' | 'aspect';
 
 export interface EmbeddedMpvDockChip {
     readonly id: string;
@@ -143,19 +140,19 @@ export class EmbeddedMpvDockPanelState {
                 title: this.deps.translateLabel(
                     'EMBEDDED_MPV.PLAYER.AUDIO_TRACKS'
                 ),
-                chips: this.deps
-                    .audioTracks()
-                    .map((track, index) => ({
-                        id: String(track.id),
-                        label: this.deps.audioTrackLabel(track, index),
-                        selected: track.selected === true,
-                    })),
+                chips: this.deps.audioTracks().map((track, index) => ({
+                    id: String(track.id),
+                    label: this.deps.audioTrackLabel(track, index),
+                    selected: track.selected === true,
+                })),
             };
         }
         if (menus.subtitleOpen()) {
             return {
                 kind: 'subtitle',
-                title: this.deps.translateLabel('EMBEDDED_MPV.PLAYER.SUBTITLES'),
+                title: this.deps.translateLabel(
+                    'EMBEDDED_MPV.PLAYER.SUBTITLES'
+                ),
                 chips: [
                     {
                         id: SUBTITLES_OFF_CHIP_ID,

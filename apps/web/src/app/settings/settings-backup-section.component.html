@@ -25,10 +25,25 @@
                 mat-button
                 type="button"
                 class="inline-actions__button"
-                [disabled]="isRemovingAllPlaylists() || isExportingData()"
+                [class.inline-actions__button--busy]="isImportingData()"
+                [disabled]="
+                    isRemovingAllPlaylists() ||
+                    isExportingData() ||
+                    isImportingData()
+                "
+                [attr.aria-busy]="isImportingData()"
                 (click)="importData.emit()"
             >
-                {{ 'SETTINGS.IMPORT_DATA' | translate }}
+                @if (isImportingData()) {
+                    <mat-progress-spinner
+                        class="button-spinner"
+                        diameter="16"
+                        mode="indeterminate"
+                    />
+                }
+                <span class="inline-actions__label">{{
+                    'SETTINGS.IMPORT_DATA' | translate
+                }}</span>
             </button>
             <button
                 mat-button

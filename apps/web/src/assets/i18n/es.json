@@ -516,6 +516,10 @@
         }
     },
     "PLAYBACK_DIAGNOSTICS": {
+        "MISSING_STREAM_URL": {
+            "TITLE": "Este elemento no tiene ninguna transmisión que reproducir",
+            "DESCRIPTION": "El proveedor devolvió esta entrada sin una URL reproducible. Actualiza la lista o el portal; si sigue vacía, el elemento no está disponible en tu proveedor."
+        },
         "UNSUPPORTED_CONTAINER": {
             "TITLE": "This stream container is likely unsupported by the browser player",
             "DESCRIPTION": "The browser player may not decode this container inline. Copy the stream URL and open it in an external player such as MPV, VLC, or IINA for broader codec support."
@@ -594,6 +598,14 @@
         "SORT_BY_DATE": "Ordenar por fecha de adición (más recientes primero)",
         "SORT_BY_RATING": "Ordenar por calificación",
         "SORT_BY_NAME": "Ordenar por nombre (A-Z)",
+        "SORT_CHANNELS": "Ordenar canales",
+        "SORT_TOOLTIP": "Ordenar: {{mode}}",
+        "SORT_PLAYLIST_ORDER": "Orden de la lista",
+        "SORT_SERVER_ORDER": "Orden del servidor",
+        "SORT_NAME_ASC": "Nombre A-Z",
+        "SORT_NAME_DESC": "Nombre Z-A",
+        "CHANNEL_COUNT_ONE": "1 canal",
+        "CHANNEL_COUNT_OTHER": "{{count}} canales",
         "LOAD_MORE": "Cargar más",
         "REMAINING": "restantes",
         "LOADING": "Cargando canales…",
@@ -1435,5 +1447,15 @@
         "REMOVE_FAVORITE": "Quitar de favoritos",
         "ATTRIBUTION_STATIONS": "Catálogo de estaciones proporcionado por el directorio comunitario Radio Browser.",
         "ATTRIBUTION_PODCASTS": "Búsqueda de podcasts impulsada por la API Apple iTunes Search."
+    },
+    "PAGINATOR": {
+        "ITEMS_PER_PAGE": "Elementos por página:",
+        "NEXT_PAGE": "Página siguiente",
+        "PREVIOUS_PAGE": "Página anterior",
+        "FIRST_PAGE": "Primera página",
+        "LAST_PAGE": "Última página",
+        "RANGE": "{{start}} – {{end}} de {{total}}",
+        "RANGE_EMPTY": "0 de {{total}}",
+        "SELECT_PAGE": "Seleccionar página"
     }
 }

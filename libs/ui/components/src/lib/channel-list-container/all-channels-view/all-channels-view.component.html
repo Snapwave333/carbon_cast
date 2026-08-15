@@ -6,8 +6,11 @@
             mat-icon-button
             class="all-channels-sort-button"
             [matMenuTriggerFor]="channelSortMenu"
-            [matTooltip]="'Sort: ' + allChannelsSortLabel()"
-            aria-label="Sort channels"
+            [matTooltip]="
+                'CHANNELS.SORT_TOOLTIP'
+                    | translate: { mode: allChannelsSortLabel() | translate }
+            "
+            [attr.aria-label]="'CHANNELS.SORT_CHANNELS' | translate"
         >
             <mat-icon svgIcon="sort_by_alpha"></mat-icon>
         </button>
@@ -26,21 +29,21 @@
     <mat-menu #channelSortMenu="matMenu">
         <button mat-menu-item (click)="setAllChannelsSortMode('server')">
             <mat-icon svgIcon="drag_indicator"></mat-icon>
-            <span>Playlist Order</span>
+            <span>{{ 'CHANNELS.SORT_PLAYLIST_ORDER' | translate }}</span>
             @if (allChannelsSortMode() === 'server') {
                 <mat-icon svgIcon="check"></mat-icon>
             }
         </button>
         <button mat-menu-item (click)="setAllChannelsSortMode('name-asc')">
             <mat-icon svgIcon="sort_by_alpha"></mat-icon>
-            <span>Name A-Z</span>
+            <span>{{ 'CHANNELS.SORT_NAME_ASC' | translate }}</span>
             @if (allChannelsSortMode() === 'name-asc') {
                 <mat-icon svgIcon="check"></mat-icon>
             }
         </button>
         <button mat-menu-item (click)="setAllChannelsSortMode('name-desc')">
             <mat-icon svgIcon="sort_by_alpha"></mat-icon>
-            <span>Name Z-A</span>
+            <span>{{ 'CHANNELS.SORT_NAME_DESC' | translate }}</span>
             @if (allChannelsSortMode() === 'name-desc') {
                 <mat-icon svgIcon="check"></mat-icon>
             }
@@ -64,6 +67,11 @@
         <cdk-virtual-scroll-viewport
             [itemSize]="itemSize()"
             class="scroll-viewport app-scrollbar"
+            role="listbox"
+            tabindex="0"
+            [attr.aria-label]="'CHANNELS.ALL_CHANNELS' | translate"
+            [attr.aria-activedescendant]="activeDescendantId()"
+            (keydown)="onListKeydown($event)"
         >
             <app-channel-list-item
                 *cdkVirtualFor="
@@ -89,10 +97,14 @@
                     epgMetadataMap().get(getChannelEpgKey(channel))
                         ?.progressPercentage ?? 0
                 "
-                (clicked)="onChannelClick(channel)"
+                (clicked)="onChannelClick(channel, i)"
                 (activated)="onChannelActivate(channel)"
-                (contextMenuRequested)="onChannelContextMenu(channel, $event)"
+                (contextMenuRequested)="
+                    channelContextMenu.open(channel, $event)
+                "
                 [selected]="activeChannelUrl() === channel?.url"
+                [rowId]="'channel-option-' + i"
+                [keyboardFocused]="focusedIndex() === i"
                 [showFavoriteButton]="true"
                 [isFavorite]="favoriteIds().has(channel?.url ?? '')"
                 (favoriteToggled)="onFavoriteToggle(channel, $event)"
@@ -101,24 +113,4 @@
     }
 </div>
 
-<div
-    aria-hidden="true"
-    class="channel-context-menu-anchor"
-    [style.left]="contextMenuPosition().x"
-    [style.top]="contextMenuPosition().y"
-    [matMenuTriggerFor]="channelContextMenu"
-    #contextMenuTrigger="matMenuTrigger"
-></div>
-
-<mat-menu #channelContextMenu="matMenu">
-    @if (supportsEpgMapping) {
-        <button mat-menu-item (click)="openEpgMapping()">
-            <mat-icon svgIcon="settings_remote"></mat-icon>
-            <span>{{ 'CHANNELS.MAP_EPG' | translate }}</span>
-        </button>
-    }
-    <button mat-menu-item (click)="openChannelDetails()">
-        <mat-icon svgIcon="info"></mat-icon>
-        <span>{{ 'CHANNELS.SHOW_DETAILS' | translate }}</span>
-    </button>
-</mat-menu>
+<app-channel-context-menu #channelContextMenu />

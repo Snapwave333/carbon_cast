@@ -1,0 +1,33 @@
+# Render Blueprint for the public "try it in your browser" CarbonCast IPTV demo.
+#
+# This deploys the same PWA container described in docker/README.md on Render's
+# free tier. Free instances spin down after ~15 minutes of inactivity, so the
+# first request after an idle period takes roughly a minute to answer.
+#
+# Deploy: Render dashboard -> New -> Blueprint -> pick this repository.
+# After the first deploy, set the website's DEMO_URL in
+# apps/website/src/data/downloads.ts to the assigned URL.
+services:
+    - type: web
+      name: carboncast-demo
+      runtime: docker
+      plan: free
+      region: oregon
+      dockerfilePath: ./docker/Dockerfile
+      dockerContext: .
+      healthCheckPath: /api/health
+      autoDeployTrigger: commit
+      envVars:
+          # Browser-facing backend path served by the bundled nginx proxy.
+          - key: BACKEND_URL
+            value: /api
+          # Internal Express port that nginx proxies to. Must not be 80.
+          - key: PORT
+            value: '3000'
+          # CORS origin for the backend. Update if Render assigns a different
+          # hostname because `carboncast-demo` was already taken.
+          - key: CLIENT_URL
+            value: https://carboncast-demo.onrender.com
+          # A public instance must never be usable as an internal-network fetcher.
+          - key: IPTVNATOR_PROXY_ALLOW_PRIVATE_NETWORKS
+            value: '0'

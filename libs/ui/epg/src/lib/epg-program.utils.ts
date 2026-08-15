@@ -2,15 +2,39 @@ import { format } from 'date-fns';
 import type { EpgProgram } from '@iptvnator/shared/interfaces';
 import { EPG_DATE_KEY_FORMAT } from './epg-date';
 
+/**
+ * Epoch seconds are ~1.7e9 today; a value past this is already milliseconds,
+ * which some XMLTV exporters emit. Multiplying those by 1000 produced dates
+ * tens of thousands of years out, and the timeline sizes its axis from the
+ * furthest programme — one such row stretched the ribbon across millennia and
+ * locked the tab building ticks for it.
+ */
+const TIMESTAMP_ALREADY_MS_THRESHOLD = 1e11;
+/** Anything outside this window is treated as corrupt rather than plotted. */
+const EARLIEST_PLAUSIBLE_MS = Date.UTC(2000, 0, 1);
+const LATEST_PLAUSIBLE_OFFSET_MS = 5 * 365 * 24 * 60 * 60 * 1000;
+
 export function getProgramTimeMs(
     isoValue: string,
     timestampValue?: number | null
 ): number {
-    if (Number.isFinite(timestampValue) && Number(timestampValue) > 0) {
-        return Number(timestampValue) * 1000;
+    const candidate =
+        Number.isFinite(timestampValue) && Number(timestampValue) > 0
+            ? Number(timestampValue) >= TIMESTAMP_ALREADY_MS_THRESHOLD
+                ? Number(timestampValue)
+                : Number(timestampValue) * 1000
+            : Date.parse(isoValue);
+
+    if (!Number.isFinite(candidate)) {
+        return Number.NaN;
     }
 
-    return Date.parse(isoValue);
+    const latestPlausibleMs = Date.now() + LATEST_PLAUSIBLE_OFFSET_MS;
+    if (candidate < EARLIEST_PLAUSIBLE_MS || candidate > latestPlausibleMs) {
+        return Number.NaN;
+    }
+
+    return candidate;
 }
 
 export function getProgramDateKey(

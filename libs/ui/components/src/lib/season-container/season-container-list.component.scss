@@ -1,0 +1,252 @@
+.episodes-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    width: 100%;
+}
+
+.episode-list-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 16px;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    border: 1px solid transparent;
+
+    &:hover {
+        background: rgba(255, 255, 255, 0.06);
+        border-color: rgba(255, 255, 255, 0.08);
+
+        .episode-list-item__actions {
+            opacity: 1;
+        }
+    }
+
+    &--watched {
+        opacity: 0.6;
+
+        &:hover {
+            opacity: 1;
+        }
+    }
+
+    &--in-progress {
+        border-color: color-mix(in srgb, var(--mat-sys-primary) 40%, transparent);
+        background: color-mix(in srgb, var(--mat-sys-primary) 5%, transparent);
+
+        &:hover {
+            border-color: color-mix(in srgb, var(--mat-sys-primary) 60%, transparent);
+            background: color-mix(in srgb, var(--mat-sys-primary) 8%, transparent);
+        }
+    }
+
+    &__number {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 36px;
+        height: 36px;
+        background: rgba(255, 255, 255, 0.06);
+        border-radius: 6px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--text-secondary);
+        flex-shrink: 0;
+    }
+
+    // Compact 16:9 episode still (only when the season has distinct
+    // per-episode art); the episode number rides on the image.
+    &__thumb {
+        position: relative;
+        flex-shrink: 0;
+        width: 96px;
+        height: 54px;
+        border-radius: 6px;
+        overflow: hidden;
+        background: rgba(255, 255, 255, 0.05);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+    }
+
+    &__thumb-placeholder {
+        color: var(--text-muted);
+        font-size: 22px;
+        width: 22px;
+        height: 22px;
+    }
+
+    &__thumb-number {
+        position: absolute;
+        bottom: 3px;
+        right: 3px;
+        background: rgba(0, 0, 0, 0.8);
+        color: white;
+        font-size: 0.65rem;
+        font-weight: 600;
+        line-height: 1.5;
+        padding: 0 5px;
+        border-radius: 3px;
+    }
+
+    &__content {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    &__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+    }
+
+    &__title {
+        margin: 0;
+        font-size: 0.9375rem;
+        font-weight: 500;
+        color: var(--text-primary);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+
+        .watched-icon {
+            font-size: 16px;
+            width: 16px;
+            height: 16px;
+            color: var(--mat-sys-tertiary);
+        }
+    }
+
+    &__meta {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-shrink: 0;
+    }
+
+    &__duration {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        padding: 2px 8px;
+        background: rgba(255, 255, 255, 0.06);
+        border-radius: 10px;
+    }
+
+    &__progress-text {
+        font-size: 0.75rem;
+        font-weight: 500;
+        color: var(--mat-sys-primary);
+        padding: 2px 8px;
+        background: color-mix(in srgb, var(--mat-sys-primary) 15%, transparent);
+        border-radius: 10px;
+    }
+
+    &__description {
+        margin: 0;
+        font-size: 0.8125rem;
+        color: var(--text-secondary);
+        line-height: 1.4;
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    &__progress-bar {
+        height: 3px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 2px;
+        overflow: hidden;
+        margin-top: 4px;
+    }
+
+    &__progress-fill {
+        height: 100%;
+        background: var(--mat-sys-primary);
+        border-radius: 2px;
+        transition: width 0.3s ease;
+    }
+
+    &__actions {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        opacity: 0;
+        transition: opacity 0.15s ease;
+
+        .action-btn {
+            width: 36px;
+            height: 36px;
+            color: var(--text-secondary);
+            transition: all 0.15s ease;
+
+            mat-icon {
+                font-size: 20px;
+                width: 20px;
+                height: 20px;
+            }
+
+            &:hover {
+                color: var(--text-primary);
+                background: rgba(255, 255, 255, 0.1);
+            }
+
+            &.play-btn {
+                color: var(--accent-color);
+
+                &:hover {
+                    background: rgba(var(--accent-color-rgb), 0.15);
+                }
+            }
+
+            &--success {
+                color: var(--mat-sys-tertiary);
+
+                &:hover {
+                    background: color-mix(in srgb, var(--mat-sys-tertiary) 15%, transparent);
+                }
+            }
+
+            &:disabled {
+                color: var(--text-muted);
+                cursor: not-allowed;
+                opacity: 0.5;
+            }
+        }
+    }
+
+    &--launching,
+    &--active-external {
+        border-color: color-mix(in srgb, var(--mat-sys-tertiary) 46%, transparent);
+        background: color-mix(in srgb, var(--mat-sys-tertiary-container) 12%, transparent);
+    }
+
+    &--playing {
+        border-color: color-mix(in srgb, var(--mat-sys-primary) 60%, transparent);
+        background: color-mix(in srgb, var(--mat-sys-primary) 8%, transparent);
+    }
+
+    // Always show actions on touch devices
+    @media (hover: none) {
+        .episode-list-item__actions {
+            opacity: 1;
+        }
+    }
+}

@@ -173,6 +173,38 @@ textarea {
     --app-focus-ring-offset: 2px;
 }
 
+// ─── Motion ───────────────────────────────────────────────────────────────────
+// One vocabulary for the app's micro-interactions. Durations are deliberately
+// short: these are feedback cues, not transitions the user waits on. Only
+// transform/opacity/colour are animated anywhere, so the compositor handles
+// them and long lists (90k channels) stay smooth.
+:root {
+    --app-motion-instant: 90ms;
+    --app-motion-fast: 140ms;
+    --app-motion-base: 200ms;
+    --app-motion-slow: 320ms;
+    // Standard easing for enter/exit; the "spring" adds a slight overshoot for
+    // affordances that should feel physical (presses, toggles, pops).
+    --app-ease: cubic-bezier(0.2, 0, 0, 1);
+    --app-ease-out: cubic-bezier(0, 0, 0.2, 1);
+    --app-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+// Global honouring of the OS "reduce motion" preference. Individual components
+// already opt out by hand in places; this makes the guarantee app-wide so any
+// animation added later is safe by default. Kept as near-zero rather than
+// `none` so animation end/transition end callbacks still fire.
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
 input,
 button,
 textarea,
@@ -274,6 +306,123 @@ a,
     --mdc-snackbar-container-color: var(--mat-sys-error-container);
     --mdc-snackbar-supporting-text-color: var(--mat-sys-on-error-container);
     --mat-snack-bar-button-color: var(--mat-sys-on-error-container);
+}
+
+// ─── Micro-interactions ───────────────────────────────────────────────────────
+// Shared feedback for the controls the app uses everywhere. Scoped to Material
+// buttons and the app's own card/tile classes so it lands consistently without
+// each component re-inventing a hover and press treatment.
+
+// Press feedback: a control should visibly yield under the pointer. Transform
+// only, so it never reflows the surrounding layout.
+.mat-mdc-button-base,
+.link-card,
+app-playlist-item .playlist-item {
+    transition:
+        transform var(--app-motion-fast) var(--app-ease-spring),
+        box-shadow var(--app-motion-base) var(--app-ease),
+        background-color var(--app-motion-fast) var(--app-ease),
+        border-color var(--app-motion-fast) var(--app-ease);
+}
+
+.mat-mdc-button-base:not(:disabled):active {
+    transform: scale(0.97);
+}
+
+.mat-mdc-icon-button:not(:disabled):hover {
+    transform: scale(1.08);
+}
+
+.mat-mdc-icon-button:not(:disabled):active {
+    transform: scale(0.92);
+}
+
+// Cards lift toward the pointer rather than just changing colour.
+.link-card:hover,
+app-playlist-item .playlist-item:hover {
+    transform: translateY(-2px);
+}
+
+.link-card:active,
+app-playlist-item .playlist-item:active {
+    transform: translateY(0);
+}
+
+// A favourite toggling on is the app's most frequent "yes, that worked"
+// moment, so it gets an actual pop instead of a colour swap.
+@keyframes app-pop {
+    0% {
+        transform: scale(1);
+    }
+    45% {
+        transform: scale(1.32);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.favorite-button[aria-pressed='true'] mat-icon,
+.favorite-toggle[aria-pressed='true'] mat-icon {
+    animation: app-pop var(--app-motion-base) var(--app-ease-spring);
+}
+
+// Panels and dialogs settle in instead of appearing abruptly.
+@keyframes app-rise {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes app-fade {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.mat-mdc-dialog-container .mat-mdc-dialog-surface {
+    animation: app-rise var(--app-motion-base) var(--app-ease-out) both;
+}
+
+.mat-mdc-menu-panel,
+.mat-mdc-autocomplete-panel,
+.mat-mdc-select-panel {
+    animation: app-rise var(--app-motion-fast) var(--app-ease-out) both;
+}
+
+.mat-mdc-snack-bar-container {
+    animation: app-rise var(--app-motion-base) var(--app-ease-spring) both;
+}
+
+.mat-mdc-tooltip-surface {
+    animation: app-fade var(--app-motion-instant) var(--app-ease-out) both;
+}
+
+// Route content fades in, so navigating never flashes a hard cut.
+main.workspace-content > * {
+    animation: app-fade var(--app-motion-base) var(--app-ease-out) both;
+}
+
+// Entry animation for grid tiles. Declared globally because @keyframes names
+// are not view-encapsulated, so the shared content-grid mixin can reference it
+// from any component's stylesheet.
+@keyframes app-card-enter {
+    from {
+        opacity: 0;
+        transform: translateY(10px) scale(0.985);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
 }
 
 // WCAG-friendly visually-hidden helper — content stays in the

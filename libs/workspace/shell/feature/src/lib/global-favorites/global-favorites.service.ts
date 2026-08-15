@@ -173,7 +173,13 @@ export class GlobalFavoritesService {
                 playlist = (await firstValueFrom(
                     this.playlistsService.getPlaylistById(meta._id)
                 )) as PlaylistWithChannels | undefined;
-            } catch {
+            } catch (error) {
+                // A playlist that cannot be read drops silently out of the
+                // aggregated list; name it so the gap is diagnosable.
+                console.warn(
+                    `Skipping M3U playlist ${meta._id} while collecting global favorites:`,
+                    error
+                );
                 continue;
             }
 
@@ -207,7 +213,8 @@ export class GlobalFavoritesService {
         try {
             items =
                 (await this.dbService.getGlobalFavorites()) as XtreamGlobalFavoriteRow[];
-        } catch {
+        } catch (error) {
+            console.warn('Could not read Xtream global favorites:', error);
             return [];
         }
 
@@ -247,7 +254,11 @@ export class GlobalFavoritesService {
                 playlist = (await firstValueFrom(
                     this.playlistsService.getPlaylistById(meta._id)
                 )) as Playlist | undefined;
-            } catch {
+            } catch (error) {
+                console.warn(
+                    `Skipping Stalker portal ${meta._id} while collecting global favorites:`,
+                    error
+                );
                 continue;
             }
 
@@ -318,8 +329,9 @@ export class GlobalFavoritesService {
                 GLOBAL_FAVORITES_ORDER_KEY,
                 JSON.stringify(uidOrder)
             );
-        } catch {
-            // ignore
+        } catch (error) {
+            // Order is a presentation nicety; losing it must not break the list.
+            console.warn('Could not persist global favorites order:', error);
         }
     }
 

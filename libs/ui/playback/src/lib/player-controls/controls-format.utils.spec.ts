@@ -3,7 +3,6 @@ import {
     persistVolume,
     readStoredVolume,
     volumeIcon,
-    volumeLabel,
 } from './controls-format.utils';
 
 describe('controls format utilities', () => {
@@ -16,6 +15,8 @@ describe('controls format utilities', () => {
         expect(formatTime(-30)).toBe('0:00');
         expect(formatTime(75.9)).toBe('1:15');
         expect(formatTime(3661)).toBe('1:01:01');
+        expect(formatTime(Number.POSITIVE_INFINITY)).toBe('0:00');
+        expect(formatTime(Number.NaN)).toBe('0:00');
     });
 
     it('clamps stored volume reads and persists raw volume values', () => {
@@ -28,14 +29,19 @@ describe('controls format utilities', () => {
         localStorage.setItem('volume', 'not-a-number');
         expect(readStoredVolume()).toBe(1);
 
+        localStorage.setItem('volume', '');
+        expect(readStoredVolume()).toBe(1);
+
+        localStorage.setItem('volume', '   ');
+        expect(readStoredVolume()).toBe(1);
+
         persistVolume(0.35);
         expect(localStorage.getItem('volume')).toBe('0.35');
     });
 
-    it('maps volume to an icon and a readable label', () => {
+    it('maps volume to an icon', () => {
         expect(volumeIcon(0)).toBe('volume_off');
         expect(volumeIcon(0.25)).toBe('volume_down');
         expect(volumeIcon(0.75)).toBe('volume_up');
-        expect(volumeLabel(0.755)).toBe('Volume 76%');
     });
 });

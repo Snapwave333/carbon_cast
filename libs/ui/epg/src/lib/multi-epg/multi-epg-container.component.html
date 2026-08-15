@@ -149,7 +149,7 @@
                 <div class="program-search-results">
                     @for (
                         program of programSearchResults();
-                        track program.start
+                        track getProgramKey(program)
                     ) {
                         <button
                             class="search-result-item"
@@ -269,6 +269,7 @@
 <div class="parent" #epgContainer (scroll)="onScroll($event)">
     <svg
         id="channels-column"
+        role="presentation"
         [attr.height]="filteredChannels().length * barHeight + barHeight + 50"
     >
         @for (item of filteredChannels(); track item.id; let i = $index) {
@@ -288,10 +289,9 @@
                     >
                         <div class="channel-name">
                             @if (item.safeIconUrl) {
-                                <img
-                                    [src]="item.safeIconUrl"
-                                    [alt]="getChannelName(item)"
-                                />
+                                <!-- Decorative: the name is announced by the
+                                     adjacent span, so alt would double it. -->
+                                <img [src]="item.safeIconUrl" alt="" />
                             }
                             <span>{{ getChannelName(item) }}</span>
                         </div>
@@ -373,17 +373,21 @@
                                 ')'
                             "
                             class="program"
-                            [class.highlighted]="
-                                highlightedProgramKey() ===
-                                getProgramKey(program)
-                            "
                             [class.is-now]="isProgramAiringNow(program)"
                             role="button"
-                            tabindex="0"
-                            [attr.aria-label]="getProgramAriaLabel(program)"
+                            [attr.tabindex]="
+                                isProgramFocusTarget(program, i, $index)
+                                    ? 0
+                                    : -1
+                            "
+                            [attr.data-program-key]="getProgramKey(program)"
+                            [attr.aria-label]="
+                                getProgramAriaLabel(program, item)
+                            "
                             (click)="openProgramDialog(program, '600px')"
+                            (focus)="onProgramFocus(program)"
                             (keydown)="
-                                activateProgramFromKeyboard($event, program)
+                                onProgramKeydown($event, program, i, $index)
                             "
                         >
                             <rect
@@ -507,7 +511,7 @@
         <mat-icon svgIcon="error"></mat-icon>
         <strong>{{ 'EPG.TIMELINE.ERROR_TITLE' | translate }}</strong>
         <p>{{ 'EPG.TIMELINE.ERROR_DESCRIPTION' | translate }}</p>
-        <button mat-button (click)="isLastPage.set(false); requestPrograms()">
+        <button mat-button (click)="retryPrograms()">
             {{ 'EPG.TIMELINE.RETRY' | translate }}
         </button>
     </div>
@@ -527,7 +531,7 @@
     <button
         mat-button
         class="guide-pagination-status guide-pagination-status--error"
-        (click)="isLastPage.set(false); requestPrograms()"
+        (click)="retryPrograms()"
     >
         <mat-icon svgIcon="refresh"></mat-icon>
         {{ 'EPG.TIMELINE.RETRY' | translate }}

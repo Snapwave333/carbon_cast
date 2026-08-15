@@ -1,0 +1,95 @@
+---
+import { CONTAINER_IMAGE, DEMO_URL, REPO_URL } from '../../data/downloads';
+
+const commands = [
+  {
+    label: 'Docker',
+    command: `docker run -d -p 4333:80 --name carboncast ${CONTAINER_IMAGE}:latest`,
+  },
+  {
+    label: 'Source',
+    command: `git clone ${REPO_URL}.git`,
+  },
+];
+---
+
+<section id="self-host" class="scroll-mt-24 border-t border-surface-800/70 py-20">
+  <div class="mx-auto grid max-w-[1400px] gap-12 px-6 lg:grid-cols-[minmax(0,40%)_minmax(0,60%)] lg:gap-16 lg:px-10">
+    <div class="reveal">
+      <span class="font-mono text-[11px] uppercase tracking-[0.2em] text-accent-500">
+        Without installing
+      </span>
+      <h2 class="mt-4 font-display text-3xl font-bold tracking-tight text-surface-50">
+        Run it in a browser instead
+      </h2>
+      <p class="mt-5 max-w-[46ch] leading-relaxed text-surface-400">
+        CarbonCast also ships as a Progressive Web App in a single container.
+        Start it on any machine, then open it from your phone, TV browser or
+        laptop.
+      </p>
+      <p class="mt-5 max-w-[46ch] text-sm leading-relaxed text-surface-500">
+        The browser build has no programme guide, download manager or
+        external-player control. Those need the desktop app.
+      </p>
+
+      {
+        DEMO_URL && (
+          <a href={DEMO_URL} class="btn-secondary mt-8">
+            Try the hosted demo
+          </a>
+        )
+      }
+    </div>
+
+    <div class="reveal space-y-3" data-delay="1">
+      {
+        commands.map((entry) => (
+          <div class="flex items-center gap-4 rounded-xl border border-surface-700/50 bg-surface-900/40 px-5 py-4">
+            <span class="w-14 shrink-0 font-mono text-[10px] font-medium uppercase tracking-[0.15em] text-surface-500">
+              {entry.label}
+            </span>
+            <code class="flex-1 overflow-x-auto whitespace-nowrap font-mono text-sm text-accent-400/90">
+              {entry.command}
+            </code>
+            <button
+              class="download-copy shrink-0 rounded-lg p-1.5 text-surface-600 transition-colors hover:text-surface-300"
+              data-command={entry.command}
+              aria-label={`Copy ${entry.label} command`}
+            >
+              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9.75a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184"
+                />
+              </svg>
+            </button>
+          </div>
+        ))
+      }
+
+      <p class="pt-2 text-sm text-surface-500">
+        Then open <span class="font-mono text-surface-400">http://localhost:4333</span>.
+      </p>
+    </div>
+  </div>
+</section>
+
+<script>
+  document.querySelectorAll<HTMLElement>('.download-copy').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const command = btn.dataset.command;
+      if (!command) return;
+
+      await navigator.clipboard.writeText(command);
+      const svg = btn.querySelector('svg');
+      if (!svg) return;
+
+      const original = svg.innerHTML;
+      svg.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />';
+      setTimeout(() => {
+        svg.innerHTML = original;
+      }, 1500);
+    });
+  });
+</script>

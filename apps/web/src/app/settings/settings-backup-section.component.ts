@@ -21,6 +21,7 @@ export class SettingsBackupSectionComponent {
     readonly isPwa = input(false);
     readonly isRemovingAllPlaylists = input(false);
     readonly isExportingData = input(false);
+    readonly isImportingData = input(false);
 
     readonly importData = output<void>();
     readonly exportData = output<void>();

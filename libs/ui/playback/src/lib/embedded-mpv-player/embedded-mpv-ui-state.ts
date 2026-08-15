@@ -1,11 +1,7 @@
 import { computed, signal } from '@angular/core';
 
 export type EmbeddedMpvMenu =
-    | 'volume'
-    | 'audio'
-    | 'subtitle'
-    | 'speed'
-    | 'aspect';
+    'volume' | 'audio' | 'subtitle' | 'speed' | 'aspect';
 
 /**
  * Tracks which menu is currently open and exposes individual signals the

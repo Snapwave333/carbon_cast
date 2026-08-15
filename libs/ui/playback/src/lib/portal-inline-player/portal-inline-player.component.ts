@@ -72,8 +72,7 @@ export class PortalInlinePlayerComponent {
     readonly title = computed(() =>
         applyChannelNameStrip(
             this.playback()?.title,
-            this.playback()?.isLive &&
-                this.settingsStore.stripCountryPrefix?.()
+            this.playback()?.isLive && this.settingsStore.stripCountryPrefix?.()
         )
     );
     readonly streamUrl = computed(() => this.playback()?.streamUrl ?? '');
@@ -144,18 +143,15 @@ export class PortalInlinePlayerComponent {
         return { primary, secondary: metadata?.label ?? null };
     });
 
-    private readonly stageViewport = viewChild<ElementRef<HTMLElement>>(
-        'stageViewport'
-    );
+    private readonly stageViewport =
+        viewChild<ElementRef<HTMLElement>>('stageViewport');
     /**
      * Border-box size of the theater stage, written by a ResizeObserver.
      * Measuring the border box (not the content box) keeps the value stable
      * when the rail modifier toggles the stage's own padding, so the gate
      * below cannot oscillate around its threshold.
      */
-    readonly stageSize = signal<{ width: number; height: number } | null>(
-        null
-    );
+    readonly stageSize = signal<{ width: number; height: number } | null>(null);
     /**
      * Width the rail would actually get: the stage minus its docked-mode
      * padding, the 16:9 player sized to the remaining height, and the flex

@@ -121,6 +121,9 @@ describe('SettingsBackupFacade', () => {
             expect(saveFileDialog).not.toHaveBeenCalled();
             expect(createObjectURL).toHaveBeenCalledWith(expect.any(Blob));
             expect(clickSpy).toHaveBeenCalled();
+            // The revoke is deferred a macrotask so it cannot cancel the
+            // download in browsers that read the blob asynchronously.
+            await new Promise((resolve) => setTimeout(resolve, 0));
             expect(revokeObjectURL).toHaveBeenCalledWith('blob:backup');
         } finally {
             clickSpy.mockRestore();
@@ -149,7 +152,7 @@ describe('SettingsBackupFacade', () => {
 
         expect(facade.isExportingData()).toBe(false);
         expect(snackBar.open).toHaveBeenCalledWith(
-            'Playlist backup export failed.',
+            'SETTINGS.BACKUP_EXPORT_ERROR',
             undefined,
             expect.objectContaining({ panelClass: ['settings-snackbar'] })
         );

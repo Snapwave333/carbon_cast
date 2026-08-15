@@ -516,6 +516,10 @@
         }
     },
     "PLAYBACK_DIAGNOSTICS": {
+        "MISSING_STREAM_URL": {
+            "TITLE": "この項目には再生できるストリームがありません",
+            "DESCRIPTION": "プロバイダーが再生可能な URL なしでこの項目を返しました。プレイリストまたはポータルを更新してください。空のままの場合、この項目はプロバイダーで利用できません。"
+        },
         "UNSUPPORTED_CONTAINER": {
             "TITLE": "This stream container is likely unsupported by the browser player",
             "DESCRIPTION": "The browser player may not decode this container inline. Copy the stream URL and open it in an external player such as MPV, VLC, or IINA for broader codec support."
@@ -594,6 +598,14 @@
         "SORT_BY_DATE": "追加日で並び替え（新しい順）",
         "SORT_BY_RATING": "評価で並び替え",
         "SORT_BY_NAME": "名前で並び替え（A-Z）",
+        "SORT_CHANNELS": "チャンネルを並べ替え",
+        "SORT_TOOLTIP": "並び替え: {{mode}}",
+        "SORT_PLAYLIST_ORDER": "プレイリスト順",
+        "SORT_SERVER_ORDER": "サーバー順",
+        "SORT_NAME_ASC": "名前 A-Z",
+        "SORT_NAME_DESC": "名前 Z-A",
+        "CHANNEL_COUNT_ONE": "1 チャンネル",
+        "CHANNEL_COUNT_OTHER": "{{count}} チャンネル",
         "LOAD_MORE": "さらに読み込む",
         "REMAINING": "残り",
         "LOADING": "チャンネルを読み込み中...",
@@ -1435,5 +1447,15 @@
         "REMOVE_FAVORITE": "お気に入りから削除",
         "ATTRIBUTION_STATIONS": "ラジオ局カタログはコミュニティ運営のRadio Browserディレクトリから提供されています。",
         "ATTRIBUTION_PODCASTS": "ポッドキャスト検索はApple iTunes Search APIを利用しています。"
+    },
+    "PAGINATOR": {
+        "ITEMS_PER_PAGE": "1ページあたりの件数:",
+        "NEXT_PAGE": "次のページ",
+        "PREVIOUS_PAGE": "前のページ",
+        "FIRST_PAGE": "最初のページ",
+        "LAST_PAGE": "最後のページ",
+        "RANGE": "{{start}} – {{end}} / {{total}}",
+        "RANGE_EMPTY": "0 / {{total}}",
+        "SELECT_PAGE": "ページを選択"
     }
 }

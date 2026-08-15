@@ -516,6 +516,10 @@
         }
     },
     "PLAYBACK_DIAGNOSTICS": {
+        "MISSING_STREAM_URL": {
+            "TITLE": "Dieser Eintrag hat keinen abspielbaren Stream",
+            "DESCRIPTION": "Der Anbieter hat diesen Eintrag ohne abspielbare URL zurückgegeben. Aktualisiere die Playlist oder das Portal — bleibt sie leer, ist der Eintrag bei deinem Anbieter nicht verfügbar."
+        },
         "UNSUPPORTED_CONTAINER": {
             "TITLE": "This stream container is likely unsupported by the browser player",
             "DESCRIPTION": "The browser player may not decode this container inline. Copy the stream URL and open it in an external player such as MPV, VLC, or IINA for broader codec support."
@@ -594,6 +598,14 @@
         "SORT_BY_DATE": "Nach Datum sortieren (Neueste zuerst)",
         "SORT_BY_RATING": "Nach Bewertung sortieren",
         "SORT_BY_NAME": "Nach Name sortieren (A-Z)",
+        "SORT_CHANNELS": "Kanäle sortieren",
+        "SORT_TOOLTIP": "Sortieren: {{mode}}",
+        "SORT_PLAYLIST_ORDER": "Playlist-Reihenfolge",
+        "SORT_SERVER_ORDER": "Server-Reihenfolge",
+        "SORT_NAME_ASC": "Name A-Z",
+        "SORT_NAME_DESC": "Name Z-A",
+        "CHANNEL_COUNT_ONE": "1 Kanal",
+        "CHANNEL_COUNT_OTHER": "{{count}} Kanäle",
         "LOAD_MORE": "Mehr laden",
         "REMAINING": "verbleibend",
         "LOADING": "Sender werden geladen …",
@@ -1435,5 +1447,15 @@
         "REMOVE_FAVORITE": "Von Favoriten entfernen",
         "ATTRIBUTION_STATIONS": "Senderkatalog bereitgestellt vom Community-betriebenen Radio-Browser-Verzeichnis.",
         "ATTRIBUTION_PODCASTS": "Podcast-Suche bereitgestellt durch die Apple iTunes Search API."
+    },
+    "PAGINATOR": {
+        "ITEMS_PER_PAGE": "Einträge pro Seite:",
+        "NEXT_PAGE": "Nächste Seite",
+        "PREVIOUS_PAGE": "Vorherige Seite",
+        "FIRST_PAGE": "Erste Seite",
+        "LAST_PAGE": "Letzte Seite",
+        "RANGE": "{{start}} – {{end}} von {{total}}",
+        "RANGE_EMPTY": "0 von {{total}}",
+        "SELECT_PAGE": "Seite auswählen"
     }
 }

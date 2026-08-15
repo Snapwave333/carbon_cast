@@ -320,6 +320,7 @@ The diagnostics remain client-only:
 
 Supported diagnostic codes are:
 
+- `missing-stream-url`
 - `unsupported-container`
 - `unsupported-codec`
 - `media-decode-error`
@@ -327,6 +328,11 @@ Supported diagnostic codes are:
 - `browser-access-error`
 - `drm-or-encryption`
 - `unknown-playback-error`
+
+`missing-stream-url` is raised by the host itself, not by an engine: a provider
+entry with a blank `streamUrl` never reaches a player, so every engine would
+otherwise render a silent black surface with no feedback. It never recommends
+an external-player fallback, because nothing was ever requested.
 
 `network-error` is reserved for provider/network loading failures. Browser security failures such as CORS, mixed content, Content Security Policy, and private-network-access blocks are classified as `browser-access-error` so the UI can explain that the browser player was blocked before playback reached decoding.
 

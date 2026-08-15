@@ -581,17 +581,19 @@ export class VideoPlayerComponent implements OnInit, OnDestroy {
                 }
 
                 this.resumeAttemptedForPlaylist = playlistId;
-                const lastViewed = this.playlistContext
+                const lastViewedUrl = this.playlistContext
                     .activePlaylist()
-                    ?.recentlyViewed?.find(isM3uRecentlyViewedItem);
-                const lastViewedUrl = lastViewed?.url;
-                if (!lastViewedUrl) {
-                    return;
-                }
+                    ?.recentlyViewed?.find(isM3uRecentlyViewedItem)?.url;
 
-                const channel = channels.find(
-                    (item) => item.url === lastViewedUrl
-                );
+                // Falls back to the first channel so opening a playlist always
+                // starts playing something — a set that has never been watched,
+                // or whose last channel has since left the playlist, still
+                // behaves like a TV switching on rather than a dead screen.
+                const channel =
+                    (lastViewedUrl
+                        ? channels.find((item) => item.url === lastViewedUrl)
+                        : undefined) ?? channels[0];
+
                 if (channel) {
                     this.store.dispatch(
                         ChannelActions.setActiveChannel({ channel })

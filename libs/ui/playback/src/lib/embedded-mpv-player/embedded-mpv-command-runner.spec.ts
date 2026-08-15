@@ -181,8 +181,7 @@ describe('EmbeddedMpvCommandRunner', () => {
 
     it('ignores a command reply after the active session is replaced', async () => {
         let resolveCommand:
-            | ((value: EmbeddedMpvSession | null) => void)
-            | null = null;
+            ((value: EmbeddedMpvSession | null) => void) | null = null;
         electron.seekEmbeddedMpv.mockImplementationOnce(
             () =>
                 new Promise<EmbeddedMpvSession | null>((resolve) => {
@@ -210,8 +209,7 @@ describe('EmbeddedMpvCommandRunner', () => {
         'keeps a newer same-session snapshot when a %s command reply settles',
         async (_, replyUpdatedAt) => {
             let resolveCommand:
-                | ((value: EmbeddedMpvSession | null) => void)
-                | null = null;
+                ((value: EmbeddedMpvSession | null) => void) | null = null;
             electron.startEmbeddedMpvRecording.mockImplementationOnce(
                 () =>
                     new Promise<EmbeddedMpvSession | null>((resolve) => {

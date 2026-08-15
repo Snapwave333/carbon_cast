@@ -40,7 +40,10 @@ export class ControlsMenuSelection {
         this.apply('aspect', (c) => c.setAspectRatio(value));
     }
 
-    private apply(menu: MenuKey, run: (c: PlayerControlsCommands) => void): void {
+    private apply(
+        menu: MenuKey,
+        run: (c: PlayerControlsCommands) => void
+    ): void {
         this.deps.revealSticky();
         run(this.deps.commands());
         this.deps.menus.close(menu);

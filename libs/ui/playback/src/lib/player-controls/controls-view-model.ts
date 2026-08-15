@@ -47,6 +47,12 @@ export function createControlsViewModel(deps: ControlsViewModelDeps) {
         );
     });
 
+    // A stream that is fetching or has run dry of buffered data previously
+    // showed nothing at all — the controls only greyed their buttons out.
+    const isBuffering = computed(
+        () => deps.showControls() && (isLoading() || state().stalled)
+    );
+
     const hasAudioTracks = computed(
         () => capabilities().audioTracks && state().audioTracks.length > 1
     );
@@ -98,6 +104,7 @@ export function createControlsViewModel(deps: ControlsViewModelDeps) {
 
     return {
         isLoading,
+        isBuffering,
         isPaused,
         isPlaying,
         canTogglePlay,

@@ -109,6 +109,8 @@ export class HtmlVideoPlayerComponent implements OnInit, OnChanges, OnDestroy {
      */
     private captionTracks: WebVideoSourceTracks | null = null;
     private videoSession: HtmlVideoElementSession | null = null;
+    /** Guards a channel switch that lands while the previous one awaits IPC. */
+    private playbackGeneration = 0;
 
     ngOnInit() {
         if (this.sharedControls) {
@@ -145,7 +147,7 @@ export class HtmlVideoPlayerComponent implements OnInit, OnChanges, OnDestroy {
             this.seriesNavigationSignal.set(this.seriesNavigation);
         }
         if (changes['channel'] && changes['channel'].currentValue) {
-            this.playChannel(changes['channel'].currentValue);
+            void this.playChannel(changes['channel'].currentValue);
         }
         if (changes['isLive'] || changes['showCaptions']) {
             this.controlsBridge?.refreshInputs();
@@ -173,115 +175,132 @@ export class HtmlVideoPlayerComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     /**
-     * Starts to play the given channel
-     * @param channel given channel object
+     * Starts to play the given channel. Resolves once the source engine has
+     * been started, so callers (and tests) can sequence on it.
      */
-    playChannel(channel: Channel): void {
+    async playChannel(channel: Channel): Promise<void> {
+        const generation = ++this.playbackGeneration;
+        this.teardownActiveSource();
+        if (!channel.url) {
+            return;
+        }
+
+        this.playbackIssue.emit(null);
+        const url = channel.url + (channel.epgParams ?? '');
+        const extension = getPlaybackMediaExtensionFromUrl(channel.url);
+
+        // The override lives in the main process and only takes effect once
+        // the IPC lands. Starting the engine first would send the manifest
+        // request with the default headers, which providers that require a
+        // user-agent reject outright.
+        await this.configureRequestHeaders(channel);
+        if (this.playbackGeneration !== generation) {
+            return;
+        }
+
+        if (extension === 'mpd') {
+            this.startShakaSource(channel, url);
+        } else if ((extension === 'ts' || !extension) && mpegts.isSupported()) {
+            this.startMpegTsSource(channel, url);
+        } else if (
+            extension !== 'mp4' &&
+            extension !== 'mpv' &&
+            Hls &&
+            Hls.isSupported()
+        ) {
+            this.startHlsSource(channel, url);
+        } else {
+            this.startNativeSource(url);
+        }
+    }
+
+    private teardownActiveSource(): void {
         this.clearControlsSource();
         this.destroyMpegtsPlayer();
         this.destroyHls();
         this.shakaSession?.stop();
         clearNativeVideoSources(this.videoPlayer.nativeElement);
-        if (channel.url) {
-            this.playbackIssue.emit(null);
-            const url = channel.url + (channel.epgParams ?? '');
-            const extension = getPlaybackMediaExtensionFromUrl(channel.url);
+    }
 
-            void window.electron
-                ?.setUserAgent(
-                    channel.http?.['user-agent'],
-                    channel.http?.referrer,
-                    channel.url
-                )
-                .catch((error: unknown) => {
-                    console.warn(
-                        '[HtmlVideoPlayer] Failed to configure Electron request headers:',
-                        error
-                    );
-                });
-
-            if (extension === 'mpd') {
-                debugHtmlPlayer(
-                    'Using Shaka Player for DASH stream:',
-                    channel.name,
-                    url
-                );
-                const session = this.getShakaSession();
-                this.bindControlsSource({ kind: 'shaka', session });
-                session.start(
-                    this.videoPlayer.nativeElement,
-                    url,
-                    channel.drm
-                );
-                if (channel.drm && !channel.drm.supported) {
-                    // No source is loaded for unsupported DRM; reset the
-                    // element so the previous stream cannot resume playing
-                    // underneath the diagnostic banner.
-                    this.videoPlayer.nativeElement.load();
-                } else {
-                    this.handlePlayOperation();
-                }
-            } else if (
-                (extension === 'ts' || !extension) &&
-                mpegts.isSupported()
-            ) {
-                debugHtmlPlayer(
-                    'Using mpegts.js for TS stream:',
-                    channel.name,
-                    url
-                );
-                this.mpegtsPlayer = mpegts.createPlayer({
-                    type: 'mpegts',
-                    isLive: this.isLive(),
-                    url: url,
-                });
-                this.mpegtsPlayer.attachMediaElement(
-                    this.videoPlayer.nativeElement
-                );
-                this.bindControlsSource({ kind: 'mpegts' });
-                this.mpegtsPlayer.on(
-                    mpegts.Events.ERROR,
-                    (type: string, details: string, info: unknown): void => {
-                        emitMpegTsPlaybackError(
-                            url,
-                            { type, details, info },
-                            (issue) => this.playbackIssue.emit(issue)
-                        );
-                    }
-                );
-                this.mpegtsPlayer.load();
-                this.handlePlayOperation();
-            } else if (
-                extension !== 'mp4' &&
-                extension !== 'mpv' &&
-                Hls &&
-                Hls.isSupported()
-            ) {
-                debugHtmlPlayer('Switching channel to:', channel.name, url);
-                const hls = new Hls();
-                this.hls = hls;
-                hls.on(Hls.Events.MANIFEST_PARSED, (_, data) => {
-                    this.handleHlsManifestParsed(url, data);
-                });
-                hls.on(Hls.Events.ERROR, (_, data) => {
-                    this.handleHlsError(url, data);
-                });
-                hls.attachMedia(this.videoPlayer.nativeElement);
-                this.bindControlsSource({ kind: 'hls', hls });
-                hls.loadSource(url);
-                this.handlePlayOperation();
-            } else {
-                debugHtmlPlayer('Using native video player');
-                setNativeVideoSource(
-                    this.videoPlayer.nativeElement,
-                    url,
-                    'video/mp4'
-                );
-                this.bindControlsSource({ kind: 'native' });
-                this.videoPlayer.nativeElement.load();
-                this.handlePlayOperation();
-            }
+    private async configureRequestHeaders(channel: Channel): Promise<void> {
+        try {
+            await window.electron?.setUserAgent(
+                channel.http?.['user-agent'],
+                channel.http?.referrer,
+                channel.url
+            );
+        } catch (error: unknown) {
+            // Playing with the default headers still beats not playing at all.
+            console.warn(
+                '[HtmlVideoPlayer] Failed to configure Electron request headers:',
+                error
+            );
         }
+    }
+
+    private startShakaSource(channel: Channel, url: string): void {
+        debugHtmlPlayer(
+            'Using Shaka Player for DASH stream:',
+            channel.name,
+            url
+        );
+        const session = this.getShakaSession();
+        this.bindControlsSource({ kind: 'shaka', session });
+        session.start(this.videoPlayer.nativeElement, url, channel.drm);
+        if (channel.drm && !channel.drm.supported) {
+            // No source is loaded for unsupported DRM; reset the element so the
+            // previous stream cannot resume playing underneath the diagnostic
+            // banner.
+            this.videoPlayer.nativeElement.load();
+            return;
+        }
+        this.handlePlayOperation();
+    }
+
+    private startMpegTsSource(channel: Channel, url: string): void {
+        debugHtmlPlayer('Using mpegts.js for TS stream:', channel.name, url);
+        const player = mpegts.createPlayer({
+            type: 'mpegts',
+            isLive: this.isLive(),
+            url,
+        });
+        this.mpegtsPlayer = player;
+        player.attachMediaElement(this.videoPlayer.nativeElement);
+        this.bindControlsSource({ kind: 'mpegts' });
+        player.on(
+            mpegts.Events.ERROR,
+            (type: string, details: string, info: unknown): void => {
+                emitMpegTsPlaybackError(url, { type, details, info }, (issue) =>
+                    this.playbackIssue.emit(issue)
+                );
+            }
+        );
+        player.load();
+        this.handlePlayOperation();
+    }
+
+    private startHlsSource(channel: Channel, url: string): void {
+        debugHtmlPlayer('Switching channel to:', channel.name, url);
+        const hls = new Hls();
+        this.hls = hls;
+        hls.on(Hls.Events.MANIFEST_PARSED, (_, data) => {
+            this.handleHlsManifestParsed(url, data);
+        });
+        hls.on(Hls.Events.ERROR, (_, data) => {
+            this.handleHlsError(url, data);
+        });
+        hls.attachMedia(this.videoPlayer.nativeElement);
+        this.bindControlsSource({ kind: 'hls', hls });
+        hls.loadSource(url);
+        this.handlePlayOperation();
+    }
+
+    private startNativeSource(url: string): void {
+        debugHtmlPlayer('Using native video player');
+        setNativeVideoSource(this.videoPlayer.nativeElement, url, 'video/mp4');
+        this.bindControlsSource({ kind: 'native' });
+        this.videoPlayer.nativeElement.load();
+        this.handlePlayOperation();
     }
 
     private bindControlsSource(source: HtmlVideoControlsSource): void {
@@ -349,6 +368,8 @@ export class HtmlVideoPlayerComponent implements OnInit, OnChanges, OnDestroy {
      * Destroy hls instance on component destroy and clean up event listener
      */
     ngOnDestroy(): void {
+        // Also cancels a pending start still waiting on the header IPC.
+        this.playbackGeneration += 1;
         this.controlsBridge?.destroy();
         this.controlsBridge = null;
         this.captionTracks?.destroy();

@@ -33,6 +33,13 @@ const { title, description, image, type, noindex, keywords, publishedTime, modif
       modifiedTime={modifiedTime}
       jsonLd={jsonLd}
     />
+    <script is:inline>
+      // Arm the scroll reveal before first paint, so the hidden state never
+      // flashes. Reduced-motion visitors keep everything on screen.
+      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        document.documentElement.classList.add('reveal-ready');
+      }
+    </script>
   </head>
   <body class="min-h-screen bg-surface-950 font-body text-surface-200">
     <Header />
@@ -40,5 +47,38 @@ const { title, description, image, type, noindex, keywords, publishedTime, modif
       <slot />
     </main>
     <Footer />
+
+    <script>
+      const revealTargets = document.querySelectorAll('.reveal');
+      const show = (el: Element) => el.classList.add('is-visible');
+
+      if (!document.documentElement.classList.contains('reveal-ready')) {
+        // Reveal is disarmed; the CSS already leaves everything visible.
+      } else if (!('IntersectionObserver' in window)) {
+        revealTargets.forEach(show);
+      } else {
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (!entry.isIntersecting) return;
+              show(entry.target);
+              observer.unobserve(entry.target);
+            });
+          },
+          { threshold: 0.12, rootMargin: '0px 0px -6% 0px' }
+        );
+
+        revealTargets.forEach((target) => observer.observe(target));
+
+        // A tall element can never reach the threshold, and a browser that
+        // never composites never reports one. Neither should cost the reader
+        // the content, so anything still hidden is shown after a beat.
+        window.setTimeout(() => {
+          document.querySelectorAll('.reveal:not(.is-visible)').forEach((el) => {
+            if (el.getBoundingClientRect().top < window.innerHeight) show(el);
+          });
+        }, 1200);
+      }
+    </script>
   </body>
 </html>

@@ -1,5 +1,5 @@
-import { resolveChannelEpgLookupKey } from '@iptvnator/m3u-state';
 import { Channel } from '@iptvnator/shared/interfaces';
+import { channelEpgLookupKey } from './channel-epg-key.util';
 
 export function resolveChannelLogo(
     channel: Channel | null | undefined,
@@ -10,7 +10,7 @@ export function resolveChannelLogo(
         return playlistLogo;
     }
 
-    const channelId = resolveChannelEpgLookupKey(channel);
+    const channelId = channelEpgLookupKey(channel);
     const epgIcon = channelId ? channelIconMap.get(channelId)?.trim() : '';
 
     return epgIcon || '';

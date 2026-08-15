@@ -33,6 +33,21 @@ const SOURCE_NOT_SUPPORTED_CODE = 4;
 const DECODE_ERROR_CODE = 3;
 const NETWORK_ERROR_CODE = 2;
 
+/**
+ * The provider returned an item with no playable URL. Nothing was ever
+ * requested, so no external player could do better either.
+ */
+export function classifyMissingStreamUrl(
+    metadata: PlaybackSourceMetadata
+): PlaybackDiagnostic {
+    return createPlaybackDiagnostic({
+        code: DiagnosticCode.MissingStreamUrl,
+        source: DiagnosticSource.Source,
+        metadata,
+        externalFallbackRecommended: false,
+    });
+}
+
 export function classifyNativePlaybackIssue(
     error: NativePlaybackErrorInput | MediaError | null | undefined,
     metadata: PlaybackSourceMetadata

@@ -516,6 +516,10 @@
         }
     },
     "PLAYBACK_DIAGNOSTICS": {
+        "MISSING_STREAM_URL": {
+            "TITLE": "Dit item heeft geen stream om af te spelen",
+            "DESCRIPTION": "De provider gaf dit item terug zonder afspeelbare URL. Ververs de afspeellijst of portal — blijft die leeg, dan is het item niet beschikbaar bij je provider."
+        },
         "UNSUPPORTED_CONTAINER": {
             "TITLE": "This stream container is likely unsupported by the browser player",
             "DESCRIPTION": "The browser player may not decode this container inline. Copy the stream URL and open it in an external player such as MPV, VLC, or IINA for broader codec support."
@@ -594,6 +598,14 @@
         "SORT_BY_DATE": "Sorteren op datum toegevoegd (Nieuwste eerst)",
         "SORT_BY_RATING": "Sorteren op beoordeling",
         "SORT_BY_NAME": "Sorteren op naam (A-Z)",
+        "SORT_CHANNELS": "Kanalen sorteren",
+        "SORT_TOOLTIP": "Sorteren: {{mode}}",
+        "SORT_PLAYLIST_ORDER": "Afspeellijstvolgorde",
+        "SORT_SERVER_ORDER": "Servervolgorde",
+        "SORT_NAME_ASC": "Naam A-Z",
+        "SORT_NAME_DESC": "Naam Z-A",
+        "CHANNEL_COUNT_ONE": "1 kanaal",
+        "CHANNEL_COUNT_OTHER": "{{count}} kanalen",
         "LOAD_MORE": "Meer laden",
         "REMAINING": "resterend",
         "LOADING": "Kanalen laden...",
@@ -1435,5 +1447,15 @@
         "REMOVE_FAVORITE": "Verwijder van favorieten",
         "ATTRIBUTION_STATIONS": "Zendercatalogus geleverd door de door de community beheerde Radio Browser-directory.",
         "ATTRIBUTION_PODCASTS": "Podcastzoekopdrachten mogelijk gemaakt door de Apple iTunes Search API."
+    },
+    "PAGINATOR": {
+        "ITEMS_PER_PAGE": "Items per pagina:",
+        "NEXT_PAGE": "Volgende pagina",
+        "PREVIOUS_PAGE": "Vorige pagina",
+        "FIRST_PAGE": "Eerste pagina",
+        "LAST_PAGE": "Laatste pagina",
+        "RANGE": "{{start}} – {{end}} van {{total}}",
+        "RANGE_EMPTY": "0 van {{total}}",
+        "SELECT_PAGE": "Pagina selecteren"
     }
 }

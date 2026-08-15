@@ -1,12 +1,7 @@
 import type { Signal } from '@angular/core';
 
 export type PlayerStatus =
-    | 'idle'
-    | 'loading'
-    | 'playing'
-    | 'paused'
-    | 'ended'
-    | 'error';
+    'idle' | 'loading' | 'playing' | 'paused' | 'ended' | 'error';
 
 /** Which controls an engine supports. A control is only rendered when its flag is true. */
 export interface PlayerControlsCapabilities {

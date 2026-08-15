@@ -5,8 +5,16 @@ The self-hosted image contains both pieces required for the browser PWA:
 - Angular PWA static files served by nginx
 - The monorepo `web-backend` Express app proxied under `/api`
 
-The historical standalone `4gray/iptvnator-backend` image is no longer needed
-for the default Docker deployment.
+Images are published to the GitHub Container Registry as
+`ghcr.io/snapwave333/carbon_cast`. The historical standalone
+`4gray/iptvnator-backend` image is no longer needed for the default Docker
+deployment.
+
+## Run With Docker
+
+```bash
+docker run -d -p 4333:80 --name carboncast ghcr.io/snapwave333/carbon_cast:latest
+```
 
 ## PWA Limitations And Playback Troubleshooting
 
@@ -39,7 +47,7 @@ container are required for the default local deployment.
 ## Build The Image
 
 ```bash
-docker build -t 4gray/iptvnator -f docker/Dockerfile .
+docker build -t ghcr.io/snapwave333/carbon_cast -f docker/Dockerfile .
 ```
 
 The image build runs:
@@ -57,18 +65,21 @@ publishing `linux/amd64` and `linux/arm64` images.
 
 ## Published Docker Tags
 
-Pull request builds validate the Dockerfile without pushing an image. Docker
-Hub publishing happens only from trusted repository events.
-Publishing requires the repository secrets `DOCKERHUB_USERNAME` and
-`DOCKERHUB_TOKEN`; pull request builds and default manual runs do not use those
-secrets.
+Pull request builds validate the Dockerfile without pushing an image. GHCR
+publishing happens only from trusted repository events and authenticates with
+the workflow's own `GITHUB_TOKEN`, so no registry secrets need to be configured.
+The image name is derived from `GITHUB_REPOSITORY`, so forks publish to their
+own namespace automatically.
+
+The package is created as private on first publish. Make it public once from
+the repository's Packages page so users can pull without logging in.
 
 | Tag pattern                | Published from           | Use case                                                                  |
 | -------------------------- | ------------------------ | ------------------------------------------------------------------------- |
-| `latest`                   | `master` pushes          | Default self-hosted image for users who want the newest merged PWA build. |
-| `<version>-pwa`            | `master` pushes          | Latest PWA image for the current `package.json` version.                  |
-| `<version>-pwa-<sha>`      | `master` pushes          | Immutable PWA image for a specific merged commit within a version.        |
-| `sha-<sha>`                | `master` pushes          | Commit-addressable image, useful for rollback and support diagnostics.    |
+| `latest`                   | `main` pushes            | Default self-hosted image for users who want the newest merged PWA build. |
+| `<version>-pwa`            | `main` pushes            | Latest PWA image for the current `package.json` version.                  |
+| `<version>-pwa-<sha>`      | `main` pushes            | Immutable PWA image for a specific merged commit within a version.        |
+| `sha-<sha>`                | `main` pushes            | Commit-addressable image, useful for rollback and support diagnostics.    |
 | `<version>` / `v<version>` | `v*` release tags        | Release image aligned with a repository release tag.                      |
 | `stable`                   | Stable `v*` release tags | Most recent non-prerelease tagged release image.                          |
 | `manual-<sha>`             | Manual runs with `push`  | Explicit maintainer-triggered rebuilds outside normal publish events.     |
@@ -76,7 +87,7 @@ secrets.
 Use `latest` for the simplest self-hosted setup. Pin `sha-<sha>` or
 `<version>-pwa-<sha>` when you need reproducible deployments. Use release tags
 when you want the Docker image to track a tagged CarbonCast IPTV release rather than
-every merge to `master`.
+every merge to `main`.
 
 ## Runtime Configuration
 

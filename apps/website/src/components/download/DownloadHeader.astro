@@ -1,0 +1,115 @@
+---
+import {
+  LATEST_VERSION,
+  RELEASE_NOTES_URL,
+  ALL_RELEASES_URL,
+  assetUrl,
+  formatSize,
+  platforms,
+} from '../../data/downloads';
+
+const primary = platforms.map((platform) => ({
+  id: platform.id,
+  name: platform.name,
+  icon: platform.icon,
+  asset: platform.assets.find((asset) => asset.primary) ?? platform.assets[0],
+}));
+---
+
+<section class="relative overflow-hidden pt-32 pb-16 sm:pt-40">
+  <div
+    class="pointer-events-none absolute -top-40 right-0 h-[480px] w-[680px] rounded-full bg-accent-500/[0.06] blur-[130px]"
+  >
+  </div>
+
+  <div class="relative mx-auto max-w-[1400px] px-6 lg:px-10">
+    <div class="grid gap-12 lg:grid-cols-[minmax(0,40%)_minmax(0,60%)] lg:items-end">
+      <div class="reveal">
+        <div class="inline-flex items-center gap-3">
+          <span class="h-px w-7 bg-accent-500/60"></span>
+          <span class="font-mono text-[11px] uppercase tracking-[0.2em] text-accent-500">
+            Version {LATEST_VERSION}
+          </span>
+        </div>
+
+        <h1 class="mt-7 font-display text-4xl font-bold leading-[1.08] tracking-tight text-surface-50 sm:text-5xl">
+          Pick your machine
+        </h1>
+
+        <p class="mt-6 max-w-[42ch] text-lg leading-relaxed text-surface-400">
+          Free and open source. No account, no telemetry, nothing to unlock.
+        </p>
+
+        <div class="mt-8 flex flex-wrap items-center gap-5 text-sm">
+          <a
+            href={RELEASE_NOTES_URL}
+            class="text-accent-400 underline decoration-accent-500/30 underline-offset-4 transition-colors hover:text-accent-300"
+          >
+            What changed in {LATEST_VERSION}
+          </a>
+          <a
+            href={ALL_RELEASES_URL}
+            class="text-surface-500 transition-colors hover:text-surface-300"
+          >
+            Older versions
+          </a>
+        </div>
+      </div>
+
+      <div id="primary-downloads" class="reveal grid gap-3 sm:grid-cols-3" data-delay="1">
+        {
+          primary.map((entry) => (
+            <a
+              href={assetUrl(entry.asset.file)}
+              data-platform={entry.id}
+              class="platform-cta group relative flex flex-col gap-4 rounded-xl border border-surface-700/50 bg-surface-900/40 p-6 transition-all duration-200 hover:border-accent-500/50 hover:bg-accent-500/[0.05]"
+            >
+              <span class="recommended-badge hidden font-mono text-[10px] uppercase tracking-[0.15em] text-accent-400">
+                Recommended for you
+              </span>
+              <svg
+                class="h-8 w-8 text-surface-500 transition-colors duration-200 group-hover:text-accent-400"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path d={entry.icon} />
+              </svg>
+              <div class="mt-auto">
+                <div class="font-display text-lg font-semibold text-surface-50">{entry.name}</div>
+                <div class="mt-1 font-mono text-[10px] uppercase tracking-[0.12em] text-surface-500">
+                  {formatSize(entry.asset.bytes)}
+                </div>
+              </div>
+            </a>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  const detectPlatform = (): string | null => {
+    const ua = navigator.userAgent;
+    const platform =
+      (navigator as Navigator & { userAgentData?: { platform?: string } }).userAgentData?.platform ??
+      navigator.platform ??
+      '';
+    const haystack = `${platform} ${ua}`.toLowerCase();
+
+    if (haystack.includes('win')) return 'windows';
+    if (haystack.includes('mac')) return 'macos';
+    if (haystack.includes('linux') || haystack.includes('x11')) return 'linux';
+    return null;
+  };
+
+  const detected = detectPlatform();
+  if (detected) {
+    const card = document.querySelector<HTMLElement>(`.platform-cta[data-platform="${detected}"]`);
+    if (card) {
+      card.classList.add('border-accent-500/60', 'bg-accent-500/[0.06]');
+      card.style.order = '-1';
+      card.querySelector('.recommended-badge')?.classList.remove('hidden');
+    }
+  }
+</script>

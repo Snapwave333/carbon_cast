@@ -3,7 +3,6 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { MatDialog } from '@angular/material/dialog';
 import { TranslateModule } from '@ngx-translate/core';
 import { Channel } from '@iptvnator/shared/interfaces';
-import { ChannelDetailsDialogComponent } from '../channel-details-dialog/channel-details-dialog.component';
 import { AllChannelsViewComponent } from './all-channels-view.component';
 
 const ALL_CHANNELS_SORT_STORAGE_KEY = 'm3u-all-channels-sort-mode';
@@ -91,9 +90,126 @@ describe('AllChannelsViewComponent', () => {
         localStorage.removeItem(ALL_CHANNELS_SORT_STORAGE_KEY);
     });
 
+    it('scrolls an off-screen active channel into view, and leaves a visible one alone', () => {
+        const channels = Array.from({ length: 500 }, (_, index) =>
+            createChannel(
+                `channel-${index}`,
+                `Channel ${index}`,
+                `https://example.com/${index}.m3u8`
+            )
+        );
+        fixture.componentRef.setInput('channels', channels);
+        fixture.detectChanges();
+
+        const viewport = (
+            component as unknown as {
+                viewport: () => {
+                    getRenderedRange: () => { start: number; end: number };
+                    scrollToIndex: jest.Mock;
+                };
+            }
+        ).viewport();
+        const scrollToIndex = jest.fn();
+        viewport.scrollToIndex = scrollToIndex;
+        jest.spyOn(viewport, 'getRenderedRange').mockReturnValue({
+            start: 0,
+            end: 10,
+        });
+
+        fixture.componentRef.setInput(
+            'activeChannelUrl',
+            'https://example.com/400.m3u8'
+        );
+        fixture.detectChanges();
+        expect(scrollToIndex).toHaveBeenCalledWith(400, 'smooth');
+
+        scrollToIndex.mockClear();
+        fixture.componentRef.setInput(
+            'activeChannelUrl',
+            'https://example.com/5.m3u8'
+        );
+        fixture.detectChanges();
+        expect(scrollToIndex).not.toHaveBeenCalled();
+    });
+
+    describe('keyboard navigation', () => {
+        const channels = Array.from({ length: 30 }, (_, index) =>
+            createChannel(
+                `channel-${index}`,
+                `Channel ${index}`,
+                `https://example.com/${index}.m3u8`
+            )
+        );
+
+        beforeEach(() => {
+            // jsdom has no Element.scrollTo, which the CDK viewport calls when
+            // the cursor moves. The scrolling itself is verified in the browser.
+            Element.prototype.scrollTo = jest.fn();
+            fixture.componentRef.setInput('channels', channels);
+            fixture.detectChanges();
+        });
+
+        const press = (key: string) => {
+            const event = new KeyboardEvent('keydown', { key });
+            jest.spyOn(event, 'preventDefault');
+            component.onListKeydown(event);
+            return event;
+        };
+
+        it('moves the cursor with the arrow keys and Home/End', () => {
+            press('ArrowDown');
+            expect(component.focusedIndex()).toBe(0);
+
+            press('ArrowDown');
+            press('ArrowDown');
+            expect(component.focusedIndex()).toBe(2);
+            expect(component.activeDescendantId()).toBe('channel-option-2');
+
+            press('ArrowUp');
+            expect(component.focusedIndex()).toBe(1);
+
+            press('End');
+            expect(component.focusedIndex()).toBe(channels.length - 1);
+
+            press('Home');
+            expect(component.focusedIndex()).toBe(0);
+        });
+
+        it('does not run past either end of the list', () => {
+            press('ArrowUp');
+            expect(component.focusedIndex()).toBe(0);
+
+            press('End');
+            press('ArrowDown');
+            expect(component.focusedIndex()).toBe(channels.length - 1);
+        });
+
+        it('activates the focused row on Enter and Space', () => {
+            const selected: string[] = [];
+            component.channelSelected.subscribe((channel) =>
+                selected.push(channel.name)
+            );
+
+            press('ArrowDown');
+            press('ArrowDown');
+            press('Enter');
+            press(' ');
+
+            expect(selected).toEqual(['Channel 1', 'Channel 1']);
+        });
+
+        it('ignores keys it does not handle', () => {
+            const event = press('a');
+            expect(event.preventDefault).not.toHaveBeenCalled();
+            expect(component.focusedIndex()).toBe(-1);
+        });
+    });
+
     it('defaults to playlist order when no saved sort mode exists', () => {
         expect(component.allChannelsSortMode()).toBe('server');
-        expect(component.allChannelsSortLabel()).toBe('Playlist Order');
+        expect(component.allChannelsSortLabel()).toBe(
+            'CHANNELS.SORT_PLAYLIST_ORDER'
+        );
     });
 
     it('restores a saved valid sort mode and ignores invalid stored values', () => {
@@ -116,7 +232,7 @@ describe('AllChannelsViewComponent', () => {
         fixture.detectChanges();
 
         expect(component.allChannelsSortMode()).toBe('name-asc');
-        expect(component.allChannelsSortLabel()).toBe('Name A-Z');
+        expect(component.allChannelsSortLabel()).toBe('CHANNELS.SORT_NAME_ASC');
 
         fixture.destroy();
         localStorage.setItem(ALL_CHANNELS_SORT_STORAGE_KEY, 'invalid');
@@ -202,36 +318,6 @@ describe('AllChannelsViewComponent', () => {
         toggleButton.click();
 
         expect(sidebarToggleRequested).toHaveBeenCalledTimes(1);
-    });
-
-    it('stores viewport coordinates for the context menu and opens the dialog for that channel', async () => {
-        const openMenuSpy = jest
-            .spyOn(component.contextMenuTrigger(), 'openMenu')
-            .mockImplementation();
-
-        component.onChannelContextMenu(primaryChannel, {
-            clientX: 144,
-            clientY: 188,
-        } as MouseEvent);
-        await Promise.resolve();
-
-        expect(component.contextMenuChannel()).toBe(primaryChannel);
-        expect(component.contextMenuPosition()).toEqual({
-            x: '144px',
-            y: '188px',
-        });
-        expect(openMenuSpy).toHaveBeenCalled();
-
-        component.openChannelDetails();
-
-        expect(dialog.open).toHaveBeenCalledWith(
-            ChannelDetailsDialogComponent,
-            expect.objectContaining({
-                data: primaryChannel,
-                maxWidth: '720px',
-                width: 'calc(100vw - 32px)',
-            })
-        );
     });
 
     it('keeps the playlist logo when an EPG icon is also available', () => {

@@ -516,6 +516,10 @@
         }
     },
     "PLAYBACK_DIAGNOSTICS": {
+        "MISSING_STREAM_URL": {
+            "TITLE": "此項目沒有可播放的串流",
+            "DESCRIPTION": "供應商回傳的這個項目沒有可播放的 URL。請重新整理播放清單或入口 — 若仍為空，代表該項目在你的供應商處無法使用。"
+        },
         "UNSUPPORTED_CONTAINER": {
             "TITLE": "This stream container is likely unsupported by the browser player",
             "DESCRIPTION": "The browser player may not decode this container inline. Copy the stream URL and open it in an external player such as MPV, VLC, or IINA for broader codec support."
@@ -594,6 +598,14 @@
         "SORT_BY_DATE": "依新增日期排序（最新優先）",
         "SORT_BY_RATING": "依評分排序",
         "SORT_BY_NAME": "依名稱排序（A-Z）",
+        "SORT_CHANNELS": "排序頻道",
+        "SORT_TOOLTIP": "排序：{{mode}}",
+        "SORT_PLAYLIST_ORDER": "播放清單順序",
+        "SORT_SERVER_ORDER": "伺服器順序",
+        "SORT_NAME_ASC": "名稱 A-Z",
+        "SORT_NAME_DESC": "名稱 Z-A",
+        "CHANNEL_COUNT_ONE": "1 個頻道",
+        "CHANNEL_COUNT_OTHER": "{{count}} 個頻道",
         "LOAD_MORE": "載入更多",
         "REMAINING": "剩餘",
         "LOADING": "正在載入頻道...",
@@ -1435,5 +1447,15 @@
         "REMOVE_FAVORITE": "從最愛中移除",
         "ATTRIBUTION_STATIONS": "電台目錄由社群營運的 Radio Browser 目錄提供。",
         "ATTRIBUTION_PODCASTS": "Podcast 搜尋由 Apple iTunes Search API 提供。"
+    },
+    "PAGINATOR": {
+        "ITEMS_PER_PAGE": "每頁筆數：",
+        "NEXT_PAGE": "下一頁",
+        "PREVIOUS_PAGE": "上一頁",
+        "FIRST_PAGE": "第一頁",
+        "LAST_PAGE": "最後一頁",
+        "RANGE": "{{start}} – {{end}} / 共 {{total}} 筆",
+        "RANGE_EMPTY": "0 / 共 {{total}} 筆",
+        "SELECT_PAGE": "選擇頁面"
     }
 }

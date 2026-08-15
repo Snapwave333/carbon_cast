@@ -60,12 +60,12 @@ describe('HtmlVideoPlayerComponent caption preference without shared controls', 
         jest.restoreAllMocks();
     });
 
-    it('suppresses initial and late default captions when the preference is off', () => {
+    it('suppresses initial and late default captions when the preference is off', async () => {
         const initial = createTextTrack({ kind: 'captions', mode: 'showing' });
         const textTracks = stubTextTracks([initial]);
         setPreference(false);
 
-        component.playChannel(TEST_CHANNEL);
+        await component.playChannel(TEST_CHANNEL);
 
         expect(initial.mode).toBe('hidden');
 
@@ -75,55 +75,51 @@ describe('HtmlVideoPlayerComponent caption preference without shared controls', 
         expect(late.mode).toBe('hidden');
     });
 
-    it('leaves captions alone when the preference is on', () => {
+    it('leaves captions alone when the preference is on', async () => {
         const track = createTextTrack({ kind: 'captions', mode: 'showing' });
         stubTextTracks([track]);
         setPreference(true);
 
-        component.playChannel(TEST_CHANNEL);
+        await component.playChannel(TEST_CHANNEL);
 
         expect(track.mode).toBe('showing');
     });
 
     // The native controls stay visible in this mode, so the preference must
     // seed the source and then get out of the user's way.
-    it('keeps a caption the user enables after playback started', () => {
+    it('keeps a caption the user enables after playback started', async () => {
         const track = createTextTrack({ kind: 'captions', mode: 'showing' });
         const textTracks = stubTextTracks([track]);
         setPreference(false);
-        component.playChannel(TEST_CHANNEL);
+        await component.playChannel(TEST_CHANNEL);
         expect(track.mode).toBe('hidden');
 
-        component.videoPlayer.nativeElement.dispatchEvent(
-            new Event('playing')
-        );
+        component.videoPlayer.nativeElement.dispatchEvent(new Event('playing'));
         track.mode = 'showing';
         textTracks.emit('change');
 
         expect(track.mode).toBe('showing');
     });
 
-    it('re-seeds the preference for the next channel', () => {
+    it('re-seeds the preference for the next channel', async () => {
         const first = createTextTrack({ kind: 'captions', mode: 'showing' });
         const textTracks = stubTextTracks([first]);
         setPreference(false);
-        component.playChannel(TEST_CHANNEL);
-        component.videoPlayer.nativeElement.dispatchEvent(
-            new Event('playing')
-        );
+        await component.playChannel(TEST_CHANNEL);
+        component.videoPlayer.nativeElement.dispatchEvent(new Event('playing'));
 
         const next = createTextTrack({ kind: 'captions', mode: 'showing' });
         textTracks.replaceSilently([next]);
-        component.playChannel({ ...TEST_CHANNEL, url: OTHER_SOURCE_URL });
+        await component.playChannel({ ...TEST_CHANNEL, url: OTHER_SOURCE_URL });
 
         expect(next.mode).toBe('hidden');
     });
 
-    it('restores suppressed captions when the preference is turned on', () => {
+    it('restores suppressed captions when the preference is turned on', async () => {
         const track = createTextTrack({ kind: 'captions', mode: 'showing' });
         stubTextTracks([track]);
         setPreference(false);
-        component.playChannel(TEST_CHANNEL);
+        await component.playChannel(TEST_CHANNEL);
         expect(track.mode).toBe('hidden');
 
         setPreference(true);

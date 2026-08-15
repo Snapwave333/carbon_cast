@@ -44,8 +44,10 @@ import {
     getEpgChannelName,
     isSelectedEpgDayToday,
     layoutEpgChannelsForDay,
+    MultiEpgLayoutChannel,
     MultiEpgLayoutProgram,
 } from './multi-epg-layout.util';
+import { MultiEpgProgramFocus } from './multi-epg-program-focus';
 import {
     MultiEpgProgramSearch,
     ProgramSearchResult,
@@ -56,7 +58,10 @@ import { COMPONENT_OVERLAY_REF } from './overlay-ref.token';
     imports: [DatePipe, MatButtonModule, MatIcon, MatTooltip, TranslatePipe],
     selector: 'app-multi-epg-container',
     templateUrl: './multi-epg-container.component.html',
-    styleUrls: ['./multi-epg-container.component.scss'],
+    styleUrls: [
+        './multi-epg-container.component.scss',
+        './multi-epg-grid.component.scss',
+    ],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MultiEpgContainerComponent
@@ -113,7 +118,14 @@ export class MultiEpgContainerComponent
     readonly programSearchResults = this.programSearch.results;
     readonly isSearchingPrograms = this.programSearch.isSearching;
     readonly programSearchError = this.programSearch.error;
-    readonly highlightedProgramKey = signal<string | null>(null);
+    private readonly hostRef = inject<ElementRef<HTMLElement>>(ElementRef);
+    /** Roving tabindex + arrow-key navigation across the programme grid. */
+    private readonly programFocus = new MultiEpgProgramFocus({
+        channels: () => this.filteredChannels(),
+        keyOf: (program) => this.getProgramKey(program),
+        host: () => this.hostRef.nativeElement,
+        activate: (program) => this.openProgramDialog(program, '600px'),
+    });
     /** Guide-artwork setting; off = denser text-only grid, no TMDB lookups. */
     private readonly artworkEnabled = () =>
         this.settingsStore.guideArtwork?.() ?? true;
@@ -236,8 +248,12 @@ export class MultiEpgContainerComponent
         this.dateCache.clear();
     }
 
-    trackByProgram(_: number, program: MultiEpgLayoutProgram): string {
-        return `${program.start}|${program?.title?.toString() ?? ''}`;
+    /**
+     * Position plus start: keying on the programme alone let a repeated feed
+     * entry throw Angular's duplicate-key error and take the grid down.
+     */
+    trackByProgram(index: number, program: MultiEpgLayoutProgram): string {
+        return `${index}|${program.start}`;
     }
 
     isProgramAiringNow(program: MultiEpgLayoutProgram): boolean {
@@ -248,6 +264,8 @@ export class MultiEpgContainerComponent
             nowX <= program.startPosition + program.width
         );
     }
+
+    retryPrograms = (): Promise<void> => this.browser.retry();
 
     requestPrograms(): Promise<void> {
         return this.browser.requestPrograms();
@@ -266,7 +284,19 @@ export class MultiEpgContainerComponent
     }
 
     readonly getChannelName = getEpgChannelName;
-    readonly getProgramAriaLabel = buildProgramAriaLabel;
+
+    getProgramAriaLabel(
+        program: MultiEpgLayoutProgram,
+        channel?: MultiEpgLayoutChannel
+    ): string {
+        return buildProgramAriaLabel(
+            program,
+            channel ? this.getChannelName(channel) : undefined,
+            this.isProgramAiringNow(program)
+                ? (this.translate.instant('EPG.TIMELINE.ON_NOW') as string)
+                : undefined
+        );
+    }
     readonly episodeBadge = formatEpisodeBadge;
     readonly onArtworkLoad = adjustArtworkFit;
     readonly categoryAccent = getEpgCategoryAccent;
@@ -304,13 +334,29 @@ export class MultiEpgContainerComponent
         this.scrollToCurrentTime();
     }
 
-    activateProgramFromKeyboard(
+    isProgramFocusTarget(
+        program: MultiEpgLayoutProgram,
+        channelIndex: number,
+        programIndex: number
+    ): boolean {
+        return this.programFocus.isFocusTarget(
+            program,
+            channelIndex,
+            programIndex
+        );
+    }
+
+    onProgramFocus(program: MultiEpgLayoutProgram): void {
+        this.programFocus.onFocus(program);
+    }
+
+    onProgramKeydown(
         event: KeyboardEvent,
-        program: EpgProgram
+        program: MultiEpgLayoutProgram,
+        channelIndex: number,
+        programIndex: number
     ): void {
-        if (event.key !== 'Enter' && event.key !== ' ') return;
-        event.preventDefault();
-        this.openProgramDialog(program, '600px');
+        this.programFocus.onKeydown(event, program, channelIndex, programIndex);
     }
 
     onProgramSearchInput(event: Event): void {

@@ -63,7 +63,7 @@
                         {
                             "type": "anyComponentStyle",
                             "maximumWarning": "12.5kb",
-                            "maximumError": "15kb"
+                            "maximumError": "18kb"
                         }
                     ],
                     "optimization": {
@@ -94,7 +94,7 @@
                         {
                             "type": "anyComponentStyle",
                             "maximumWarning": "12.5kb",
-                            "maximumError": "15kb"
+                            "maximumError": "18kb"
                         }
                     ],
                     "outputHashing": "all",

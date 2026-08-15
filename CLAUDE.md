@@ -284,6 +284,7 @@ map; keep this architectural summary aligned with it.
 - **apps/stalker-mock-server** - Mock Stalker/Ministra portal for dev and E2E
 - **apps/xtream-mock-server** - Mock Xtream Codes API for dev and E2E
 - **apps/website** - Astro + Tailwind landing page and blog
+- **apps/remotion-brand** - Remotion authoring project for animated brand assets. Not an Nx project (no `project.json`), so it is excluded from `run-many`, lint and test. Build-time only: the rendered asset is committed and no Remotion code ships. Note Remotion is not MIT-licensed — see `apps/remotion-brand/README.md`
 - **libs/** - Shared libraries:
     - **epg/data-access** - EPG services, runtime bridge, program normalization, followed-series matching, and auto-switch scheduling
     - **m3u-state** - NgRx state management for M3U playlists
@@ -463,10 +464,13 @@ libs/ui/components/src/lib/channel-list-container/
 ├── channel-list-container.component.ts   # Parent - shared state coordinator
 ├── all-channels-view/                     # Virtual scroll + debounced search
 ├── groups-view/                           # Expansion panels + infinite scroll
-├── favorites-view/                        # CDK drag-drop reordering
-├── recent-view/                           # Recently viewed channels
 └── channel-list-item/                     # Individual channel display
 ```
+
+`activeView` only ever receives `guide`, `all` or `groups`: the playlist route
+tree matches `favorites` and `recent` before its `:view` segment and sends both
+to `M3uCollectionRouteComponent`, so the container has no favorites or recent
+view of its own.
 
 Key patterns:
 
@@ -488,7 +492,7 @@ See `docs/architecture/m3u-playlist-module.md` for complete documentation.
 **Routing**: Lazy-loaded routes in `apps/web/src/app/app.routes.ts`. All user-facing routes are nested under the workspace shell (`/workspace/...`); `/` redirects into the workspace.
 
 - Dashboard: `/workspace/dashboard`; sources overview: `/workspace/sources`
-- M3U player: `/workspace/playlists/:id` (children: `favorites`, `recent`, `:view` where `:view` covers `guide`/`all`/`groups`) — routes in `libs/playlist/m3u/feature-player`. The empty path redirects via a function reading `Settings.playlistDefaultSection` (default `guide`; falls back to `all` when `RuntimeCapabilitiesService.supportsEpg` is false, i.e. the PWA). The `guide` view embeds `MultiEpgContainerComponent` inline (its `COMPONENT_OVERLAY_REF` is optional for this) with any playing channel in a compact strip above it; it clips overnight programmes into the selected day, keeps a real minute-driven today playhead, supports keyboard programme activation, generation-gates pagination/search, and exposes Today/retry actions. `Settings.resumeLastChannel` (default on) re-activates the playlist's most recent `recentlyViewed` m3u item when the playlist opens with nothing playing
+- M3U player: `/workspace/playlists/:id` (children: `favorites`, `recent`, `:view` where `:view` covers `guide`/`all`/`groups`) — routes in `libs/playlist/m3u/feature-player`. The empty path redirects via a function reading `Settings.playlistDefaultSection` (default `guide`; falls back to `all` when `RuntimeCapabilitiesService.supportsEpg` is false, i.e. the PWA). The `guide` view embeds `MultiEpgContainerComponent` inline (its `COMPONENT_OVERLAY_REF` is optional for this) with any playing channel in a compact strip above it; it clips overnight programmes into the selected day, keeps a real minute-driven today playhead, supports keyboard programme activation, generation-gates pagination/search, and exposes Today/retry actions. `Settings.resumeLastChannel` (default on) re-activates the playlist's most recent `recentlyViewed` m3u item when the playlist opens with nothing playing, falling back to the first channel when there is no history to resume (or the remembered channel has left the playlist), so an opened playlist always starts playing
 - Xtream Codes: `/workspace/xtreams/:id` (children: `live`, `vod`, `series`, `search`, `actor/:personId`, `recently-added`, `favorites`, `recent`, `downloads`) — `libs/portal/xtream/feature/src/lib/xtream-feature.routes.ts`
 - Stalker portal: `/workspace/stalker/:id` (children: `itv`, `vod`, `radio`, `series`, `favorites`, `recent`, `search`, `actor/:personId`, `downloads`) — `libs/portal/stalker/feature/src/lib/stalker-feature.routes.ts`
 - Global collections: `/workspace/global-favorites`, `/workspace/global-recent`
@@ -721,7 +725,7 @@ app as a real argument, so it is not an option.
 
 **Video Players**:
 
-- Built-in web players: HTML5+hls.js, Video.js, and ArtPlayer
+- Built-in web players: HTML5+hls.js, Video.js, and ArtPlayer. `HtmlVideoPlayerComponent.playChannel` is async and **awaits** the `setUserAgent` IPC before starting a source engine: the header override lives in the main process and only takes effect once that IPC lands, so starting the engine first sent the manifest request with default headers and providers gating on user-agent rejected it. A `playbackGeneration` counter discards a channel that was superseded while awaiting, and cancels a pending start on destroy. A provider item with a blank `streamUrl` never reaches an engine, so `WebPlayerViewComponent` raises a `missing-stream-url` diagnostic itself rather than leaving every engine on a silent black surface
 - DASH + ClearKey (M3U module): `.mpd` channels play through a lazily loaded
   Shaka Player source engine inside the HTML5 and ArtPlayer components (no new
   player in settings). ClearKey keys come from `#KODIPROP:inputstream.adaptive.*`
@@ -866,7 +870,7 @@ engine` (restart required) or
   helper: `apps/electron-backend/native/helper/`; canonical packaging/runtime
   contracts: `docs/architecture/embedded-mpv-native.md` and
   `tools/embedded-mpv/README.md`.
-- Shared player-controls layer: `libs/ui/playback/src/lib/player-controls/` exports the engine-neutral `PlayerController` contract, standalone `app-player-controls`, a generic web-video adapter/helper, and component-scoped `WEB_PLAYER_SHARED_CONTROLS` rollout token. In fullscreen, `app-player-controls` shows a pointer-transparent media-title overlay at the top while controls are revealed (`mediaTitle` input: movie/channel/series name, plus an `S01E03` second line for episodes; series names flow from the detail views through `PortalInlinePlayerComponent.seriesTitle` and `WebPlayerViewComponent.mediaTitle`). Persisted `Settings.webPlayerSharedControls` is default-off, and its checkbox appears only when HTML5, Video.js, or ArtPlayer is selected. `WebPlayerViewComponent` snapshots the preference into the immutable token for each new player host. The parent `/workspace` route awaits the initial `SettingsStore` load, including cold-start direct links, before this snapshot can occur. Saving applies to the next host without an application restart; an existing session never changes controls mode in place. Embedded MPV ignores the web-player preference: frame-copy always uses shared DOM controls through `EmbeddedMpvControlsAdapter`, native-view retains its compositor-safe legacy dock, and external MPV/VLC retain their own UI. The Embedded MPV host selects exactly one controls UI for its reported engine. `showControls=false` detaches the shared surface, modal overlays gate frame-copy playback shortcuts, fullscreen remains DOM-based with Embedded MPV bounds sync, and a playback/session transition key prevents engine or session handoff from presenting stale recording feedback while timers and pending commands are cancelled. Same-session IPC replies yield to a broadcast snapshot received while the command was pending, so a successful recording acknowledgement cannot be rolled back by a stale reply. The built-in HTML5/hls.js player is the second guarded consumer: `HtmlVideoPlayerComponent` provides a component-scoped `WebVideoControlsAdapter`, while its neutral `web-video-support` bridge is shared with ArtPlayer and owns HLS/Shaka(DASH)/native tracks, MPEG-TS VOD duration correction, caption preference, and source cleanup. `HtmlVideoElementSession` owns native video-event lifecycle, persisted volume, and start-time/time/ended propagation. Video.js is the third guarded consumer: `VjsPlayerComponent` provides a component-scoped `WebVideoControlsAdapter`; its bridge rebinds the current Tech video after `playerreset`, exposes source-stable audio/subtitle IDs, preserves caption preference and explicit subtitle-off state, and reads Video.js duration. Reset-driven raw MPEG-TS changes pause first, coalesce to the latest desired source, preserve actual volume across Video.js's reset, and restart when authoritative live/VOD metadata changes. In shared-controls mode, Video.js native controls, click/double-click/hotkey actions, and spatial navigation are disabled. ArtPlayer is the fourth guarded consumer: `ArtPlayerComponent` provides a component-scoped `WebVideoControlsAdapter`; `ArtPlayerSourceSession` owns HLS/DASH(Shaka)/MPEG-TS/native sources, the neutral web-video bridge, exact cleanup, and a destroyed-session guard for delayed `customType` callbacks, while `ArtPlayerVideoSession` owns native media/ArtPlayer events. Shared ArtPlayer mode uses authoritative live/VOD metadata, HLS/Shaka/native tracks and caption preference, MPEG-TS VOD duration correction, and reapplies app volume directly after ArtPlayer restores its own stored volume. Vendor chrome/hotkeys are disabled, and a transparent capture layer gives shared controls exclusive click and double-click ownership. `WebPlayerViewComponent.resolvedIsLive` supplies authoritative metadata; visible playback diagnostics disable shared pointer/keyboard ownership and exit only the active HTML5, Video.js, or ArtPlayer shell's own fullscreen so retry/fallback actions remain visible. On the preference-off path, all three web players retain their existing controls, source behavior, and legacy series navigation. `Settings.showCaptions` is deliberately outside this rollout gate: it is engine state, so the preference-off players apply it through the same helpers without an adapter (`WebVideoSourceTracks` for HTML5/ArtPlayer, `VjsLegacyTracks` for Video.js), re-applying it as the engine adds or switches text tracks. The two modes differ in how long it is enforced: shared controls are authoritative for the session (user intent arrives via `setSubtitleTrack`), while vendor chrome is source-default — the preference seeds each new source and is released once the media reports `playing`, so the engine's own caption menu keeps working. Mode selection is the optional `playbackStarted` probe the legacy owners pass to all three helpers (HLS, native text tracks, Shaka); in that mode the HLS helper deselects (`subtitleTrack = -1`) rather than hiding, since `subtitleDisplay` would override the vendor menu, and DASH is seeded by `ShakaVideoSession.start()` after the manifest loads. `WebPlayerViewComponent` reads it from `SettingsStore` instead of a host input so every host (M3U, Xtream/Stalker live layouts, portal detail inline player) inherits it. Contract: `docs/architecture/player-controls-contract.md`.
+- Shared player-controls layer: `libs/ui/playback/src/lib/player-controls/` exports the engine-neutral `PlayerController` contract, standalone `app-player-controls`, a generic web-video adapter/helper, and component-scoped `WEB_PLAYER_SHARED_CONTROLS` rollout token. In fullscreen, `app-player-controls` shows a pointer-transparent media-title overlay at the top while controls are revealed (`mediaTitle` input: movie/channel/series name, plus an `S01E03` second line for episodes; series names flow from the detail views through `PortalInlinePlayerComponent.seriesTitle` and `WebPlayerViewComponent.mediaTitle`). Persisted `Settings.webPlayerSharedControls` is default-off, and its checkbox appears only when HTML5, Video.js, or ArtPlayer is selected. `WebPlayerViewComponent` snapshots the preference into the immutable token for each new player host. The parent `/workspace` route awaits the initial `SettingsStore` load, including cold-start direct links, before this snapshot can occur. Saving applies to the next host without an application restart; an existing session never changes controls mode in place. Embedded MPV ignores the web-player preference: frame-copy always uses shared DOM controls through `EmbeddedMpvControlsAdapter`, native-view retains its compositor-safe legacy dock, and external MPV/VLC retain their own UI. The Embedded MPV host selects exactly one controls UI for its reported engine. `showControls=false` detaches the shared surface, modal overlays gate frame-copy playback shortcuts, fullscreen remains DOM-based with Embedded MPV bounds sync, and a playback/session transition key prevents engine or session handoff from presenting stale recording feedback while timers and pending commands are cancelled. Same-session IPC replies yield to a broadcast snapshot received while the command was pending, so a successful recording acknowledgement cannot be rolled back by a stale reply. The built-in HTML5/hls.js player is the second guarded consumer: `HtmlVideoPlayerComponent` provides a component-scoped `WebVideoControlsAdapter`, while its neutral `web-video-support` bridge is shared with ArtPlayer and owns HLS/Shaka(DASH)/native tracks, MPEG-TS VOD duration correction, caption preference, and source cleanup. `HtmlVideoElementSession` owns native video-event lifecycle, persisted volume, and start-time/time/ended propagation. Video.js is the third guarded consumer: `VjsPlayerComponent` provides a component-scoped `WebVideoControlsAdapter`; its bridge rebinds the current Tech video after `playerreset`, exposes source-stable audio/subtitle IDs, preserves caption preference and explicit subtitle-off state, and reads Video.js duration. Reset-driven raw MPEG-TS changes pause first, coalesce to the latest desired source, preserve actual volume across Video.js's reset, and restart when authoritative live/VOD metadata changes. In shared-controls mode, Video.js native controls, click/double-click/hotkey actions, and spatial navigation are disabled. ArtPlayer is the fourth guarded consumer: `ArtPlayerComponent` provides a component-scoped `WebVideoControlsAdapter`; `ArtPlayerSourceSession` owns HLS/DASH(Shaka)/MPEG-TS/native sources, the neutral web-video bridge, exact cleanup, and a destroyed-session guard for delayed `customType` callbacks, while `ArtPlayerVideoSession` owns native media/ArtPlayer events. Shared ArtPlayer mode uses authoritative live/VOD metadata, HLS/Shaka/native tracks and caption preference, MPEG-TS VOD duration correction, and reapplies app volume directly after ArtPlayer restores its own stored volume. Vendor chrome/hotkeys are disabled, and a transparent capture layer gives shared controls exclusive click and double-click ownership. `WebPlayerViewComponent.resolvedIsLive` supplies authoritative metadata; visible playback diagnostics disable shared pointer/keyboard ownership and exit only the active HTML5, Video.js, or ArtPlayer shell's own fullscreen so retry/fallback actions remain visible. On the preference-off path, all three web players retain their existing controls, source behavior, and legacy series navigation. `Settings.showCaptions` is deliberately outside this rollout gate: it is engine state, so the preference-off players apply it through the same helpers without an adapter (`WebVideoSourceTracks` for HTML5/ArtPlayer, `VjsLegacyTracks` for Video.js), re-applying it as the engine adds or switches text tracks. The two modes differ in how long it is enforced: shared controls are authoritative for the session (user intent arrives via `setSubtitleTrack`), while vendor chrome is source-default — the preference seeds each new source and is released once the media reports `playing`, so the engine's own caption menu keeps working. Mode selection is the optional `playbackStarted` probe the legacy owners pass to all three helpers (HLS, native text tracks, Shaka); in that mode the HLS helper deselects (`subtitleTrack = -1`) rather than hiding, since `subtitleDisplay` would override the vendor menu, and DASH is seeded by `ShakaVideoSession.start()` after the manifest loads. `WebPlayerViewComponent` reads it from `SettingsStore` instead of a host input so every host (M3U, Xtream/Stalker live layouts, portal detail inline player) inherits it. Playback shortcuts are unmodified Space/K, F, arrow keys, M, plus Home/End and the digits `0`-`9`, which seek to a fraction of the duration (`3` = 30%) and therefore share the seek gate and never apply to live streams. A `loading` status or a `stalled` state renders a centred buffering indicator (`role="status"`, translated `LOADING_STREAM`); before it, both states only greyed the transport buttons out and a buffering stream gave no feedback. Its visual is a 30-frame sprite strip authored in `apps/remotion-brand` and rendered to `apps/web/src/assets/animations/loading-loop.webp`, stepped with a CSS `steps(30)` transform — frame count, 48px display size and the 1.25s loop duration are hardcoded in the SCSS and must change together with the composition. The `WebVideoControlsAdapter` refreshes on every native media event, so `timeupdate`/`progress` alone fire several times a second: its injected track getters are read through memoized signals (one engine read per refresh, shared by `capabilities` and `state`) and capabilities/track lists compare structurally via `player-controls-equality.ts`, so a position-only refresh does not cascade through the view model or open track menus. Contract: `docs/architecture/player-controls-contract.md`.
 - Shared controls are bottom-docked; the top fullscreen title is informational only. `Settings.playerControls` captures visibility, auto-hide delay (zero means never hide), compact/expanded density, solid/translucent backdrop, and small/medium/large size when `WebPlayerViewComponent` creates a new host through `PLAYER_CONTROLS_SETTINGS`. Fresh profiles default `mirrorLayout` to player-left/channel-rail-right, but an explicit stored layout is preserved.
 - Agent control: `AgentControlEvents` exposes authenticated `/api/agent-control/v1` endpoints and resolves live commands only after the renderer returns the matching correlation ID. `AgentControlRuntimeService` uses real renderer stores/media state; `apps/agent-control/src/client.mjs` is shared by MCP and `iptvctl`. Tokens are scoped hashed records with expiry/revocation, rate limits, redacted audit records, and SSE events. Canonical contract: `docs/architecture/agent-control.md`.
 - Shared web picture-in-picture stays inside that default-off rollout.
@@ -951,6 +955,12 @@ playlist:
 - Library (favourites, subscriptions, recents, episode resume points) lives in
   `localStorage`, not SQLite: it is small and must behave identically in the PWA
   where the SQLite bridge is absent
+- Resume points are keyed by episode id, and feeds do repeat `<guid>` values, so
+  `podcast-feed.parser.ts` disambiguates a repeat as `<id>#2` rather than
+  letting two episodes share one progress entry. The first occurrence keeps the
+  raw id so already-stored resume points still resolve. The same parser caps a
+  feed at its newest 500 episodes — long-running shows publish thousands, and
+  every one becomes a stored-progress key and a rendered row
 - Sorting by country or genre deliberately **does not** use the catalogue's own
   `order=country`/`order=tags`. A large share of stations have a blank value
   there, and ascending order returns nothing but those blanks; the top list is
@@ -1082,6 +1092,21 @@ playlist:
 - XMLTV format support
 - Background parsing in worker thread
 - Stored in database for quick lookup
+- Programme times go through `getProgramTimeMs`, which rejects implausible
+  values instead of plotting them. A feed already emitting **milliseconds** in
+  `start_timestamp` was multiplied by 1000 and landed tens of thousands of years
+  out; both the grid and the ribbon size their axis from the furthest programme,
+  so one such row generated ticks across millennia and locked the tab.
+  `buildTimelineAxis` clamps to `now ± TIMELINE_MAX_SPAN_MS` (90 days) as a
+  second backstop
+- Guide surfaces track programmes by **position plus identity**, never identity
+  alone: feeds repeat entries, and a duplicate `@for` key is a hard Angular
+  error that takes the whole guide down
+- The guide grid is a keyboard grid (`MultiEpgProgramFocus` in
+  `multi-epg-program-focus.ts`): a roving tabindex keeps one cell tabbable so
+  Tab steps past the guide in one press, arrows move between cells (up/down land
+  on the neighbouring channel's programme nearest the same point on the
+  timeline), and Enter/Space opens the details dialog
 - Manual EPG mapping (Electron only): right-click a channel in any list (M3U views, Xtream portal list, Stalker ITV sidebar, global favorites) → "Map EPG channel" attaches it to an uploaded-XMLTV channel; stored in `epg_channel_mappings` keyed by the M3U lookup key or a playlist-scoped portal key (`xtream:{playlistId}:{id}` / `stalker:{playlistId}:{id}`, helpers in `libs/shared/interfaces/src/lib/epg-mapping-key.util.ts`); resolved on every EPG path (single + batch IPC lookups, portal detail views, preview queues); dialog: `libs/ui/components/src/lib/channel-list-container/epg-mapping-dialog/`
 - Followed Series: EPG programme dialogs and Xtream/Stalker series details feed a device-local, versioned schedule at `/workspace/followed-series`; a 14-day indexed EPG lookahead normalizes series/episode identity, groups alternative airings, reconciles schedule moves/cancellations, and arms a min-heap timer. The global countdown supports cancel/switch-now/disable, conflicts support prompt/priority/first-available, and the playback runtime uses bounded probes plus backup channels while respecting recording, casting, browser-background, and return-channel preferences. Canonical contract: `docs/architecture/followed-series-auto-switch.md`
 
@@ -1110,6 +1135,13 @@ playlist:
 **Internationalization**:
 
 - Uses `@ngx-translate` with 19 language files in `apps/web/src/assets/i18n/`
+- Angular Material components that ship their own English strings do **not** go
+  through `TranslatePipe` and need an `Intl` provider instead. `MatPaginator` is
+  the one that exists: `provideTranslatedPaginator()`
+  (`apps/web/src/app/translated-paginator.provider.ts`) supplies
+  `MatPaginatorIntl` from the `PAGINATOR.*` keys and re-reads them on
+  `onLangChange`. Add the same pattern rather than a hardcoded `aria-label` if
+  another Material widget with built-in copy is introduced
 
 ## Development Notes
 
@@ -1227,6 +1259,27 @@ No formal migration system yet. Schema changes are applied via raw SQL in the `c
 - Custom controls built from bare `<button>`/`<a>` inherit the ring
   automatically. Only override `outline-offset`, and only when a component's own
   focus treatment (e.g. Material's inner indicator) would otherwise double up
+
+**Keyboard Navigation In Long Lists And Grids**:
+
+Any list or grid long enough that tabbing through it is impractical uses a
+**roving tabindex**: exactly one item is `tabindex="0"` and the arrows move
+between them, so Tab enters and leaves the collection in one press. Three
+implementations exist and new ones should follow the nearest:
+
+- `listbox-cursor.ts` (channel lists) — 1D virtualized listbox with
+  `aria-activedescendant`
+- `grid-card-focus.ts` (portal poster grids) — 2D, row step read from the live
+  `grid-template-columns` because the grid is `auto-fill`
+- `multi-epg-program-focus.ts` (TV guide) — 2D across channel rows, vertical
+  moves pick the neighbour nearest the same point on the timeline
+
+Shared rules: the focused item is stamped with a `data-*` key the controller
+queries; focus is applied in a `queueMicrotask` because the tabindex swap lands
+on the next change detection; and the collection reports position with
+`role="list"` + `aria-posinset`/`aria-setsize` (paginated grids count across
+pages, not within the page) or listbox semantics. Do not give a card both
+`role="listitem"` and `role="button"` — wrap it.
 
 <!-- nx configuration start-->
 <!-- Leave the start & end comments to automatically receive updates. -->

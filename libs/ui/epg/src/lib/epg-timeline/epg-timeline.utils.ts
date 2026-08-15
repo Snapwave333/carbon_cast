@@ -4,6 +4,12 @@ import { parseEpgDateKey } from '../epg-date';
 import { getProgramDateKey, getProgramTimeMs } from '../epg-program.utils';
 
 export const TIMELINE_MINUTE_MS = 60_000;
+/**
+ * Furthest the ribbon may extend either side of now. Generous enough for the
+ * longest real EPG windows (14 days is typical, archives add more) while
+ * keeping tick and divider generation bounded.
+ */
+export const TIMELINE_MAX_SPAN_MS = 90 * 24 * 60 * 60 * 1000;
 /** Pixels per minute on the ribbon (matches the prototype's SCALE). */
 export const TIMELINE_DEFAULT_SCALE = 1.75;
 /** Hour grid spacing in minutes (a tick every two hours). */
@@ -55,13 +61,20 @@ export function buildTimelineAxis(
     let minMs = nowMs;
     let maxMs = nowMs;
 
+    // Hard bound on how far the axis may stretch. getProgramTimeMs already
+    // rejects implausible timestamps; this is the backstop that keeps a single
+    // odd-but-parseable date from sizing the ribbon (and its per-day ticks and
+    // dividers) across years.
+    const earliestAllowedMs = nowMs - TIMELINE_MAX_SPAN_MS;
+    const latestAllowedMs = nowMs + TIMELINE_MAX_SPAN_MS;
+
     for (const program of programs) {
         const startMs = getProgramTimeMs(program.start, program.startTimestamp);
         const stopMs = getProgramTimeMs(program.stop, program.stopTimestamp);
-        if (Number.isFinite(startMs)) {
+        if (Number.isFinite(startMs) && startMs >= earliestAllowedMs) {
             minMs = Math.min(minMs, startMs);
         }
-        if (Number.isFinite(stopMs)) {
+        if (Number.isFinite(stopMs) && stopMs <= latestAllowedMs) {
             maxMs = Math.max(maxMs, stopMs);
         }
     }

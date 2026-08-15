@@ -516,6 +516,10 @@
         }
     },
     "PLAYBACK_DIAGNOSTICS": {
+        "MISSING_STREAM_URL": {
+            "TITLE": "У гэтага элемента няма патоку для прайгравання",
+            "DESCRIPTION": "Правайдар вярнуў гэты запіс без прайграванага URL. Абнавіце плэйліст або партал — калі ён застаецца пустым, элемент недаступны ў вашага правайдара."
+        },
         "UNSUPPORTED_CONTAINER": {
             "TITLE": "This stream container is likely unsupported by the browser player",
             "DESCRIPTION": "The browser player may not decode this container inline. Copy the stream URL and open it in an external player such as MPV, VLC, or IINA for broader codec support."
@@ -594,6 +598,14 @@
         "SORT_BY_DATE": "Сартаваць па даце дадання (спачатку новыя)",
         "SORT_BY_RATING": "Сартаваць па рэйтынгу",
         "SORT_BY_NAME": "Сартаваць па назве (А-Я)",
+        "SORT_CHANNELS": "Сартаваць каналы",
+        "SORT_TOOLTIP": "Сартаванне: {{mode}}",
+        "SORT_PLAYLIST_ORDER": "Парадак плэйліста",
+        "SORT_SERVER_ORDER": "Парадак сервера",
+        "SORT_NAME_ASC": "Назва А-Я",
+        "SORT_NAME_DESC": "Назва Я-А",
+        "CHANNEL_COUNT_ONE": "1 канал",
+        "CHANNEL_COUNT_OTHER": "Каналаў: {{count}}",
         "LOAD_MORE": "Загрузіць яшчэ",
         "REMAINING": "засталося",
         "LOADING": "Загрузка каналаў...",
@@ -1435,5 +1447,15 @@
         "REMOVE_FAVORITE": "Выдаліць з выбранага",
         "ATTRIBUTION_STATIONS": "Каталог станцый прадастаўлены каталогам Radio Browser, які вядзе супольнасць.",
         "ATTRIBUTION_PODCASTS": "Пошук падкастаў працуе на аснове Apple iTunes Search API."
+    },
+    "PAGINATOR": {
+        "ITEMS_PER_PAGE": "Элементаў на старонцы:",
+        "NEXT_PAGE": "Наступная старонка",
+        "PREVIOUS_PAGE": "Папярэдняя старонка",
+        "FIRST_PAGE": "Першая старонка",
+        "LAST_PAGE": "Апошняя старонка",
+        "RANGE": "{{start}} – {{end}} з {{total}}",
+        "RANGE_EMPTY": "0 з {{total}}",
+        "SELECT_PAGE": "Выбраць старонку"
     }
 }

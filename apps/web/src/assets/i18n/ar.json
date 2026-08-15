@@ -516,6 +516,10 @@
         }
     },
     "PLAYBACK_DIAGNOSTICS": {
+        "MISSING_STREAM_URL": {
+            "TITLE": "لا يحتوي هذا العنصر على بث لتشغيله",
+            "DESCRIPTION": "أعاد المزوّد هذا العنصر دون عنوان URL قابل للتشغيل. حدّث قائمة التشغيل أو البوابة — إذا ظل فارغًا، فالعنصر غير متاح لدى مزوّدك."
+        },
         "UNSUPPORTED_CONTAINER": {
             "TITLE": "This stream container is likely unsupported by the browser player",
             "DESCRIPTION": "The browser player may not decode this container inline. Copy the stream URL and open it in an external player such as MPV, VLC, or IINA for broader codec support."
@@ -594,6 +598,14 @@
         "SORT_BY_DATE": "تاريخ الإضافة (الأحدث أولاً)",
         "SORT_BY_RATING": "التقييم",
         "SORT_BY_NAME": "الاسم (أ-ي)",
+        "SORT_CHANNELS": "فرز القنوات",
+        "SORT_TOOLTIP": "الفرز: {{mode}}",
+        "SORT_PLAYLIST_ORDER": "ترتيب قائمة التشغيل",
+        "SORT_SERVER_ORDER": "ترتيب الخادم",
+        "SORT_NAME_ASC": "الاسم أ-ي",
+        "SORT_NAME_DESC": "الاسم ي-أ",
+        "CHANNEL_COUNT_ONE": "قناة واحدة",
+        "CHANNEL_COUNT_OTHER": "{{count}} قناة",
         "LOAD_MORE": "تحميل المزيد",
         "REMAINING": "متبقية",
         "LOADING": "جارٍ تحميل القنوات...",
@@ -1435,5 +1447,15 @@
         "REMOVE_FAVORITE": "إزالة من المفضلة",
         "ATTRIBUTION_STATIONS": "دليل المحطات مقدم من دليل Radio Browser الذي يديره المجتمع.",
         "ATTRIBUTION_PODCASTS": "بحث البودكاست مدعوم بواسطة Apple iTunes Search API."
+    },
+    "PAGINATOR": {
+        "ITEMS_PER_PAGE": "عناصر لكل صفحة:",
+        "NEXT_PAGE": "الصفحة التالية",
+        "PREVIOUS_PAGE": "الصفحة السابقة",
+        "FIRST_PAGE": "الصفحة الأولى",
+        "LAST_PAGE": "الصفحة الأخيرة",
+        "RANGE": "{{start}} – {{end}} من {{total}}",
+        "RANGE_EMPTY": "0 من {{total}}",
+        "SELECT_PAGE": "اختيار الصفحة"
     }
 }

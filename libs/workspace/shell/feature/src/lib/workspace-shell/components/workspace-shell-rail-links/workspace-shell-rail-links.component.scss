@@ -97,6 +97,37 @@
         font-size: var(--rail-icon-size, 18px);
         width: var(--rail-icon-size, 18px);
         height: var(--rail-icon-size, 18px);
+        transition: transform var(--app-motion-base, 200ms)
+            var(--app-ease-spring, ease);
+    }
+
+    &:hover mat-icon {
+        transform: scale(1.12);
+    }
+
+    // Accent bar that grows in on the current destination, so the rail shows
+    // where you are with motion rather than only a colour change.
+    &::after {
+        content: '';
+        position: absolute;
+        left: 50%;
+        bottom: 3px;
+        width: 16px;
+        height: 2px;
+        border-radius: 999px;
+        background: currentColor;
+        opacity: 0;
+        transform: translateX(-50%) scaleX(0.3);
+        transition:
+            opacity var(--app-motion-fast, 140ms) var(--app-ease, ease),
+            transform var(--app-motion-base, 200ms)
+                var(--app-ease-spring, ease);
+    }
+
+    &.is-active::after,
+    &.active::after {
+        opacity: 0.9;
+        transform: translateX(-50%) scaleX(1);
     }
 }
 

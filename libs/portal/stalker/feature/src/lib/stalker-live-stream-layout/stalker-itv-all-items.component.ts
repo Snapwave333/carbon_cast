@@ -67,7 +67,7 @@ import {
                     [pageSize]="pageSize()"
                     [pageSizeOptions]="pageSizeOptions"
                     (page)="onPageChange($event)"
-                    aria-label="Select page"
+                    [attr.aria-label]="'PAGINATOR.SELECT_PAGE' | translate"
                 />
             }
         </div>

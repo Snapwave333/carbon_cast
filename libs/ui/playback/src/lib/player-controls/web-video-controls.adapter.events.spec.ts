@@ -1,3 +1,4 @@
+import type { PlayerTrack } from './player-controls.model';
 import { WebVideoControlsAdapter } from './web-video-controls.adapter';
 
 interface VideoOverrides {
@@ -136,4 +137,36 @@ describe('WebVideoControlsAdapter media events', () => {
             expect(adapter.state().positionSeconds).toBe(15);
         }
     );
+
+    it('reads each engine track list once per tick and keeps stable identities', () => {
+        const subtitleTracks: PlayerTrack[] = [
+            { id: 0, label: 'English', selected: false },
+        ];
+        const getSubtitleTracks = jest.fn(() =>
+            subtitleTracks.map((track) => ({ ...track }))
+        );
+        const video = createVideo({ duration: 120, seekableLength: 1 });
+        adapter.attach(video, {
+            isLive: () => false,
+            getSubtitleTracks,
+            setSubtitleTrack: jest.fn(),
+        });
+        getSubtitleTracks.mockClear();
+
+        // Both `capabilities` and `state` need the list; one tick must not
+        // produce two engine reads.
+        const capabilities = adapter.capabilities();
+        const tracks = adapter.state().subtitleTracks;
+        expect(getSubtitleTracks).toHaveBeenCalledTimes(1);
+
+        video.dispatchEvent(new Event('timeupdate'));
+
+        // A position-only tick must not hand consumers new identities.
+        expect(adapter.capabilities()).toBe(capabilities);
+        expect(adapter.state().subtitleTracks).toBe(tracks);
+
+        subtitleTracks.push({ id: 1, label: 'German', selected: false });
+        video.dispatchEvent(new Event('timeupdate'));
+        expect(adapter.state().subtitleTracks).not.toBe(tracks);
+    });
 });

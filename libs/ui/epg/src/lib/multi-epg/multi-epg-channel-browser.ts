@@ -42,11 +42,20 @@ export class MultiEpgChannelBrowser {
             );
 
             if (generation !== this.dataGeneration) return;
-            if (response && Array.isArray(response)) {
-                this.data.update((data) => [...data, ...response]);
-                this.isLastPage.set(response.length < this.visibleChannels);
-                this.lowerRange += response.length;
+
+            if (!Array.isArray(response)) {
+                // Nothing to append and no way to advance the range, so
+                // treating this as "not the last page" left every later scroll
+                // re-requesting the same page forever behind a spinner that
+                // never resolved.
+                this.isLastPage.set(true);
+                this.loadError.set(true);
+                return;
             }
+
+            this.data.update((data) => [...data, ...response]);
+            this.isLastPage.set(response.length < this.visibleChannels);
+            this.lowerRange += response.length;
         } catch (error) {
             console.error('Error fetching EPG data:', error);
             if (generation === this.dataGeneration) this.loadError.set(true);
@@ -56,6 +65,16 @@ export class MultiEpgChannelBrowser {
                 this.isLoading.set(false);
             }
         }
+    }
+
+    /**
+     * Re-request the page that failed. A non-array response parks the browser
+     * on `isLastPage`, so clearing that is what makes the next request get
+     * past the guard.
+     */
+    retry(): Promise<void> {
+        this.isLastPage.set(false);
+        return this.requestPrograms();
     }
 
     reset(): void {

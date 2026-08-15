@@ -118,9 +118,7 @@ export function createUnsupportedDrmDiagnostic(
 }
 
 /** Narrows an unknown rejection to a Shaka-error-like shape, if it is one. */
-export function asShakaError(
-    error: unknown
-): Partial<ShakaErrorLike> | null {
+export function asShakaError(error: unknown): Partial<ShakaErrorLike> | null {
     if (!error || typeof error !== 'object') {
         return null;
     }

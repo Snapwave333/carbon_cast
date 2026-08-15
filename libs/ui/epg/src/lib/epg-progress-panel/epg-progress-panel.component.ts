@@ -1,4 +1,10 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    inject,
+    signal,
+} from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import {
     MAT_DIALOG_DATA,
@@ -56,6 +62,7 @@ class EpgTrustConfirmDialogComponent {
     ],
     templateUrl: './epg-progress-panel.component.html',
     styleUrl: './epg-progress-panel.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EpgProgressPanelComponent {
     private readonly epgProgress = inject(EpgProgressService);
@@ -106,7 +113,11 @@ export class EpgProgressPanelComponent {
     getDisplayUrl(url: string): string {
         try {
             const urlObject = new URL(url);
-            return urlObject.hostname + urlObject.pathname.split('/').pop();
+            const fileName = urlObject.pathname.split('/').pop() ?? '';
+            // Without the separator this produced "example.comguide.xml".
+            return fileName
+                ? `${urlObject.hostname}/${fileName}`
+                : urlObject.hostname;
         } catch {
             return url.length > 40 ? `${url.substring(0, 40)}...` : url;
         }

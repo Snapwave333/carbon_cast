@@ -232,7 +232,7 @@
         "PLAYLIST_SECTION_ALL": "All channels",
         "PLAYLIST_SECTION_GROUPS": "Groups",
         "RESUME_LAST_CHANNEL": "Resume last channel",
-        "RESUME_LAST_CHANNEL_DESCRIPTION": "When a playlist opens with nothing playing, pick up its most recently watched channel again.",
+        "RESUME_LAST_CHANNEL_DESCRIPTION": "When a playlist opens with nothing playing, pick up its most recently watched channel again — or start the first channel when there is nothing to resume.",
         "HIDE_SPANISH_CHANNELS": "Hide Spanish-language channels",
         "HIDE_SPANISH_CHANNELS_DESCRIPTION": "Hide channels recognised as Spanish-language from playlist channel and group lists.",
         "OPEN_STREAM_ON_DOUBLE_CLICK": "Open stream on double-click",
@@ -368,6 +368,8 @@
         "LINK_BLOG": "Blog",
         "LINK_GITHUB_DESCRIPTION": "Star the repo, open an issue or contribute",
         "LINK_BLOG_DESCRIPTION": "Release notes, tips and project updates",
+        "LINK_SUPPORT": "Buy me a coffee",
+        "LINK_SUPPORT_DESCRIPTION": "Support development with a small donation",
         "EPG_NOTE": "Currently EPG is available only in the electron-based version of CarbonCast IPTV.",
         "EPG_NOTE_URL_TEXT": "Check it here",
         "IMPORT_EXPORT_DATA": "Import/export playlist backups",
@@ -392,6 +394,13 @@
             "CONFIRM": "Delete everything"
         },
         "IMPORT_ERROR": "Import error, please try with another file.",
+        "UNSAVED_CHANGES_TITLE": "Discard unsaved settings?",
+        "UNSAVED_CHANGES_MESSAGE": "You changed some settings but have not saved them yet. Leaving now discards those changes.",
+        "UNSAVED_CHANGES_DISCARD": "Discard changes",
+        "UNSAVED_CHANGES_STAY": "Keep editing",
+        "BACKUP_EXPORT_SUCCESS": "Playlist backup exported.",
+        "BACKUP_EXPORT_ERROR": "Playlist backup export failed. Check that there is free disk space and try again.",
+        "BACKUP_IMPORT_SUMMARY": "Backup import finished: {{imported}} imported, {{merged}} merged, {{skipped}} skipped, {{failed}} failed.",
         "PLAYLISTS_REMOVED": "All playlists and playlist data were removed.",
         "MPV_PLAYER_PATH_LABEL": "mpv path",
         "MPV_PLAYER_PATH_DESCRIPTION": "Set the path to MPV. On macOS you can use the MPV app bundle, such as /Applications/mpv.app, or the executable path.",
@@ -536,6 +545,10 @@
         }
     },
     "PLAYBACK_DIAGNOSTICS": {
+        "MISSING_STREAM_URL": {
+            "TITLE": "This item has no stream to play",
+            "DESCRIPTION": "The provider returned this entry without a playable URL. Refresh the playlist or portal — if it stays empty, the item is not available from your provider."
+        },
         "UNSUPPORTED_CONTAINER": {
             "TITLE": "This stream container is likely unsupported by the browser player",
             "DESCRIPTION": "The browser player may not decode this container inline. Copy the stream URL and open it in an external player such as MPV, VLC, or IINA for broader codec support."
@@ -614,6 +627,14 @@
         "SORT_BY_DATE": "Sort by Date Added (Newest First)",
         "SORT_BY_RATING": "Sort by Rating",
         "SORT_BY_NAME": "Sort by Name (A-Z)",
+        "SORT_CHANNELS": "Sort channels",
+        "SORT_TOOLTIP": "Sort: {{mode}}",
+        "SORT_PLAYLIST_ORDER": "Playlist order",
+        "SORT_SERVER_ORDER": "Server order",
+        "SORT_NAME_ASC": "Name A-Z",
+        "SORT_NAME_DESC": "Name Z-A",
+        "CHANNEL_COUNT_ONE": "1 channel",
+        "CHANNEL_COUNT_OTHER": "{{count}} channels",
         "LOAD_MORE": "Load more",
         "REMAINING": "remaining",
         "LOADING": "Loading channels...",
@@ -1455,5 +1476,15 @@
         "REMOVE_FAVORITE": "Remove from favorites",
         "ATTRIBUTION_STATIONS": "Station catalog provided by the community-run Radio Browser directory.",
         "ATTRIBUTION_PODCASTS": "Podcast search powered by the Apple iTunes Search API."
+    },
+    "PAGINATOR": {
+        "ITEMS_PER_PAGE": "Items per page:",
+        "NEXT_PAGE": "Next page",
+        "PREVIOUS_PAGE": "Previous page",
+        "FIRST_PAGE": "First page",
+        "LAST_PAGE": "Last page",
+        "RANGE": "{{start}} – {{end}} of {{total}}",
+        "RANGE_EMPTY": "0 of {{total}}",
+        "SELECT_PAGE": "Select page"
     }
 }

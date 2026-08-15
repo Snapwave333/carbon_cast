@@ -4,6 +4,7 @@ import type {
 } from '@iptvnator/shared/interfaces';
 
 export const PlaybackDiagnosticCode = {
+    MissingStreamUrl: 'missing-stream-url',
     UnsupportedContainer: 'unsupported-container',
     UnsupportedCodec: 'unsupported-codec',
     MediaDecodeError: 'media-decode-error',

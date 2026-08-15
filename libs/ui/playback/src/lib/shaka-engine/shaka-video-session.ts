@@ -371,10 +371,7 @@ export class ShakaVideoSession {
         return this.destroyed || generation !== this.generation;
     }
 
-    private emitIfCurrent(
-        generation: number,
-        issue: PlaybackDiagnostic
-    ): void {
+    private emitIfCurrent(generation: number, issue: PlaybackDiagnostic): void {
         if (!this.isStale(generation)) {
             this.config.emitPlaybackIssue(issue);
         }

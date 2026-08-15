@@ -3,6 +3,16 @@
     cdkDropList
     [cdkDropListDisabled]="!canDragDrop()"
     (cdkDropListDropped)="onDrop($event)"
+    role="listbox"
+    tabindex="0"
+    [attr.aria-label]="
+        (mode() === 'recent'
+            ? 'WORKSPACE.SHELL.RAIL_RECENT'
+            : 'HOME.PLAYLISTS.GLOBAL_FAVORITES'
+        ) | translate
+    "
+    [attr.aria-activedescendant]="activeDescendantId()"
+    (keydown)="onListKeydown($event)"
 >
     @if (enrichedChannels().length === 0) {
         <div class="empty-state">
@@ -30,8 +40,10 @@
         </div>
     }
 
-    @for (ch of enrichedChannels(); track trackByUid($index, ch)) {
+    @for (ch of enrichedChannels(); track trackByUid($index, ch); let i = $index) {
         <app-channel-list-item
+            [rowId]="'favorite-option-' + i"
+            [keyboardFocused]="focusedIndex() === i"
             [isDraggable]="canDragDrop()"
             [logo]="ch.logo"
             [name]="ch.name"
@@ -43,7 +55,7 @@
             [isFavorite]="isChannelFavorite(ch)"
             [showProgramInfoButton]="true"
             [showDetailsContextMenu]="hasChannelContextMenu(ch)"
-            (clicked)="onChannelClick(ch)"
+            (clicked)="onChannelClick(ch, i)"
             (activated)="onChannelActivate(ch)"
             (favoriteToggled)="onFavoriteToggled(ch)"
             (contextMenuRequested)="onChannelContextMenu(ch, $event)"

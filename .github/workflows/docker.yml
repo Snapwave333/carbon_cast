@@ -12,19 +12,21 @@ on:
             - 'pnpm-lock.yaml'
     push:
         branches:
+            - main
             - master
         tags:
             - 'v*'
     workflow_dispatch:
         inputs:
             push:
-                description: 'Push the image to Docker Hub'
+                description: 'Push the image to GHCR'
                 required: true
                 type: boolean
                 default: false
 
 permissions:
     contents: read
+    packages: write
 
 # Superseded PR pushes cancel their still-running image build. Master/tag/
 # manual runs get a unique group (run_id): GitHub keeps at most one pending
@@ -54,16 +56,21 @@ jobs:
                   short_sha="${GITHUB_SHA::12}"
                   publish="false"
                   platforms="linux/amd64"
-                  tags="4gray/iptvnator:pr-${{ github.event.pull_request.number || 'manual' }}"
 
-                  if [[ "${GITHUB_EVENT_NAME}" == "push" && "${GITHUB_REF}" == "refs/heads/master" ]]; then
+                  # GHCR rejects uppercase path segments, and the owner segment
+                  # is whatever fork runs this workflow.
+                  image="ghcr.io/$(echo "${GITHUB_REPOSITORY}" | tr '[:upper:]' '[:lower:]')"
+
+                  tags="${image}:pr-${{ github.event.pull_request.number || 'manual' }}"
+
+                  if [[ "${GITHUB_EVENT_NAME}" == "push" && ( "${GITHUB_REF}" == "refs/heads/main" || "${GITHUB_REF}" == "refs/heads/master" ) ]]; then
                     publish="true"
                     platforms="linux/amd64,linux/arm64"
                     tags=$(cat <<TAGS
-                  4gray/iptvnator:latest
-                  4gray/iptvnator:${version}-pwa
-                  4gray/iptvnator:${version}-pwa-${short_sha}
-                  4gray/iptvnator:sha-${short_sha}
+                  ${image}:latest
+                  ${image}:${version}-pwa
+                  ${image}:${version}-pwa-${short_sha}
+                  ${image}:sha-${short_sha}
                   TAGS
                   )
                   elif [[ "${GITHUB_EVENT_NAME}" == "push" && "${GITHUB_REF}" == refs/tags/v* ]]; then
@@ -71,19 +78,19 @@ jobs:
                     platforms="linux/amd64,linux/arm64"
                     tag_version="${GITHUB_REF_NAME#v}"
                     tags=$(cat <<TAGS
-                  4gray/iptvnator:${tag_version}
-                  4gray/iptvnator:v${tag_version}
+                  ${image}:${tag_version}
+                  ${image}:v${tag_version}
                   TAGS
                   )
                     if [[ "${tag_version}" != *-* ]]; then
-                      tags="${tags}"$'\n'"4gray/iptvnator:stable"
+                      tags="${tags}"$'\n'"${image}:stable"
                     fi
                   elif [[ "${GITHUB_EVENT_NAME}" == "workflow_dispatch" && "${{ inputs.push }}" == "true" ]]; then
                     publish="true"
                     platforms="linux/amd64,linux/arm64"
                     tags=$(cat <<TAGS
-                  4gray/iptvnator:manual-${short_sha}
-                  4gray/iptvnator:sha-${short_sha}
+                  ${image}:manual-${short_sha}
+                  ${image}:sha-${short_sha}
                   TAGS
                   )
                   fi
@@ -96,12 +103,13 @@ jobs:
                     echo "EOF"
                   } >> "${GITHUB_OUTPUT}"
 
-            - name: Login to Docker Hub
+            - name: Login to GitHub Container Registry
               if: steps.docker-meta.outputs.publish == 'true'
               uses: docker/login-action@v4
               with:
-                  username: ${{ secrets.DOCKERHUB_USERNAME }}
-                  password: ${{ secrets.DOCKERHUB_TOKEN }}
+                  registry: ghcr.io
+                  username: ${{ github.actor }}
+                  password: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Set up QEMU
               uses: docker/setup-qemu-action@v4

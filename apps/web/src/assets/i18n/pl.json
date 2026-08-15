@@ -516,6 +516,10 @@
         }
     },
     "PLAYBACK_DIAGNOSTICS": {
+        "MISSING_STREAM_URL": {
+            "TITLE": "Ta pozycja nie ma strumienia do odtworzenia",
+            "DESCRIPTION": "Dostawca zwrócił tę pozycję bez odtwarzalnego adresu URL. Odśwież playlistę lub portal — jeśli nadal jest pusty, pozycja nie jest dostępna u Twojego dostawcy."
+        },
         "UNSUPPORTED_CONTAINER": {
             "TITLE": "This stream container is likely unsupported by the browser player",
             "DESCRIPTION": "The browser player may not decode this container inline. Copy the stream URL and open it in an external player such as MPV, VLC, or IINA for broader codec support."
@@ -594,6 +598,14 @@
         "SORT_BY_DATE": "Sortuj według daty dodania (najnowsze pierwsze)",
         "SORT_BY_RATING": "Sortuj według oceny",
         "SORT_BY_NAME": "Sortuj według nazwy (A-Z)",
+        "SORT_CHANNELS": "Sortuj kanały",
+        "SORT_TOOLTIP": "Sortowanie: {{mode}}",
+        "SORT_PLAYLIST_ORDER": "Kolejność playlisty",
+        "SORT_SERVER_ORDER": "Kolejność serwera",
+        "SORT_NAME_ASC": "Nazwa A-Z",
+        "SORT_NAME_DESC": "Nazwa Z-A",
+        "CHANNEL_COUNT_ONE": "1 kanał",
+        "CHANNEL_COUNT_OTHER": "Kanały: {{count}}",
         "LOAD_MORE": "Załaduj więcej",
         "REMAINING": "pozostało",
         "LOADING": "Ładowanie kanałów...",
@@ -1435,5 +1447,15 @@
         "REMOVE_FAVORITE": "Usuń z ulubionych",
         "ATTRIBUTION_STATIONS": "Katalog stacji pochodzi z prowadzonego przez społeczność katalogu Radio Browser.",
         "ATTRIBUTION_PODCASTS": "Wyszukiwanie podcastów oparte na Apple iTunes Search API."
+    },
+    "PAGINATOR": {
+        "ITEMS_PER_PAGE": "Elementów na stronę:",
+        "NEXT_PAGE": "Następna strona",
+        "PREVIOUS_PAGE": "Poprzednia strona",
+        "FIRST_PAGE": "Pierwsza strona",
+        "LAST_PAGE": "Ostatnia strona",
+        "RANGE": "{{start}} – {{end}} z {{total}}",
+        "RANGE_EMPTY": "0 z {{total}}",
+        "SELECT_PAGE": "Wybierz stronę"
     }
 }

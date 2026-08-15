@@ -516,6 +516,10 @@
         }
     },
     "PLAYBACK_DIAGNOSTICS": {
+        "MISSING_STREAM_URL": {
+            "TITLE": "Αυτό το στοιχείο δεν έχει ροή για αναπαραγωγή",
+            "DESCRIPTION": "Ο πάροχος επέστρεψε αυτή την καταχώριση χωρίς αναπαραγώγιμη διεύθυνση URL. Ανανεώστε τη λίστα ή την πύλη — αν παραμείνει κενή, το στοιχείο δεν είναι διαθέσιμο από τον πάροχό σας."
+        },
         "UNSUPPORTED_CONTAINER": {
             "TITLE": "This stream container is likely unsupported by the browser player",
             "DESCRIPTION": "The browser player may not decode this container inline. Copy the stream URL and open it in an external player such as MPV, VLC, or IINA for broader codec support."
@@ -594,6 +598,14 @@
         "SORT_BY_DATE": "Ταξινόμηση κατά Ημερομηνία Προσθήκης (Πρώτα τα Νεότερα)",
         "SORT_BY_RATING": "Ταξινόμηση κατά Βαθμολογία",
         "SORT_BY_NAME": "Ταξινόμηση κατά Όνομα (A-Z)",
+        "SORT_CHANNELS": "Ταξινόμηση καναλιών",
+        "SORT_TOOLTIP": "Ταξινόμηση: {{mode}}",
+        "SORT_PLAYLIST_ORDER": "Σειρά λίστας",
+        "SORT_SERVER_ORDER": "Σειρά διακομιστή",
+        "SORT_NAME_ASC": "Όνομα Α-Ω",
+        "SORT_NAME_DESC": "Όνομα Ω-Α",
+        "CHANNEL_COUNT_ONE": "1 κανάλι",
+        "CHANNEL_COUNT_OTHER": "{{count}} κανάλια",
         "LOAD_MORE": "Φόρτωση περισσότερων",
         "REMAINING": "απομένουν",
         "LOADING": "Φόρτωση καναλιών...",
@@ -1435,5 +1447,15 @@
         "REMOVE_FAVORITE": "Αφαίρεση από τα αγαπημένα",
         "ATTRIBUTION_STATIONS": "Ο κατάλογος σταθμών παρέχεται από τον κοινοτικό κατάλογο Radio Browser.",
         "ATTRIBUTION_PODCASTS": "Η αναζήτηση podcast παρέχεται από το Apple iTunes Search API."
+    },
+    "PAGINATOR": {
+        "ITEMS_PER_PAGE": "Στοιχεία ανά σελίδα:",
+        "NEXT_PAGE": "Επόμενη σελίδα",
+        "PREVIOUS_PAGE": "Προηγούμενη σελίδα",
+        "FIRST_PAGE": "Πρώτη σελίδα",
+        "LAST_PAGE": "Τελευταία σελίδα",
+        "RANGE": "{{start}} – {{end}} από {{total}}",
+        "RANGE_EMPTY": "0 από {{total}}",
+        "SELECT_PAGE": "Επιλογή σελίδας"
     }
 }

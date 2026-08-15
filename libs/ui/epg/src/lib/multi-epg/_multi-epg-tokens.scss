@@ -1,0 +1,45 @@
+// Color palette — every value resolves through the app's theme tokens so
+// Multi-EPG looks like part of CarbonCast IPTV instead of a separate broadcast
+// utility. Previously hard-coded #0a0a0f / #12121a / #1a1a24 made the grid
+// switch to near-black while the rest of the app sat on --app-content-bg,
+// which the UX audit called out as the screen "visually detaching" from
+// the rest of the app.
+$bg-deep: var(--app-content-bg);
+$bg-surface: var(--app-widget-bg);
+$bg-elevated: var(--app-widget-header-bg);
+$bg-hover: var(--app-card-hover-bg);
+$border-subtle: var(--app-widget-header-border);
+$border-medium: var(--app-separator);
+
+// Accent colors — unified with the rest of the app:
+// cyan stays on the "now" indicator only; blue is the primary; the old
+// $8b5cf6 purple and $00d4aa teal are dropped per the UX audit.
+$accent-primary: #5cd6ff; // Cyan — reserved for "now" indicator
+$accent-now-glow: rgba(92, 214, 255, 0.45); // Cyan glow for the now-line
+$accent-secondary: var(--app-selection-color); // Blue — programs
+$accent-tertiary: var(--app-selection-color); // Blue — highlights
+$accent-warning: #fbbf24;
+
+// Text colors — derived from app heading/body so light and dark themes
+// stay in sync without a separate `.light-theme` override at the bottom
+// (which was duplicating responsibility with the same token chain).
+$text-primary: var(--app-heading-color);
+$text-secondary: var(--app-body-color);
+$text-muted: var(--app-muted-color);
+
+// Gradients
+$gradient-program: linear-gradient(
+    135deg,
+    rgba(79, 142, 255, 0.15) 0%,
+    rgba(79, 142, 255, 0.05) 100%
+);
+$gradient-program-hover: linear-gradient(
+    135deg,
+    rgba(79, 142, 255, 0.3) 0%,
+    rgba(79, 142, 255, 0.15) 100%
+);
+$gradient-header: linear-gradient(
+    180deg,
+    rgba(92, 214, 255, 0.08) 0%,
+    transparent 100%
+);

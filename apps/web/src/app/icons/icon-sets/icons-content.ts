@@ -20,6 +20,8 @@ export const CONTENT_ICONS: Record<string, string> = {
     library_books:
         '<rect x="7" y="3.5" width="14" height="14" rx="2"/><path d="M3.5 7.5V18a2 2 0 0 0 2 2H17"/><path d="M10.5 8h7M10.5 11.5h7"/>',
     tag: '<path d="M9.5 4 8 20M16 4l-1.5 16M4.5 9h16M3.5 15h16"/>',
+    coffee:
+        '<path d="M4 8.5h13v6a4.5 4.5 0 0 1-4.5 4.5h-4A4.5 4.5 0 0 1 4 14.5Z"/><path d="M17 10h1.5a2.5 2.5 0 0 1 0 5H17"/><path d="M7.5 3v2.5M11 3v2.5M14.5 3v2.5"/>',
     dashboard:
         '<rect x="3.5" y="3.5" width="7.5" height="10" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="6" rx="1.5"/><rect x="13.5" y="12" width="7" height="8.5" rx="1.5"/><rect x="3.5" y="16" width="7.5" height="4.5" rx="1.5"/>',
     grid_view:

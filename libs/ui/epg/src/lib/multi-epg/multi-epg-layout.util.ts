@@ -82,10 +82,29 @@ export function getEpgChannelIcon(
     return getProgramArtworkUrl({ iconUrl }) ?? '';
 }
 
-export function buildProgramAriaLabel(program: MultiEpgLayoutProgram): string {
+/**
+ * Screen-reader label for a grid cell. The channel is included because the
+ * grid conveys it only by row position, which assistive tech cannot see, and
+ * "on now" because the visual cue for it is a colour treatment.
+ */
+export function buildProgramAriaLabel(
+    program: MultiEpgLayoutProgram,
+    channelName?: string,
+    /** Already-translated "on now" wording, omitted when not airing. */
+    nowLabel?: string
+): string {
     const start = formatClockTime(program.startDate.getTime());
     const stop = formatClockTime(program.stopDate.getTime());
-    return `${program.title}, ${start}–${stop}`;
+    const parts = [program.title, `${start}–${stop}`];
+
+    if (channelName) {
+        parts.splice(1, 0, channelName);
+    }
+    if (nowLabel) {
+        parts.push(nowLabel);
+    }
+
+    return parts.join(', ');
 }
 
 function layoutProgram(

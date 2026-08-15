@@ -516,6 +516,10 @@
         }
     },
     "PLAYBACK_DIAGNOSTICS": {
+        "MISSING_STREAM_URL": {
+            "TITLE": "Ehhez az elemhez nincs lejátszható adatfolyam",
+            "DESCRIPTION": "A szolgáltató lejátszható URL nélkül adta vissza ezt a bejegyzést. Frissítsd a lejátszási listát vagy a portált — ha üres marad, az elem nem érhető el a szolgáltatódnál."
+        },
         "UNSUPPORTED_CONTAINER": {
             "TITLE": "A böngészőben működő lejátszó valószínűleg nem támogatja az adatfolyam konténerformátumát",
             "DESCRIPTION": "Előfordulhat, hogy a böngészőben működő lejátszó nem tudja közvetlenül dekódolni ezt a konténerformátumot. Másolja ki az adatfolyam URL-címét, és nyissa meg szélesebb kodektámogatást nyújtó külső lejátszóban, például MPV-ben, VLC-ben vagy IINA-ban."
@@ -594,6 +598,14 @@
         "SORT_BY_DATE": "Hozzáadás dátuma szerint (legújabb elöl)",
         "SORT_BY_RATING": "Értékelés szerint",
         "SORT_BY_NAME": "Név szerint (A–Z)",
+        "SORT_CHANNELS": "Csatornák rendezése",
+        "SORT_TOOLTIP": "Rendezés: {{mode}}",
+        "SORT_PLAYLIST_ORDER": "Lejátszási lista sorrendje",
+        "SORT_SERVER_ORDER": "Kiszolgáló sorrendje",
+        "SORT_NAME_ASC": "Név A-Z",
+        "SORT_NAME_DESC": "Név Z-A",
+        "CHANNEL_COUNT_ONE": "1 csatorna",
+        "CHANNEL_COUNT_OTHER": "{{count}} csatorna",
         "LOAD_MORE": "Továbbiak betöltése",
         "REMAINING": "van hátra",
         "LOADING": "Csatornák betöltése…",
@@ -1435,5 +1447,15 @@
         "REMOVE_FAVORITE": "Eltávolítás a kedvencek közül",
         "ATTRIBUTION_STATIONS": "Az állomáskatalógust a közösség által működtetett Radio Browser címtár biztosítja.",
         "ATTRIBUTION_PODCASTS": "A podcastkeresést az Apple iTunes Search API biztosítja."
+    },
+    "PAGINATOR": {
+        "ITEMS_PER_PAGE": "Elemek oldalanként:",
+        "NEXT_PAGE": "Következő oldal",
+        "PREVIOUS_PAGE": "Előző oldal",
+        "FIRST_PAGE": "Első oldal",
+        "LAST_PAGE": "Utolsó oldal",
+        "RANGE": "{{start}} – {{end}} / {{total}}",
+        "RANGE_EMPTY": "0 / {{total}}",
+        "SELECT_PAGE": "Oldal kiválasztása"
     }
 }

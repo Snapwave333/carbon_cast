@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
+import { By } from '@angular/platform-browser';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { MatDialog } from '@angular/material/dialog';
 import { TranslateModule } from '@ngx-translate/core';
@@ -7,6 +8,7 @@ import { ChannelDetailsDialogComponent } from '@iptvnator/ui/components';
 import { UnifiedFavoriteChannel } from '@iptvnator/portal/shared/util';
 import { Channel } from '@iptvnator/shared/interfaces';
 import { SettingsStore } from '@iptvnator/services';
+import { provideStubIconRegistry } from '@iptvnator/shared/testing';
 import { GlobalFavoritesListComponent } from './global-favorites-list.component';
 
 describe('GlobalFavoritesListComponent', () => {
@@ -25,6 +27,7 @@ describe('GlobalFavoritesListComponent', () => {
                 TranslateModule.forRoot(),
             ],
             providers: [
+                provideStubIconRegistry(),
                 {
                     provide: MatDialog,
                     useValue: dialog,
@@ -45,14 +48,109 @@ describe('GlobalFavoritesListComponent', () => {
         fixture.componentRef.setInput('channels', [buildChannel('b', 'Beta')]);
         fixture.detectChanges();
 
-        const favoriteIcon = fixture.nativeElement.querySelector(
-            '.favorite-button mat-icon'
+        // Icons are SVG (svgIcon), not ligature text, so assert on the name
+        // the component asked the registry for.
+        const favoriteIcon = fixture.debugElement.query(
+            By.css('.favorite-button mat-icon')
         );
 
-        expect(favoriteIcon?.textContent?.trim()).toBe('star');
+        expect(favoriteIcon.componentInstance.svgIcon).toBe('star');
         expect(
             fixture.nativeElement.querySelectorAll('.favorite-button')
         ).toHaveLength(1);
+    });
+
+    describe('keyboard reordering', () => {
+        function setUpReorderableList() {
+            fixture.componentRef.setInput('channels', [
+                buildChannel('a', 'Alpha'),
+                buildChannel('b', 'Beta'),
+                buildChannel('c', 'Gamma'),
+            ]);
+            fixture.componentRef.setInput('draggable', true);
+            fixture.componentRef.setInput('sortMode', 'custom');
+            fixture.detectChanges();
+
+            const reordered: string[][] = [];
+            fixture.componentInstance.channelsReordered.subscribe((list) =>
+                reordered.push(list.map((channel) => channel.uid))
+            );
+            return reordered;
+        }
+
+        function pressOnList(key: string, altKey: boolean) {
+            const event = new KeyboardEvent('keydown', {
+                key,
+                altKey,
+                cancelable: true,
+            });
+            fixture.componentInstance.onListKeydown(event);
+            fixture.detectChanges();
+            return event;
+        }
+
+        it('moves the focused favourite with Alt+Arrow', () => {
+            const reordered = setUpReorderableList();
+            fixture.componentInstance.onChannelClick(
+                buildChannel('a', 'Alpha'),
+                0
+            );
+
+            const event = pressOnList('ArrowDown', true);
+
+            expect(event.defaultPrevented).toBe(true);
+            expect(reordered).toEqual([['b', 'a', 'c']]);
+            // Focus follows the item so a held key keeps moving the same row.
+            expect(fixture.componentInstance.focusedIndex()).toBe(1);
+        });
+
+        it('does not move past either end of the list', () => {
+            const reordered = setUpReorderableList();
+            fixture.componentInstance.onChannelClick(
+                buildChannel('a', 'Alpha'),
+                0
+            );
+
+            pressOnList('ArrowUp', true);
+
+            expect(reordered).toEqual([]);
+        });
+
+        it('leaves plain arrows to the cursor so navigation still works', () => {
+            const reordered = setUpReorderableList();
+            fixture.componentInstance.onChannelClick(
+                buildChannel('a', 'Alpha'),
+                0
+            );
+
+            pressOnList('ArrowDown', false);
+
+            expect(reordered).toEqual([]);
+            expect(fixture.componentInstance.focusedIndex()).toBe(1);
+        });
+
+        it('ignores Alt+Arrow when the list is not custom-sorted', () => {
+            fixture.componentRef.setInput('channels', [
+                buildChannel('a', 'Alpha'),
+                buildChannel('b', 'Beta'),
+            ]);
+            fixture.componentRef.setInput('draggable', true);
+            fixture.componentRef.setInput('sortMode', 'name');
+            fixture.detectChanges();
+
+            const reordered: string[][] = [];
+            fixture.componentInstance.channelsReordered.subscribe((list) =>
+                reordered.push(list.map((channel) => channel.uid))
+            );
+            fixture.componentInstance.onChannelClick(
+                buildChannel('a', 'Alpha'),
+                0
+            );
+
+            pressOnList('ArrowDown', true);
+
+            expect(reordered).toEqual([]);
+        });
     });
 
     it('renders favorite state from the supplied favorite ids in recent mode', () => {
@@ -67,10 +165,9 @@ describe('GlobalFavoritesListComponent', () => {
         ]);
         fixture.detectChanges();
 
-        const icons = Array.from(
-            fixture.nativeElement.querySelectorAll('.favorite-button mat-icon'),
-            (element: Element) => element.textContent?.trim()
-        );
+        const icons = fixture.debugElement
+            .queryAll(By.css('.favorite-button mat-icon'))
+            .map((icon) => icon.componentInstance.svgIcon);
 
         expect(icons).toEqual(['star_outline', 'star']);
     });

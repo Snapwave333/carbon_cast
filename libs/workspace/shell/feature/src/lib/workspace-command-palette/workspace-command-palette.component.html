@@ -14,6 +14,11 @@
             [attr.aria-label]="
                 'WORKSPACE.COMMAND_PALETTE.SEARCH_LABEL' | translate
             "
+            role="combobox"
+            aria-autocomplete="list"
+            [attr.aria-expanded]="commandGroups().length > 0"
+            [attr.aria-controls]="listboxId"
+            [attr.aria-activedescendant]="activeDescendantId()"
         />
         <kbd class="palette-search__kbd">{{ shortcutHint }}</kbd>
     </label>
@@ -21,16 +26,25 @@
     @if (commandGroups().length > 0) {
         <div class="palette-divider"></div>
 
-        <div class="palette-results">
+        <div class="palette-results" role="listbox" [id]="listboxId">
             @for (group of commandGroups(); track group.group) {
-                <section class="palette-group">
-                    <h3 class="palette-group__title">
+                <section
+                    class="palette-group"
+                    role="group"
+                    [attr.aria-label]="
+                        getGroupTitleKey(group.group) | translate
+                    "
+                >
+                    <h3 class="palette-group__title" aria-hidden="true">
                         {{ getGroupTitleKey(group.group) | translate }}
                     </h3>
                     @for (command of group.items; track command.id) {
                         <button
                             type="button"
                             class="palette-command"
+                            role="option"
+                            [id]="commandOptionId(command.id)"
+                            [attr.aria-selected]="isCommandSelected(command)"
                             [class.is-selected]="isCommandSelected(command)"
                             [disabled]="!command.enabled"
                             (mouseenter)="onCommandHover(command)"
@@ -54,7 +68,7 @@
         </div>
     } @else {
         <div class="palette-divider"></div>
-        <div class="palette-empty">
+        <div class="palette-empty" role="status" aria-live="polite">
             {{ 'WORKSPACE.COMMAND_PALETTE.EMPTY' | translate }}
         </div>
     }

@@ -1,0 +1,453 @@
+@use './multi-epg-tokens' as *;
+
+#channels-column {
+    width: 180px;
+    flex: none;
+    border-right: 1px solid $border-medium;
+    background: $bg-surface;
+    position: relative;
+    z-index: 10;
+    min-height: calc(100vh - 6px);
+
+    // Subtle shadow for depth
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
+
+    // Zebra parity matching the grid rows opposite.
+    g:nth-child(odd) .channel:not(.active):not(:hover) rect {
+        fill: color-mix(in srgb, #{$bg-surface} 96%, white);
+    }
+
+    .channel {
+        cursor: pointer;
+        transition: all 0.15s ease;
+
+        rect {
+            fill: $bg-surface;
+            stroke: $border-subtle;
+            transition: fill 0.15s ease;
+        }
+
+        &:hover rect {
+            fill: $bg-elevated;
+        }
+
+        &.active rect {
+            fill: rgba(47, 123, 255, 0.2);
+            stroke: rgba(47, 123, 255, 0.4);
+        }
+
+        &.active .channel-name {
+            color: $accent-secondary;
+            font-weight: 600;
+        }
+    }
+
+    .channel-name {
+        color: $text-primary;
+        padding: 8px 12px;
+        font-size: 12.5px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        height: 100%;
+        overflow: hidden;
+        letter-spacing: 0.01em;
+        line-height: 1.2;
+
+        img {
+            // Logo on a defined plate so it reads as an identity mark, not
+            // a loose floating icon.
+            width: 26px !important;
+            height: 26px !important;
+            margin-right: 0 !important;
+            flex: 0 0 auto;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.06);
+            box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.07);
+            padding: 3px;
+            object-fit: contain;
+        }
+
+        span {
+            // Allow up to two lines so "13th Street Universal HD" and
+            // similar long names wrap instead of disappearing into an
+            // ellipsis after 5 characters.
+            min-width: 0;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            word-break: break-word;
+        }
+    }
+
+    image {
+        object-fit: contain;
+        background: $bg-elevated;
+    }
+}
+
+// EPG container
+#epg-container {
+    width: calc(100vw - 180px);
+    overflow-x: scroll;
+    overflow-y: clip;
+    background: $bg-deep;
+    min-height: calc(100vh - 6px);
+
+    &::-webkit-scrollbar {
+        height: 8px;
+    }
+}
+
+// EPG SVG container
+#epg-svg {
+    // Time header styling
+    g > rect[fill='#000'] {
+        fill: $bg-surface !important;
+    }
+
+    // Hour labels — quiet wayfinding, not content. The now-badge is the
+    // only loud element in the header band.
+    g > text {
+        font-family: 'JetBrains Mono', monospace !important;
+        font-size: 10px !important;
+        font-weight: 500;
+        fill: $text-muted !important;
+        letter-spacing: 0.12em;
+    }
+
+    // Channels with no programme data for the selected day say so instead
+    // of rendering an unexplained empty band.
+    .empty-row-note {
+        fill: $text-muted;
+        font-size: 11px;
+        font-style: italic;
+        opacity: 0.7;
+        pointer-events: none;
+    }
+
+    // Hour separator vertical lines — dashed and faint so the grid reads as
+    // rows of programmes, not a spreadsheet lattice.
+    .hour-separator {
+        stroke: $border-subtle;
+        stroke-width: 1px;
+        stroke-dasharray: 2 6;
+        opacity: 0.6;
+        pointer-events: none;
+    }
+
+    // Zebra rows: alternate channel rows get a slightly lifted cell fill so
+    // long guides stop merging into one wall. The first 24 groups are the
+    // hour-header cells (no .program inside), so parity is stable.
+    g:nth-child(odd):not(.active-row)
+        .program:not(:hover):not(.highlighted):not(.is-now)
+        rect {
+        fill: color-mix(in srgb, #{$bg-elevated} 96%, white);
+    }
+
+    // Program blocks
+    .program {
+        cursor: pointer;
+
+        rect {
+            fill: $bg-elevated;
+            stroke: $border-subtle;
+            rx: 4;
+            ry: 4;
+            transition: all 0.15s ease;
+        }
+
+        &:hover rect {
+            fill: $bg-hover;
+            stroke: rgba(47, 123, 255, 0.4);
+            filter: drop-shadow(0 0 8px rgba(47, 123, 255, 0.2));
+        }
+
+        &:focus-visible {
+            outline: none;
+
+            rect {
+                fill: $bg-hover;
+                stroke: var(--app-selection-color);
+                stroke-width: 2px;
+                filter: drop-shadow(0 0 8px rgba(47, 123, 255, 0.35));
+            }
+        }
+
+        // Highlighted program (from search)
+        &.highlighted rect {
+            fill: rgba(92, 214, 255, 0.25);
+            stroke: $accent-primary;
+            stroke-width: 2px;
+            animation: highlightPulse 1s ease-in-out 3;
+        }
+
+        &.highlighted .program-title {
+            color: $accent-primary;
+            font-weight: 600;
+        }
+    }
+
+    // Active channel row highlighting
+    .active-row .program rect {
+        fill: rgba(47, 123, 255, 0.15);
+        stroke: rgba(47, 123, 255, 0.3);
+    }
+
+    .active-row .program:hover rect {
+        fill: rgba(47, 123, 255, 0.25);
+    }
+
+    // Programme cell content: optional artwork thumbnail (XMLTV programme
+    // icon) beside a title + time stack. The image only renders for cells
+    // wide enough to keep the title readable (see ARTWORK_MIN_CELL_WIDTH).
+    .program-cell {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        height: 100%;
+        padding: 5px 10px;
+        pointer-events: none;
+        // Faint top light so cells read as surfaces, not flat outlines.
+        background: linear-gradient(
+            180deg,
+            rgba(255, 255, 255, 0.03),
+            transparent 45%
+        );
+
+        // Category colour coding: a slim accent edge plus a faint wash that
+        // fades out across the cell, keyed off the XMLTV category.
+        &.has-accent {
+            border-radius: 4px;
+            box-shadow: inset 3px 0 0 var(--cat-accent);
+            background: linear-gradient(
+                90deg,
+                color-mix(in srgb, var(--cat-accent) 12%, transparent),
+                transparent 65%
+            );
+        }
+    }
+
+    .program-art {
+        flex: 0 0 auto;
+        width: 64px;
+        height: 38px;
+        border-radius: 4px;
+        object-fit: cover;
+        background: rgba(255, 255, 255, 0.05);
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08);
+
+        // Applied at load time for near-square/portrait images (logos,
+        // posters) which `cover` would crop badly.
+        &.art-contain {
+            object-fit: contain;
+            padding: 2px;
+        }
+    }
+
+    .program-text {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 1px;
+        min-width: 0;
+    }
+
+    .program-title {
+        color: $text-primary;
+        font-size: 11px;
+        font-weight: 400;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        letter-spacing: 0.01em;
+        line-height: 1.4;
+    }
+
+    .program-time {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 9.5px;
+        color: $text-muted;
+        white-space: nowrap;
+        overflow: hidden;
+    }
+
+    .program-episode {
+        flex: 0 0 auto;
+        padding: 0 4px;
+        border-radius: 4px;
+        background: rgba(255, 255, 255, 0.08);
+        color: $text-secondary;
+        font-size: 9px;
+        line-height: 1.5;
+        letter-spacing: 0.03em;
+    }
+
+    // Genre-coded cells tint their episode chip to match the accent, so the
+    // chip stops being the same grey pill in every cell.
+    .has-accent .program-episode {
+        background: color-mix(in srgb, var(--cat-accent) 20%, transparent);
+        color: color-mix(in srgb, var(--cat-accent) 75%, white);
+    }
+
+    // Current time line - glowing effect
+    line[stroke='red'] {
+        stroke: $accent-primary !important;
+        stroke-width: 2px;
+        filter: drop-shadow(0 0 8px rgba(92, 214, 255, 0.6))
+            drop-shadow(0 0 16px rgba(92, 214, 255, 0.3));
+
+        // Animated pulse
+        animation: timePulse 2s ease-in-out infinite;
+    }
+
+    // Now-line time badge — a small filled pill sitting on top of the time
+    // header that reads "HH:MM". Keeps the cyan visual language of the line
+    // itself so the relationship is unmistakable.
+    .now-label {
+        pointer-events: none;
+
+        rect {
+            fill: $accent-primary;
+            stroke: none;
+            filter: drop-shadow(0 0 6px $accent-now-glow);
+        }
+
+        text {
+            fill: var(--app-shell-bg, #0d0f12);
+            font-family:
+                'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+            font-size: 10.5px;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+        }
+    }
+
+    // Currently-airing program. A full-strength cyan outline on every airing
+    // cell stacked into a column of identical alarm boxes; the live state is
+    // now a soft cyan tint + quiet border, and the cell's time line turns
+    // cyan — scannable without shouting.
+    .program.is-now {
+        rect {
+            stroke: rgba(92, 214, 255, 0.38);
+            stroke-width: 1px;
+            fill: color-mix(in srgb, #{$bg-elevated} 92%, #5cd6ff);
+        }
+
+        .program-time {
+            color: $accent-primary;
+        }
+    }
+}
+
+// Pulse animation for time line
+@keyframes timePulse {
+    0%,
+    100% {
+        opacity: 1;
+        filter: drop-shadow(0 0 8px rgba(92, 214, 255, 0.6))
+            drop-shadow(0 0 16px rgba(92, 214, 255, 0.3));
+    }
+    50% {
+        opacity: 0.8;
+        filter: drop-shadow(0 0 12px rgba(92, 214, 255, 0.8))
+            drop-shadow(0 0 24px rgba(92, 214, 255, 0.4));
+    }
+}
+
+rect {
+    stroke: $border-subtle;
+    cursor: pointer;
+}
+
+.channel > rect {
+    stroke: $border-subtle;
+}
+
+.channel-name {
+    -webkit-line-clamp: 2;
+    height: 32px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    padding: 6px 8px;
+}
+
+#current-time-line {
+    stroke-width: 2px;
+    stroke: $accent-primary;
+}
+
+// The app ships a single dark theme (see m3-theme.scss), so only the
+// .dark-theme branch can ever match; the former .light-theme overrides here
+// were unreachable.
+::ng-deep {
+    .dark-theme {
+        #epg-navigation {
+            background: rgba(18, 18, 26, 0.85);
+        }
+    }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+    #epg-navigation {
+        padding-left: 70px; // Slightly reduced for smaller screens
+    }
+
+    #channels-column {
+        width: 140px;
+
+        .channel-name {
+            font-size: 11.5px;
+            padding: 6px 8px;
+            gap: 8px;
+
+            img {
+                width: 20px !important;
+                height: 20px !important;
+            }
+        }
+    }
+
+    #epg-container {
+        width: calc(100vw - 140px);
+    }
+
+    .today-date {
+        font-size: 12px;
+        padding: 0 12px;
+    }
+}
+
+// Embedded as a playlist's TV-guide page (instead of the full-screen
+// overlay): fill the flex cell the player page provides rather than sizing
+// against the viewport.
+:host(.inline-guide) {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 0;
+    min-height: 0;
+    overflow: hidden;
+
+    .parent {
+        flex: 1 1 0;
+        height: auto;
+        min-height: 0;
+    }
+
+    // The overlay sizes the scroller against the viewport; embedded in the
+    // player page it sits beside the app sidebar, so a viewport-derived width
+    // overflows its own box.
+    #epg-container {
+        width: 100%;
+        flex: 1 1 0;
+    }
+}

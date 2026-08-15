@@ -1,6 +1,7 @@
 import { DestroyRef, inject, Injectable } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { TranslateService } from '@ngx-translate/core';
 import {
     WorkspaceCommandSelection,
     WorkspaceResolvedCommandItem,
@@ -20,6 +21,7 @@ export class WorkspaceShellCommandPaletteService {
     private readonly viewCommands = inject(WorkspaceViewCommandService);
     private readonly recentCommands = inject(RecentCommandsService);
     private readonly destroyRef = inject(DestroyRef);
+    private readonly translate = inject(TranslateService);
     private readonly playerCommands = inject(
         WorkspacePlayerCommandsContributor
     );
@@ -84,6 +86,11 @@ export class WorkspaceShellCommandPaletteService {
             width: 'min(760px, 92vw)',
             maxWidth: '92vw',
             panelClass: 'workspace-command-palette-overlay',
+            // The palette focuses its own search field, so CDK autofocus is
+            // off; the label keeps the dialog from announcing as unnamed.
+            ariaLabel: this.translate.instant(
+                'WORKSPACE.COMMAND_PALETTE.SEARCH_LABEL'
+            ) as string,
             autoFocus: false,
             data: {
                 commands,

@@ -164,7 +164,25 @@ The shared row should be reused instead of rebuilding channel markup per view.
   total channel count, page-size controls, and page navigation above the shared
   `app-grid-list`. Use the grid list's logo-oriented live variant so channel
   logos stay contained in 16:9 thumbnails instead of being cropped like
-  VOD/series posters. Selecting a channel from that root grid starts playback,
+  VOD/series posters. The grid container is `role="list"` and each card sits in
+  a `role="listitem"` wrapper carrying `aria-posinset`/`aria-setsize` computed
+  across pages, so a screen reader announces "52 of 320" rather than "2 of 25".
+  Cards themselves are `role="button"` with an `aria-label` carrying the item
+  title, activated by click, Enter, or Space; posters are `alt=""` so the title
+  (not a repeated "logo") is the accessible name. A roving tabindex
+  (`GridCardFocus` in `grid-card-focus.ts`) keeps exactly one card tabbable —
+  a page of 100 posters was otherwise 100 tab stops — and the arrows move
+  between them: left/right along a row, up/down by a whole row, Home/End to the
+  ends. The row step is read from the live `grid-template-columns` because the
+  grid is `auto-fill` and its column count changes with the window.
+  `totalItems()` falls back to `pageIndex * limit + items.length` when a portal
+  reports no page count, since `totalPages * limit` was 0 there and left the
+  paginator claiming "0 of 0" with its next button disabled. The grid tracks by
+  `index:id`, not by index alone — index-only tracking
+  made Angular reuse each card's `<img>` across a page change and the browser
+  keeps painting the decoded poster until the replacement loads, so the new
+  page's titles briefly sat under the previous page's artwork. Selecting a
+  channel from that root grid starts playback,
   selects the channel's category, highlights the active category and channel,
   and scrolls the category rail plus virtual channels list to the selected rows
   when those rails are visible.

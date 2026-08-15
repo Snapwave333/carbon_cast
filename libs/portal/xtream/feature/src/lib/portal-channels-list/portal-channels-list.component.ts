@@ -27,8 +27,10 @@ import { Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import {
     buildXtreamEpgMappingKey,
+    ChannelSortMode,
     EpgItem,
     EpgProgram,
+    sortChannelItems,
     XtreamCategory,
     XtreamItem,
 } from '@iptvnator/shared/interfaces';
@@ -37,10 +39,6 @@ import {
     ChannelListSkeletonComponent,
     EpgMappingDialogComponent,
 } from '@iptvnator/ui/components';
-import {
-    PortalChannelSortMode,
-    sortPortalChannelItems,
-} from '@iptvnator/portal/shared/util';
 import { EpgQueueService } from '@iptvnator/portal/xtream/data-access';
 import { XtreamCredentials } from '@iptvnator/portal/xtream/data-access';
 import { FavoritesService } from '@iptvnator/portal/xtream/data-access';
@@ -82,7 +80,7 @@ interface XtreamCategoryLike {
 export class PortalChannelsListComponent implements AfterViewInit, OnDestroy {
     readonly playClicked = output<XtreamChannelListItem>();
     readonly playbackRequested = output<XtreamChannelListItem>();
-    readonly sortMode = input<PortalChannelSortMode>('server');
+    readonly sortMode = input<ChannelSortMode>('server');
     readonly channelsOverride = input<XtreamChannelListItem[] | null>(null);
     readonly searchTermInput = input('');
 
@@ -112,7 +110,7 @@ export class PortalChannelsListComponent implements AfterViewInit, OnDestroy {
     readonly sortedChannels = computed(() => {
         const mode = this.sortMode();
         const channels = this.channels();
-        return sortPortalChannelItems(
+        return sortChannelItems(
             channels,
             mode,
             (item) => item.title ?? item.name

@@ -393,6 +393,8 @@ channel-list-container/
 ├── channel-list-container.component.ts   # Parent - shared state coordinator
 ├── channel-list-container.component.html
 ├── channel-list-container.component.scss
+├── channel-list-epg.controller.ts        # EPG sources, refresh cadence, side-car maps
+├── channel-epg-key.util.ts               # Memoized EPG lookup key per channel object
 │
 ├── all-channels-view/                     # Virtual scroll + debounced search
 │   ├── all-channels-view.component.ts
@@ -403,16 +405,6 @@ channel-list-container/
 │   ├── groups-view.component.ts
 │   ├── groups-view.component.html
 │   └── groups-view.component.scss
-│
-├── favorites-view/                        # Drag-drop reordering
-│   ├── favorites-view.component.ts
-│   ├── favorites-view.component.html
-│   └── favorites-view.component.scss
-│
-├── recent-view/                           # Recently viewed channels
-│   ├── recent-view.component.ts
-│   ├── recent-view.component.html
-│   └── recent-view.component.scss
 │
 └── channel-list-item/                     # Individual channel display
     ├── channel-list-item.component.ts
@@ -433,6 +425,15 @@ channel-list-container/
 │  │  - shouldShowEpg: boolean                              │  │
 │  │  - favoriteIds: Set<string>                            │  │
 │  └────────────────────────────────────────────────────────┘  │
+│  `channelEpgMap`, `channelIconMap`, `shouldShowEpg` and the   │
+│  EPG refresh cadence are owned by `ChannelListEpgController`, │
+│  constructed from a container field and started/stopped in    │
+│  `ngOnInit`/`ngOnDestroy`. Lookups are `switchMap`-ed, so a   │
+│  slow earlier request can never overwrite a newer result, and │
+│  a failed one is swallowed so the periodic refresh recovers.  │
+│  Favourites and recently-viewed read `channelsByUrl` /        │
+│  `channelsById`, computed from the playlist alone — they must │
+│  not be rebuilt per favourite toggle on a 90k-channel list.   │
 │                           │                                   │
 │     ┌─────────────────────┼─────────────────────┐            │
 │     ▼                     ▼                     ▼            │
@@ -900,8 +901,24 @@ Settings.
 The grid uses overlap-based day layout: programmes crossing midnight are
 clipped to the selected day's 24-hour canvas rather than omitted. Its real
 minute clock drives the today-only playhead and airing highlights; the Today
-action returns both the selected date and horizontal scroll to now. Programme
-tiles are keyboard-focusable and open with Enter or Space.
+action returns both the selected date and horizontal scroll to now.
+
+Programme tiles follow the grid keyboard pattern (`MultiEpgProgramFocus` in
+`multi-epg-program-focus.ts`): a **roving tabindex** keeps exactly one cell
+tabbable, so Tab steps past the whole guide in one press instead of stopping at
+every programme; left/right move along the channel, up/down move to the
+neighbouring channel's programme nearest the same point on the timeline (rows
+almost never share ordinals), and Enter or Space opens the details dialog. The
+template stamps each cell's `data-program-key` so the controller can focus the
+new cell after the tabindex swap lands.
+
+Programme times are read through `getProgramTimeMs`, which rejects implausible
+values rather than plotting them: a feed already emitting **milliseconds** in
+`start_timestamp`/`stop_timestamp` would otherwise be multiplied by 1000 and
+land tens of thousands of years out, and both the timeline ribbon and the grid
+size their axis from the furthest programme — one such row generated ticks and
+day dividers across millennia and locked the tab. `buildTimelineAxis` clamps to
+`now ± TIMELINE_MAX_SPAN_MS` (90 days) as a second backstop.
 
 Programme artwork from the XMLTV feed (`EpgProgram.iconUrl`) renders as a
 thumbnail in cells wide enough to keep the title readable, and as a small

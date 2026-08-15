@@ -2,6 +2,7 @@ export * from './lib/channel-list-container/channel-list-container.component';
 export * from './lib/channel-list-container/channel-details-dialog/channel-details-dialog.component';
 export * from './lib/channel-list-container/epg-mapping-dialog/epg-mapping-dialog.component';
 export * from './lib/channel-list-container/channel-list-item/channel-list-item.component';
+export * from './lib/channel-list-container/listbox-cursor';
 export * from './lib/channel-list-container/channel-list-item-skeleton/channel-list-item-skeleton.component';
 export * from './lib/channel-list-container/channel-list-skeleton/channel-list-skeleton.component';
 export * from './lib/channel-list-loading-state/channel-list-loading-state.component';

@@ -26,8 +26,7 @@ interface TranslatedRecordingFeedback {
 }
 
 export type RecordingFeedback =
-    | RawRecordingFeedback
-    | TranslatedRecordingFeedback;
+    RawRecordingFeedback | TranslatedRecordingFeedback;
 
 export function resolveRecordingFeedback(
     feedback: RecordingFeedback | null,

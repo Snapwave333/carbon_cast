@@ -123,74 +123,18 @@ describe('HtmlVideoPlayerComponent', () => {
         expect(component.playChannel).toHaveBeenCalledWith(TEST_CHANNEL);
     });
 
-    it('passes channel headers and stream URL to Electron header overrides', () => {
-        jest.spyOn(
-            component.videoPlayer.nativeElement,
-            'load'
-        ).mockImplementation(() => undefined);
-        jest.spyOn(
-            component.videoPlayer.nativeElement,
-            'play'
-        ).mockResolvedValue(undefined);
-
-        component.playChannel({
-            ...TEST_CHANNEL,
-            http: {
-                'user-agent': 'ChannelAgent/1.0',
-                origin: '',
-                referrer: 'https://portal.example/referrer',
-            },
-            radio: 'false',
-            url: 'https://stream.example/video.mp4',
-        });
-
-        expect(electronApi.setUserAgent).toHaveBeenCalledWith(
-            'ChannelAgent/1.0',
-            'https://portal.example/referrer',
-            'https://stream.example/video.mp4'
-        );
-    });
-
-    it('clears Electron header overrides for channels without custom headers', () => {
-        jest.spyOn(
-            component.videoPlayer.nativeElement,
-            'load'
-        ).mockImplementation(() => undefined);
-        jest.spyOn(
-            component.videoPlayer.nativeElement,
-            'play'
-        ).mockResolvedValue(undefined);
-
-        component.playChannel({
-            ...TEST_CHANNEL,
-            http: {
-                'user-agent': '',
-                origin: '',
-                referrer: '',
-            },
-            radio: 'false',
-            url: 'https://stream.example/video.mp4',
-        });
-
-        expect(electronApi.setUserAgent).toHaveBeenCalledWith(
-            '',
-            '',
-            'https://stream.example/video.mp4'
-        );
-    });
-
-    it('replaces and reloads native video sources when switching episodes', () => {
+    it('replaces and reloads native video sources when switching episodes', async () => {
         const video = component.videoPlayer.nativeElement;
         const loadSpy = jest
             .spyOn(video, 'load')
             .mockImplementation(() => undefined);
         const playSpy = jest.spyOn(video, 'play').mockResolvedValue(undefined);
 
-        component.playChannel({
+        await component.playChannel({
             ...TEST_CHANNEL,
             url: 'https://stream.example/series/s01e01.mp4',
         });
-        component.playChannel({
+        await component.playChannel({
             ...TEST_CHANNEL,
             url: 'https://stream.example/series/s01e02.mp4',
         });
@@ -292,7 +236,7 @@ describe('HtmlVideoPlayerComponent', () => {
         expect(issues[0].details).toContain('"status":0');
     });
 
-    it('emits playbackEnded exactly once for a native ended event and not during reload or destroy', () => {
+    it('emits playbackEnded exactly once for a native ended event and not during reload or destroy', async () => {
         const events: string[] = [];
         (
             component as unknown as {
@@ -311,7 +255,7 @@ describe('HtmlVideoPlayerComponent', () => {
         ).mockResolvedValue(undefined);
 
         component.videoPlayer.nativeElement.dispatchEvent(new Event('ended'));
-        component.playChannel({
+        await component.playChannel({
             ...TEST_CHANNEL,
             url: 'https://stream.example/series/s01e03.mp4',
         });

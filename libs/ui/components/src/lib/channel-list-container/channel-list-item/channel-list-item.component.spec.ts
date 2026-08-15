@@ -91,6 +91,42 @@ describe('ChannelListItemComponent', () => {
         expect(fixture.nativeElement.querySelector('.channel-logo')).toBeNull();
     });
 
+    it('falls back to the generic icon when the logo fails to load', () => {
+        fixture.componentRef.setInput('name', 'Broken Logo');
+        fixture.componentRef.setInput('logo', 'https://example.com/broken.png');
+        fixture.detectChanges();
+
+        fixture.nativeElement
+            .querySelector('.channel-logo')
+            .dispatchEvent(new Event('error'));
+        fixture.detectChanges();
+
+        expect(fixture.nativeElement.querySelector('.channel-logo')).toBeNull();
+        expect(
+            fixture.nativeElement.querySelector('.channel-logo-fallback')
+        ).not.toBeNull();
+    });
+
+    it('shows the logo again when a recycled row receives a working one', () => {
+        fixture.componentRef.setInput('name', 'Broken Logo');
+        fixture.componentRef.setInput('logo', 'https://example.com/broken.png');
+        fixture.detectChanges();
+        fixture.nativeElement
+            .querySelector('.channel-logo')
+            .dispatchEvent(new Event('error'));
+        fixture.detectChanges();
+
+        fixture.componentRef.setInput('logo', 'https://example.com/good.png');
+        fixture.detectChanges();
+
+        const logo = fixture.nativeElement.querySelector('.channel-logo');
+        expect(logo).not.toBeNull();
+        expect(logo.style.display).toBe('');
+        expect(
+            fixture.nativeElement.querySelector('.channel-logo-fallback')
+        ).toBeNull();
+    });
+
     it('emits clicked on a single click by default', () => {
         const clicked = jest.fn();
         fixture.componentInstance.clicked.subscribe(clicked);

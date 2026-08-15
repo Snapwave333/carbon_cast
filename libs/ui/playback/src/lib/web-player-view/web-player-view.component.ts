@@ -40,6 +40,8 @@ import {
     type PlaybackDiagnostic,
     PlaybackDiagnosticCode,
     type PlaybackFallbackRequest,
+    classifyMissingStreamUrl,
+    createPlaybackSourceMetadata,
     getPlaybackMediaExtensionFromUrl,
 } from '../playback-diagnostics/playback-diagnostics.util';
 import type { SeriesPlaybackNavigation } from '../portal-inline-player/series-playback-navigation';
@@ -208,7 +210,9 @@ export class WebPlayerViewComponent {
         }
         return { primary: title, secondary: null };
     });
-    readonly recordingFolder = computed(() => this.settings()?.recordingFolder ?? '');
+    readonly recordingFolder = computed(
+        () => this.settings()?.recordingFolder ?? ''
+    );
 
     constructor() {
         effect(() => {
@@ -225,6 +229,17 @@ export class WebPlayerViewComponent {
             this.playbackDiagnostic.set(null);
             this.setChannel(playback);
             this.setVjsOptions(playback.streamUrl, this.resolvedIsLive());
+            if (!playback.streamUrl?.trim()) {
+                // Every engine renders a silent black surface for this, so the
+                // host names it instead of leaving the user with no feedback.
+                this.playbackDiagnostic.set(
+                    classifyMissingStreamUrl(
+                        createPlaybackSourceMetadata({
+                            url: playback.streamUrl ?? '',
+                        })
+                    )
+                );
+            }
         });
     }
 
@@ -309,7 +324,9 @@ export class WebPlayerViewComponent {
         );
     }
 
-    private async engageInAppFallback(issue: PlaybackDiagnostic): Promise<void> {
+    private async engageInAppFallback(
+        issue: PlaybackDiagnostic
+    ): Promise<void> {
         const supported = await probeEmbeddedMpvFallback();
         // The diagnostic (with its external-player actions) stays up when the
         // engine is unavailable, or when the situation changed while probing.

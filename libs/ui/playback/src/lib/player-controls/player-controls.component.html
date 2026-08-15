@@ -1,3 +1,21 @@
+@if (isBuffering()) {
+    <div
+        class="player-controls__buffering"
+        role="status"
+        data-test-id="player-controls-buffering"
+        [attr.aria-label]="'EMBEDDED_MPV.PLAYER.LOADING_STREAM' | translate"
+    >
+        <div class="player-controls__buffering-viewport" aria-hidden="true">
+            <img
+                class="player-controls__buffering-strip"
+                src="assets/animations/loading-loop.webp"
+                alt=""
+                decoding="async"
+            />
+        </div>
+    </div>
+}
+
 @if (feedback.current(); as fb) {
     <div
         class="player-controls__feedback"
