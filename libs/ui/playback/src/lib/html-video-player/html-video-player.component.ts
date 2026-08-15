@@ -47,6 +47,7 @@ import {
     HtmlVideoPlayerControlsBridge,
     type HtmlVideoControlsSource,
 } from './html-video-player-controls.bridge';
+import { configureRequestHeaders } from './html-video-request-headers';
 
 const debugHtmlPlayer = createDevLogger('HtmlVideoPlayer');
 
@@ -189,11 +190,9 @@ export class HtmlVideoPlayerComponent implements OnInit, OnChanges, OnDestroy {
         const url = channel.url + (channel.epgParams ?? '');
         const extension = getPlaybackMediaExtensionFromUrl(channel.url);
 
-        // The override lives in the main process and only takes effect once
-        // the IPC lands. Starting the engine first would send the manifest
-        // request with the default headers, which providers that require a
-        // user-agent reject outright.
-        await this.configureRequestHeaders(channel);
+        // Must land before any engine starts, or the manifest goes out with
+        // the default headers. Bounded, so a stuck IPC cannot block playback.
+        await configureRequestHeaders(channel);
         if (this.playbackGeneration !== generation) {
             return;
         }
@@ -220,22 +219,6 @@ export class HtmlVideoPlayerComponent implements OnInit, OnChanges, OnDestroy {
         this.destroyHls();
         this.shakaSession?.stop();
         clearNativeVideoSources(this.videoPlayer.nativeElement);
-    }
-
-    private async configureRequestHeaders(channel: Channel): Promise<void> {
-        try {
-            await window.electron?.setUserAgent(
-                channel.http?.['user-agent'],
-                channel.http?.referrer,
-                channel.url
-            );
-        } catch (error: unknown) {
-            // Playing with the default headers still beats not playing at all.
-            console.warn(
-                '[HtmlVideoPlayer] Failed to configure Electron request headers:',
-                error
-            );
-        }
     }
 
     private startShakaSource(channel: Channel, url: string): void {

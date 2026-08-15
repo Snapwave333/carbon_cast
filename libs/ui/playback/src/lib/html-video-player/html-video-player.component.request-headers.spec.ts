@@ -147,6 +147,32 @@ describe('HtmlVideoPlayerComponent request headers', () => {
         expect(order).toEqual(['setUserAgent', 'load']);
     });
 
+    it('starts playback anyway when the header IPC never settles', async () => {
+        jest.useFakeTimers();
+        const video = component.videoPlayer.nativeElement;
+        jest.spyOn(video, 'play').mockResolvedValue(undefined);
+        const load = jest
+            .spyOn(video, 'load')
+            .mockImplementation(() => undefined);
+        // A wedged main process: the invoke never resolves or rejects.
+        electronApi.setUserAgent.mockImplementationOnce(
+            () => new Promise<boolean>(() => undefined)
+        );
+
+        const playing = component.playChannel({
+            ...TEST_CHANNEL,
+            url: 'https://stream.example/video.mp4',
+        });
+
+        expect(load).not.toHaveBeenCalled();
+
+        await jest.advanceTimersByTimeAsync(3000);
+        await playing;
+
+        expect(load).toHaveBeenCalled();
+        jest.useRealTimers();
+    });
+
     it('ignores a superseded channel that was still awaiting its headers', async () => {
         const video = component.videoPlayer.nativeElement;
         jest.spyOn(video, 'play').mockResolvedValue(undefined);
