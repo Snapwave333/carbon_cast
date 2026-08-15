@@ -5,6 +5,7 @@ import {
     ChannelActions,
     FavoritesActions,
     selectActive,
+    selectActivePlaylistId,
     selectChannels,
     selectCurrentEpgProgram,
     selectFavorites,
@@ -212,11 +213,36 @@ export class AgentControlRuntimeService {
         const limit = Math.trunc(typeof params.limit === 'number' ? params.limit : 50);
         if (!Number.isFinite(limit) || limit < 1 || limit > 200) throw agentError('invalid-request', 'limit must be between 1 and 200.');
         const matches = query ? channels.filter((channel) => channel.name?.toLocaleLowerCase().includes(query)) : channels;
-        return { count: matches.length, channels: matches.slice(0, limit).map(safeChannel) };
+        return {
+            count: matches.length,
+            // Without this an agent cannot tell "the playlist is empty" from
+            // "this route never loaded the channels", and the TV guide is one
+            // of the routes that does not.
+            loaded: channels.length > 0 || !(await this.activePlaylistId()),
+            channels: matches.slice(0, limit).map(safeChannel),
+        };
+    }
+
+    /**
+     * A playlist is open but its channels are not in the store, which happens
+     * on routes that do not render the channel list (the guide, for one).
+     * Reporting "not found" there sends the caller looking for a channel that
+     * does exist.
+     */
+    private async assertChannelsLoaded(channels: Channel[]): Promise<void> {
+        if (channels.length || !(await this.activePlaylistId())) {
+            return;
+        }
+
+        throw agentError(
+            'operation-unsupported',
+            'The open playlist has not loaded its channels on this route. Navigate to a channel view first, for example app.navigate with the playlist\'s /all route.'
+        );
     }
 
     private async switchChannel(params: Record<string, unknown>): Promise<SafeState> {
         const channels = await this.channels();
+        await this.assertChannelsLoaded(channels);
         const number = typeof params.number === 'number' ? Math.trunc(params.number) : null;
         const id = typeof params.channelId === 'string' ? params.channelId : '';
         const channel = id ? channels.find((item) => item.id === id) : number ? channels[number - 1] : null;
@@ -227,6 +253,7 @@ export class AgentControlRuntimeService {
 
     private async shiftChannel(delta: number): Promise<SafeState> {
         const [channels, active] = await Promise.all([this.channels(), this.activeChannel()]);
+        await this.assertChannelsLoaded(channels);
         const index = channels.findIndex((channel) => channel.id === active?.id);
         if (index < 0 || !channels.length) throw agentError('not-found', 'No active channel is available.');
         const channel = channels[(index + delta + channels.length) % channels.length];
@@ -338,6 +365,12 @@ export class AgentControlRuntimeService {
 
     private channels(): Promise<Channel[]> {
         return firstValueFrom(this.store.select(selectChannels).pipe(take(1)));
+    }
+
+    private activePlaylistId(): Promise<string | null> {
+        return firstValueFrom(
+            this.store.select(selectActivePlaylistId).pipe(take(1))
+        ).then((id) => id ?? null);
     }
 
     private activeChannel(): Promise<Channel | null> {
