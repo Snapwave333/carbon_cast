@@ -1358,6 +1358,16 @@
             "NO_ITEMS_BODY": "Start watching anything from your library and it will show up here."
         }
     },
+    "PLAYBACK_BAR": {
+        "TITLE": "Reproduciendo ahora",
+        "EXPAND": "Ampliar reproductor",
+        "MAXIMIZE": "Maximizar reproductor",
+        "COLLAPSE": "Contraer reproductor",
+        "POP_OUT": "Abrir en ventana flotante",
+        "POP_IN": "Volver a la aplicación",
+        "PLAYING_IN_WINDOW": "Reproduciendo en una ventana flotante",
+        "POP_OUT_UNAVAILABLE": "No se pudo abrir la ventana flotante."
+    },
     "RADIO": {
         "TITLE": "Radio y podcasts",
         "SUBTITLE": "Estaciones de radio por Internet y podcasts gratuitos — sin necesidad de cuenta",
@@ -1396,6 +1406,12 @@
         "EPISODES_EMPTY": "No se encontraron episodios en este feed.",
         "EPISODES_ERROR": "No se pudieron cargar los episodios de este feed.",
         "FEED_BLOCKED": "Este feed no se puede leer en el navegador. Abre la aplicación de escritorio para escuchar este programa.",
+        "ERROR_ABORTED": "La reproducción se detuvo antes de empezar.",
+        "ERROR_NETWORK": "No se pudo acceder a la emisión. Comprueba tu conexión e inténtalo de nuevo.",
+        "ERROR_DECODE": "No se pudo descodificar la emisión.",
+        "ERROR_UNSUPPORTED": "Este formato de emisión no es compatible.",
+        "ERROR_AUTOPLAY_BLOCKED": "Tu navegador bloqueó la reproducción. Pulsa reproducir para iniciarla.",
+        "ERROR_GENERIC": "No se pudo reproducir la emisión.",
         "RETRY": "Reintentar",
         "REFRESH_FEED": "Actualizar feed",
         "BACK_TO_PODCASTS": "Volver a podcasts",

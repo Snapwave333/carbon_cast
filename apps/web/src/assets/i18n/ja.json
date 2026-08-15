@@ -1358,6 +1358,16 @@
             "NO_ITEMS_BODY": "Start watching anything from your library and it will show up here."
         }
     },
+    "PLAYBACK_BAR": {
+        "TITLE": "再生中",
+        "EXPAND": "プレーヤーを拡大",
+        "MAXIMIZE": "プレーヤーを最大化",
+        "COLLAPSE": "プレーヤーを縮小",
+        "POP_OUT": "フローティングウィンドウで開く",
+        "POP_IN": "アプリに戻す",
+        "PLAYING_IN_WINDOW": "フローティングウィンドウで再生中",
+        "POP_OUT_UNAVAILABLE": "フローティングウィンドウを開けませんでした。"
+    },
     "RADIO": {
         "TITLE": "ラジオとポッドキャスト",
         "SUBTITLE": "無料のインターネットラジオ局とポッドキャスト — アカウント不要",
@@ -1396,6 +1406,12 @@
         "EPISODES_EMPTY": "このフィードにはエピソードが見つかりませんでした。",
         "EPISODES_ERROR": "このフィードからエピソードを読み込めませんでした。",
         "FEED_BLOCKED": "このフィードはブラウザでは読み取れません。この番組を聴くにはデスクトップアプリを開いてください。",
+        "ERROR_ABORTED": "再生は開始前に停止されました。",
+        "ERROR_NETWORK": "ストリームに接続できませんでした。接続を確認してもう一度お試しください。",
+        "ERROR_DECODE": "ストリームをデコードできませんでした。",
+        "ERROR_UNSUPPORTED": "このストリーム形式はサポートされていません。",
+        "ERROR_AUTOPLAY_BLOCKED": "ブラウザーが再生をブロックしました。再生ボタンを押してください。",
+        "ERROR_GENERIC": "ストリームを再生できませんでした。",
         "RETRY": "再試行",
         "REFRESH_FEED": "フィードを更新",
         "BACK_TO_PODCASTS": "ポッドキャスト一覧に戻る",

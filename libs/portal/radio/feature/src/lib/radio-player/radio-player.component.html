@@ -176,7 +176,7 @@
         @if (status() === 'error') {
             <p class="radio-player__error" role="alert">
                 <mat-icon svgIcon="error"></mat-icon>
-                <span>{{ errorMessage() }}</span>
+                <span>{{ (errorMessage() ?? 'RADIO.ERROR_GENERIC') | translate }}</span>
                 <button mat-button (click)="retry()">
                     {{ 'RADIO.RETRY' | translate }}
                 </button>

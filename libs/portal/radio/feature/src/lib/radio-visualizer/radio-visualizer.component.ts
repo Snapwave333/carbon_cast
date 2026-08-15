@@ -10,11 +10,7 @@ import {
     untracked,
     viewChild,
 } from '@angular/core';
-import {
-    advanceEnvelope,
-    EnergyFrame,
-    sampleEnergy,
-} from './radio-energy-model';
+import { advanceEnvelope, sampleEnergy } from './radio-energy-model';
 import { RadioMetaballRenderer } from './radio-metaball-renderer';
 
 /** Hue revolutions per second at rest; loud passages push it faster. */
@@ -39,7 +35,7 @@ const IDLE_TIMEOUT_SECONDS = 2.5;
 export class RadioVisualizerComponent {
     readonly isPlaying = input(false);
     readonly volume = input(1);
-    /** Restarts the hue sweep from a new angle when the track changes. */
+    /** Reseeds the hue sweep and the choreography when the track changes. */
     readonly trackId = input<string>('');
 
     readonly isSupported = signal(true);
@@ -54,6 +50,8 @@ export class RadioVisualizerComponent {
     private lastFrameAt = 0;
     private envelope = 0;
     private hue = Math.random();
+    /** Which arrangement of parts this station opens on. */
+    private seed = 0;
     private idleFor = 0;
     private readonly prefersReducedMotion = matchesReducedMotion();
 
@@ -63,6 +61,7 @@ export class RadioVisualizerComponent {
             untracked(() => {
                 if (trackId) {
                     this.hue = hashToUnit(trackId);
+                    this.seed = Math.round(hashToUnit(`${trackId}:parts`) * 1000);
                 }
             });
         });
@@ -141,13 +140,16 @@ export class RadioVisualizerComponent {
                     (this.prefersReducedMotion ? 0.25 : 1)
         );
 
-        renderer.render(
-            this.prefersReducedMotion ? input.time * 0.25 : input.time,
-            this.hue,
-            energy
-        );
+        renderer.render({
+            time: this.prefersReducedMotion ? input.time * 0.25 : input.time,
+            hue: this.hue,
+            energy,
+            seed: this.seed,
+            // Smearing is the opposite of what reduced motion asks for.
+            trails: !this.prefersReducedMotion,
+        });
 
-        if (this.shouldPark(energy, delta)) {
+        if (this.shouldPark(delta)) {
             this.frameHandle = null;
             return;
         }
@@ -155,14 +157,19 @@ export class RadioVisualizerComponent {
         this.frameHandle = requestAnimationFrame(() => this.frame());
     }
 
-    private shouldPark(energy: EnergyFrame, delta: number): boolean {
+    private shouldPark(delta: number): boolean {
+        // The envelope having settled is the whole condition. This used to also
+        // require `energy.level <= 0.2`, which at rest is the model's idle level
+        // and so was always true — but it silently became a trap: raise that
+        // idle level and the loop would never park, holding a frame loop open
+        // on a dock that is doing nothing.
         if (this.isPlaying() || this.envelope > 0.02) {
             this.idleFor = 0;
             return false;
         }
 
         this.idleFor += delta;
-        return this.idleFor > IDLE_TIMEOUT_SECONDS && energy.level <= 0.2;
+        return this.idleFor > IDLE_TIMEOUT_SECONDS;
     }
 }
 

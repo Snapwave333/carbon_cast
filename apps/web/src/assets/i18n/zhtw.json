@@ -1358,6 +1358,16 @@
             "NO_ITEMS_BODY": "Start watching anything from your library and it will show up here."
         }
     },
+    "PLAYBACK_BAR": {
+        "TITLE": "正在播放",
+        "EXPAND": "放大播放器",
+        "MAXIMIZE": "最大化播放器",
+        "COLLAPSE": "收合播放器",
+        "POP_OUT": "在浮動視窗中開啟",
+        "POP_IN": "返回應用程式",
+        "PLAYING_IN_WINDOW": "正在浮動視窗中播放",
+        "POP_OUT_UNAVAILABLE": "無法開啟浮動視窗。"
+    },
     "RADIO": {
         "TITLE": "廣播與 Podcast",
         "SUBTITLE": "免費的網路電台與 Podcast — 無需帳號",
@@ -1396,6 +1406,12 @@
         "EPISODES_EMPTY": "此摘要來源中找不到單集。",
         "EPISODES_ERROR": "無法從此摘要來源載入單集。",
         "FEED_BLOCKED": "此摘要來源無法在瀏覽器中讀取。請開啟桌面應用程式收聽此節目。",
+        "ERROR_ABORTED": "播放在開始前已停止。",
+        "ERROR_NETWORK": "無法連線到該串流。請檢查網路連線後重試。",
+        "ERROR_DECODE": "無法解碼該串流。",
+        "ERROR_UNSUPPORTED": "不支援此串流格式。",
+        "ERROR_AUTOPLAY_BLOCKED": "瀏覽器封鎖了播放。請按下播放按鈕。",
+        "ERROR_GENERIC": "無法播放該串流。",
         "RETRY": "重試",
         "REFRESH_FEED": "重新整理摘要來源",
         "BACK_TO_PODCASTS": "返回 Podcast",

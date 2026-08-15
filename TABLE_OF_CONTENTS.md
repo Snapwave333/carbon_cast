@@ -139,6 +139,7 @@ older plan.
 | [`tools/release/`](./tools/release/)           | Release notes, screenshots, artwork, and publishing support |
 | [`tools/testing/`](./tools/testing/)           | Packaged-app launch and test helpers                        |
 | [`tools/tmdb/`](./tools/tmdb/)                 | Build-time TMDB key injection                               |
+| [`tools/visualizer-preview/`](./tools/visualizer-preview/) | Render and measure the radio visualizer headlessly |
 
 ## ⚡ Common Commands
 

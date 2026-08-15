@@ -905,6 +905,25 @@ engine` (restart required) or
 - Dashboard hero/Continue Watching clicks for an Xtream series carry a one-shot resume target through the global-recent inline-detail handoff; after series metadata and playback positions load, the exact saved episode starts at its stored position. A failed positions load leaves the target unconsumed and the handoff detail-only, so a transient storage error never starts the episode from the beginning. Ordinary global-recent grid clicks remain detail-only.
 - See `docs/architecture/embedded-inline-playback.md` ("Two-State Detail Layout")
 
+**Workspace Playback Bar** (`libs/workspace/shell/feature/.../workspace-playback-bar/`):
+
+- Rendered by the shell, not by a page, so radio playback survives navigation.
+  It hosts whichever player currently has media (today: `app-radio-player`)
+- Three remembered sizes from `PlaybackBarService` (`libs/portal/shared/util`):
+  compact `88px` strip, medium `40vh` and large `75vh` stages. The service lives
+  in portal-shared rather than workspace so the players inside the bar can read
+  the size without crossing a module boundary
+- The medium/large stage layout is component CSS reaching into the player
+  through `:host ::ng-deep`. `:host` must lead the selector — Angular rewrites
+  it to the host's own attribute wherever it appears, so nesting it under the
+  size class silently produces a rule that can never match
+- Pop-out uses Document Picture-in-Picture (`DocumentPictureInPictureService`),
+  which *moves* the content element into the floating window rather than
+  cloning it, so the `<audio>` element keeps playing. Two consequences: the
+  `--mat-sys-*` token mapping has to be declared on the moved element itself
+  (a host-scoped block stays behind in the main document), and the bar must
+  close the window when it is destroyed, or the window outlives its content
+
 **Radio Player**:
 
 - Dedicated audio player for channels with `radio="true"` M3U attribute
@@ -944,10 +963,119 @@ playlist:
   without CORS opt-in — i.e. nearly every internet radio stream. Tapping the
   element would mute the audio it visualizes. `radio-energy-model.ts` models the
   shape of music instead; `radio-metaball-renderer.ts` draws it in WebGL2
-- Orbit geometry is aspect-corrected. The dock is roughly 15:1, and orbits
-  written for a square canvas collapse to an invisible pinprick at its centre;
-  `computeOrbPlacements()` is split out from the GL calls so that geometry is
-  unit-testable
+- Orbit geometry is aspect-corrected, in both directions. The compact dock is
+  roughly 15:1, and orbits written for a square canvas collapse to an invisible
+  pinprick at its centre; conversely, radii sized for that strip cover most of
+  the canvas once the playback bar is expanded to a 40vh or 75vh stage, and
+  seven of them then fuse into a flat wash. Both the spread and the radius scale
+  therefore ramp with the aspect ratio. `computeOrbPlacements()` is split out
+  from the GL calls so that geometry is unit-testable
+- Fill cost is budgeted, not just capped at 2x device pixels: the shader
+  evaluates the seven-orb field five times per pixel, and the tall presets are
+  tens of times the area of the strip. `computeDrawingBufferSize()` caps the
+  drawing buffer at ~1.6M pixels, which the canvas's 7px blur makes invisible.
+  The canvas's CSS size comes from a `ResizeObserver` rather than `clientWidth`
+  so the frame loop never forces a synchronous layout
+- Each orb carries its own hue (`OrbPlacement.hue`, golden-ratio spaced over
+  `ORB_HUE_SPREAD`), and the shader blends them weighted by each orb's field
+  contribution, so a core takes its own colour and a neck mixes the two. Hues
+  are uploaded as unit vectors on the colour wheel (`uOrbHues`): averaging them
+  as plain numbers would send a blend of 0.95 and 0.05 to 0.5 — the opposite
+  colour — instead of back through red
+- Orbs are choreographed, not merely animated. Each has a `temperament` and they
+  respond to one another: `anchor` holds the centre, `satellite` orbits it,
+  `mirror` sits opposite the satellite through the centre, `shy` is pushed away
+  and shrinks when crowded, `clinger` chases its nearest neighbour and swells as
+  it closes, `skittish` bolts on the beat, and `drifter` ignores everyone
+  (without one the cluster feels uniformly reactive). The rules live in
+  `radio-orb-behaviours.ts`, the paths and blending in
+  `radio-orb-choreography.ts`. Two rules hold the design together:
+    - **It stays a pure function of `time`.** Interaction is one relaxation
+      pass — all base paths are evaluated, then each orb is displaced from the
+      others' base positions — not an integrated simulation. The frame loop
+      parks when playback stops and resumes later, and a stateful simulation
+      would lurch on resume or have to be kept running to stay correct.
+    - **Partner links read *resolved* positions**, so orbs are resolved in
+      `TEMPERAMENT_RESOLVE_ORDER` (role order, not index order) — satellite
+      after anchor, mirror after satellite. Reading base positions instead put
+      the mirror opposite the path the satellite had already abandoned.
+    - **Nothing may switch on a hard comparison.** The clinger originally
+      chased `nearestOther()`, which teleports it across the frame the instant
+      two candidates are equidistant; it now uses a distance-weighted blend of
+      every neighbour. Same reason the `shy` repulsion is smoothstepped and its
+      denominator softened.
+- Who plays which part rotates (`radio-orb-roster.ts`). The seven temperaments
+  are a fixed ensemble — every one is always cast, so there is always exactly
+  one anchor for the satellite to circle — and the orbs rotate through them on a
+  23s cycle with a 6s crossfade. The rotation is `floor(time / cycle)`, never
+  tracked, so it too survives parking. `temperamentFor` takes a per-station seed
+  so two stations open on different arrangements.
+- `OrbPlacement.prominence` is the size hierarchy: one lead, two supporting,
+  four extras. It belongs to the orb, not to the part, so the eye keeps landing
+  in the same place while behaviour changes around it. `PROMINENCE_FLOOR` is
+  chosen so the mean multiplier is 1 — the hierarchy redistributes area rather
+  than adding it, which is what keeps the coverage budget intact.
+  Temperaments make the orbs gather far more than independent paths did, so
+  they interact with the radius scale: retuning one needs the coverage measured
+  again (see the preview-harness note below), or the tall presets go back to
+  being a flat wash.
+- Orbs also carry a depth layer (`OrbPlacement.layer`, `uOrbs.w`). Near layers
+  travel further, are larger, and catch the specular; far ones are desaturated
+  by aerial perspective. Three traps, all of which were shipped bugs at some
+  point and all of which look like "a dark hole in the middle of every blob":
+    1. **Anything fed the raw field `f` explodes at an orb's centre**, where
+       the inverse-square sum is unbounded. The hue's depth term must use a
+       saturating `density = f / (1 + f)`; raw `f` spun the hue through whole
+       revolutions across two pixels and the blur averaged it to grey.
+    2. **The depth blend must use a saturating weight** (`c / (1 + c)`), or an
+       orb's own layer wins outright at its own centre while the surroundings
+       average toward its neighbours.
+    3. **Depth must not appear in `alpha`.** Inside the body every other alpha
+       term has saturated, so a depth factor there is the only thing varying
+       across it and shows up directly. On the colour terms it is outweighed by
+       `density`, which peaks in the same place. For the same reason aerial
+       perspective leans on desaturation rather than dimming.
+  When something looks wrong here, render the suspect term straight to
+  `fragColor` as greyscale and look at it — the terms interact in ways that do
+  not survive reasoning about them in the abstract
+- The synthetic beat is an attack/decay envelope with a **smoothstepped** rise,
+  not a bare exponential decay. An exponential decay restarts each beat with a
+  step from silence to full, and an exponential *attack* is at its steepest the
+  instant the beat lands; both read as a jolt. `PULSE_PEAK` is scanned once at
+  load so the pulse still tops out at 1 whatever the constants are retuned to,
+  because every weight applied to it downstream assumes that range
+- Body brightness rides `density` so blobs read as volumes lit from within
+  rather than flat discs, and a cheap hash `grain()` dithers the result: the
+  body is one enormous smooth gradient and an 8-bit surface bands visibly
+  across it at the tall presets
+- Motion trails accumulate in an offscreen RGBA8 framebuffer that is faded each
+  frame and blitted to the canvas, because the drawing buffer itself is cleared
+  by the compositor between frames. Two things the implementation depends on:
+    - **The frame is combined with `MAX`, not composited over.** Compositing
+      over a faded buffer is a temporal integrator, so a *stationary* region
+      keeps adding to its own decayed self — a halo at alpha 0.3 settles at
+      0.79 — and the whole picture washes out instead of growing tails.
+      Measured: mean coverage went 0.40 → 0.66 at the large preset. With `MAX`
+      anything still keeps exactly its own value and only vacated pixels decay.
+    - **The fade is time-based** (`exp(-dt / TRAIL_FADE_SECONDS)`), so the trail
+      is the same length at 30fps as at 60, and a gap longer than
+      `MAX_TRAIL_STEP_SECONDS` clears instead of smearing — that gap means the
+      loop parked and resumed. Trails are off under `prefers-reduced-motion`,
+      and fail closed if the framebuffer cannot be created
+- Shader source and program linking live in `radio-metaball-program.ts`, the
+  trail framebuffer in `radio-trail-buffer.ts`, and the orb geometry in
+  `radio-orb-{choreography,behaviours,roster}.ts`; `radio-metaball-renderer.ts`
+  keeps only the GL lifecycle and the uniform uploads
+- **Look at it before and after changing it**, with `pnpm run viz`
+  (`tools/visualizer-preview/`, which has its own README). The visualizer cannot
+  be checked from unit tests and the in-app browser preview does not composite,
+  so `requestAnimationFrame` never fires there and the frame loop never runs;
+  the tool bundles the real modules and renders them headlessly through
+  SwiftShader instead. `viz shots` screenshots each dock size, `viz coverage`
+  guards the flat-wash failure (compact sits near 0.30, large near 0.38; much
+  past 0.5 and the blobs stop reading as separate bodies), `viz trails` checks
+  the trail is not integrating, and `viz perf` gives a rough frame cost. Every
+  shading bug listed above was found this way and none was visible in review
 
 **EPG (Electronic Program Guide)**:
 

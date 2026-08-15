@@ -147,7 +147,7 @@ export class RadioPlayerComponent {
         }
 
         void audio.play().catch((error: unknown) => {
-            this.player.reportError(toErrorMessage(error));
+            this.player.reportError(describePlaybackError(error));
         });
     }
 
@@ -293,7 +293,7 @@ export class RadioPlayerComponent {
         this.player.errorMessage.set(null);
         audio.load();
         void audio.play().catch((error: unknown) => {
-            this.player.reportError(toErrorMessage(error));
+            this.player.reportError(describePlaybackError(error));
         });
     }
 
@@ -343,21 +343,29 @@ function readStoredVolume(): number {
     }
 }
 
-function toErrorMessage(error: unknown): string {
-    return error instanceof Error ? error.message : String(error);
+/**
+ * Playback failures are surfaced as translation keys rather than sentences:
+ * the raw `DOMException`/`MediaError` text is English-only and written for
+ * developers, and this player ships in nineteen languages.
+ */
+function describePlaybackError(error: unknown): string {
+    if (error instanceof DOMException && error.name === 'NotAllowedError') {
+        return 'RADIO.ERROR_AUTOPLAY_BLOCKED';
+    }
+    return 'RADIO.ERROR_GENERIC';
 }
 
 function describeMediaError(error: MediaError | null): string {
     switch (error?.code) {
         case MediaError.MEDIA_ERR_ABORTED:
-            return 'Playback was aborted';
+            return 'RADIO.ERROR_ABORTED';
         case MediaError.MEDIA_ERR_NETWORK:
-            return 'The stream could not be reached';
+            return 'RADIO.ERROR_NETWORK';
         case MediaError.MEDIA_ERR_DECODE:
-            return 'The stream could not be decoded';
+            return 'RADIO.ERROR_DECODE';
         case MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED:
-            return 'This stream format is not supported';
+            return 'RADIO.ERROR_UNSUPPORTED';
         default:
-            return 'The stream could not be played';
+            return 'RADIO.ERROR_GENERIC';
     }
 }

@@ -1358,6 +1358,16 @@
             "NO_ITEMS_BODY": "Start watching anything from your library and it will show up here."
         }
     },
+    "PLAYBACK_BAR": {
+        "TITLE": "Teraz odtwarzane",
+        "EXPAND": "Powiększ odtwarzacz",
+        "MAXIMIZE": "Maksymalizuj odtwarzacz",
+        "COLLAPSE": "Zwiń odtwarzacz",
+        "POP_OUT": "Otwórz w oknie pływającym",
+        "POP_IN": "Wróć do aplikacji",
+        "PLAYING_IN_WINDOW": "Odtwarzanie w oknie pływającym",
+        "POP_OUT_UNAVAILABLE": "Nie udało się otworzyć okna pływającego."
+    },
     "RADIO": {
         "TITLE": "Radio i podcasty",
         "SUBTITLE": "Darmowe internetowe stacje radiowe i podcasty — bez konta",
@@ -1396,6 +1406,12 @@
         "EPISODES_EMPTY": "Nie znaleziono odcinków w tym kanale.",
         "EPISODES_ERROR": "Nie udało się załadować odcinków z tego kanału.",
         "FEED_BLOCKED": "Tego kanału nie można odczytać w przeglądarce. Otwórz aplikację desktopową, aby posłuchać tej audycji.",
+        "ERROR_ABORTED": "Odtwarzanie zostało zatrzymane przed rozpoczęciem.",
+        "ERROR_NETWORK": "Nie udało się połączyć ze strumieniem. Sprawdź połączenie i spróbuj ponownie.",
+        "ERROR_DECODE": "Nie udało się zdekodować strumienia.",
+        "ERROR_UNSUPPORTED": "Ten format strumienia nie jest obsługiwany.",
+        "ERROR_AUTOPLAY_BLOCKED": "Przeglądarka zablokowała odtwarzanie. Naciśnij przycisk odtwarzania.",
+        "ERROR_GENERIC": "Nie udało się odtworzyć strumienia.",
         "RETRY": "Spróbuj ponownie",
         "REFRESH_FEED": "Odśwież kanał",
         "BACK_TO_PODCASTS": "Wróć do podcastów",

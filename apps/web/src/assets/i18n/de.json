@@ -1358,6 +1358,16 @@
             "NO_ITEMS_BODY": "Start watching anything from your library and it will show up here."
         }
     },
+    "PLAYBACK_BAR": {
+        "TITLE": "Aktuelle Wiedergabe",
+        "EXPAND": "Player vergrößern",
+        "MAXIMIZE": "Player maximieren",
+        "COLLAPSE": "Player verkleinern",
+        "POP_OUT": "In schwebendem Fenster öffnen",
+        "POP_IN": "Zurück in die App",
+        "PLAYING_IN_WINDOW": "Wiedergabe in einem schwebenden Fenster",
+        "POP_OUT_UNAVAILABLE": "Das schwebende Fenster konnte nicht geöffnet werden."
+    },
     "RADIO": {
         "TITLE": "Radio & Podcasts",
         "SUBTITLE": "Kostenlose Internetradio-Sender und Podcasts — ohne Konto",
@@ -1396,6 +1406,12 @@
         "EPISODES_EMPTY": "Keine Episoden in diesem Feed gefunden.",
         "EPISODES_ERROR": "Episoden konnten aus diesem Feed nicht geladen werden.",
         "FEED_BLOCKED": "Dieser Feed kann im Browser nicht gelesen werden. Öffnen Sie die Desktop-App, um diese Sendung anzuhören.",
+        "ERROR_ABORTED": "Die Wiedergabe wurde vor dem Start abgebrochen.",
+        "ERROR_NETWORK": "Der Stream ist nicht erreichbar. Prüfe deine Verbindung und versuche es erneut.",
+        "ERROR_DECODE": "Der Stream konnte nicht dekodiert werden.",
+        "ERROR_UNSUPPORTED": "Dieses Streamformat wird nicht unterstützt.",
+        "ERROR_AUTOPLAY_BLOCKED": "Dein Browser hat die Wiedergabe blockiert. Drücke auf Wiedergabe.",
+        "ERROR_GENERIC": "Der Stream konnte nicht wiedergegeben werden.",
         "RETRY": "Erneut versuchen",
         "REFRESH_FEED": "Feed aktualisieren",
         "BACK_TO_PODCASTS": "Zurück zu den Podcasts",

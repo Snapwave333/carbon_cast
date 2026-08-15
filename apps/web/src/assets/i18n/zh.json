@@ -1358,6 +1358,16 @@
             "NO_ITEMS_BODY": "Start watching anything from your library and it will show up here."
         }
     },
+    "PLAYBACK_BAR": {
+        "TITLE": "正在播放",
+        "EXPAND": "放大播放器",
+        "MAXIMIZE": "最大化播放器",
+        "COLLAPSE": "收起播放器",
+        "POP_OUT": "在浮动窗口中打开",
+        "POP_IN": "返回应用",
+        "PLAYING_IN_WINDOW": "正在浮动窗口中播放",
+        "POP_OUT_UNAVAILABLE": "无法打开浮动窗口。"
+    },
     "RADIO": {
         "TITLE": "广播与播客",
         "SUBTITLE": "免费的网络电台和播客 — 无需账户",
@@ -1396,6 +1406,12 @@
         "EPISODES_EMPTY": "此订阅源中未找到单集。",
         "EPISODES_ERROR": "无法从此订阅源加载单集。",
         "FEED_BLOCKED": "此订阅源无法在浏览器中读取。请打开桌面应用收听此节目。",
+        "ERROR_ABORTED": "播放在开始前已停止。",
+        "ERROR_NETWORK": "无法连接到该流。请检查网络连接后重试。",
+        "ERROR_DECODE": "无法解码该流。",
+        "ERROR_UNSUPPORTED": "不支持此流格式。",
+        "ERROR_AUTOPLAY_BLOCKED": "浏览器阻止了播放。请点击播放按钮。",
+        "ERROR_GENERIC": "无法播放该流。",
         "RETRY": "重试",
         "REFRESH_FEED": "刷新订阅源",
         "BACK_TO_PODCASTS": "返回播客",

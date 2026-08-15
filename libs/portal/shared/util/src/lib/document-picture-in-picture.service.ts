@@ -67,7 +67,16 @@ export class DocumentPictureInPictureService {
         }
 
         copyStyles(pipWindow);
-        pipWindow.document.body.style.margin = '0';
+        // The window opens with a bare, unstyled body; without this the moved
+        // content sits at its minimum height against a white page instead of
+        // filling the window.
+        Object.assign(pipWindow.document.body.style, {
+            margin: '0',
+            height: '100vh',
+            display: 'flex',
+            flexDirection: 'column',
+            background: 'var(--app-content-bg, #111418)',
+        });
         pipWindow.document.body.append(request.content);
         this.activeWindow = pipWindow;
 
@@ -117,9 +126,20 @@ function copyStyles(pipWindow: Window): void {
     }
 
     // Angular emits component styles into adopted sheets in some builds.
-    if (document.adoptedStyleSheets?.length) {
-        pipWindow.document.adoptedStyleSheets = [
-            ...document.adoptedStyleSheets,
-        ];
+    // Adopting a sheet constructed in another document is rejected outright, so
+    // fall back to replaying its rules the same way as a linked sheet.
+    for (const sheet of document.adoptedStyleSheets ?? []) {
+        try {
+            pipWindow.document.adoptedStyleSheets = [
+                ...pipWindow.document.adoptedStyleSheets,
+                sheet,
+            ];
+        } catch {
+            const style = pipWindow.document.createElement('style');
+            style.textContent = Array.from(sheet.cssRules)
+                .map((rule) => rule.cssText)
+                .join('');
+            pipWindow.document.head.append(style);
+        }
     }
 }

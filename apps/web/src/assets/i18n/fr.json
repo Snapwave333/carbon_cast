@@ -1358,6 +1358,16 @@
             "NO_ITEMS_BODY": "Start watching anything from your library and it will show up here."
         }
     },
+    "PLAYBACK_BAR": {
+        "TITLE": "Lecture en cours",
+        "EXPAND": "Agrandir le lecteur",
+        "MAXIMIZE": "Maximiser le lecteur",
+        "COLLAPSE": "Réduire le lecteur",
+        "POP_OUT": "Ouvrir dans une fenêtre flottante",
+        "POP_IN": "Revenir dans l'application",
+        "PLAYING_IN_WINDOW": "Lecture dans une fenêtre flottante",
+        "POP_OUT_UNAVAILABLE": "La fenêtre flottante n'a pas pu être ouverte."
+    },
     "RADIO": {
         "TITLE": "Radio et podcasts",
         "SUBTITLE": "Stations de radio Internet et podcasts gratuits — sans compte",
@@ -1396,6 +1406,12 @@
         "EPISODES_EMPTY": "Aucun épisode trouvé dans ce flux.",
         "EPISODES_ERROR": "Impossible de charger les épisodes depuis ce flux.",
         "FEED_BLOCKED": "Ce flux ne peut pas être lu dans le navigateur. Ouvrez l'application de bureau pour écouter cette émission.",
+        "ERROR_ABORTED": "La lecture a été interrompue avant de démarrer.",
+        "ERROR_NETWORK": "Le flux est injoignable. Vérifiez votre connexion et réessayez.",
+        "ERROR_DECODE": "Le flux n’a pas pu être décodé.",
+        "ERROR_UNSUPPORTED": "Ce format de flux n'est pas pris en charge.",
+        "ERROR_AUTOPLAY_BLOCKED": "Votre navigateur a bloqué la lecture. Appuyez sur lecture pour démarrer.",
+        "ERROR_GENERIC": "Le flux n'a pas pu être lu.",
         "RETRY": "Réessayer",
         "REFRESH_FEED": "Actualiser le flux",
         "BACK_TO_PODCASTS": "Retour aux podcasts",

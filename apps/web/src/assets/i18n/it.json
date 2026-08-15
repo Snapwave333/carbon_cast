@@ -1358,6 +1358,16 @@
             "NO_ITEMS_BODY": "Start watching anything from your library and it will show up here."
         }
     },
+    "PLAYBACK_BAR": {
+        "TITLE": "In riproduzione",
+        "EXPAND": "Ingrandisci il lettore",
+        "MAXIMIZE": "Massimizza il lettore",
+        "COLLAPSE": "Riduci il lettore",
+        "POP_OUT": "Apri in una finestra mobile",
+        "POP_IN": "Torna nell'app",
+        "PLAYING_IN_WINDOW": "In riproduzione in una finestra mobile",
+        "POP_OUT_UNAVAILABLE": "Impossibile aprire la finestra mobile."
+    },
     "RADIO": {
         "TITLE": "Radio e podcast",
         "SUBTITLE": "Stazioni radio Internet e podcast gratuiti — senza bisogno di account",
@@ -1396,6 +1406,12 @@
         "EPISODES_EMPTY": "Nessun episodio trovato in questo feed.",
         "EPISODES_ERROR": "Impossibile caricare gli episodi da questo feed.",
         "FEED_BLOCKED": "Questo feed non può essere letto nel browser. Apri l'app desktop per ascoltare questo programma.",
+        "ERROR_ABORTED": "La riproduzione è stata interrotta prima di iniziare.",
+        "ERROR_NETWORK": "Impossibile raggiungere lo stream. Controlla la connessione e riprova.",
+        "ERROR_DECODE": "Impossibile decodificare lo stream.",
+        "ERROR_UNSUPPORTED": "Questo formato di stream non è supportato.",
+        "ERROR_AUTOPLAY_BLOCKED": "Il browser ha bloccato la riproduzione. Premi play per avviarla.",
+        "ERROR_GENERIC": "Impossibile riprodurre lo stream.",
         "RETRY": "Riprova",
         "REFRESH_FEED": "Aggiorna feed",
         "BACK_TO_PODCASTS": "Torna ai podcast",

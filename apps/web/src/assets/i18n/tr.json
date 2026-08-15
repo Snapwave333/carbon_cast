@@ -1358,6 +1358,16 @@
             "NO_ITEMS_BODY": "Start watching anything from your library and it will show up here."
         }
     },
+    "PLAYBACK_BAR": {
+        "TITLE": "Şimdi çalıyor",
+        "EXPAND": "Oynatıcıyı büyüt",
+        "MAXIMIZE": "Oynatıcıyı tam boyuta getir",
+        "COLLAPSE": "Oynatıcıyı daralt",
+        "POP_OUT": "Kayan pencerede aç",
+        "POP_IN": "Uygulamaya geri döndür",
+        "PLAYING_IN_WINDOW": "Kayan pencerede çalıyor",
+        "POP_OUT_UNAVAILABLE": "Kayan pencere açılamadı."
+    },
     "RADIO": {
         "TITLE": "Radyo ve Podcast'ler",
         "SUBTITLE": "Ücretsiz internet radyo istasyonları ve podcast'ler — hesap gerekmez",
@@ -1396,6 +1406,12 @@
         "EPISODES_EMPTY": "Bu akışta bölüm bulunamadı.",
         "EPISODES_ERROR": "Bu akıştan bölümler yüklenemedi.",
         "FEED_BLOCKED": "Bu akış tarayıcıda okunamıyor. Bu programı dinlemek için masaüstü uygulamasını açın.",
+        "ERROR_ABORTED": "Oynatma başlamadan durduruldu.",
+        "ERROR_NETWORK": "Yayına ulaşılamadı. Bağlantınızı kontrol edip yeniden deneyin.",
+        "ERROR_DECODE": "Yayın çözümlenemedi.",
+        "ERROR_UNSUPPORTED": "Bu yayın biçimi desteklenmiyor.",
+        "ERROR_AUTOPLAY_BLOCKED": "Tarayıcınız oynatmayı engelledi. Başlatmak için oynat düğmesine basın.",
+        "ERROR_GENERIC": "Yayın oynatılamadı.",
         "RETRY": "Tekrar dene",
         "REFRESH_FEED": "Akışı yenile",
         "BACK_TO_PODCASTS": "Podcast'lere geri dön",

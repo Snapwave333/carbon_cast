@@ -26,6 +26,37 @@ const BAND_OFFSETS: readonly number[] = [
 /** Beats per second of the synthetic pulse train. */
 const PULSE_RATE = 1.9;
 const PULSE_DECAY = 7.5;
+/**
+ * Fraction of a beat the pulse spends rising. A bare decay envelope jumps from
+ * silence to full between two frames and the orbs it drives visibly snap once
+ * per beat; swelling over roughly a third of the beat turns that snap into a
+ * throb while keeping the beat readable.
+ */
+const PULSE_ATTACK = 0.3;
+const PULSE_DECAY_RATE = PULSE_DECAY / PULSE_RATE;
+
+function pulseEnvelope(phase: number): number {
+    const rise = Math.min(1, phase / PULSE_ATTACK);
+    // Smoothstepped rather than exponential: an exponential attack is at its
+    // steepest the instant the beat lands, which is the jolt this replaces.
+    // Smoothstep leaves and arrives with zero slope, so the beat eases in.
+    return (
+        rise * rise * (3 - 2 * rise) * Math.exp(-phase * PULSE_DECAY_RATE)
+    );
+}
+
+/**
+ * Scanned once at load so the pulse still tops out at 1 — every weight applied
+ * to it downstream is written against that range — whatever the constants above
+ * are tuned to.
+ */
+const PULSE_PEAK = (() => {
+    let peak = 0;
+    for (let step = 0; step <= 512; step++) {
+        peak = Math.max(peak, pulseEnvelope(step / 512));
+    }
+    return peak;
+})();
 /** Seconds for the envelope to travel most of the way to its target. */
 const ENVELOPE_RISE = 0.6;
 const ENVELOPE_FALL = 1.4;
@@ -61,10 +92,10 @@ function drift(time: number, rate: number, offset: number): number {
     );
 }
 
-/** Sawtooth-decayed impulse train: a sharp attack, an exponential tail. */
+/** Impulse train: a swell into the beat, then an exponential tail. */
 function pulseAt(time: number): number {
     const phase = time * PULSE_RATE - Math.floor(time * PULSE_RATE);
-    return Math.exp(-phase * PULSE_DECAY / PULSE_RATE);
+    return pulseEnvelope(phase) / PULSE_PEAK;
 }
 
 function clamp01(value: number): number {

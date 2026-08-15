@@ -62,6 +62,7 @@
         "release:artwork:manifest": "tsx --tsconfig tsconfig.base.json tools/release/generate-marketing-artwork.ts --manifest",
         "release:artwork:generate": "tsx --tsconfig tsconfig.base.json tools/release/generate-marketing-artwork.ts --generate",
         "release:artwork:validate": "tsx --tsconfig tsconfig.base.json tools/release/generate-marketing-artwork.ts --validate",
+        "viz": "node tools/visualizer-preview/preview.mjs",
         "release:notes:validate": "node tools/release/build-release-notes.mjs --validate",
         "release:notes:github": "node tools/release/build-release-notes.mjs --format github",
         "release:notes:changelog": "node tools/release/build-release-notes.mjs --format changelog",

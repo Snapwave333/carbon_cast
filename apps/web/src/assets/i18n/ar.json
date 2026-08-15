@@ -1358,6 +1358,16 @@
             "NO_ITEMS_BODY": "Start watching anything from your library and it will show up here."
         }
     },
+    "PLAYBACK_BAR": {
+        "TITLE": "قيد التشغيل",
+        "EXPAND": "توسيع المشغل",
+        "MAXIMIZE": "تكبير المشغل",
+        "COLLAPSE": "تصغير المشغل",
+        "POP_OUT": "فتح في نافذة عائمة",
+        "POP_IN": "العودة إلى التطبيق",
+        "PLAYING_IN_WINDOW": "التشغيل في نافذة عائمة",
+        "POP_OUT_UNAVAILABLE": "تعذر فتح النافذة العائمة."
+    },
     "RADIO": {
         "TITLE": "الراديو والبودكاست",
         "SUBTITLE": "محطات راديو إنترنت وبودكاست مجانية — دون الحاجة إلى حساب",
@@ -1396,6 +1406,12 @@
         "EPISODES_EMPTY": "لم يتم العثور على حلقات في هذه الخلاصة.",
         "EPISODES_ERROR": "تعذر تحميل الحلقات من هذه الخلاصة.",
         "FEED_BLOCKED": "لا يمكن قراءة هذه الخلاصة في المتصفح. افتح تطبيق سطح المكتب للاستماع إلى هذا البرنامج.",
+        "ERROR_ABORTED": "توقف التشغيل قبل أن يبدأ.",
+        "ERROR_NETWORK": "تعذر الوصول إلى البث. تحقق من اتصالك وحاول مرة أخرى.",
+        "ERROR_DECODE": "تعذر فك ترميز البث.",
+        "ERROR_UNSUPPORTED": "تنسيق البث هذا غير مدعوم.",
+        "ERROR_AUTOPLAY_BLOCKED": "حظر المتصفح التشغيل. اضغط على تشغيل للبدء.",
+        "ERROR_GENERIC": "تعذر تشغيل البث.",
         "RETRY": "إعادة المحاولة",
         "REFRESH_FEED": "تحديث الخلاصة",
         "BACK_TO_PODCASTS": "العودة إلى البودكاست",

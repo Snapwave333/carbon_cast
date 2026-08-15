@@ -112,12 +112,53 @@ describe('sampleEnergy', () => {
     });
 
     it('gives the low bands more of the beat than the high bands', () => {
-        // Sampled right on a pulse, where the weighting is most visible.
-        const frame = sampleEnergy({ ...PLAYING, time: 0 }, 1);
+        // Sampled at the crest of a pulse, where the weighting is most visible.
+        const frame = sampleEnergy({ ...PLAYING, time: peakPulseTime() }, 1);
 
         expect(frame.bands[0]).toBeGreaterThan(
             frame.bands[ENERGY_BAND_COUNT - 1]
         );
-        expect(frame.pulse).toBeGreaterThan(0);
+        expect(frame.pulse).toBeGreaterThan(0.9);
+    });
+
+    // The pulse used to be a bare decay envelope, so every beat jumped from
+    // silence to full between two frames and the orbs it drives snapped
+    // visibly. It has to swell into the beat instead.
+    it('swells into each beat rather than snapping to it', () => {
+        let largestStep = 0;
+        let peak = 0;
+        for (let frame = 0; frame < 600; frame++) {
+            const previous = sampleEnergy(
+                { ...PLAYING, time: frame / 60 },
+                1
+            ).pulse;
+            const next = sampleEnergy(
+                { ...PLAYING, time: (frame + 1) / 60 },
+                1
+            ).pulse;
+
+            largestStep = Math.max(largestStep, Math.abs(next - previous));
+            peak = Math.max(peak, next);
+        }
+
+        // A step envelope moved the full range in one 60fps frame.
+        expect(largestStep).toBeLessThan(0.25);
+        // ...without flattening the beat away.
+        expect(peak).toBeGreaterThan(0.8);
     });
 });
+
+/** Time of the pulse crest within the first beat, found by sampling. */
+function peakPulseTime(): number {
+    let best = 0;
+    let bestPulse = -1;
+    for (let step = 0; step < 1000; step++) {
+        const time = step / 1000;
+        const { pulse } = sampleEnergy({ ...PLAYING, time }, 1);
+        if (pulse > bestPulse) {
+            bestPulse = pulse;
+            best = time;
+        }
+    }
+    return best;
+}

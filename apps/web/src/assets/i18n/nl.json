@@ -1358,6 +1358,16 @@
             "NO_ITEMS_BODY": "Start watching anything from your library and it will show up here."
         }
     },
+    "PLAYBACK_BAR": {
+        "TITLE": "Nu afgespeeld",
+        "EXPAND": "Speler vergroten",
+        "MAXIMIZE": "Speler maximaliseren",
+        "COLLAPSE": "Speler verkleinen",
+        "POP_OUT": "In zwevend venster openen",
+        "POP_IN": "Terug naar de app",
+        "PLAYING_IN_WINDOW": "Afspelen in een zwevend venster",
+        "POP_OUT_UNAVAILABLE": "Het zwevende venster kon niet worden geopend."
+    },
     "RADIO": {
         "TITLE": "Radio & podcasts",
         "SUBTITLE": "Gratis internetradiozenders en podcasts — geen account nodig",
@@ -1396,6 +1406,12 @@
         "EPISODES_EMPTY": "Geen afleveringen gevonden in deze feed.",
         "EPISODES_ERROR": "Afleveringen konden niet uit deze feed worden geladen.",
         "FEED_BLOCKED": "Deze feed kan niet in de browser worden gelezen. Open de desktop-app om deze show te beluisteren.",
+        "ERROR_ABORTED": "Het afspelen is gestopt voordat het begon.",
+        "ERROR_NETWORK": "De stream is niet bereikbaar. Controleer je verbinding en probeer het opnieuw.",
+        "ERROR_DECODE": "De stream kon niet worden gedecodeerd.",
+        "ERROR_UNSUPPORTED": "Deze streamindeling wordt niet ondersteund.",
+        "ERROR_AUTOPLAY_BLOCKED": "Je browser heeft het afspelen geblokkeerd. Druk op afspelen.",
+        "ERROR_GENERIC": "De stream kon niet worden afgespeeld.",
         "RETRY": "Opnieuw proberen",
         "REFRESH_FEED": "Feed vernieuwen",
         "BACK_TO_PODCASTS": "Terug naar podcasts",

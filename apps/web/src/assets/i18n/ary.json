@@ -1358,6 +1358,16 @@
             "NO_ITEMS_BODY": "Start watching anything from your library and it will show up here."
         }
     },
+    "PLAYBACK_BAR": {
+        "TITLE": "كايتشغل دابا",
+        "EXPAND": "كبّر المشغل",
+        "MAXIMIZE": "كبّر المشغل بزاف",
+        "COLLAPSE": "صغّر المشغل",
+        "POP_OUT": "حلّو ف شيباك عايم",
+        "POP_IN": "رجّع للتطبيق",
+        "PLAYING_IN_WINDOW": "كايتشغل ف شيباك عايم",
+        "POP_OUT_UNAVAILABLE": "ما تقدرش يتحل الشيباك العايم."
+    },
     "RADIO": {
         "TITLE": "الراديو والبودكاست",
         "SUBTITLE": "محطات راديو ديال الإنترنت وبودكاست بلا فلوس — ما محتاج حتى حساب",
@@ -1396,6 +1406,12 @@
         "EPISODES_EMPTY": "ما لقينا حتى حلقة فهاد الخلاصة.",
         "EPISODES_ERROR": "ما قدرناش نحملو الحلقات من هاد الخلاصة.",
         "FEED_BLOCKED": "هاد الخلاصة ما تقدرش تتقرا فالمتصفح. حل تطبيق سطح المكتب باش تسمع هاد البرنامج.",
+        "ERROR_ABORTED": "التشغيل توقف قبل ما يبدا.",
+        "ERROR_NETWORK": "ما تقدرناش نوصلو للبث. شوف الاتصال ديالك وعاود جرب.",
+        "ERROR_DECODE": "ما تقدرناش نفكو ترميز البث.",
+        "ERROR_UNSUPPORTED": "هاد الصيغة ديال البث ما مدعومة.",
+        "ERROR_AUTOPLAY_BLOCKED": "المتصفح حبس التشغيل. دوز على تشغيل باش يبدا.",
+        "ERROR_GENERIC": "ما تقدرش البث يتشغل.",
         "RETRY": "حاول مرة أخرى",
         "REFRESH_FEED": "حدث الخلاصة",
         "BACK_TO_PODCASTS": "رجع للبودكاست",

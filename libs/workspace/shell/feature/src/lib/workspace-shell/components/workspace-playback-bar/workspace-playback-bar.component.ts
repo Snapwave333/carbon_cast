@@ -1,6 +1,7 @@
 import {
     ChangeDetectionStrategy,
     Component,
+    DestroyRef,
     ElementRef,
     computed,
     inject,
@@ -56,6 +57,8 @@ export class WorkspacePlaybackBarComponent {
     readonly radioTrack = this.radio.current;
     readonly hasMedia = computed(() => this.radioTrack() !== null);
 
+    // The button cycles, so it is labelled with what the next press does
+    // rather than with the size the bar is already at.
     readonly sizeIcon = computed(() => {
         switch (this.size()) {
             case 'compact':
@@ -66,9 +69,25 @@ export class WorkspacePlaybackBarComponent {
                 return 'unfold_less';
         }
     });
-    readonly sizeLabel = computed(() => `PLAYBACK_BAR.SIZE_${this.size().toUpperCase()}`);
+    readonly sizeLabel = computed(() => {
+        switch (this.size()) {
+            case 'compact':
+                return 'PLAYBACK_BAR.EXPAND';
+            case 'medium':
+                return 'PLAYBACK_BAR.MAXIMIZE';
+            default:
+                return 'PLAYBACK_BAR.COLLAPSE';
+        }
+    });
 
     readonly popOutFailed = signal(false);
+
+    constructor() {
+        // The bar is destroyed as soon as playback stops. Without this the
+        // floating window would survive its own content being torn out of it
+        // and linger as an empty always-on-top window.
+        inject(DestroyRef).onDestroy(() => this.pip.close());
+    }
 
     cycleSize(): void {
         this.bar.cycleSize();

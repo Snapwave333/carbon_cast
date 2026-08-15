@@ -1,0 +1,87 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<style>
+    html, body { margin: 0; background: #0d1014; }
+    /* Mirrors the real dock: the player sits on the widget background and the
+       canvas is blurred and dimmed on the way to the screen. */
+    .dock {
+        position: relative;
+        isolation: isolate;
+        overflow: hidden;
+        background: #14171e;
+        border-top: 1px solid rgba(255, 255, 255, 0.07);
+    }
+    .viz {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+        pointer-events: none;
+        mask-image: linear-gradient(to bottom, transparent 0%, #000 7%, #000 100%);
+    }
+    canvas {
+        display: block;
+        width: 100%;
+        height: 100%;
+        filter: blur(7px) saturate(1.3);
+        opacity: 0.72;
+        transform: scale(1.08);
+    }
+    /* A stand-in for the transport row, so it is obvious whether the blobs
+       read behind real UI or swallow it. */
+    .chrome {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        gap: 14px;
+        font: 600 15px/1.2 system-ui, sans-serif;
+        color: #e6e1e5;
+    }
+    .chrome i {
+        width: 34px; height: 34px; border-radius: 50%;
+        background: rgba(255,255,255,0.14);
+    }
+</style>
+</head>
+<body>
+<div class="dock" id="dock">
+    <div class="viz"><canvas id="canvas"></canvas></div>
+    <div class="chrome"><i></i><i></i><span>Station name</span><i></i></div>
+</div>
+<script src="./bundle.js"></script>
+<script>
+    const params = new URLSearchParams(location.search);
+    const width = Number(params.get('w') ?? 1300);
+    const height = Number(params.get('h') ?? 88);
+    const time = Number(params.get('t') ?? 7);
+    const hue = Number(params.get('hue') ?? 0.58);
+
+    const dock = document.getElementById('dock');
+    dock.style.width = width + 'px';
+    dock.style.height = height + 'px';
+
+    if (params.get('raw')) {
+        const c = document.querySelector('canvas');
+        c.style.filter = 'none';
+        c.style.opacity = '1';
+        c.style.transform = 'none';
+        document.querySelector('.viz').style.maskImage = 'none';
+        document.querySelector('.chrome').style.display = 'none';
+    }
+
+    requestAnimationFrame(() => {
+        const ok = window.Viz.renderFrames(
+            document.getElementById('canvas'),
+            time,
+            hue,
+            { trails: params.get('trails') !== '0', seed: Number(params.get('seed') ?? 0) }
+        );
+        document.title = ok ? 'ready' : 'no-webgl2';
+    });
+</script>
+</body>
+</html>

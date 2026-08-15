@@ -1358,6 +1358,16 @@
             "NO_ITEMS_BODY": "Indítson el valamilyen tartalmat a médiatárból; ezután itt is megjelenik."
         }
     },
+    "PLAYBACK_BAR": {
+        "TITLE": "Most játszott",
+        "EXPAND": "Lejátszó nagyítása",
+        "MAXIMIZE": "Lejátszó teljes méretre",
+        "COLLAPSE": "Lejátszó összecsukása",
+        "POP_OUT": "Megnyitás lebegő ablakban",
+        "POP_IN": "Vissza az alkalmazásba",
+        "PLAYING_IN_WINDOW": "Lejátszás lebegő ablakban",
+        "POP_OUT_UNAVAILABLE": "A lebegő ablakot nem sikerült megnyitni."
+    },
     "RADIO": {
         "TITLE": "Rádió és podcastok",
         "SUBTITLE": "Ingyenes internetes rádióállomások és podcastok — fiók nélkül",
@@ -1396,6 +1406,12 @@
         "EPISODES_EMPTY": "Ebben a hírfolyamban nem található epizód.",
         "EPISODES_ERROR": "Az epizódokat nem sikerült betölteni ebből a hírfolyamból.",
         "FEED_BLOCKED": "Ez a hírfolyam nem olvasható a böngészőben. A műsor meghallgatásához nyissa meg az asztali alkalmazást.",
+        "ERROR_ABORTED": "A lejátszás még az indulás előtt leállt.",
+        "ERROR_NETWORK": "A stream nem érhető el. Ellenőrizd a kapcsolatot, és próbáld újra.",
+        "ERROR_DECODE": "A streamet nem sikerült dekódolni.",
+        "ERROR_UNSUPPORTED": "Ez a stream formátum nem támogatott.",
+        "ERROR_AUTOPLAY_BLOCKED": "A böngésző letiltotta a lejátszást. Nyomd meg a lejátszás gombot.",
+        "ERROR_GENERIC": "A streamet nem sikerült lejátszani.",
         "RETRY": "Újrapróbálkozás",
         "REFRESH_FEED": "Hírfolyam frissítése",
         "BACK_TO_PODCASTS": "Vissza a podcastokhoz",
