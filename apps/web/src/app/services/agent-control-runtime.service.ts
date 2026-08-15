@@ -12,18 +12,25 @@ import {
 } from '@iptvnator/m3u-state';
 import { SettingsStore } from '@iptvnator/services';
 import {
-    type AgentControlErrorCode,
     type AgentControlRequest,
     type AgentControlResult,
-    type Channel,
-    type FollowedSeriesSource,
     type Settings,
 } from '@iptvnator/shared/interfaces';
 import { Store } from '@ngrx/store';
+import {
+    agentError,
+    finiteOrNull,
+    isFollowSource,
+    normalizeError,
+    numeric,
+    safeChannel,
+    safeProgram,
+    stringOrUndefined,
+    type SafeState,
+} from './agent-control-runtime.helpers';
 import { firstValueFrom, take } from 'rxjs';
 
 type AgentRequest = AgentControlRequest & { correlationId: string };
-type SafeState = Record<string, unknown>;
 
 /**
  * Executes agent requests against the same stores and media element used by
@@ -378,38 +385,4 @@ export class AgentControlRuntimeService {
             (channel) => channel ?? null
         );
     }
-}
-
-function numeric(value: unknown, min: number, max: number, label: string): number {
-    if (typeof value !== 'number' || !Number.isFinite(value) || value < min || value > max) throw agentError('invalid-request', `${label} must be a number between ${min} and ${max}.`);
-    return value;
-}
-
-function safeChannel(channel: Channel): SafeState {
-    return { id: channel.id, name: channel.name ?? channel.tvg?.name ?? 'Untitled channel', group: channel.group ?? null, radio: channel.radio === 'true', logo: channel.tvg?.logo ? true : false };
-}
-
-function safeProgram(program: { title?: string; start?: string | Date; end?: string | Date; description?: string | null }): SafeState {
-    return { title: program.title ?? 'Untitled programme', start: program.start ? String(program.start) : null, end: program.end ? String(program.end) : null, description: program.description ?? null };
-}
-
-function finiteOrNull(value: number): number | null {
-    return Number.isFinite(value) ? Math.round(value * 100) / 100 : null;
-}
-
-function isFollowSource(value: unknown): value is FollowedSeriesSource {
-    return value === 'epg' || value === 'stalker' || value === 'xtream';
-}
-
-function stringOrUndefined(value: unknown): string | undefined {
-    return typeof value === 'string' && value.trim() ? value.trim() : undefined;
-}
-
-function agentError(code: AgentControlErrorCode, message: string): { code: AgentControlErrorCode; message: string; retryable: boolean } {
-    return { code, message, retryable: code === 'agent-control-unavailable' || code === 'renderer-unavailable' || code === 'renderer-timeout' };
-}
-
-function normalizeError(error: unknown): { code: AgentControlErrorCode; message: string; retryable: boolean } {
-    if (error && typeof error === 'object' && 'code' in error && 'message' in error) return error as { code: AgentControlErrorCode; message: string; retryable: boolean };
-    return { code: 'internal-error', message: error instanceof Error ? error.message : 'Unexpected agent-control failure.', retryable: false };
 }
