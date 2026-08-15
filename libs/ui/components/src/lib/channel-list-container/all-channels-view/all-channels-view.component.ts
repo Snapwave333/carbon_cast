@@ -160,21 +160,29 @@ export class AllChannelsViewComponent {
     );
 
     /**
-     * Filtered and sorted channels. Playlist order keeps the original input
-     * reference when there is no search term, so large lists avoid cloning.
+     * The playlist in display order. Sorting is memoized here rather than
+     * applied after the search filter: a collator sort of 90,000 channels costs
+     * ~250 ms, and filtering after sorting yields the identical sequence, so
+     * doing it in this order keeps that cost off the per-keystroke path.
+     * Playlist order keeps the original input reference, so large lists avoid
+     * cloning.
      */
-    readonly filteredChannels = computed(() => {
-        const term = this.searchTerm().trim().toLowerCase();
-        const channels = this.channels();
-        const filteredChannels = term
-            ? channels.filter((ch) => ch.name?.toLowerCase().includes(term))
-            : channels;
-
-        return sortChannelItems(
-            filteredChannels,
+    private readonly sortedChannels = computed(() =>
+        sortChannelItems(
+            this.channels(),
             this.allChannelsSortMode(),
             (channel) => channel?.name
-        );
+        )
+    );
+
+    /** Sorted channels narrowed by the workspace search term. */
+    readonly filteredChannels = computed(() => {
+        const term = this.searchTerm().trim().toLowerCase();
+        const channels = this.sortedChannels();
+
+        return term
+            ? channels.filter((ch) => ch.name?.toLowerCase().includes(term))
+            : channels;
     });
 
     /**

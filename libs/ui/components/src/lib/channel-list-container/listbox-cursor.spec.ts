@@ -1,7 +1,8 @@
+import { signal } from '@angular/core';
 import { ListboxCursor } from './listbox-cursor';
 
 describe('ListboxCursor', () => {
-    let count: number;
+    let count: ReturnType<typeof signal<number>>;
     let activated: number[];
     let scrolled: number[];
     let cursor: ListboxCursor;
@@ -14,11 +15,11 @@ describe('ListboxCursor', () => {
     };
 
     beforeEach(() => {
-        count = 5;
+        count = signal(5);
         activated = [];
         scrolled = [];
         cursor = new ListboxCursor({
-            count: () => count,
+            count: () => count(),
             optionId: (index) => `option-${index}`,
             activate: (index) => activated.push(index),
             scrollToIndex: (index) => scrolled.push(index),
@@ -45,10 +46,10 @@ describe('ListboxCursor', () => {
         expect(cursor.focusedIndex()).toBe(0);
 
         press('End');
-        expect(cursor.focusedIndex()).toBe(count - 1);
+        expect(cursor.focusedIndex()).toBe(count() - 1);
 
         press('ArrowDown');
-        expect(cursor.focusedIndex()).toBe(count - 1);
+        expect(cursor.focusedIndex()).toBe(count() - 1);
 
         press('Home');
         expect(cursor.focusedIndex()).toBe(0);
@@ -77,7 +78,7 @@ describe('ListboxCursor', () => {
     });
 
     it('does nothing while the list is empty', () => {
-        count = 0;
+        count.set(0);
         press('ArrowDown');
 
         expect(cursor.focusedIndex()).toBe(-1);
@@ -88,10 +89,21 @@ describe('ListboxCursor', () => {
         expect(cursor.focusedIndex()).toBe(4);
 
         // A search narrows the list under the cursor.
-        count = 2;
+        count.set(2);
         press('ArrowDown');
 
         expect(cursor.focusedIndex()).toBe(1);
+    });
+
+    it('publishes no active descendant once the cursor is past the end', () => {
+        press('End');
+        expect(cursor.activeDescendantId()).toBe('option-4');
+
+        // A search narrows the list, leaving the cursor pointing at a row that
+        // is no longer rendered.
+        count.set(2);
+
+        expect(cursor.activeDescendantId()).toBeNull();
     });
 
     it('accepts a cursor position set by the pointer', () => {

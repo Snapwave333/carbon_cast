@@ -24,7 +24,12 @@ export class ListboxCursor {
     readonly focusedIndex = signal(-1);
     readonly activeDescendantId = computed(() => {
         const index = this.focusedIndex();
-        return index >= 0 ? this.options.optionId(index) : null;
+        // The list can shrink under the cursor while filtering. Publishing an
+        // id past the end points aria-activedescendant at an element that is
+        // not in the DOM, which assistive tech reports as nothing at all.
+        return index >= 0 && index < this.options.count()
+            ? this.options.optionId(index)
+            : null;
     });
 
     constructor(private readonly options: ListboxCursorOptions) {}
