@@ -4,7 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
 import { Channel } from '@iptvnator/shared/interfaces';
-import { expandChannelCategories } from '@iptvnator/shared/m3u-utils';
+import { resolveChannelCategories } from '@iptvnator/shared/m3u-utils';
 import { ChannelGroup } from '../channel-group.model';
 import { GroupManagementDialogComponent } from './group-management-dialog/group-management-dialog.component';
 import { GroupsViewComponent } from './groups-view.component';
@@ -20,13 +20,18 @@ function toChannelGroups(record: Record<string, Channel[]>): ChannelGroup[] {
     const buckets = new Map<string, { label: string; channels: Channel[] }>();
 
     for (const [rawTitle, channels] of Object.entries(record)) {
-        for (const { key, label } of expandChannelCategories(rawTitle)) {
-            let bucket = buckets.get(key);
-            if (!bucket) {
-                bucket = { label, channels: [] };
-                buckets.set(key, bucket);
+        for (const channel of channels) {
+            for (const { key, label } of resolveChannelCategories({
+                ...channel,
+                group: { ...channel.group, title: rawTitle },
+            })) {
+                let bucket = buckets.get(key);
+                if (!bucket) {
+                    bucket = { label, channels: [] };
+                    buckets.set(key, bucket);
+                }
+                bucket.channels.push(channel);
             }
-            bucket.channels.push(...channels);
         }
     }
 
@@ -267,6 +272,29 @@ describe('GroupsViewComponent', () => {
         ]);
     });
 
+    it('organizes long M3U category lists into alphabetical navigation sections', () => {
+        setInputs({
+            groupedChannels: {
+                Action: [movieClassic],
+                Animation: [movieClassic],
+                Comedy: [movieClassic],
+                Documentary: [movieClassic],
+                Drama: [movieClassic],
+                Music: [movieClassic],
+                News: [worldUpdate],
+                Sports: [sportsCenter],
+            },
+        });
+
+        const headings = Array.from(
+            fixture.nativeElement.querySelectorAll<HTMLElement>(
+                '.groups-nav-section__heading'
+            )
+        ).map((element) => element.textContent?.trim());
+
+        expect(headings).toEqual(['A', 'C', 'D', 'M', 'N', 'S']);
+    });
+
     it('defaults to playlist order when no saved sort mode exists', () => {
         expect(component.groupChannelSortMode()).toBe('server');
         expect(component.groupChannelSortLabel()).toBe(
@@ -280,7 +308,9 @@ describe('GroupsViewComponent', () => {
         createComponent();
 
         expect(component.groupChannelSortMode()).toBe('name-asc');
-        expect(component.groupChannelSortLabel()).toBe('CHANNELS.SORT_NAME_ASC');
+        expect(component.groupChannelSortLabel()).toBe(
+            'CHANNELS.SORT_NAME_ASC'
+        );
 
         fixture.destroy();
         localStorage.setItem(GROUP_CHANNEL_SORT_STORAGE_KEY, 'invalid');
@@ -498,10 +528,20 @@ describe('GroupsViewComponent', () => {
         setInputs({
             groupedChannels: {
                 Animation: [
-                    createChannel('a', 'Anim A', 'http://x/a.m3u8', 'Animation'),
+                    createChannel(
+                        'a',
+                        'Anim A',
+                        'http://x/a.m3u8',
+                        'Animation'
+                    ),
                 ],
                 ANIMATION: [
-                    createChannel('b', 'Anim B', 'http://x/b.m3u8', 'ANIMATION'),
+                    createChannel(
+                        'b',
+                        'Anim B',
+                        'http://x/b.m3u8',
+                        'ANIMATION'
+                    ),
                 ],
                 ' Animation ': [
                     createChannel(
@@ -511,7 +551,9 @@ describe('GroupsViewComponent', () => {
                         ' Animation '
                     ),
                 ],
-                Anime: [createChannel('d', 'Anime D', 'http://x/d.m3u8', 'Anime')],
+                Anime: [
+                    createChannel('d', 'Anime D', 'http://x/d.m3u8', 'Anime'),
+                ],
                 'Animation;Kids': [
                     createChannel(
                         'e',
@@ -540,10 +582,20 @@ describe('GroupsViewComponent', () => {
         setInputs({
             groupedChannels: {
                 Animation: [
-                    createChannel('a', 'Anim A', 'http://x/a.m3u8', 'Animation'),
+                    createChannel(
+                        'a',
+                        'Anim A',
+                        'http://x/a.m3u8',
+                        'Animation'
+                    ),
                 ],
                 ANIMATION: [
-                    createChannel('b', 'Anim B', 'http://x/b.m3u8', 'ANIMATION'),
+                    createChannel(
+                        'b',
+                        'Anim B',
+                        'http://x/b.m3u8',
+                        'ANIMATION'
+                    ),
                 ],
                 'Animation;Kids': [
                     createChannel(
@@ -581,7 +633,11 @@ describe('GroupsViewComponent', () => {
                     groups: expect.arrayContaining([
                         { key: 'movies', count: 1, label: 'Movies' },
                         { key: 'news', count: 2, label: 'News' },
-                        { key: 'series', count: 1, label: 'Series' },
+                        {
+                            key: 'series',
+                            count: 1,
+                            label: 'Series',
+                        },
                         { key: 'sports', count: 2, label: 'Sports' },
                     ]),
                 }),
@@ -649,7 +705,6 @@ describe('GroupsViewComponent', () => {
             event: clickEvent,
         });
     });
-
 
     it('emits total sidebar width requests while resizing the groups rail', () => {
         const requested = jest.fn();

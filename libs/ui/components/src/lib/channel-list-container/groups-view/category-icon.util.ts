@@ -35,6 +35,7 @@ const EXACT: Record<string, string> = {
     shop: 'cart',
     sports: 'ball',
     travel: 'plane',
+    uncategorized: 'tag',
     undefined: 'tag',
     weather: 'sun_cloud',
 };

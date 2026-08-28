@@ -23,7 +23,18 @@ clean **display label** for the UI:
 | --- | --- |
 | `canonicalizeCategoryLabel(raw)` | Trim + collapse internal whitespace. Empty stays empty. Used for display labels. |
 | `canonicalCategoryKey(raw)` | Canonicalize → lower-case → apply a tiny conservative alias map (seed: `anime` → `animation`). The grouping/hiding key. |
-| `expandChannelCategories(rawGroupTitle)` | Split on `;` only (never comma — a comma is a legitimate name character), trim each part, drop empties, de-dupe by canonical key keeping the first-seen label. Empty/missing → a single `{ key: '', label: 'Uncategorized' }` bucket, matching the app's existing empty-group (`''`) behavior. |
+| `expandChannelCategories(rawGroupTitle)` | Split on `;` only (never comma — a comma is a legitimate name character), trim each part, drop empties and placeholder titles (`undefined`, `none`, `n/a`, ...), de-dupe by canonical key keeping the first-seen label. Empty/missing/placeholder-only → no buckets. |
+| `resolveChannelCategories(channel)` | The grouping entry point. Returns the expanded provider buckets, or a single `{ key: 'uncategorized', label: 'Uncategorized' }` fallback when the channel has no usable group title. |
+
+### Provider groups are authoritative
+
+The playlist author's `group-title` always wins. Geographic or generic titles
+(`USA`, `International`, `Local`, `General`, `Series`) are real provider
+groups and are kept intact — an earlier design discarded them and re-guessed a
+category from the channel name, which scattered those groups across wrong
+buckets (everything matching `abc|cbs|fox|nbc` landed in News, for example).
+No name-based inference exists anymore: a channel with no usable group title
+goes to the single Uncategorized bucket rather than a guessed category.
 
 ### Multi-group expansion & grouping
 
