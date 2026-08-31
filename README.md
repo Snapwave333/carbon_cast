@@ -1,9 +1,5 @@
 ﻿<p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="./carboncast-implementation/assets/logos/png/logo-horizontal-dark.png">
-    <source media="(prefers-color-scheme: light)" srcset="./carboncast-implementation/assets/logos/png/logo-horizontal-light.png">
-    <img src="./carboncast-implementation/assets/logos/png/logo-horizontal-dark.png" alt="CarbonCast IPTV" width="680" />
-  </picture>
+  <img src="./docs/assets/carboncast-github-hero.svg" alt="CarbonCast IPTV — stream more, live better" width="100%" />
 </p>
 
 <p align="center">
