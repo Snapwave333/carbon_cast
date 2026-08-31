@@ -306,6 +306,15 @@ Key files:
   expiry/revocation, per-token rate limits, redacted NDJSON audit records, and
   SSE state/command events. Canonical contract:
   `docs/architecture/agent-control.md`.
+- Desktop app lifecycle and window operations are separate from media-element
+  playback: `app.launch` / `app.quit` require `app.lifecycle`; display listing
+  uses `state.read`; display placement and window fullscreen/minimize/restore
+  use `player.control`. `app.launch` waits for `health.ready` and never opens a
+  second instance when the bridge is already booting. `carboncast-cli` is the
+  persistent PowerShell wrapper; it sets `CARBONCAST_HOME`, so commands work
+  from any directory. The renderer's `AgentControlPresenceService` keeps an
+  **Agent connected** badge visible and pulses the affected surface for 180 ms,
+  respecting `prefers-reduced-motion`.
 
 ## Linux Embedded MPV Packaging
 

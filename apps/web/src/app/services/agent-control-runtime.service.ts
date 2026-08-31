@@ -14,6 +14,7 @@ import { SettingsStore } from '@iptvnator/services';
 import {
     type AgentControlRequest,
     type AgentControlResult,
+    type Channel,
     type Settings,
 } from '@iptvnator/shared/interfaces';
 import { Store } from '@ngrx/store';
@@ -339,8 +340,18 @@ export class AgentControlRuntimeService {
     }
 
     private async navigate(params: Record<string, unknown>): Promise<SafeState> {
-        if (typeof params.route !== 'string' || !params.route.startsWith('/') || params.route.includes('://')) throw agentError('invalid-request', 'route must be an internal absolute route.');
-        const navigated = await this.router.navigateByUrl(params.route);
+        // `//host` and `/\host` are protocol-relative forms that some URL
+        // parsers read as an external authority, so a plain `startsWith('/')`
+        // check is not enough on its own.
+        const route = typeof params.route === 'string' ? params.route : '';
+        const isInternal =
+            route.startsWith('/') &&
+            !route.startsWith('//') &&
+            !/^\/[\\]/.test(route) &&
+            !route.includes('://') &&
+            !route.includes('\0');
+        if (!isInternal) throw agentError('invalid-request', 'route must be an internal absolute route such as /workspace/dashboard.');
+        const navigated = await this.router.navigateByUrl(route);
         return { route: this.router.url, navigated };
     }
 

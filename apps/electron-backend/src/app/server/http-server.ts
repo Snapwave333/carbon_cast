@@ -10,6 +10,48 @@ interface HttpServerOptions {
     distPath?: string;
 }
 
+const LOOPBACK_HOSTNAMES = new Set(['localhost', '127.0.0.1', '[::1]', '::1']);
+
+/**
+ * Strip the query string and fragment so a handler registered for
+ * `/api/agent-control/v1/health` still answers `/health?pretty=1`. The router
+ * matches on the exact string, so without this a perfectly valid request 404s.
+ */
+export function requestPathname(requestTarget: string): string {
+    const separatorIndex = requestTarget.search(/[?#]/);
+    const pathname =
+        separatorIndex === -1
+            ? requestTarget
+            : requestTarget.slice(0, separatorIndex);
+    return pathname.length > 1 ? pathname.replace(/\/+$/, '') || '/' : pathname;
+}
+
+/**
+ * The agent-control bridge is a machine-to-machine API for local automation,
+ * but the HTTP server itself listens on every interface so phones can reach the
+ * remote-control web app. Pinning the bridge to loopback `Host` values is the
+ * standard DNS-rebinding mitigation: a rebound page reaches the socket but
+ * sends `Host: attacker.example`, which is rejected before authentication.
+ * `IPTVNATOR_AGENT_CONTROL_ALLOWED_HOSTS` opts specific hostnames back in for
+ * deliberate remote automation.
+ */
+export function isAllowedAgentControlHost(
+    hostHeader: string | undefined,
+    allowList = process.env.IPTVNATOR_AGENT_CONTROL_ALLOWED_HOSTS
+): boolean {
+    if (!hostHeader) return false;
+    const hostname = hostHeader
+        .trim()
+        .toLowerCase()
+        .replace(/:\d+$/, '');
+    if (LOOPBACK_HOSTNAMES.has(hostname)) return true;
+    return (allowList ?? '')
+        .split(',')
+        .map((entry) => entry.trim().toLowerCase())
+        .filter(Boolean)
+        .includes(hostname);
+}
+
 /**
  * Resolve an HTTP request target within the configured static root.
  * The path implementation is injectable so platform-specific semantics remain testable.
@@ -195,34 +237,53 @@ export class HttpServer {
         res: http.ServerResponse
     ): void {
         const url = req.url || '/';
+        const pathname = requestPathname(url);
 
         // Handle API requests
-        if (url.startsWith('/api/remote-control/')) {
-            const handler = this.remoteControlHandlers.get(url);
+        if (pathname.startsWith('/api/remote-control/')) {
+            const handler = this.remoteControlHandlers.get(pathname);
             if (handler) {
                 handler(req, res);
                 return;
             }
 
-            res.writeHead(404, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ error: 'Endpoint not found' }));
+            this.notFound(res);
             return;
         }
 
-        if (url.startsWith('/api/agent-control/')) {
-            const handler = this.agentControlHandlers.get(url);
+        if (pathname.startsWith('/api/agent-control/')) {
+            if (!isAllowedAgentControlHost(req.headers.host)) {
+                res.writeHead(403, { 'Content-Type': 'application/json' });
+                res.end(
+                    JSON.stringify({
+                        error: 'Agent control is restricted to loopback hosts.',
+                    })
+                );
+                return;
+            }
+
+            const handler = this.agentControlHandlers.get(pathname);
             if (handler) {
                 handler(req, res);
                 return;
             }
 
-            res.writeHead(404, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ error: 'Endpoint not found' }));
+            this.notFound(res);
             return;
         }
 
         // Serve static files from the remote-control-web app
         this.serveStaticFile(url, res);
+    }
+
+    private notFound(res: http.ServerResponse): void {
+        res.writeHead(404, { 'Content-Type': 'application/json' });
+        res.end(
+            JSON.stringify({
+                success: false,
+                error: { code: 'not-found', message: 'Endpoint not found.' },
+            })
+        );
     }
 
     /**

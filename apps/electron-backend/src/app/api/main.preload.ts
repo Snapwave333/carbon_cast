@@ -1,4 +1,5 @@
 import { contextBridge, ipcRenderer, webUtils } from 'electron';
+import type { ProxySettingsInput } from '@iptvnator/shared/interfaces';
 import {
     APP_UPDATE_CHECK,
     APP_UPDATE_DOWNLOAD,
@@ -30,6 +31,7 @@ import type {
     EmbeddedMpvSession,
     EmbeddedMpvSupport,
     ElectronBridgeApi,
+    AgentControlEvent,
     AgentControlRequest,
     AgentControlResult,
     AgentControlState,
@@ -299,6 +301,14 @@ const electronApi: ElectronBridgeApi = {
         ) => callback(request);
         ipcRenderer.on('AGENT_CONTROL_COMMAND', handler);
         return () => ipcRenderer.off('AGENT_CONTROL_COMMAND', handler);
+    },
+    onAgentControlEvent: (callback: (event: AgentControlEvent) => void) => {
+        const handler = (
+            _event: Electron.IpcRendererEvent,
+            agentEvent: AgentControlEvent
+        ) => callback(agentEvent);
+        ipcRenderer.on('AGENT_CONTROL_EVENT', handler);
+        return () => ipcRenderer.off('AGENT_CONTROL_EVENT', handler);
     },
     updateAgentControlState: (state: Partial<AgentControlState>) => {
         ipcRenderer.send('AGENT_CONTROL_STATE_UPDATE', state);
@@ -667,6 +677,8 @@ const electronApi: ElectronBridgeApi = {
         ipcRenderer.invoke('SET_VLC_PLAYER_PATH', vlcPlayerPath),
     updateSettings: (settings: Partial<Settings>) =>
         ipcRenderer.invoke('SETTINGS_UPDATE', settings),
+    testProxy: (proxy: ProxySettingsInput) =>
+        ipcRenderer.invoke('PROXY_TEST', proxy),
     getAiSettings: () => ipcRenderer.invoke('GET_AI_SETTINGS'),
     stalkerRequest: (payload: {
         url: string;

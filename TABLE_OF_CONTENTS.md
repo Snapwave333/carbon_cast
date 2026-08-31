@@ -58,21 +58,21 @@ contracts, and maintenance tooling without treating generated output as source.
 
 ## 🧩 Applications and Entry Points
 
-| Path                                                         | Workspace project      | Responsibility                                                        |
-| ------------------------------------------------------------ | ---------------------- | --------------------------------------------------------------------- |
-| [`apps/web/`](./apps/web/)                                   | `web`                  | Angular renderer shared by Electron and the PWA                       |
-| [`apps/electron-backend/`](./apps/electron-backend/)         | `electron-backend`     | Electron main process, native integration, IPC, SQLite, and packaging |
-| [`apps/web-backend/`](./apps/web-backend/)                   | `web-backend`          | Self-hosted PWA HTTP backend and provider proxy                       |
-| [`apps/remote-control-web/`](./apps/remote-control-web/)     | `remote-control-web`   | Mobile remote-control web client                                      |
-| [`apps/website/`](./apps/website/)                           | `website`              | Astro marketing site and release blog                                 |
-| [`apps/remotion-brand/`](./apps/remotion-brand/)             | _(not an Nx project)_  | Remotion authoring for animated brand assets; build-time only         |
-| [`apps/stalker-mock-server/`](./apps/stalker-mock-server/)   | `stalker-mock-server`  | Stalker/Ministra development and E2E fixture server                   |
-| [`apps/xtream-mock-server/`](./apps/xtream-mock-server/)     | `xtream-mock-server`   | Xtream development, E2E, and marketing fixture server                 |
-| [`apps/web-e2e/`](./apps/web-e2e/)                           | `web-e2e`              | Playwright coverage for browser/PWA workflows                         |
-| [`apps/electron-backend-e2e/`](./apps/electron-backend-e2e/) | `electron-backend-e2e` | Playwright coverage for Electron-only workflows                       |
-| [`apps/agent-control/`](./apps/agent-control/)               | Standalone module      | Shared authenticated live-bridge client                               |
-| [`apps/mcp-server/`](./apps/mcp-server/)                     | Standalone module      | MCP stdio server for safe catalog and live playback automation        |
-| [`apps/iptvctl/`](./apps/iptvctl/)                           | Standalone module      | Scriptable CLI over the agent-control bridge                          |
+| Path                                                         | Workspace project      | Responsibility                                                               |
+| ------------------------------------------------------------ | ---------------------- | ---------------------------------------------------------------------------- |
+| [`apps/web/`](./apps/web/)                                   | `web`                  | Angular renderer shared by Electron and the PWA                              |
+| [`apps/electron-backend/`](./apps/electron-backend/)         | `electron-backend`     | Electron main process, native integration, IPC, SQLite, and packaging        |
+| [`apps/web-backend/`](./apps/web-backend/)                   | `web-backend`          | Self-hosted PWA HTTP backend and provider proxy                              |
+| [`apps/remote-control-web/`](./apps/remote-control-web/)     | `remote-control-web`   | Mobile remote-control web client                                             |
+| [`apps/website/`](./apps/website/)                           | `website`              | Astro marketing site and release blog                                        |
+| [`apps/remotion-brand/`](./apps/remotion-brand/)             | _(not an Nx project)_  | Remotion authoring for animated brand assets; build-time only                |
+| [`apps/stalker-mock-server/`](./apps/stalker-mock-server/)   | `stalker-mock-server`  | Stalker/Ministra development and E2E fixture server                          |
+| [`apps/xtream-mock-server/`](./apps/xtream-mock-server/)     | `xtream-mock-server`   | Xtream development, E2E, and marketing fixture server                        |
+| [`apps/web-e2e/`](./apps/web-e2e/)                           | `web-e2e`              | Playwright coverage for browser/PWA workflows                                |
+| [`apps/electron-backend-e2e/`](./apps/electron-backend-e2e/) | `electron-backend-e2e` | Playwright coverage for Electron-only workflows                              |
+| [`apps/agent-control/`](./apps/agent-control/)               | Standalone module      | Shared authenticated live-bridge client                                      |
+| [`apps/mcp-server/`](./apps/mcp-server/)                     | Standalone module      | MCP stdio server for safe catalog and live playback automation               |
+| [`apps/iptvctl/`](./apps/iptvctl/)                           | Standalone module      | Scriptable playback, lifecycle, display, and window CLI over the live bridge |
 
 ## 🧱 Shared Library Map
 

@@ -16,11 +16,11 @@ CarbonCast IPTV is a fork of [IPTVnator](https://github.com/4gray/iptvnator). Th
 
 ## 🧭 Repository Navigation
 
-| Guide | Use it for |
-| --- | --- |
+| Guide                                                  | Use it for                                                                          |
+| ------------------------------------------------------ | ----------------------------------------------------------------------------------- |
 | [Repository table of contents](./TABLE_OF_CONTENTS.md) | Apps, libraries, feature owners, architecture contracts, tools, and common commands |
-| [Claude Code context](./CLAUDE.md) | Detailed implementation architecture and development notes |
-| [Agent operating rules](./AGENTS.md) | Validation, documentation, and release-note requirements |
+| [Claude Code context](./CLAUDE.md)                     | Detailed implementation architecture and development notes                          |
+| [Agent operating rules](./AGENTS.md)                   | Validation, documentation, and release-note requirements                            |
 
 ![CarbonCast IPTV: channels list, player, and EPG guide](./apps/website/public/screenshots/screenshot-player.webp)
 
@@ -54,7 +54,7 @@ CarbonCast IPTV is a fork of [IPTVnator](https://github.com/4gray/iptvnator). Th
 
 **Discovery & metadata**
 
-- Global search across live TV, movies, and series _(desktop)_
+- Global search across live TV, movies, and series, with a live local 72-hour result cache _(desktop)_
 - TMDB enrichment (opt-in) — plots, cast & crew, trailers, ratings, artwork, a "Similar" rail, clickable actor pages, and a trending dashboard rail _(trending rail: desktop)_
 - Dashboard with recently watched & continue-watching
 
@@ -68,6 +68,7 @@ CarbonCast IPTV is a fork of [IPTVnator](https://github.com/4gray/iptvnator). Th
 
 - Cross-platform desktop (Electron) and installable PWA
 - Desktop auto-updater and mobile remote control _(desktop)_
+- Scoped local agent automation for catalog/guide queries, playback, and desktop lifecycle/window control _(desktop)_
 - Docker self-hosting for the PWA + web backend
 - 19 languages ([translation files](apps/web/src/assets/i18n/)), light & dark themes, and keyboard shortcuts
 

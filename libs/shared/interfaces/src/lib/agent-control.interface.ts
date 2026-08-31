@@ -15,6 +15,13 @@ export const AGENT_CONTROL_SCOPES = [
     'diagnostics.read',
     'tokens.manage',
     'events.read',
+    /**
+     * Shutting the app down is categorically unlike changing what it shows, so
+     * it does not ride along on `player.control`: a token minted to drive
+     * playback must not be able to end the session. Window and display moves
+     * stay on `player.control` — they change the picture, nothing persistent.
+     */
+    'app.lifecycle',
 ] as const;
 
 export type AgentControlScope = (typeof AGENT_CONTROL_SCOPES)[number];
@@ -48,7 +55,47 @@ export type AgentControlOperation =
     | 'settings.update'
     | 'diagnostics.get'
     | 'diagnostics.screenshot'
-    | 'app.navigate';
+    | 'app.navigate'
+    // Window, display, and lifecycle operations. Served by the main process
+    // rather than the renderer: a renderer cannot move or minimise its own
+    // window, and `app.quit` must survive the window it is closing.
+    // `app.launch` is a local CLI lifecycle operation. It is also accepted by
+    // the live bridge as a no-op acknowledgement when the app is already up,
+    // which keeps the operation vocabulary complete for agents.
+    | 'app.launch'
+    | 'app.quit'
+    | 'app.window.get'
+    | 'app.window.set'
+    | 'app.display.list'
+    | 'app.display.move';
+
+/**
+ * Window states an agent can request. `fullscreen` is the *window* chrome,
+ * distinct from `player.setFullscreen`, which fullscreens the video element
+ * inside it — an agent asking for "fullscreen" usually means this one.
+ */
+export const AGENT_WINDOW_STATES = [
+    'normal',
+    'minimized',
+    'maximized',
+    'fullscreen',
+] as const;
+
+export type AgentWindowState = (typeof AGENT_WINDOW_STATES)[number];
+
+/**
+ * A monitor as reported by `app.display.list`. Bounds are included because
+ * "the opposite monitor" is only meaningful relative to where the window is
+ * now; `current` marks the display the window currently occupies.
+ */
+export interface AgentDisplay {
+    id: number;
+    label: string;
+    primary: boolean;
+    current: boolean;
+    bounds: { x: number; y: number; width: number; height: number };
+    scaleFactor: number;
+}
 
 export type AgentControlErrorCode =
     | 'agent-control-unavailable'
@@ -93,6 +140,12 @@ export interface AgentControlState {
     player?: Record<string, unknown>;
     channel?: Record<string, unknown>;
     settings?: Record<string, unknown>;
+    /** Present only while an authenticated agent command is being handled. */
+    agentCommand?: {
+        operation: string;
+        correlationId: string;
+        startedAt: string;
+    };
     updatedAt: string;
 }
 

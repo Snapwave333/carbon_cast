@@ -31,6 +31,8 @@ import { PlaylistOpenRequestService } from './services/playlist-open-request.ser
 import { AppUpdateNotificationPanelComponent } from './app-update-notification-panel.component';
 import { FollowedSeriesRuntimeService } from './services/followed-series-runtime.service';
 import { AgentControlRuntimeService } from './services/agent-control-runtime.service';
+import { AgentControlPresenceComponent } from './agent-control-presence.component';
+import { AgentControlPresenceService } from './services/agent-control-presence.service';
 
 const debugAppComponent = createDevLogger('AppComponent');
 
@@ -38,6 +40,7 @@ const debugAppComponent = createDevLogger('AppComponent');
     selector: 'app-root',
     templateUrl: './app.component.html',
     imports: [
+        AgentControlPresenceComponent,
         AppUpdateNotificationPanelComponent,
         EpgProgressPanelComponent,
         FollowedSeriesOverlayComponent,
@@ -66,6 +69,7 @@ export class AppComponent implements OnInit {
     private runtime = inject(RuntimeCapabilitiesService);
     private followedSeriesRuntime = inject(FollowedSeriesRuntimeService);
     private agentControl = inject(AgentControlRuntimeService);
+    private agentControlPresence = inject(AgentControlPresenceService);
     private readonly workspaceShellActions = inject(WORKSPACE_SHELL_ACTIONS);
 
     /** Default language as fallback */
@@ -111,6 +115,7 @@ export class AppComponent implements OnInit {
     ngOnInit() {
         this.store.dispatch(PlaylistActions.loadPlaylists());
         this.followedSeriesRuntime.start();
+        this.agentControlPresence.start();
         this.agentControl.start();
         this.translate.setDefaultLang(this.DEFAULT_LANG);
 

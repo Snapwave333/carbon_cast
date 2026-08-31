@@ -4,6 +4,7 @@ import {
     EmbeddedMpvSession,
     EmbeddedMpvSupport,
 } from './embedded-mpv-session.interface';
+import type { ProxySettingsInput, ProxyTestResult } from './proxy.interface';
 import { EpgChannelMetadata } from './epg-channel-metadata.model';
 import { EpgProgram } from './epg-program.model';
 import { ExternalPlayerSession } from './external-player-session.interface';
@@ -44,6 +45,7 @@ import {
 } from './tmdb.interface';
 import { XtreamCategory } from './xtream-category.interface';
 import {
+    AgentControlEvent,
     AgentControlRequest,
     AgentControlResult,
     AgentControlState,
@@ -699,6 +701,11 @@ export interface ElectronBridgeApi {
     ) => Promise<ElectronBridgeEpgSearchResult[]>;
 
     updateSettings: (settings: Partial<Settings>) => Promise<void>;
+    /**
+     * Dial the given proxy through a throwaway Chromium session and report the
+     * exit address, without installing it on the live session.
+     */
+    testProxy: (proxy: ProxySettingsInput) => Promise<ProxyTestResult>;
     getAiSettings: () => Promise<ElectronBridgeAiSettings>;
     setMpvPlayerPath: (mpvPlayerPath: string) => Promise<void>;
     setVlcPlayerPath: (vlcPlayerPath: string) => Promise<void>;
@@ -905,6 +912,9 @@ export interface ElectronBridgeApi {
         callback: (
             request: AgentControlRequest & { correlationId: string }
         ) => void
+    ) => () => void;
+    onAgentControlEvent?: (
+        callback: (event: AgentControlEvent) => void
     ) => () => void;
     updateAgentControlState?: (state: Partial<AgentControlState>) => void;
     completeAgentControlCommand?: (result: AgentControlResult) => void;

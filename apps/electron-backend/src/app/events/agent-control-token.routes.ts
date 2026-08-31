@@ -7,8 +7,7 @@ import {
     type AgentAuthenticatedToken,
 } from './agent-control-auth.service';
 import { httpServer } from '../server/http-server';
-
-const BODY_LIMIT_BYTES = 64 * 1024;
+import { readJsonBody } from './agent-control-http.util';
 
 export function registerAgentControlTokenRoutes(
     prefix: string,
@@ -32,7 +31,8 @@ export function registerAgentControlTokenRoutes(
         const token = guard(req, res, auth);
         if (!token) return;
         readBody(req, res, (body) => {
-            const tokenId = typeof (body as Record<string, unknown>).tokenId === 'string' ? (body as Record<string, string>).tokenId : '';
+            const tokenId = readTokenId(body);
+            if (!tokenId) return respondFailure(res, missingTokenId());
             const revoked = auth.revoke(tokenId);
             if (isFailure(revoked)) return respondFailure(res, revoked);
             audit('token.revoked', token.id, { tokenId });
@@ -44,7 +44,8 @@ export function registerAgentControlTokenRoutes(
         const token = guard(req, res, auth);
         if (!token) return;
         readBody(req, res, (body) => {
-            const tokenId = typeof (body as Record<string, unknown>).tokenId === 'string' ? (body as Record<string, string>).tokenId : '';
+            const tokenId = readTokenId(body);
+            if (!tokenId) return respondFailure(res, missingTokenId());
             const rotated = auth.rotate(tokenId);
             if (isFailure(rotated)) return respondFailure(res, rotated);
             audit('token.rotated', token.id, { replacedTokenId: tokenId, tokenId: rotated.record.id });
@@ -69,20 +70,23 @@ function guard(req: http.IncomingMessage, res: http.ServerResponse, auth: AgentC
 }
 
 function readBody(req: http.IncomingMessage, res: http.ServerResponse, callback: (body: unknown) => void): void {
-    const chunks: Buffer[] = [];
-    let size = 0;
-    req.on('data', (chunk: Buffer) => {
-        size += chunk.length;
-        if (size <= BODY_LIMIT_BYTES) chunks.push(chunk);
-    });
-    req.on('end', () => {
-        if (size > BODY_LIMIT_BYTES) return respondFailure(res, { code: 'invalid-request', message: 'Request body is too large.', status: 413, retryable: false });
-        try {
-            callback(JSON.parse(Buffer.concat(chunks).toString('utf8') || '{}'));
-        } catch {
-            respondFailure(res, { code: 'invalid-request', message: 'Request body must be valid JSON.', status: 400, retryable: false });
-        }
-    });
+    readJsonBody(req, callback, (rejection) =>
+        respondFailure(res, { ...rejection, retryable: false })
+    );
+}
+
+function readTokenId(body: unknown): string {
+    const value = (body as Record<string, unknown>)?.tokenId;
+    return typeof value === 'string' ? value.trim() : '';
+}
+
+function missingTokenId(): AgentAuthFailure {
+    return {
+        code: 'invalid-request',
+        message: 'A non-empty tokenId is required.',
+        status: 400,
+        retryable: false,
+    };
 }
 
 function isFailure(value: unknown): value is AgentAuthFailure {

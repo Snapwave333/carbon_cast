@@ -149,6 +149,16 @@ const CREATE_TABLE_STATEMENTS = [
       value TEXT NOT NULL,
       updated_at TEXT DEFAULT (datetime('now'))
   )`,
+    // A compact, rolling result cache sits above the source-of-truth catalog
+    // tables. It makes repeated global browse/search queries immediate while
+    // cache-invalidation triggers below keep changed media live.
+    `CREATE TABLE IF NOT EXISTS media_query_cache (
+      cache_key TEXT PRIMARY KEY,
+      result_json TEXT NOT NULL,
+      expires_at INTEGER NOT NULL,
+      updated_at INTEGER NOT NULL
+  )`,
+    `CREATE INDEX IF NOT EXISTS idx_media_query_cache_expiry ON media_query_cache(expires_at)`,
     `CREATE TABLE IF NOT EXISTS categories (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       playlist_id TEXT NOT NULL,
@@ -230,6 +240,24 @@ const CREATE_TABLE_STATEMENTS = [
       VALUES ('delete', old.id, old.title);
       INSERT INTO content_title_fts(rowid, title)
       VALUES (new.id, new.title);
+  END`,
+    // Any catalog mutation invalidates cached result pages immediately. This
+    // prevents the 72-hour retention window from ever making browse/search
+    // stale after an import, category visibility change, or M3U refresh.
+    `CREATE TRIGGER IF NOT EXISTS media_query_cache_content_ai AFTER INSERT ON content BEGIN
+      DELETE FROM media_query_cache;
+  END`,
+    `CREATE TRIGGER IF NOT EXISTS media_query_cache_content_au AFTER UPDATE ON content BEGIN
+      DELETE FROM media_query_cache;
+  END`,
+    `CREATE TRIGGER IF NOT EXISTS media_query_cache_content_ad AFTER DELETE ON content BEGIN
+      DELETE FROM media_query_cache;
+  END`,
+    `CREATE TRIGGER IF NOT EXISTS media_query_cache_categories_au AFTER UPDATE ON categories BEGIN
+      DELETE FROM media_query_cache;
+  END`,
+    `CREATE TRIGGER IF NOT EXISTS media_query_cache_playlists_au AFTER UPDATE ON playlists BEGIN
+      DELETE FROM media_query_cache;
   END`,
     `CREATE UNIQUE INDEX IF NOT EXISTS favorites_content_playlist_unique ON favorites(content_id, playlist_id)`,
     `CREATE INDEX IF NOT EXISTS favorites_playlist_idx ON favorites(playlist_id)`,

@@ -16,8 +16,8 @@ export function createAgentControlClient(options = {}) {
     const baseUrl = (options.baseUrl || process.env.IPTVNATOR_AGENT_CONTROL_URL || `http://127.0.0.1:${process.env.IPTVNATOR_REMOTE_CONTROL_PORT || DEFAULT_PORT}/api/agent-control/v1`).replace(/\/$/, '');
     const token = options.token || process.env.IPTVNATOR_AGENT_TOKEN || '';
     const timeoutMs = options.timeoutMs || 12_000;
-    const request = async (path, init = {}) => {
-        if (!token) return unavailable('IPTVNATOR_AGENT_TOKEN is required for live control.');
+    const request = async (path, init = {}, requiresAuth = true) => {
+        if (requiresAuth && !token) return unavailable('IPTVNATOR_AGENT_TOKEN is required for live control.');
         const controller = new AbortController();
         const timer = setTimeout(() => controller.abort(), timeoutMs);
         try {
@@ -25,23 +25,44 @@ export function createAgentControlClient(options = {}) {
                 ...init,
                 headers: {
                     Accept: 'application/json',
-                    Authorization: `Bearer ${token}`,
+                    ...(requiresAuth ? { Authorization: `Bearer ${token}` } : {}),
                     ...(init.body ? { 'Content-Type': 'application/json' } : {}),
                     ...init.headers,
                 },
                 signal: controller.signal,
             });
             const payload = await response.json().catch(() => null);
-            if (payload && typeof payload === 'object') return payload;
-            return unavailable(`The control bridge returned HTTP ${response.status}.`);
+            if (payload && typeof payload === 'object') {
+                // An HTTP error whose body is not already a failure result —
+                // a wrong base URL hitting an unrelated JSON endpoint, or the
+                // loopback-host rejection — must not be reported as success.
+                if (!response.ok && payload.success !== false) {
+                    return failed(
+                        codeForStatus(response.status),
+                        `The control bridge returned HTTP ${response.status}: ${describe(payload)}`,
+                        response.status >= 500 || response.status === 429
+                    );
+                }
+                return payload;
+            }
+            return unavailable(`The control bridge returned HTTP ${response.status} with a non-JSON body.`);
         } catch (error) {
+            if (error?.name === 'AbortError') {
+                return failed(
+                    'renderer-timeout',
+                    `The control bridge did not answer within ${timeoutMs}ms. Retry the same request with the same --correlation-id.`,
+                    true
+                );
+            }
             return unavailable(error instanceof Error ? error.message : 'The control bridge is unavailable.');
         } finally {
             clearTimeout(timer);
         }
     };
     return {
-        health: () => request('/health'),
+        // Health is intentionally public so operators can distinguish a down
+        // bridge from a missing or expired control token.
+        health: () => request('/health', {}, false),
         getState: () => request('/state'),
         command: (operation, params = {}, correlationId = crypto.randomUUID()) => request('/command', {
             method: 'POST',
@@ -51,14 +72,24 @@ export function createAgentControlClient(options = {}) {
         createToken: (input) => request('/tokens', { method: 'POST', body: JSON.stringify(input) }),
         revokeToken: (tokenId) => request('/tokens/revoke', { method: 'POST', body: JSON.stringify({ tokenId }) }),
         rotateToken: (tokenId) => request('/tokens/rotate', { method: 'POST', body: JSON.stringify({ tokenId }) }),
-        async subscribeEvents(onEvent) {
+        async subscribeEvents(onEvent, { signal } = {}) {
             if (!token) return unavailable('IPTVNATOR_AGENT_TOKEN is required for live control.');
+            // Only the handshake is bounded. Once the stream is open it is
+            // meant to stay open, so the connect timeout must not abort it.
+            const connect = new AbortController();
+            const connectTimer = setTimeout(() => connect.abort(), timeoutMs);
+            signal?.addEventListener('abort', () => connect.abort(), { once: true });
             try {
                 const response = await fetch(`${baseUrl}/events`, {
                     headers: { Accept: 'text/event-stream', Authorization: `Bearer ${token}` },
+                    signal: connect.signal,
                 });
-                if (!response.ok || !response.body) return unavailable(`The event stream returned HTTP ${response.status}.`);
+                clearTimeout(connectTimer);
+                if (!response.ok || !response.body) {
+                    return failed(codeForStatus(response.status), `The event stream returned HTTP ${response.status}.`, true);
+                }
                 const reader = response.body.getReader();
+                signal?.addEventListener('abort', () => void reader.cancel(), { once: true });
                 const decoder = new TextDecoder();
                 let buffer = '';
                 for (;;) {
@@ -68,13 +99,18 @@ export function createAgentControlClient(options = {}) {
                     const frames = buffer.split('\n\n');
                     buffer = frames.pop() || '';
                     for (const frame of frames) {
-                        const data = frame.split('\n').find((line) => line.startsWith('data: '));
-                        if (data) onEvent(JSON.parse(data.slice(6)));
+                        const event = parseEventFrame(frame);
+                        // One malformed frame used to throw out of the read
+                        // loop and end the whole subscription.
+                        if (event !== undefined) onEvent(event);
                     }
                 }
                 return { success: true };
             } catch (error) {
+                if (signal?.aborted) return { success: true };
                 return unavailable(error instanceof Error ? error.message : 'The event stream is unavailable.');
+            } finally {
+                clearTimeout(connectTimer);
             }
         },
     };
@@ -94,6 +130,8 @@ export function resultExitCode(result) {
             return EXIT_CODES.UNAVAILABLE;
         case 'not-found':
             return EXIT_CODES.NOT_FOUND;
+        case 'conflict':
+            return EXIT_CODES.CONFLICT;
         case 'rate-limited':
             return EXIT_CODES.RATE_LIMITED;
         default:
@@ -101,13 +139,50 @@ export function resultExitCode(result) {
     }
 }
 
-function unavailable(message) {
+/**
+ * Parse one SSE frame. Per the spec a frame may carry several `data:` lines
+ * which are joined with newlines; taking only the first truncated any payload
+ * that happened to be chunked that way.
+ */
+export function parseEventFrame(frame) {
+    const data = frame
+        .split('\n')
+        .filter((line) => line.startsWith('data:'))
+        .map((line) => line.slice(line.startsWith('data: ') ? 6 : 5))
+        .join('\n');
+    if (!data) return undefined;
+    try {
+        return JSON.parse(data);
+    } catch {
+        return undefined;
+    }
+}
+
+function codeForStatus(status) {
+    if (status === 401) return 'authentication-required';
+    if (status === 403) return 'authorization-denied';
+    if (status === 404) return 'not-found';
+    if (status === 429) return 'rate-limited';
+    if (status === 503) return 'renderer-unavailable';
+    return 'agent-control-unavailable';
+}
+
+function describe(payload) {
+    const message = payload?.error?.message ?? payload?.error ?? payload?.message;
+    return typeof message === 'string' && message ? message : 'no error detail was returned.';
+}
+
+function failed(code, message, retryable) {
     return {
         success: false,
         operation: 'request',
         requested: {},
         timestamp: new Date().toISOString(),
         correlationId: crypto.randomUUID(),
-        error: { code: 'agent-control-unavailable', message, retryable: true },
+        error: { code, message, retryable },
     };
+}
+
+function unavailable(message) {
+    return failed('agent-control-unavailable', message, true);
 }

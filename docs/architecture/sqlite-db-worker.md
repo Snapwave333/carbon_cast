@@ -26,6 +26,32 @@ The worker cutover addresses three concrete problems:
 3. EPG and non-EPG writers needed shared SQLite concurrency settings so they
    can coexist without `SQLITE_BUSY` regressions.
 
+## Live 72-hour media query cache
+
+`globalSearch(...)` keeps SQLite FTS as the source of truth and adds a local
+`media_query_cache` layer for repeated media browsing queries. Each entry is a
+fully paged result, keyed by normalized term, filters, ordering, and page; it
+expires after 72 hours and is pruned on writes. This avoids a second catalog
+or an eventually consistent copy of the playlist database.
+
+The cache is live rather than stale: SQLite triggers clear it after content,
+category, or playlist changes. Imports, playlist refreshes, metadata edits,
+category visibility changes, and deletions therefore make the next lookup
+query the current catalog immediately. Failed cache reads or writes are
+best-effort and fall through to the existing FTS query.
+
+```mermaid
+flowchart LR
+    Q["globalSearch request"] --> H{"Fresh cache page?"}
+    H -->|yes| R["Return local result page"]
+    H -->|no| F["SQLite FTS / catalog query"]
+    F --> W["Store page with 72-hour expiry"]
+    W --> R
+    M["Content, category, or playlist write"] --> T["SQLite invalidation trigger"]
+    T --> X["Clear media_query_cache"]
+    X --> H
+```
+
 ## Current Ownership
 
 ### Main-process runtime wiring
@@ -63,6 +89,7 @@ Keep SQL-heavy logic here so the worker entry remains a thin dispatcher:
 9. `apps/electron-backend/src/app/database/operations/title-match.operations.ts`
 10. `apps/electron-backend/src/app/database/operations/tmdb.operations.ts`
 11. `apps/electron-backend/src/app/database/operations/epg-mapping.operations.ts`
+12. `apps/electron-backend/src/app/database/operations/media-query-cache.ts`
 
 (plus the shared cancellation helper `operation-control.ts` in the same directory)
 

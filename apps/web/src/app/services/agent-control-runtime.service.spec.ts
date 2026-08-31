@@ -133,4 +133,14 @@ describe('AgentControlRuntimeService channel operations', () => {
         expect(result.channel.name).toBe('Cartoon Classics');
         expect(dispatch).toHaveBeenCalled();
     });
+    it.each(['//evil.example/x', '/\\evil.example', 'https://evil.example', 'workspace/dashboard'])(
+        'rejects the protocol-relative or external route %s',
+        async (route) => {
+            // `//host` passes a bare startsWith('/') check but reads as an
+            // external authority to a URL parser.
+            await expect(run('app.navigate', { route })).rejects.toMatchObject({
+                code: 'invalid-request',
+            });
+        }
+    );
 });

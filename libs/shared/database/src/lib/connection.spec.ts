@@ -65,6 +65,7 @@ describe('database schema statements', () => {
         expect(schemaSql).toContain('CREATE TABLE IF NOT EXISTS playlists');
         expect(schemaSql).toContain('CREATE TABLE IF NOT EXISTS categories');
         expect(schemaSql).toContain('CREATE TABLE IF NOT EXISTS content');
+        expect(schemaSql).toContain('CREATE TABLE IF NOT EXISTS media_query_cache');
         expect(schemaSql).toContain('CREATE TABLE IF NOT EXISTS epg_channels');
         expect(schemaSql).toContain('CREATE TABLE IF NOT EXISTS epg_programs');
         expect(schemaSql).toContain(
@@ -98,6 +99,9 @@ describe('database schema statements', () => {
         );
         expect(schemaSql).toContain(
             'CREATE TRIGGER IF NOT EXISTS content_title_fts_ai'
+        );
+        expect(schemaSql).toContain(
+            'CREATE TRIGGER IF NOT EXISTS media_query_cache_content_ai'
         );
         expect(schemaSql).toContain(
             'CREATE TRIGGER IF NOT EXISTS content_title_fts_ad'

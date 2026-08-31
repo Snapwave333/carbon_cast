@@ -13,6 +13,13 @@ import {
 
 const READ_LIMIT = 120;
 const CONTROL_LIMIT = 30;
+const RATE_WINDOW_MS = 60_000;
+/**
+ * Per-source ceiling on rejected credentials. Token-scoped rate limits cannot
+ * see an unauthenticated caller, so without this an attacker on the socket can
+ * try tokens as fast as the event loop allows.
+ */
+const FAILED_AUTH_LIMIT = 20;
 
 export interface AgentAuthenticatedToken {
     id: string;
@@ -33,10 +40,19 @@ interface RateBucket {
 
 export class AgentControlAuthService {
     private readonly rateBuckets = new Map<string, RateBucket>();
+    private readonly failedAuth = new Map<string, RateBucket>();
 
     importBootstrapToken(): void {
         const rawToken = process.env.IPTVNATOR_AGENT_TOKEN?.trim();
-        if (!rawToken || rawToken.length < 24) return;
+        if (!rawToken) return;
+        if (rawToken.length < 24) {
+            // Silently ignoring this left every later request answering 401
+            // with nothing pointing back at the cause.
+            console.warn(
+                '[agent-control] IPTVNATOR_AGENT_TOKEN is shorter than 24 characters and was ignored.'
+            );
+            return;
+        }
         const tokenHash = hash(rawToken);
         if (this.records().some((record) => equalHash(record.tokenHash, tokenHash))) {
             return;
@@ -61,18 +77,28 @@ export class AgentControlAuthService {
         req: http.IncomingMessage,
         scope: AgentControlScope
     ): AgentAuthenticatedToken | AgentAuthFailure {
+        const source = req.socket?.remoteAddress ?? 'unknown';
+        if (this.isLockedOut(source)) {
+            return failure(
+                'rate-limited',
+                'Too many rejected credentials from this source; retry in a minute.',
+                429
+            );
+        }
         const header = req.headers.authorization;
         const rawToken = header?.startsWith('Bearer ')
             ? header.slice(7).trim()
             : '';
-        if (!rawToken) return failure('authentication-required', 'A bearer token is required.', 401);
+        if (!rawToken) return this.reject(source, 'authentication-required', 'A bearer token is required.');
+        // Hash once: hashing inside the scan cost one SHA-256 per stored token.
+        const presented = hash(rawToken);
         const record = this.records().find((item) =>
-            equalHash(item.tokenHash, hash(rawToken))
+            equalHash(item.tokenHash, presented)
         );
-        if (!record) return failure('authentication-required', 'The bearer token is invalid.', 401);
-        if (record.revokedAt) return failure('token-revoked', 'The bearer token has been revoked.', 401);
+        if (!record) return this.reject(source, 'authentication-required', 'The bearer token is invalid.');
+        if (record.revokedAt) return this.reject(source, 'token-revoked', 'The bearer token has been revoked.');
         if (record.expiresAt && Date.parse(record.expiresAt) <= Date.now()) {
-            return failure('token-expired', 'The bearer token has expired.', 401);
+            return this.reject(source, 'token-expired', 'The bearer token has expired.');
         }
         const scopes = normalizeScopes(record.scopes);
         if (!scopes.includes(scope)) {
@@ -88,16 +114,28 @@ export class AgentControlAuthService {
         const now = Date.now();
         const key = `${token.id}:${control ? 'control' : 'read'}`;
         const limit = control ? CONTROL_LIMIT : READ_LIMIT;
-        const previous = this.rateBuckets.get(key);
-        const bucket =
-            !previous || previous.resetAt <= now
-                ? { count: 0, resetAt: now + 60_000 }
-                : previous;
-        bucket.count += 1;
-        this.rateBuckets.set(key, bucket);
+        const bucket = takeBucket(this.rateBuckets, key, now);
         return bucket.count <= limit
             ? null
             : Math.max(1, Math.ceil((bucket.resetAt - now) / 1000));
+    }
+
+    private isLockedOut(source: string): boolean {
+        const bucket = this.failedAuth.get(source);
+        return Boolean(
+            bucket &&
+                bucket.resetAt > Date.now() &&
+                bucket.count >= FAILED_AUTH_LIMIT
+        );
+    }
+
+    private reject(
+        source: string,
+        code: AgentControlErrorCode,
+        message: string
+    ): AgentAuthFailure {
+        takeBucket(this.failedAuth, source, Date.now());
+        return failure(code, message, 401);
     }
 
     list(): Omit<AgentControlTokenRecord, 'tokenHash'>[] {
@@ -165,6 +203,21 @@ export class AgentControlAuthService {
     private save(records: AgentControlTokenRecord[]): void {
         store.set(AGENT_CONTROL_TOKENS, records);
     }
+}
+
+function takeBucket(
+    buckets: Map<string, RateBucket>,
+    key: string,
+    now: number
+): RateBucket {
+    const previous = buckets.get(key);
+    const bucket =
+        !previous || previous.resetAt <= now
+            ? { count: 0, resetAt: now + RATE_WINDOW_MS }
+            : previous;
+    bucket.count += 1;
+    buckets.set(key, bucket);
+    return bucket;
 }
 
 function failure(code: AgentControlErrorCode, message: string, status: number): AgentAuthFailure {

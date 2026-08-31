@@ -19,9 +19,21 @@ import {
 } from './agent-control-auth.service';
 import { registerAgentControlTokenRoutes } from './agent-control-token.routes';
 import { captureAgentScreenshot } from './agent-control-screenshot';
+import { readJsonBody } from './agent-control-http.util';
+import {
+    isControlOperation,
+    mainProcessOperations,
+    operationScopes,
+} from './agent-control-operations';
+import { AgentControlEventStream } from './agent-control-event-stream';
+import { sanitize } from './agent-control-redact';
+import { scheduleQuit } from './agent-control-window';
+import {
+    runWindowOperation,
+    splitWindowOutcome,
+} from './agent-control-window-operations';
 
 const API_PREFIX = '/api/agent-control/v1';
-const BODY_LIMIT_BYTES = 64 * 1024;
 const COMMAND_TIMEOUT_MS = 10_000;
 
 interface PendingCommand {
@@ -31,39 +43,8 @@ interface PendingCommand {
 
 type JsonObject = Record<string, unknown>;
 
-const operationScopes: Record<AgentControlOperation, AgentControlScope> = {
-    'player.getState': 'state.read',
-    'player.play': 'player.control',
-    'player.pause': 'player.control',
-    'player.stop': 'player.control',
-    'player.setVolume': 'player.control',
-    'player.setMuted': 'player.control',
-    'player.seek': 'player.control',
-    'player.setFullscreen': 'player.control',
-    'player.togglePictureInPicture': 'player.control',
-    'player.setSubtitle': 'player.control',
-    'player.setAudioTrack': 'player.control',
-    'channel.list': 'library.read',
-    'channel.switch': 'player.control',
-    'channel.next': 'player.control',
-    'channel.previous': 'player.control',
-    'epg.getNowNext': 'library.read',
-    'epg.refresh': 'library.write',
-    'favorite.list': 'library.read',
-    'favorite.set': 'library.write',
-    'follow.list': 'library.read',
-    'follow.set': 'follow.write',
-    'follow.setAutoSwitch': 'follow.write',
-    'recording.start': 'recording.control',
-    'recording.stop': 'recording.control',
-    'settings.get': 'state.read',
-    'settings.update': 'settings.write',
-    'diagnostics.get': 'diagnostics.read',
-    'diagnostics.screenshot': 'diagnostics.read',
-    'app.navigate': 'player.control',
-};
 
-const protectedKeys = /(?:token|password|credential|secret|stream|source|url|path|authorization)/i;
+
 
 /**
  * Authenticated local bridge for MCP and CLI. Commands are acknowledged by
@@ -76,7 +57,7 @@ export class AgentControlEvents {
     };
     private readonly pending = new Map<string, PendingCommand>();
     private readonly completed = new Map<string, AgentControlResult>();
-    private readonly events = new Set<http.ServerResponse>();
+    private readonly stream = new AgentControlEventStream();
     private readonly auth = new AgentControlAuthService();
 
     bootstrapAgentControlEvents(): void {
@@ -149,14 +130,11 @@ export class AgentControlEvents {
         if (!token || !this.consumeRateLimit(token, false, res)) {
             return;
         }
-        res.writeHead(200, {
-            'Cache-Control': 'no-cache, no-transform',
-            Connection: 'keep-alive',
-            'Content-Type': 'text/event-stream',
-        });
-        res.write(`event: state.changed\ndata: ${JSON.stringify(this.state)}\n\n`);
-        this.events.add(res);
-        req.on('close', () => this.events.delete(res));
+        this.stream.open(res, this.state);
+
+        const close = () => this.stream.drop(res);
+        req.on('close', close);
+        res.on('error', close);
     }
 
     private handleCommand(req: http.IncomingMessage, res: http.ServerResponse): void {
@@ -170,7 +148,7 @@ export class AgentControlEvents {
                 return this.error(res, 'invalid-request', 'Unknown or missing operation.');
             }
             const token = this.authorize(req, res, operationScopes[operation]);
-            if (!token || !this.consumeRateLimit(token, true, res)) {
+            if (!token || !this.consumeRateLimit(token, isControlOperation(operation), res)) {
                 return;
             }
             const result = await this.dispatchCommand(request, token.id);
@@ -190,19 +168,24 @@ export class AgentControlEvents {
             return this.result(false, request.operation, requested, correlationId, 'renderer-unavailable', 'The CarbonCast IPTV window is unavailable.', true);
         }
         this.audit(request.operation, tokenId, { correlationId, params: requested });
+        this.beginAgentCommand(request.operation, correlationId);
 
         // Handled entirely in the main process: the usual reason to ask for a
-        // screenshot is that the renderer is not answering, so routing it
-        // through the renderer acknowledgement would fail exactly when needed.
-        if (request.operation === 'diagnostics.screenshot') {
-            return this.captureScreenshot(request.operation, requested, correlationId);
+        // screenshot — or to move, restore, or quit the window — is that the
+        // renderer is not answering, so routing these through the renderer
+        // acknowledgement would fail exactly when they are needed.
+        if (mainProcessOperations.has(request.operation)) {
+            if (request.operation === 'diagnostics.screenshot') {
+                return this.captureScreenshot(request.operation, requested, correlationId);
+            }
+            return this.windowOperation(request.operation, requested, correlationId, window);
         }
 
         return new Promise<AgentControlResult>((resolve) => {
             const timer = setTimeout(() => {
                 this.pending.delete(correlationId);
                 const timeout = this.result(false, request.operation, requested, correlationId, 'renderer-timeout', 'The renderer did not acknowledge the command in time.', true);
-                this.remember(timeout);
+                this.completeCommand(timeout);
                 resolve(timeout);
             }, COMMAND_TIMEOUT_MS);
             this.pending.set(correlationId, { resolve, timer });
@@ -222,8 +205,7 @@ export class AgentControlEvents {
         }
         clearTimeout(pending.timer);
         this.pending.delete(sanitized.correlationId);
-        this.remember(sanitized);
-        this.publish({ type: 'command.completed', timestamp: sanitized.timestamp, correlationId: sanitized.correlationId, result: sanitized });
+        this.completeCommand(sanitized);
         pending.resolve(sanitized);
     }
 
@@ -265,37 +247,13 @@ export class AgentControlEvents {
     }
 
     private readBody(req: http.IncomingMessage, res: http.ServerResponse, callback: (body: unknown) => void | Promise<void>): void {
-        const chunks: Buffer[] = [];
-        let size = 0;
-        req.on('data', (chunk: Buffer) => {
-            size += chunk.length;
-            if (size <= BODY_LIMIT_BYTES) {
-                chunks.push(chunk);
-            }
-        });
-        req.on('end', () => {
-            if (size > BODY_LIMIT_BYTES) {
-                this.error(res, 'invalid-request', 'Request body is too large.', 413);
-                return;
-            }
-            try {
-                const raw = Buffer.concat(chunks).toString('utf8');
-                callback(raw ? JSON.parse(raw) : {});
-            } catch {
-                this.error(res, 'invalid-request', 'Request body must be valid JSON.');
-            }
-        });
+        readJsonBody(req, callback, (rejection) =>
+            this.error(res, rejection.code, rejection.message, rejection.status)
+        );
     }
 
     private publish(event: AgentControlEvent): void {
-        const line = `event: ${event.type}\ndata: ${JSON.stringify(sanitize(event))}\n\n`;
-        for (const response of this.events) {
-            try {
-                response.write(line);
-            } catch {
-                this.events.delete(response);
-            }
-        }
+        this.stream.publish(event);
     }
 
     private async captureScreenshot(operation: string, requested: JsonObject, correlationId: string): Promise<AgentControlResult> {
@@ -305,13 +263,90 @@ export class AgentControlEvents {
                 ...this.result(true, operation, requested, correlationId),
                 state: { screenshot: { ...screenshot } },
             };
-            this.remember(result);
+            this.completeCommand(result);
             return result;
         } catch (error) {
             const failure = this.result(false, operation, requested, correlationId, 'internal-error', error instanceof Error ? error.message : 'Screenshot failed.', true);
-            this.remember(failure);
+            this.completeCommand(failure);
             return failure;
         }
+    }
+
+    /**
+     * Window, display, and lifecycle operations, answered without the renderer.
+     *
+     * Results are remembered like any other command so a retried correlation
+     * id replays the outcome instead of moving the window a second time.
+     */
+    private windowOperation(
+        operation: AgentControlOperation,
+        requested: JsonObject,
+        correlationId: string,
+        window: BrowserWindow
+    ): AgentControlResult {
+        const { success, failure } = splitWindowOutcome(
+            runWindowOperation(operation, requested, window)
+        );
+
+        const result: AgentControlResult = failure
+            ? this.result(
+                  false,
+                  operation,
+                  requested,
+                  correlationId,
+                  failure.code,
+                  failure.message,
+                  failure.retryable
+              )
+            : {
+                  ...this.result(true, operation, requested, correlationId),
+                  state: { data: success?.data },
+              };
+
+        this.completeCommand(result);
+
+        // Answer first, quit after: this process writes the response it is
+        // about to stop being able to send.
+        if (success?.quit) scheduleQuit();
+        return result;
+    }
+
+    private beginAgentCommand(operation: string, correlationId: string): void {
+        const startedAt = new Date().toISOString();
+        this.state = {
+            ...this.state,
+            agentCommand: { operation, correlationId, startedAt },
+            updatedAt: startedAt,
+        };
+        this.publish({
+            type: 'state.changed',
+            timestamp: startedAt,
+            correlationId,
+            state: this.state,
+        });
+    }
+
+    private completeCommand(result: AgentControlResult): void {
+        this.remember(result);
+        if (this.state.agentCommand?.correlationId === result.correlationId) {
+            const { agentCommand: _completed, ...stateWithoutCommand } = this.state;
+            this.state = {
+                ...stateWithoutCommand,
+                updatedAt: new Date().toISOString(),
+            };
+            this.publish({
+                type: 'state.changed',
+                timestamp: this.state.updatedAt,
+                correlationId: result.correlationId,
+                state: this.state,
+            });
+        }
+        this.publish({
+            type: 'command.completed',
+            timestamp: result.timestamp,
+            correlationId: result.correlationId,
+            result,
+        });
     }
 
     private remember(result: AgentControlResult): void {
@@ -361,15 +396,5 @@ export class AgentControlEvents {
     }
 }
 
-function sanitize(value: unknown): unknown {
-    if (Array.isArray(value)) return value.map(sanitize);
-    if (!value || typeof value !== 'object') return value;
-    return Object.fromEntries(
-        Object.entries(value as JsonObject).map(([key, item]) => [
-            key,
-            protectedKeys.test(key) ? '[redacted]' : sanitize(item),
-        ])
-    );
-}
 
 export default new AgentControlEvents();

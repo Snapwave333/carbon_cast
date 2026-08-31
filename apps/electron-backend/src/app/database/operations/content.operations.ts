@@ -45,6 +45,11 @@ import {
     writeXtreamContentValues,
     type XtreamContentValue,
 } from './xtream-content-operation-steps';
+import {
+    createMediaQueryCacheKey,
+    readMediaQueryCache,
+    writeMediaQueryCache,
+} from './media-query-cache';
 
 export { scoreSearchTextMatch } from './content-search.util';
 
@@ -1120,6 +1125,17 @@ export async function globalSearch(
     }
 
     const pagination = normalizeGlobalSearchPagination(options);
+    const cacheKey = createMediaQueryCacheKey({
+        searchTerm,
+        types,
+        excludeHidden,
+        sources,
+        ...pagination,
+    });
+    const cached = await readMediaQueryCache(db, cacheKey);
+    if (cached) {
+        return cached;
+    }
     const candidateLimit = getGlobalSearchCandidateLimit();
     const results: ScoredGlobalSearchResult[] = [];
 
@@ -1265,5 +1281,7 @@ export async function globalSearch(
         );
     }
 
-    return paginateScoredResults(results, pagination);
+    const paged = paginateScoredResults(results, pagination);
+    await writeMediaQueryCache(db, cacheKey, paged);
+    return paged;
 }
