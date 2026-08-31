@@ -1,26 +1,43 @@
-# CarbonCast IPTV
-
 <p align="center">
-  <img src="./apps/web/src/assets/icons/app-icon.svg" alt="CarbonCast IPTV icon" width="128" title="CarbonCast IPTV player" />
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="./carboncast-implementation/assets/logos/logo-horizontal-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="./carboncast-implementation/assets/logos/logo-horizontal-light.svg">
+    <img src="./carboncast-implementation/assets/logos/logo-horizontal-dark.svg" alt="CarbonCast IPTV" width="720" />
+  </picture>
 </p>
 
-**CarbonCast IPTV** is a video player application that provides support for IPTV playlist playback (m3u, m3u8). Playlists can be imported from remote URLs or local files, and EPG information in XMLTV format can be provided via URL.
+<p align="center">
+  <a href="https://github.com/Snapwave333/carbon_cast/releases/latest"><img src="https://img.shields.io/github/v/release/Snapwave333/carbon_cast?color=E10D1A&style=for-the-badge&logo=github" alt="Latest Release" /></a>
+  <a href="https://snapwave333.github.io/carbon_cast/"><img src="https://img.shields.io/badge/Website-Live-00D8FF?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Website" /></a>
+  <a href="https://github.com/Snapwave333/carbon_cast/blob/main/LICENSE.md"><img src="https://img.shields.io/github/license/Snapwave333/carbon_cast?color=242E3E&style=for-the-badge" alt="License" /></a>
+  <img src="https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux%20%7C%20PWA-07090C?style=for-the-badge" alt="Platforms" />
+</p>
 
-The application is a cross-platform, open-source project built with Electron and Angular.
+<p align="center">
+  <strong>CarbonCast IPTV</strong> is a modern, high-performance, open-source video player application for streaming IPTV playlists (M3U, M3U8), Xtream Codes API, and Stalker/Ministra portals across Desktop (Windows, macOS, Linux) and Web (PWA).
+</p>
+
+---
+
+## 🧭 Navigation
+
+| Guide | Purpose |
+| :--- | :--- |
+| [🌐 **Official Website**](https://snapwave333.github.io/carbon_cast/) | Downloads, web demo, feature tours, and release blog |
+| [🗂️ **Table of Contents**](./TABLE_OF_CONTENTS.md) | Apps, libraries, feature owners, architecture docs, and tooling |
+| [📖 **Architecture & Commands**](./CLAUDE.md) | Detailed architecture, contracts, and development guide |
+| [⚡ **Agent Operating Rules**](./AGENTS.md) | Rules, validation gates, testing, and release note policy |
+
+---
 
 ## Attribution
 
-CarbonCast IPTV is a fork of [IPTVnator](https://github.com/4gray/iptvnator). The upstream project and its contributors are credited under the original license. CarbonCast IPTV is an independent fork and is not endorsed by the upstream maintainers.
+CarbonCast IPTV is an independent, enhanced fork of [IPTVnator](https://github.com/4gray/iptvnator). The upstream project and its contributors are credited under the original license. CarbonCast IPTV is not endorsed by the upstream maintainers.
 
-⚠️ Note: CarbonCast IPTV does not provide any playlists or other digital content. The channels and pictures in the screenshots are for demonstration purposes only.
+> [!NOTE]
+> CarbonCast IPTV does not provide or bundle any playlists or digital media streams. Channel logos and screenshots are for demonstration purposes only.
 
-## 🧭 Repository Navigation
-
-| Guide                                                  | Use it for                                                                          |
-| ------------------------------------------------------ | ----------------------------------------------------------------------------------- |
-| [Repository table of contents](./TABLE_OF_CONTENTS.md) | Apps, libraries, feature owners, architecture contracts, tools, and common commands |
-| [Claude Code context](./CLAUDE.md)                     | Detailed implementation architecture and development notes                          |
-| [Agent operating rules](./AGENTS.md)                   | Validation, documentation, and release-note requirements                            |
+---
 
 ![CarbonCast IPTV: channels list, player, and EPG guide](./apps/website/public/screenshots/screenshot-player.webp)
 
