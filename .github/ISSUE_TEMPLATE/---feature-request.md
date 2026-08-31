@@ -1,20 +1,36 @@
+﻿---
+name: "💡 Feature Request"
+about: Have an idea that would make CarbonCast better? We'd love to hear it.
+title: "[Feature]: "
+labels: "enhancement"
+assignees: ""
 ---
-name: "\U0001F680 Feature request"
-about: Suggest an idea for this project
-title: ''
-labels: ''
-assignees: ''
 
----
+## 💡 Feature Summary
+<!-- A short description of the feature you're requesting. -->
 
-**Is your feature request related to a problem? Please describe.**
-A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
+## 🎯 Use Case / Problem it Solves
+<!-- Why do you need this feature? What problem does it solve for you? -->
 
-**Describe the solution you'd like**
-A clear and concise description of what you want to happen.
+## 💭 Proposed Solution
+<!-- Describe how you imagine this feature working. Any mockups or examples? -->
 
-**Describe alternatives you've considered**
-A clear and concise description of any alternative solutions or features you've considered.
+## 🔄 Alternatives Considered
+<!-- Have you considered any alternative solutions or workarounds? -->
 
-**Additional context**
-Add any other context or screenshots about the feature request here.
+## 📝 Additional Context
+<!-- Any other context, screenshots, or links that might help. -->
+
+## 🗂️ Relevant Area
+<!-- Check all that apply -->
+
+- [ ] Playlists & Sources (M3U, Xtream, Stalker)
+- [ ] Playback (HTML5, Video.js, ArtPlayer, MPV)
+- [ ] EPG / Live TV
+- [ ] VOD / Movies / Series
+- [ ] Search & Discovery
+- [ ] UI / Design
+- [ ] Settings & Configuration
+- [ ] Docker / Self-hosting
+- [ ] Platform / Performance
+- [ ] Other

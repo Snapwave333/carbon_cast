@@ -1,35 +1,37 @@
+﻿---
+name: "🐛 Bug Report"
+about: Found something broken? Let us know so we can fix it.
+title: "[Bug]: "
+labels: "bug"
+assignees: ""
 ---
-name: "\U0001F41E Bug report"
-about: Create a report to help us improve
-title: ''
-labels: ''
-assignees: ''
----
 
-**Describe the bug**
-A clear and concise description of what the bug is.
+## 🐛 Bug Description
+<!-- A clear and concise description of what the bug is. -->
 
-**To Reproduce**
-Steps to reproduce the behavior:
+## 📋 Steps to Reproduce
+1. 
+2. 
+3. 
 
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
+## ✅ Expected Behavior
+<!-- What you expected to happen. -->
 
-**Expected behavior**
-A clear and concise description of what you expected to happen.
+## ❌ Actual Behavior
+<!-- What actually happened instead. -->
 
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
+## 📸 Screenshots / Logs
+<!-- If applicable, add screenshots, or paste relevant log output. -->
 
-**Desktop (please complete the following information):**
+## 🖥️ Environment
 
--   PWA or Electron/Tauri application
--   OS: [e.g. Linux]
--   Browser [e.g. chrome, safari]
--   Version [e.g. 0.16.0]
--   Feature: [e.g. M3U playlist, Xtream Code, Stalker Portal]
+| | |
+| :--- | :--- |
+| **CarbonCast Version** | e.g. `0.20.0` |
+| **Mode** | Electron desktop / PWA / Self-hosted Docker |
+| **OS** | e.g. Windows 11, macOS 14, Ubuntu 22.04 |
+| **Playlist Type** | M3U / Xtream Codes / Stalker Portal |
+| **Player Engine** | HTML5 / Video.js / ArtPlayer / Embedded MPV / External |
 
-**Additional context**
-Add any other context about the problem here.
+## 📝 Additional Context
+<!-- Anything else that might help us reproduce or fix the issue. -->

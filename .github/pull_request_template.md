@@ -1,23 +1,29 @@
-<!--
-Thanks for contributing to CarbonCast IPTV!
-Keep the description short — what changed and why is enough.
+﻿<!--
+Thanks for contributing to CarbonCast IPTV! ⚡
+
+Keep the description focused — what changed and why is enough.
+For large changes, link to the relevant architecture doc or issue.
 -->
 
-## What changed
+## 📋 What Changed
 
-## Why
+<!-- Short bullet summary of the changes in this PR. -->
 
-## Release note
+## 🎯 Why
 
-Changes a user could notice need one file in `.changes/` describing the change
-in plain language — see
-[`.changes/README.md`](https://github.com/Snapwave333/carbon_cast/blob/main/.changes/README.md).
-It becomes the release notes and the website post, so it is worth a minute.
+<!-- The motivation — bug fix, feature, refactor, etc. Link to the issue if applicable: Closes #123 -->
 
-- [ ] Added a note under `.changes/`
-- [ ] Not needed (test-only, docs, CI, or a refactor with no behavior change)
+## 📝 Release Note
 
-## Checks
+Changes a user could notice need one file in `.changes/` describing the change in plain language.
+See [`.changes/README.md`](.changes/README.md) for the format. It becomes the release notes and website post.
+
+- [ ] Added a `.changes/<area>-<slug>.md` note
+- [ ] Not needed — test-only, docs, CI, or a pure refactor with no behavior change
+
+## ✅ Checks
 
 - [ ] Tests added or updated for the changed behavior
-- [ ] `pnpm run lint` and the affected `pnpm nx test <project>` pass
+- [ ] `pnpm run lint` passes (or affected project lint target)
+- [ ] `pnpm nx test <project>` passes for affected projects
+- [ ] No new files added to `tools/eslint/max-lines-baseline.mjs`
