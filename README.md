@@ -27,70 +27,9 @@
 
 ---
 
-## 📸 In-App Screenshots
+## 📸 Screenshots
 
-<table>
-  <tr>
-    <td align="center">
-      <img src="./apps/website/public/screenshots/screenshot-player.webp" alt="Live TV with inline player and EPG" />
-      <br /><sub><b>Live TV · Inline Player · EPG</b></sub>
-    </td>
-    <td align="center">
-      <img src="./apps/website/public/screenshots/dashboard-with-content.webp" alt="Dashboard with recently watched" />
-      <br /><sub><b>Dashboard · Continue Watching</b></sub>
-    </td>
-  </tr>
-  <tr>
-    <td align="center">
-      <img src="./apps/website/public/screenshots/multi-epg-view.webp" alt="Multi-channel EPG guide" />
-      <br /><sub><b>Multi-Channel EPG Guide</b></sub>
-    </td>
-    <td align="center">
-      <img src="./apps/website/public/screenshots/vod-details.webp" alt="VOD movie detail page" />
-      <br /><sub><b>VOD · Movie Detail &amp; Playback</b></sub>
-    </td>
-  </tr>
-  <tr>
-    <td align="center">
-      <img src="./apps/website/public/screenshots/xtream-recently-added.webp" alt="Xtream recently added movies and series" />
-      <br /><sub><b>Xtream · Recently Added</b></sub>
-    </td>
-    <td align="center">
-      <img src="./apps/website/public/screenshots/xtream-category-view.webp" alt="Movie category grid" />
-      <br /><sub><b>Xtream · Category Grid</b></sub>
-    </td>
-  </tr>
-  <tr>
-    <td align="center">
-      <img src="./apps/website/public/screenshots/global-search.webp" alt="Global search across live TV, movies, and series" />
-      <br /><sub><b>Global Search · Live + VOD + Series</b></sub>
-    </td>
-    <td align="center">
-      <img src="./apps/website/public/screenshots/channels-view.webp" alt="Live channel list with categories" />
-      <br /><sub><b>Live Channels · Category Rail</b></sub>
-    </td>
-  </tr>
-  <tr>
-    <td align="center">
-      <img src="./apps/website/public/screenshots/radio-feature.webp" alt="Radio player with cinematic backdrop" />
-      <br /><sub><b>Radio · Cinematic Audio Player</b></sub>
-    </td>
-    <td align="center">
-      <img src="./apps/website/public/screenshots/download-manager.webp" alt="Download manager for offline viewing" />
-      <br /><sub><b>Download Manager · Offline Viewing</b></sub>
-    </td>
-  </tr>
-  <tr>
-    <td align="center">
-      <img src="./apps/website/public/screenshots/add-playlist.webp" alt="Add playlist dialog" />
-      <br /><sub><b>Add Playlist · M3U · Xtream · Stalker</b></sub>
-    </td>
-    <td align="center">
-      <img src="./apps/website/public/screenshots/settings.webp" alt="Application settings" />
-      <br /><sub><b>Settings · Playback &amp; Theme</b></sub>
-    </td>
-  </tr>
-</table>
+> **Screenshots coming soon** — CarbonCast IPTV is actively being built. Check back after the next release, or [download the app](https://github.com/Snapwave333/carbon_cast/releases/latest) to try it yourself.
 
 ---
 
