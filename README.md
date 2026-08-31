@@ -92,6 +92,11 @@
 - Per-playlist and global favorites aggregated across all playlists ⭐
 - Watch history, command palette (`Ctrl/Cmd+K`), and continue-watching rail
 
+### 🤖 AI Agent Control & Automation
+- **Model Context Protocol (MCP)** server over stdio (`carboncast-mcp`) for LLM agents (Claude, Gemini, Cursor, Codex)
+- **CLI Pipeline (`iptvctl`)** for terminal-based playback, channel switching, EPG queries, and window lifecycle
+- **Dual-surface architecture**: fast offline catalog queries via `node:sqlite` + authenticated live loopback control plane
+
 ### 🌐 Platform
 | | Desktop (Electron) | PWA / Web |
 | :--- | :---: | :---: |
@@ -99,10 +104,77 @@
 | EPG / XMLTV | ✅ | ❌ |
 | Embedded MPV | ✅ | ❌ |
 | Download Manager | ✅ | ❌ |
+| MCP & Agent Control | ✅ | ❌ |
 | Auto-Updater | ✅ | — |
 | Self-Hosted Docker | — | ✅ |
 | Mobile Remote Control | ✅ | ❌ |
 | 19 Languages | ✅ | ✅ |
+
+---
+
+## 🤖 AI Agents & CLI Pipeline (MCP)
+
+CarbonCast IPTV includes a first-class **Model Context Protocol (MCP)** server and CLI control plane (`iptvctl`), allowing AI coding agents and LLMs (Claude Code, Claude Desktop, Gemini CLI, Cursor, Codex) to query catalogs, manage schedules, and control playback directly.
+
+### 📐 Dual-Surface Architecture
+
+```
+┌────────────────────────────────────────────────────────┐
+│  AI Agents (Claude / Gemini / Cursor) · CLI (iptvctl)   │
+└───────────────────────────┬────────────────────────────┘
+                            │
+            ┌───────────────┴───────────────┐
+            ▼                               ▼
+   [Offline / Fast Path]            [Live Control Path]
+   Direct SQLite Reads              Loopback HTTP Bridge
+   via `node:sqlite`                `/api/agent-control/v1`
+   (App may be closed)              (Bearer Token + Scoped Permissions)
+            │                               │
+            ▼                               ▼
+   Local Metadata DB               Running Electron App
+   (Playlists, Channels, EPG)      (Player, State, Window Lifecycle)
+```
+
+### ⚡ One-Command Global Install
+
+To install the `iptvctl` CLI on your `PATH` and auto-register the `carboncast` MCP server across all installed agent configurations (Claude Code, Claude Desktop, Gemini CLI, Codex CLI):
+
+```bash
+node tools/global/install-global.mjs
+```
+
+> [!TIP]
+> Pass `--dry-run` to preview configuration changes without writing to disk.
+
+### 🛠️ Agent Tool Capabilities
+
+| Domain | Available Operations |
+| :--- | :--- |
+| **📚 Library** | `list_playlists`, `list_categories`, `list_channels`, `search_channels`, `get_channel`, `list_favorites`, `list_downloads` |
+| **📡 Live EPG** | `whats_on_now`, `get_epg_now_next`, `find_now_playing`, `get_epg_schedule`, `epg_refresh` |
+| **▶️ Playback** | `player_get_state`, `player_play`, `player_pause`, `player_stop`, `player_set_volume`, `player_seek`, `player_toggle_picture_in_picture` |
+| **📺 Channels** | `channel_list_active`, `channel_switch`, `channel_next`, `channel_previous` |
+| **⭐ State** | `favorites_set`, `follows_list`, `follows_set`, `follows_set_auto_switch` |
+| **🪟 Desktop & Window** | `app_launch`, `app_quit`, `app_display_list`, `app_display_move`, `app_window_set` (minimize/restore/fullscreen) |
+| **🔒 Security** | `agent_tokens_list`, `agent_tokens_create`, `agent_tokens_revoke`, `agent_tokens_rotate` |
+
+### 💻 CLI Usage (`iptvctl`)
+
+```bash
+# Query currently playing programme
+iptvctl epg now
+
+# Search for a channel and switch to it
+iptvctl channel switch "BBC One"
+
+# Control playback
+iptvctl player pause
+iptvctl player volume 85
+
+# Manage multi-monitor window placement
+iptvctl app display list
+iptvctl app display move --next
+```
 
 ---
 
