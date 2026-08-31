@@ -131,6 +131,7 @@ describe('AppComponent', () => {
                     provide: WORKSPACE_SHELL_ACTIONS,
                     useValue: {
                         openAddPlaylistDialog: jest.fn(),
+                        openMergePlaylistsDialog: jest.fn(),
                         openGlobalRecent: jest.fn(),
                         openGlobalSearch: jest.fn(),
                         openAccountInfo: jest.fn(),

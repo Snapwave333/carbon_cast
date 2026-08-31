@@ -29,7 +29,6 @@ import {
     VodDetailsComponent,
 } from '@iptvnator/ui/playback';
 import {
-    DownloadsService,
     PlaybackPositionRuntimeBridgeService,
     PlaylistsService,
 } from '@iptvnator/services';
@@ -42,8 +41,6 @@ import {
 } from '@iptvnator/shared/interfaces';
 import { StalkerCatalogFacadeService } from '../stalker-catalog-facade.service';
 import { StalkerSeriesViewComponent } from '../stalker-series-view/stalker-series-view.component';
-
-import { startStalkerVodDownload } from './stalker-vod-download';
 
 @Component({
     selector: 'app-stalker-catalog-detail',
@@ -71,7 +68,6 @@ export class StalkerCatalogDetailComponent implements OnDestroy {
     private readonly snackBar = inject(MatSnackBar);
     private readonly translateService = inject(TranslateService);
     private readonly playlistService = inject(PlaylistsService);
-    private readonly downloadsService = inject(DownloadsService);
     private readonly logger = createLogger('StalkerCatalogDetail');
     private readonly favoritesRefresh = createRefreshTrigger();
 
@@ -253,16 +249,6 @@ export class StalkerCatalogDetailComponent implements OnDestroy {
             request.playback,
             request.player
         );
-    }
-
-    async onVodDownload(item: VodDetailsItem): Promise<void> {
-        await startStalkerVodDownload(item, {
-            playlist: this.catalog.playlist(),
-            downloadsService: this.downloadsService,
-            fetchMovieFileId: (id) => this.catalog.fetchMovieFileId(id),
-            fetchLinkToPlay: (portalUrl, macAddress, cmd) =>
-                this.catalog.fetchLinkToPlay(portalUrl, macAddress, cmd),
-        });
     }
 
     ngOnDestroy(): void {

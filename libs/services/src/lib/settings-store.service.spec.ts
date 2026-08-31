@@ -187,6 +187,15 @@ describe('SettingsStore dashboard rail settings', () => {
         expect(store.getSettings().stripCountryPrefix).toBe(false);
     });
 
+    it('defaults non-U.S. channel filtering to enabled when the stored field is missing', async () => {
+        storedSettings = {};
+        const store = injector.get(SettingsStore);
+
+        await store.loadSettings();
+
+        expect(store.getSettings().hideNonUsChannels).toBe(true);
+    });
+
     it('defaults ambient player mode to false when the stored field is missing', async () => {
         storedSettings = {};
         const store = injector.get(SettingsStore);

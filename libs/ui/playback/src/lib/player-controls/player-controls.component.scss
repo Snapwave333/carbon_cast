@@ -148,9 +148,9 @@
     gap: 16px;
     align-items: center;
     align-content: end;
-    min-height: 64px;
+    min-height: 68px;
     // Generous top padding lets the scrim rise above the controls and fade out.
-    padding: 56px 18px 14px;
+    padding: 60px 20px 16px;
     opacity: 0;
     pointer-events: none;
     transform: translateY(8px);
@@ -158,13 +158,13 @@
     // transparent at the top, so controls read clearly over full-bleed video.
     background: linear-gradient(
         to top,
-        rgba(7, 9, 13, 0.92) 0%,
-        rgba(7, 9, 13, 0.62) 42%,
+        rgba(5, 7, 10, 0.94) 0%,
+        rgba(5, 7, 10, 0.65) 45%,
         transparent 100%
     );
     transition:
-        opacity 180ms ease-out,
-        transform 200ms ease-out;
+        opacity 200ms cubic-bezier(0.16, 1, 0.3, 1),
+        transform 220ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .player-controls__bar--visible {
@@ -190,6 +190,7 @@
         background-color 160ms ease,
         transform 160ms cubic-bezier(0.2, 0.8, 0.2, 1),
         box-shadow 160ms ease;
+    border-radius: 50%;
 }
 
 .player-controls__button:active:not(:disabled) {
@@ -197,10 +198,10 @@
 }
 
 .player-controls__button--primary {
-    background: rgba(255, 255, 255, 0.96);
+    background: #ffffff;
     box-shadow:
-        0 5px 18px rgba(0, 0, 0, 0.3),
-        inset 0 0 0 1px rgba(255, 255, 255, 0.75);
+        0 6px 20px rgba(0, 0, 0, 0.35),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.8);
 }
 
 :host .player-controls__button--primary mat-icon {
@@ -210,9 +211,9 @@
 :host .player-controls__bar .player-controls__button--primary:hover {
     background: #ffffff;
     box-shadow:
-        0 7px 24px rgba(0, 0, 0, 0.38),
-        0 0 0 3px rgba(255, 255, 255, 0.14);
-    transform: scale(1.05);
+        0 8px 28px rgba(0, 0, 0, 0.45),
+        0 0 0 4px rgba(255, 255, 255, 0.2);
+    transform: scale(1.06);
 }
 
 .player-controls__timeline {
@@ -441,9 +442,21 @@
     border: 1px solid var(--pc-panel-border);
     border-radius: 16px;
     box-shadow:
-        0 18px 48px rgba(3, 5, 10, 0.55),
-        inset 0 1px 0 rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(24px) saturate(1.2);
+        0 20px 50px rgba(0, 0, 0, 0.6),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(28px) saturate(1.25);
+    animation: player-popover-enter 160ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes player-popover-enter {
+    from {
+        opacity: 0;
+        transform: translateY(6px) scale(0.97);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
 }
 
 .player-controls__volume-popover {

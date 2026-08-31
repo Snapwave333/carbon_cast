@@ -10,12 +10,19 @@ import {
     VLC_REUSE_INSTANCE,
 } from '../services/store.service';
 import { httpServer } from '../server/http-server';
+import { proxyService } from '../services/proxy.service';
 
 export default class SettingsEvents {
     static bootstrapSettingsEvents(): Electron.IpcMain {
         return ipcMain;
     }
 }
+
+/**
+ * Verifies a proxy before it is saved, so a typo cannot silently take every
+ * stream offline. Runs against a throwaway session; the live one is untouched.
+ */
+ipcMain.handle('PROXY_TEST', (_event, proxy) => proxyService.test(proxy));
 
 ipcMain.handle('SETTINGS_UPDATE', (_event, arg) => {
     console.log(
@@ -49,6 +56,12 @@ ipcMain.handle('SETTINGS_UPDATE', (_event, arg) => {
 
     if (arg.vlcReuseInstance !== undefined) {
         store.set(VLC_REUSE_INSTANCE, arg.vlcReuseInstance);
+    }
+
+    // Applied immediately: `setProxy` takes effect without a restart, and
+    // open sockets are dropped so a playing stream re-dials on the new route.
+    if (arg.proxy !== undefined) {
+        void proxyService.apply(arg.proxy);
     }
 
     // Handle remote control settings

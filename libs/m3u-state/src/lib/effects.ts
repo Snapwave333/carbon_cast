@@ -199,43 +199,40 @@ export class PlaylistEffects {
                     });
 
                 firstValueFrom(
-                    this.storage.get(
-                        STORE_KEY.Settings
-                    ) as Observable<Settings>
+                    this.storage.get(STORE_KEY.Settings) as Observable<Settings>
                 ).then((settings) => {
-                        if (
-                            shouldAutoLaunchExternalPlayer(
-                                settings,
-                                action.startPlayback,
-                                channel,
-                                VideoPlayer.MPV
-                            )
-                        ) {
-                            this.dataService.sendIpcEvent(OPEN_MPV_PLAYER, {
-                                url: channel.url,
-                                title: channel.name ?? '',
-                                'user-agent': channel.http['user-agent'],
-                                referer: channel.http.referrer,
-                                origin: channel.http.origin,
-                            });
-                        } else if (
-                            shouldAutoLaunchExternalPlayer(
-                                settings,
-                                action.startPlayback,
-                                channel,
-                                VideoPlayer.VLC
-                            )
-                        ) {
-                            this.dataService.sendIpcEvent(OPEN_VLC_PLAYER, {
-                                url: channel.url,
-                                title: channel.name ?? '',
-                                'user-agent': channel.http['user-agent'],
-                                referer: channel.http.referrer,
-                                origin: channel.http.origin,
-                            });
-                        }
+                    if (
+                        shouldAutoLaunchExternalPlayer(
+                            settings,
+                            action.startPlayback,
+                            channel,
+                            VideoPlayer.MPV
+                        )
+                    ) {
+                        this.dataService.sendIpcEvent(OPEN_MPV_PLAYER, {
+                            url: channel.url,
+                            title: channel.name ?? '',
+                            'user-agent': channel.http['user-agent'],
+                            referer: channel.http.referrer,
+                            origin: channel.http.origin,
+                        });
+                    } else if (
+                        shouldAutoLaunchExternalPlayer(
+                            settings,
+                            action.startPlayback,
+                            channel,
+                            VideoPlayer.VLC
+                        )
+                    ) {
+                        this.dataService.sendIpcEvent(OPEN_VLC_PLAYER, {
+                            url: channel.url,
+                            title: channel.name ?? '',
+                            'user-agent': channel.http['user-agent'],
+                            referer: channel.http.referrer,
+                            origin: channel.http.origin,
+                        });
                     }
-                );
+                });
 
                 return ChannelActions.setActiveChannelSuccess({
                     channel: action.channel,
@@ -456,22 +453,24 @@ export class PlaylistEffects {
                 this.store.select(selectChannels),
                 this.store.select(selectActive)
             ),
+            filter(
+                ([, channels, activeChannel]) =>
+                    channels.length > 0 &&
+                    !!activeChannel &&
+                    channels.some((channel) => channel.id === activeChannel.id)
+            ),
             map(([action, channels, activeChannel]) => {
-                let adjacentChannel;
                 const index = channels.findIndex(
                     (channel) => channel.id === activeChannel?.id
                 );
-                if (action.direction === 'next') {
-                    if (index === channels.length - 1)
-                        adjacentChannel = activeChannel;
-                    adjacentChannel = channels[index + 1];
-                } else if (action.direction === 'previous') {
-                    if (index === -1 || index === 0)
-                        adjacentChannel = activeChannel;
-                    adjacentChannel = channels[index - 1];
-                }
+                const adjacentIndex =
+                    action.direction === 'next'
+                        ? (index + 1) % channels.length
+                        : (index - 1 + channels.length) % channels.length;
+                const adjacentChannel = channels[adjacentIndex];
+
                 return ChannelActions.setActiveChannelSuccess({
-                    channel: adjacentChannel!,
+                    channel: adjacentChannel,
                 });
             })
         );

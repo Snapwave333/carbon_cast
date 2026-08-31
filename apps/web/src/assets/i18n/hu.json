@@ -219,6 +219,10 @@
         "GUIDE_ARTWORK": "TV-műsorújság képek",
         "GUIDE_ARTWORK_DESCRIPTION": "Műsor- és csatornaképek megjelenítése a műsorújságban. Kapcsolja ki a sűrűbb, csak szöveges nézethez.",
         "TITLE": "Beállítások",
+        "ESSENTIALS": "Alapbeállítások",
+        "ESSENTIALS_DESCRIPTION": "Csak a legtöbb felhasználó számára szükséges beállítások jelennek meg.",
+        "SHOW_ADVANCED": "Speciális beállítások megjelenítése",
+        "HIDE_ADVANCED": "Speciális beállítások elrejtése",
         "GENERAL": "Általános",
         "GENERAL_SUBTITLE": "Az alkalmazás beállításainak módosítása",
         "PLAYBACK": "Lejátszás",
@@ -316,6 +320,11 @@
         "PLAYER_AMBIENT_MODE_DESCRIPTION": "Fill the space around the player with a blurred, dimmed poster instead of plain black bars.",
         "PLAYER_UP_NEXT_RAIL": "„Következik” epizódsáv",
         "PLAYER_UP_NEXT_RAIL_DESCRIPTION": "Széles ablakban a sorozatlejátszó balra kerül, mellette pedig megjelennek a következő epizódok.",
+        "PREFERRED_QUALITY": "Előnyben részesített videóminőség",
+        "PREFERRED_QUALITY_DESCRIPTION": "A beépített lejátszók által minden adásfolyamnál megcélzott minőség. Az ilyen felbontás nélküli adásfolyamok a legmagasabb elérhetőt játsszák le.",
+        "PREFERRED_QUALITY_2160P": "4K (2160p)",
+        "PREFERRED_QUALITY_1080P": "Full HD (1080p)",
+        "PREFERRED_QUALITY_AUTO": "Automatikus (adaptív)",
         "STREAM_FORMAT_DESCRIPTION": "Az alapértelmezett adatfolyam-formátum kiválasztása (Xtream)",
         "LANGUAGE_DESCRIPTION": "Az alkalmazás nyelvének kiválasztása",
         "THEME_DESCRIPTION": "Az alkalmazás megjelenési témájának kiválasztása",
@@ -452,7 +461,31 @@
         "ATTRIBUTION": "Attribution",
         "ATTRIBUTION_DESCRIPTION": "CarbonCast IPTV is a fork of CarbonCast IPTV (github.com/4gray/iptvnator). The upstream project and its contributors are credited under the original license. CarbonCast IPTV is an independent fork and is not endorsed by the upstream maintainers.",
         "MIRROR_LAYOUT": "Mirror layout",
-        "MIRROR_LAYOUT_DESCRIPTION": "Put the player on the left and the channel/category rail on the right. Applies to the playlist player and Xtream/Stalker live views."
+        "MIRROR_LAYOUT_DESCRIPTION": "Put the player on the left and the channel/category rail on the right. Applies to the playlist player and Xtream/Stalker live views.",
+        "NAV_NETWORK": "Network",
+        "PROXY": "Proxy",
+        "PROXY_DESCRIPTION": "Route this app’s streaming through a proxy so region-locked channels resolve from another country. Only CarbonCast IPTV is affected — the rest of your system keeps its normal connection.",
+        "PROXY_ENABLED": "Route streaming through a proxy",
+        "PROXY_ENABLED_DESCRIPTION": "Applies immediately. Playlist and EPG downloads keep their direct route; only the player’s stream requests are proxied.",
+        "PROXY_SERVER": "Proxy server",
+        "PROXY_SERVER_DESCRIPTION": "Most VPN providers publish a SOCKS5 endpoint you can use here.",
+        "PROXY_PROTOCOL": "Type",
+        "PROXY_HOST": "Host",
+        "PROXY_PORT": "Port",
+        "PROXY_CREDENTIALS": "Credentials",
+        "PROXY_CREDENTIALS_DESCRIPTION": "Leave blank if the proxy needs no sign-in.",
+        "PROXY_USERNAME": "Username",
+        "PROXY_PASSWORD": "Password",
+        "PROXY_BYPASS": "Bypass list",
+        "PROXY_BYPASS_DESCRIPTION": "Hosts that skip the proxy, comma separated. Loopback and local network addresses are always bypassed.",
+        "PROXY_BYPASS_LABEL": "Bypass hosts",
+        "PROXY_TEST": "Test connection",
+        "PROXY_TEST_DESCRIPTION": "Dials the proxy and reports the exit address your streams will appear to come from. Contacts ipinfo.io.",
+        "PROXY_TEST_ACTION": "Test connection",
+        "PROXY_TEST_OK": "Connected — exit",
+        "PROXY_TEST_FAILED": "Could not reach the proxy.",
+        "PROXY_TEST_INCOMPLETE": "Enter a proxy host first.",
+        "PROXY_TEST_DESKTOP_ONLY": "Proxy support requires the desktop app."
     },
     "THEMES": {
         "DARK_THEME": "Sötét",
@@ -497,6 +530,9 @@
             "AUDIO_TRACK_FALLBACK": "{{index}}. hangsáv",
             "SUBTITLE_TRACK_FALLBACK": "{{index}}. feliratsáv",
             "PLAYBACK_SPEED": "Lejátszási sebesség",
+            "QUALITY": "Minőség",
+            "QUALITY_TOOLTIP": "Minőség: {{quality}}",
+            "QUALITY_AUTO": "Automatikus",
             "SPEED_TOOLTIP": "Sebesség: {{speed}}",
             "ASPECT_RATIO": "Képarány",
             "ASPECT_TOOLTIP": "Képarány: {{aspect}}",
@@ -656,7 +692,9 @@
             "SEARCH_PLACEHOLDER": "Keresés a csoportok között…",
             "NO_RESULTS": "Nem található a keresésnek megfelelő csoport",
             "SAVE": "Mentés"
-        }
+        },
+        "CHANNEL_UP": "Következő csatorna",
+        "CHANNEL_DOWN": "Előző csatorna"
     },
     "TOP_MENU": {
         "OPEN_MULTI_EPG": "Többcsatornás EPG-nézet megnyitása"
@@ -749,7 +787,10 @@
             "ZOOM_DETAIL": "Részletes",
             "GROUP_SHORT": "rövid műsorok",
             "GROUP_EXPAND": "megjelenítés ›"
-        }
+        },
+        "NOT_IN_PLAYLIST": "Nincs a listán",
+        "CHANNEL_NOT_IN_PLAYLIST": "A(z) „{{channel}}” nincs ebben a lejátszási listában",
+        "PROGRAM_INFO": "Műsor részletei"
     },
     "EPG_MAPPING_DIALOG": {
         "TITLE": "Map EPG Channel",

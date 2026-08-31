@@ -56,11 +56,18 @@ export function openMultiEpgProgramDialog(options: {
     program: EpgProgram & { channel_id?: string };
     channel: MultiEpgLayoutChannel | undefined;
     catchupResolver: MultiEpgCatchupResolver | null;
+    /**
+     * False when the channel has no counterpart in the open playlist. Offering
+     * "Watch live" there produced a play request the host could not resolve,
+     * which it dropped silently — the button looked broken.
+     */
+    isPlayable?: boolean;
     width: string;
     onPlay: (request: MultiEpgPlayRequest) => void;
 }): void {
     const { dialog, program, channel, catchupResolver, width, onPlay } =
         options;
+    const isPlayable = options.isPlayable ?? true;
     const channelId = program.channel_id || program.channel;
     const channelName = channel ? getEpgChannelName(channel) : null;
     const catchup =
@@ -70,9 +77,11 @@ export function openMultiEpgProgramDialog(options: {
     const nowMs = Date.now();
     const startMs = getProgramTimeMs(program.start, program.startTimestamp);
     const stopMs = getProgramTimeMs(program.stop, program.stopTimestamp);
-    const canPlayLive = !!channelId && isProgramAiringNowByTime(program, nowMs);
+    const canPlayLive =
+        !!channelId && isPlayable && isProgramAiringNowByTime(program, nowMs);
     const canTimeshift =
         !!channelId &&
+        isPlayable &&
         !canPlayLive &&
         Number.isFinite(stopMs) &&
         stopMs <= nowMs &&

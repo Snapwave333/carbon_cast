@@ -219,6 +219,10 @@
         "GUIDE_ARTWORK": "Изображения в телегиде",
         "GUIDE_ARTWORK_DESCRIPTION": "Показывать изображения программ и каналов в телегиде. Отключите для более плотного текстового вида.",
         "TITLE": "Настройки",
+        "ESSENTIALS": "Основные настройки",
+        "ESSENTIALS_DESCRIPTION": "Показаны только настройки, которые нужны большинству пользователей.",
+        "SHOW_ADVANCED": "Показать расширенные настройки",
+        "HIDE_ADVANCED": "Скрыть расширенные настройки",
         "GENERAL": "Общие",
         "GENERAL_SUBTITLE": "Изменение основных параметров приложения",
         "PLAYBACK": "Воспроизведение",
@@ -316,6 +320,11 @@
         "PLAYER_AMBIENT_MODE_DESCRIPTION": "Заполнять пространство вокруг плеера размытым затемнённым постером вместо чёрных полос.",
         "PLAYER_UP_NEXT_RAIL": "Панель следующих серий",
         "PLAYER_UP_NEXT_RAIL_DESCRIPTION": "В широких окнах закреплять плеер сериала слева и показывать следующие серии рядом с ним.",
+        "PREFERRED_QUALITY": "Предпочитаемое качество видео",
+        "PREFERRED_QUALITY_DESCRIPTION": "Качество, к которому стремятся встроенные плееры для каждого потока. Потоки без этого разрешения воспроизводятся в максимальном доступном качестве.",
+        "PREFERRED_QUALITY_2160P": "4K (2160p)",
+        "PREFERRED_QUALITY_1080P": "Full HD (1080p)",
+        "PREFERRED_QUALITY_AUTO": "Автоматически (адаптивно)",
         "STREAM_FORMAT_DESCRIPTION": "Выбрать формат потока по умолчанию (Xtream)",
         "LANGUAGE_DESCRIPTION": "Выбрать язык приложения",
         "THEME_DESCRIPTION": "Выбрать визуальную тему оформления",
@@ -452,7 +461,31 @@
         "ATTRIBUTION": "Attribution",
         "ATTRIBUTION_DESCRIPTION": "CarbonCast IPTV is a fork of CarbonCast IPTV (github.com/4gray/iptvnator). The upstream project and its contributors are credited under the original license. CarbonCast IPTV is an independent fork and is not endorsed by the upstream maintainers.",
         "MIRROR_LAYOUT": "Mirror layout",
-        "MIRROR_LAYOUT_DESCRIPTION": "Put the player on the left and the channel/category rail on the right. Applies to the playlist player and Xtream/Stalker live views."
+        "MIRROR_LAYOUT_DESCRIPTION": "Put the player on the left and the channel/category rail on the right. Applies to the playlist player and Xtream/Stalker live views.",
+        "NAV_NETWORK": "Network",
+        "PROXY": "Proxy",
+        "PROXY_DESCRIPTION": "Route this app’s streaming through a proxy so region-locked channels resolve from another country. Only CarbonCast IPTV is affected — the rest of your system keeps its normal connection.",
+        "PROXY_ENABLED": "Route streaming through a proxy",
+        "PROXY_ENABLED_DESCRIPTION": "Applies immediately. Playlist and EPG downloads keep their direct route; only the player’s stream requests are proxied.",
+        "PROXY_SERVER": "Proxy server",
+        "PROXY_SERVER_DESCRIPTION": "Most VPN providers publish a SOCKS5 endpoint you can use here.",
+        "PROXY_PROTOCOL": "Type",
+        "PROXY_HOST": "Host",
+        "PROXY_PORT": "Port",
+        "PROXY_CREDENTIALS": "Credentials",
+        "PROXY_CREDENTIALS_DESCRIPTION": "Leave blank if the proxy needs no sign-in.",
+        "PROXY_USERNAME": "Username",
+        "PROXY_PASSWORD": "Password",
+        "PROXY_BYPASS": "Bypass list",
+        "PROXY_BYPASS_DESCRIPTION": "Hosts that skip the proxy, comma separated. Loopback and local network addresses are always bypassed.",
+        "PROXY_BYPASS_LABEL": "Bypass hosts",
+        "PROXY_TEST": "Test connection",
+        "PROXY_TEST_DESCRIPTION": "Dials the proxy and reports the exit address your streams will appear to come from. Contacts ipinfo.io.",
+        "PROXY_TEST_ACTION": "Test connection",
+        "PROXY_TEST_OK": "Connected — exit",
+        "PROXY_TEST_FAILED": "Could not reach the proxy.",
+        "PROXY_TEST_INCOMPLETE": "Enter a proxy host first.",
+        "PROXY_TEST_DESKTOP_ONLY": "Proxy support requires the desktop app."
     },
     "THEMES": {
         "DARK_THEME": "Тёмная",
@@ -497,6 +530,9 @@
             "AUDIO_TRACK_FALLBACK": "Аудио {{index}}",
             "SUBTITLE_TRACK_FALLBACK": "Субтитры {{index}}",
             "PLAYBACK_SPEED": "Скорость воспроизведения",
+            "QUALITY": "Качество",
+            "QUALITY_TOOLTIP": "Качество: {{quality}}",
+            "QUALITY_AUTO": "Авто",
             "SPEED_TOOLTIP": "Скорость: {{speed}}",
             "ASPECT_RATIO": "Соотношение сторон",
             "ASPECT_TOOLTIP": "Соотношение: {{aspect}}",
@@ -656,7 +692,9 @@
             "SEARCH_PLACEHOLDER": "Поиск групп…",
             "NO_RESULTS": "Подходящих групп не найдено",
             "SAVE": "Сохранить"
-        }
+        },
+        "CHANNEL_UP": "Следующий канал",
+        "CHANNEL_DOWN": "Предыдущий канал"
     },
     "TOP_MENU": {
         "OPEN_MULTI_EPG": "Открыть Multi-EPG вид"
@@ -749,7 +787,10 @@
             "ZOOM_DETAIL": "Детально",
             "GROUP_SHORT": "коротких",
             "GROUP_EXPAND": "показать ›"
-        }
+        },
+        "NOT_IN_PLAYLIST": "Нет в плейлисте",
+        "CHANNEL_NOT_IN_PLAYLIST": "«{{channel}}» отсутствует в этом плейлисте",
+        "PROGRAM_INFO": "Сведения о передаче"
     },
     "EPG_MAPPING_DIALOG": {
         "TITLE": "Привязка канала EPG",

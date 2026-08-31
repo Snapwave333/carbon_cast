@@ -29,6 +29,12 @@ export interface MultiEpgLayoutChannel extends ElectronBridgeEpgChannelWithProgr
     /** Channel icon passed through the http(s) guard once per layout, so
      * cells don't re-sanitize it on every change-detection pass. */
     safeIconUrl: string;
+    /**
+     * Whether the open playlist actually contains this channel. The guide
+     * lists EPG-store channels, which are not scoped to the playlist, so a
+     * row can be pure metadata with nothing to tune to.
+     */
+    isPlayable: boolean;
 }
 
 export function isSelectedEpgDayToday(
@@ -42,23 +48,121 @@ export function layoutEpgChannelsForDay(
     channels: ElectronBridgeEpgChannelWithPrograms[],
     selectedDay: string,
     hourWidth: number,
-    dateCache: Map<string, Date> = new Map()
+    dateCache: Map<string, Date> = new Map(),
+    /** Defaults to "everything is playable" so hosts that do not supply a
+     * playlist (the standalone overlay) are unaffected. */
+    isPlayable: (
+        channel: ElectronBridgeEpgChannelWithPrograms
+    ) => boolean = () => true
 ): MultiEpgLayoutChannel[] {
     const dayStart = parse(selectedDay, 'yyyyMMdd', new Date());
     dayStart.setHours(0, 0, 0, 0);
     const dayEnd = addDays(dayStart, 1);
 
-    return channels.map((channel) => ({
-        ...channel,
-        safeIconUrl: getEpgChannelIcon(channel),
-        programs: (channel.programs ?? [])
-            .map((program) =>
-                layoutProgram(program, dayStart, dayEnd, hourWidth, dateCache)
-            )
-            .filter(
-                (program): program is MultiEpgLayoutProgram => program !== null
-            ),
-    }));
+    // A playlist-scoped guide must not surface source-only rows: they look
+    // valid, but selecting one cannot tune anything. Hosts that do not supply
+    // a resolver keep the default `true` behaviour and still see every row.
+    return channels
+        .map((channel) => ({
+            ...channel,
+            safeIconUrl: getEpgChannelIcon(channel),
+            isPlayable: isPlayable(channel),
+            programs: (channel.programs ?? [])
+                .map((program) =>
+                    layoutProgram(
+                        program,
+                        dayStart,
+                        dayEnd,
+                        hourWidth,
+                        dateCache
+                    )
+                )
+                .filter(
+                    (program): program is MultiEpgLayoutProgram =>
+                        program !== null
+                ),
+        }))
+        .filter((channel) => channel.isPlayable)
+        .sort(compareChannelsByGuideCategory);
+}
+
+const GUIDE_CATEGORY_COLLATOR = new Intl.Collator(undefined, {
+    sensitivity: 'base',
+    numeric: true,
+});
+
+/**
+ * Keep related programming together in the guide. XMLTV does not expose a
+ * channel-group field, so the first programme category for the selected day
+ * is the reliable group signal. Channels without a category stay together at
+ * the end, then names break ties predictably.
+ */
+function compareChannelsByGuideCategory(
+    left: MultiEpgLayoutChannel,
+    right: MultiEpgLayoutChannel
+): number {
+    const leftCategory = getGuideCategory(left) ?? '\uffff';
+    const rightCategory = getGuideCategory(right) ?? '\uffff';
+    const categoryComparison = GUIDE_CATEGORY_COLLATOR.compare(
+        leftCategory,
+        rightCategory
+    );
+
+    return categoryComparison !== 0
+        ? categoryComparison
+        : GUIDE_CATEGORY_COLLATOR.compare(
+              getEpgChannelName(left),
+              getEpgChannelName(right)
+          );
+}
+
+function getGuideCategory(channel: MultiEpgLayoutChannel): string | null {
+    return (
+        channel.programs
+            .find((program) => program.category?.trim())
+            ?.category?.trim() ?? null
+    );
+}
+
+/** The programme under the "now" playhead, in guide-layout coordinates. */
+export function isProgramUnderPlayhead(
+    program: MultiEpgLayoutProgram,
+    playheadX: number,
+    isToday: boolean
+): boolean {
+    if (!isToday) return false;
+    return (
+        playheadX >= program.startPosition &&
+        playheadX <= program.startPosition + program.width
+    );
+}
+
+/** Channel-column filter: case-insensitive substring on the display name. */
+export function filterChannelsByName<T extends MultiEpgLayoutChannel>(
+    channels: T[],
+    query: string
+): T[] {
+    const filter = query.toLowerCase().trim();
+    if (!filter) {
+        return channels;
+    }
+    return channels.filter((channel) =>
+        getEpgChannelName(channel).toLowerCase().includes(filter)
+    );
+}
+
+/** Page size for the channel browser, clamped to a sane 10–20 rows. */
+export function computeVisibleChannelCount(
+    containerHeight: number,
+    barHeight: number
+): number {
+    const fits = Math.floor((containerHeight - barHeight) / barHeight);
+    return Math.max(10, Math.min(fits, 20));
+}
+
+/** Infinite scroll trigger: within 200px of the bottom. */
+export function shouldLoadMoreOnScroll(target: HTMLElement): boolean {
+    return target.scrollHeight - target.scrollTop - target.clientHeight < 200;
 }
 
 export function getEpgChannelName(

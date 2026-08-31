@@ -12,6 +12,7 @@ export interface SettingsSection {
     label: string;
     icon: string;
     visible: boolean;
+    advanced: boolean;
 }
 
 export interface ObservedSettingsSection {

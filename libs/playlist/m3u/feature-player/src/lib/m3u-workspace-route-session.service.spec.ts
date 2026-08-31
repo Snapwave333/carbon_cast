@@ -52,7 +52,7 @@ function getM3uRouteContext(url: string): {
     inWorkspace: boolean;
     playlistId: string | null;
     provider: 'playlists' | null;
-    section: 'all' | 'favorites' | 'groups' | 'recent' | null;
+    section: 'all' | 'favorites' | 'groups' | 'guide' | 'recent' | null;
 } {
     const match = url.match(
         /^\/workspace\/playlists\/([^/]+)\/([^/?]+)(?:\/|$)/
@@ -63,7 +63,13 @@ function getM3uRouteContext(url: string): {
         playlistId: match?.[1] ?? null,
         provider: match ? 'playlists' : null,
         section:
-            (match?.[2] as 'all' | 'favorites' | 'groups' | 'recent' | null) ??
+            (match?.[2] as
+                | 'all'
+                | 'favorites'
+                | 'groups'
+                | 'guide'
+                | 'recent'
+                | null) ??
             null,
     };
 }
@@ -140,6 +146,22 @@ describe('M3uWorkspaceRouteSession', () => {
             ChannelActions.setChannelsLoading({ loading: false })
         );
         expect(playlistsService.getPlaylist).not.toHaveBeenCalled();
+    });
+
+    it('loads channels for the TV guide route', async () => {
+        // The guide resolves a programme back to a playlist channel in order
+        // to tune to it. Without the channels loaded every row looked absent
+        // from the playlist and "Watch live" silently did nothing — and the
+        // guide is where `playlistDefaultSection` sends a fresh playlist.
+        router.url = `/workspace/playlists/${PLAYLIST_ID}/guide`;
+
+        TestBed.inject(M3uWorkspaceRouteSession);
+        await flushEffects();
+
+        expect(playlistsService.getPlaylist).toHaveBeenCalledWith(PLAYLIST_ID);
+        expect(store.dispatch).toHaveBeenCalledWith(
+            ChannelActions.setChannelsLoading({ loading: true })
+        );
     });
 
     it('configures playlist-level user agent overrides when loading channels', async () => {

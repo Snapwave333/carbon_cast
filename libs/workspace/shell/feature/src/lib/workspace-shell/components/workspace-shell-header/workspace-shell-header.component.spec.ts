@@ -1,17 +1,28 @@
-import {
-    Component,
-    input,
-    output,
-} from '@angular/core';
+import { Component, input, output } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { MatIconButton } from '@angular/material/button';
-import { MatIcon } from '@angular/material/icon';
 import { MatTooltip } from '@angular/material/tooltip';
+import { MockStore, provideMockStore } from '@ngrx/store/testing';
 import { TranslateService } from '@ngx-translate/core';
 import { of } from 'rxjs';
 import { TranslatePipe } from '@ngx-translate/core';
+import {
+    ChannelActions,
+    selectActive,
+    selectChannels,
+} from '@iptvnator/m3u-state';
+import { Channel } from '@iptvnator/shared/interfaces';
 import { WorkspaceShellHeaderComponent } from './workspace-shell-header.component';
+
+@Component({
+    selector: 'mat-icon',
+    template: '',
+    standalone: true,
+})
+class MockMatIconComponent {
+    readonly svgIcon = input<string>('');
+}
 
 @Component({
     selector: 'app-playlist-switcher',
@@ -32,14 +43,24 @@ class MockPlaylistSwitcherComponent {
     readonly refreshPlaylistRequested = output<void>();
 }
 
+import { provideRouter, RouterLink } from '@angular/router';
+
 describe('WorkspaceShellHeaderComponent', () => {
     let fixture: ComponentFixture<WorkspaceShellHeaderComponent>;
     let component: WorkspaceShellHeaderComponent;
+    let store: MockStore;
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             imports: [WorkspaceShellHeaderComponent, NoopAnimationsModule],
             providers: [
+                provideRouter([]),
+                provideMockStore({
+                    selectors: [
+                        { selector: selectActive, value: null },
+                        { selector: selectChannels, value: [] },
+                    ],
+                }),
                 {
                     provide: TranslateService,
                     useValue: {
@@ -58,10 +79,11 @@ describe('WorkspaceShellHeaderComponent', () => {
             .overrideComponent(WorkspaceShellHeaderComponent, {
                 set: {
                     imports: [
-                        MatIcon,
+                        MockMatIconComponent,
                         MatIconButton,
                         MatTooltip,
                         MockPlaylistSwitcherComponent,
+                        RouterLink,
                         TranslatePipe,
                     ],
                 },
@@ -69,6 +91,7 @@ describe('WorkspaceShellHeaderComponent', () => {
             .compileComponents();
 
         fixture = TestBed.createComponent(WorkspaceShellHeaderComponent);
+        store = TestBed.inject(MockStore);
         component = fixture.componentInstance;
         fixture.componentRef.setInput('playlistTitle', 'Playlist A');
         fixture.componentRef.setInput('playlistSubtitle', 'Subtitle');
@@ -84,8 +107,9 @@ describe('WorkspaceShellHeaderComponent', () => {
     it('emits search input changes as user types', () => {
         const emitted: string[] = [];
         component.searchChanged.subscribe((value) => emitted.push(value));
-        const input: HTMLInputElement =
-            fixture.nativeElement.querySelector('input[type="search"]');
+        const input: HTMLInputElement = fixture.nativeElement.querySelector(
+            'input[type="search"]'
+        );
 
         input.value = 'matrix';
         input.dispatchEvent(new Event('input'));
@@ -94,8 +118,9 @@ describe('WorkspaceShellHeaderComponent', () => {
     });
 
     it('focuses and selects the search input on request', () => {
-        const input: HTMLInputElement =
-            fixture.nativeElement.querySelector('input[type="search"]');
+        const input: HTMLInputElement = fixture.nativeElement.querySelector(
+            'input[type="search"]'
+        );
         input.value = 'matrix';
         input.blur();
 
@@ -171,5 +196,47 @@ describe('WorkspaceShellHeaderComponent', () => {
         ).map((element: Element) => element.textContent?.trim());
 
         expect(chips).toEqual(['Movies / All Items', 'Loaded channels only']);
+    });
+
+    it('switches through the active M3U playlist from the footer controls', () => {
+        const channels = [
+            { id: 'one', name: 'One', url: 'https://example.invalid/one' },
+            { id: 'two', name: 'Two', url: 'https://example.invalid/two' },
+        ] as Channel[];
+        const dispatch = jest.spyOn(store, 'dispatch');
+
+        store.overrideSelector(selectChannels, channels);
+        store.overrideSelector(selectActive, channels[0]);
+        store.refreshState();
+        fixture.componentRef.setInput('isM3uPlaylistRoute', true);
+        fixture.detectChanges();
+
+        const up = fixture.nativeElement.querySelector(
+            '[data-test-id="workspace-channel-up"]'
+        ) as HTMLButtonElement;
+        const down = fixture.nativeElement.querySelector(
+            '[data-test-id="workspace-channel-down"]'
+        ) as HTMLButtonElement;
+
+        expect(up).not.toBeNull();
+        expect(down).not.toBeNull();
+
+        up.click();
+        down.click();
+
+        expect(dispatch).toHaveBeenNthCalledWith(
+            1,
+            ChannelActions.setActiveChannel({
+                channel: channels[1],
+                startPlayback: true,
+            })
+        );
+        expect(dispatch).toHaveBeenNthCalledWith(
+            2,
+            ChannelActions.setActiveChannel({
+                channel: channels[1],
+                startPlayback: true,
+            })
+        );
     });
 });

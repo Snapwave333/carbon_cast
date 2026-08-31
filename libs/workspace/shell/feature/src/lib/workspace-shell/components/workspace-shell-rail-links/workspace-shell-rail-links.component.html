@@ -1,13 +1,8 @@
-<nav
-    class="rail-links"
-    [class.has-labels]="showLabels() && !expanded()"
-    [class.is-expanded]="expanded()"
->
+<div class="rail-links" [class.has-labels]="showLabels()">
     @for (link of links(); track link.path.join('/')) {
         <a
             class="portal-rail-link nav-item"
-            [class.is-labelled]="showLabels() && !expanded()"
-            [class.is-expanded]="expanded()"
+            [class.is-labelled]="showLabels()"
             [routerLink]="link.path"
             [routerLinkActive]="activeClass()"
             [routerLinkActiveOptions]="{ exact: link.exact ?? false }"
@@ -17,9 +12,7 @@
             [attr.aria-label]="link.tooltip"
             [attr.aria-current]="isActive(link) ? 'page' : null"
             [class.active]="activeClass() === 'active' && isActive(link)"
-            [class.is-active]="
-                activeClass() === 'is-active' && isActive(link)
-            "
+            [class.is-active]="activeClass() === 'is-active' && isActive(link)"
         >
             <mat-icon [svgIcon]="resolveIcon(link)"></mat-icon>
             @if (labelled()) {
@@ -29,4 +22,4 @@
             }
         </a>
     }
-</nav>
+</div>

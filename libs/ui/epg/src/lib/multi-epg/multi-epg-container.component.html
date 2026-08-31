@@ -70,6 +70,7 @@
                     (input)="
                         channelFilter.set($any($event.target).value ?? '')
                     "
+                    (keydown.escape)="searchFields.onChannelFilterEscape($event)"
                     [placeholder]="'EPG.FILTER_CHANNELS' | translate"
                     autocomplete="off"
                     #searchInput
@@ -91,7 +92,7 @@
         }
         <button
             mat-icon-button
-            (click)="toggleSearch()"
+            (click)="searchFields.toggleChannelFilter()"
             [matTooltip]="
                 (isSearchExpanded()
                     ? 'EPG.CLOSE_FILTER'
@@ -125,6 +126,7 @@
                     type="text"
                     [value]="programSearchQuery()"
                     (input)="onProgramSearchInput($event)"
+                    (keydown.escape)="searchFields.onProgramSearchEscape($event)"
                     [placeholder]="'EPG.SEARCH_PROGRAMS' | translate"
                     autocomplete="off"
                     #programSearchInput
@@ -153,7 +155,7 @@
                     ) {
                         <button
                             class="search-result-item"
-                            (click)="openProgramDialog(program, '800px')"
+                            (click)="activateProgram(program, '800px')"
                         >
                             @if (artwork.resultArtworkUrl(program); as artUrl) {
                                 <img
@@ -287,13 +289,37 @@
                         [attr.height]="barHeight"
                         [attr.y]="barHeight * i + barHeight"
                     >
-                        <div class="channel-name">
+                        <div
+                            class="channel-name"
+                            [class.channel-name--unavailable]="!item.isPlayable"
+                            [attr.title]="
+                                item.isPlayable
+                                    ? null
+                                    : ('EPG.CHANNEL_NOT_IN_PLAYLIST'
+                                      | translate: { channel: getChannelName(item) })
+                            "
+                        >
                             @if (item.safeIconUrl) {
                                 <!-- Decorative: the name is announced by the
                                      adjacent span, so alt would double it. -->
                                 <img [src]="item.safeIconUrl" alt="" />
                             }
                             <span>{{ getChannelName(item) }}</span>
+                            @if (!item.isPlayable) {
+                                <!-- The guide lists EPG channels that need not
+                                     be in this playlist; mark the ones that
+                                     cannot be tuned to. A glyph rather than a
+                                     word: the column is 180px and translated
+                                     labels truncated the channel name. -->
+                                <span
+                                    class="channel-name__badge"
+                                    role="img"
+                                    [attr.aria-label]="
+                                        'EPG.NOT_IN_PLAYLIST' | translate
+                                    "
+                                    >&#8709;</span
+                                >
+                            }
                         </div>
                     </foreignObject>
                 </g>
@@ -384,7 +410,7 @@
                             [attr.aria-label]="
                                 getProgramAriaLabel(program, item)
                             "
-                            (click)="openProgramDialog(program, '600px')"
+                            (click)="activateProgram(program, '600px')"
                             (focus)="onProgramFocus(program)"
                             (keydown)="
                                 onProgramKeydown($event, program, i, $index)
@@ -408,6 +434,36 @@
                                         program.categoryAccent
                                     "
                                 >
+                                    <!-- Opt-in details. The cell itself tunes
+                                         to the channel, so the description
+                                         card must have its own affordance.
+                                         tabindex=-1 keeps the roving-tabindex
+                                         grid intact; keyboard users press "i"
+                                         (see MultiEpgProgramFocus). -->
+                                    <button
+                                        type="button"
+                                        class="program-info"
+                                        tabindex="-1"
+                                        data-test-id="program-info-button"
+                                        [attr.aria-label]="
+                                            'EPG.PROGRAM_INFO' | translate
+                                        "
+                                        [matTooltip]="
+                                            'EPG.PROGRAM_INFO' | translate
+                                        "
+                                        (click)="
+                                            openProgramDetails(
+                                                $event,
+                                                program,
+                                                '600px'
+                                            )
+                                        "
+                                    >
+                                        <mat-icon
+                                            aria-hidden="true"
+                                            svgIcon="info"
+                                        ></mat-icon>
+                                    </button>
                                     @if (
                                         artwork.cellArtworkUrl(
                                             program,

@@ -84,45 +84,13 @@ export class WorkspaceShellRouteStateService {
             });
         }
 
-        links.push({
-            icon: 'library_books',
-            tooltip: this.translateText('WORKSPACE.SHELL.RAIL_SOURCES'),
-            path: ['/workspace/sources'],
-        });
-
-        if (this.runtime.isElectron) {
-            links.push({
-                icon: 'search',
-                tooltip: this.translateText(
-                    'WORKSPACE.SHELL.RAIL_GLOBAL_SEARCH'
-                ),
-                path: ['/workspace/search'],
-                exact: true,
-            });
-        }
-
-        // Ordered by intent: places to find content (dashboard, sources,
-        // search, radio) come first, then the personal collections (favourites,
-        // recent, followed series). Radio sits with the other content sources
-        // rather than trailing the collections.
+        // Keep the dock to direct viewing destinations. Sources and global
+        // search remain reachable from the command palette, rather than
+        // consuming permanent bottom-dock space.
         links.push({
             icon: 'radio',
             tooltip: this.translateText('WORKSPACE.SHELL.RAIL_RADIO_PODCASTS'),
             path: ['/workspace/radio'],
-            exact: true,
-        });
-
-        links.push({
-            icon: 'favorite',
-            tooltip: this.translateText('HOME.PLAYLISTS.GLOBAL_FAVORITES'),
-            path: ['/workspace/global-favorites'],
-            exact: true,
-        });
-
-        links.push({
-            icon: 'history',
-            tooltip: this.translateText('WORKSPACE.SHELL.RAIL_GLOBAL_RECENT'),
-            path: ['/workspace/global-recent'],
             exact: true,
         });
 
@@ -133,9 +101,8 @@ export class WorkspaceShellRouteStateService {
             exact: true,
         });
 
-        // The brand logo already navigates home (dashboard, or sources when the
-        // dashboard is off), so drop the nav tile that would send the user to
-        // the same place — otherwise the top two rail buttons are identical.
+        // The brand logo already navigates home, so drop the nav tile that
+        // would send the user to the same place.
         const brandTarget = this.brandLink();
         return links.filter((link) => link.path.join('/') !== brandTarget);
     });
@@ -147,6 +114,9 @@ export class WorkspaceShellRouteStateService {
     );
     readonly isSettingsRoute = computed(
         () => this.currentRoute().kind === 'settings'
+    );
+    readonly isM3uPlaylistRoute = computed(
+        () => this.currentContext()?.provider === 'playlists'
     );
     readonly isGlobalDownloadsRoute = computed(
         () => this.currentRoute().kind === 'downloads'
@@ -218,7 +188,6 @@ export class WorkspaceShellRouteStateService {
             buildPortalRailLinks({
                 provider: context.provider,
                 playlistId: context.playlistId,
-                supportsDownloads: this.runtime.supportsDownloads,
                 supportsEpg: this.runtime.supportsEpg,
                 workspace: true,
             }).primary,
@@ -238,20 +207,13 @@ export class WorkspaceShellRouteStateService {
             buildPortalRailLinks({
                 provider: context.provider,
                 playlistId: context.playlistId,
-                supportsDownloads: this.runtime.supportsDownloads,
                 supportsEpg: this.runtime.supportsEpg,
                 workspace: true,
-            }).secondary.filter((link) => link.section !== 'downloads'),
+            }).secondary,
             context.provider,
             (key, params) => this.translateText(key, params)
         );
     });
-    readonly isDownloadsView = computed(
-        () =>
-            this.currentSection() === 'downloads' ||
-            this.isGlobalDownloadsRoute()
-    );
-
     constructor() {
         this.router.events
             .pipe(

@@ -127,13 +127,6 @@ export const routes: Routes = [
                     ),
             },
             {
-                path: 'downloads',
-                loadComponent: () =>
-                    import('@iptvnator/portal/downloads/feature').then(
-                        (c) => c.DownloadsComponent
-                    ),
-            },
-            {
                 path: '',
                 loadChildren: () =>
                     import('@iptvnator/portal/xtream/feature').then((m) =>

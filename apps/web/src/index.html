@@ -33,9 +33,10 @@
                styles.css (~300KB) are still downloading and Angular is
                bootstrapping. main.ts adds .is-ready to fade it out, then
                removes it. No assets and no extra HTTP: the mark is inline SVG
-               and the carbon weave is a gradient, so this is the first paint.
-               Colours match the app shell (--app-shell-bg) so the handoff to
-               the real UI has no visible jump. */
+               and the aurora backdrop is a gradient, so this is the first
+               paint. It repeats the app shell's aurora + frost stack (the
+               `aurora-backdrop` mixin in m3-theme.scss) so the handoff to the
+               real UI has no visible jump. */
             #initial-splash {
                 position: fixed;
                 inset: 0;
@@ -51,17 +52,23 @@
                         rgba(255, 59, 59, 0.16),
                         transparent 58%
                     ),
-                    repeating-linear-gradient(
-                        45deg,
-                        rgba(255, 255, 255, 0.022) 0 2px,
-                        transparent 2px 4px
+                    radial-gradient(
+                        140% 100% at 50% -12%,
+                        rgba(255, 255, 255, 0.09),
+                        rgba(255, 255, 255, 0) 58%
                     ),
-                    repeating-linear-gradient(
-                        -45deg,
-                        rgba(0, 0, 0, 0.28) 0 2px,
-                        transparent 2px 4px
+                    linear-gradient(
+                        rgba(11, 13, 20, 0.55),
+                        rgba(11, 13, 20, 0.55)
                     ),
-                    #08090c;
+                    linear-gradient(
+                        315deg,
+                        rgba(101, 0, 94, 1) 3%,
+                        rgba(60, 132, 206, 1) 38%,
+                        rgba(48, 238, 226, 1) 68%,
+                        rgba(255, 25, 25, 1) 98%
+                    ),
+                    #0b0d14;
                 color: #d8dce8;
                 font-family:
                     -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,

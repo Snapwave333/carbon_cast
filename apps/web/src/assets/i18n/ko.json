@@ -219,6 +219,10 @@
         "GUIDE_ARTWORK": "TV 가이드 이미지",
         "GUIDE_ARTWORK_DESCRIPTION": "TV 가이드에 프로그램 및 채널 이미지를 표시합니다. 끄면 텍스트 전용의 촘촘한 가이드가 됩니다.",
         "TITLE": "설정",
+        "ESSENTIALS": "기본 설정",
+        "ESSENTIALS_DESCRIPTION": "대부분의 사용자에게 필요한 설정만 표시합니다.",
+        "SHOW_ADVANCED": "고급 설정 표시",
+        "HIDE_ADVANCED": "고급 설정 숨기기",
         "GENERAL": "일반",
         "GENERAL_SUBTITLE": "애플리케이션 구성을 변경합니다",
         "PLAYBACK": "재생",
@@ -316,6 +320,11 @@
         "PLAYER_AMBIENT_MODE_DESCRIPTION": "플레이어 주변을 검은 막대 대신 흐려지고 어두워진 포스터로 채웁니다.",
         "PLAYER_UP_NEXT_RAIL": "다음 에피소드 레일",
         "PLAYER_UP_NEXT_RAIL_DESCRIPTION": "넓은 창에서 시리즈 플레이어를 왼쪽에 고정하고 그 옆에 다음 에피소드를 표시합니다.",
+        "PREFERRED_QUALITY": "선호하는 화질",
+        "PREFERRED_QUALITY_DESCRIPTION": "내장 플레이어가 모든 스트림에서 목표로 하는 화질입니다. 해당 해상도가 없는 스트림은 사용 가능한 최고 화질로 재생됩니다.",
+        "PREFERRED_QUALITY_2160P": "4K (2160p)",
+        "PREFERRED_QUALITY_1080P": "Full HD (1080p)",
+        "PREFERRED_QUALITY_AUTO": "자동 (적응형)",
         "STREAM_FORMAT_DESCRIPTION": "기본 스트림 형식 선택 (xtream)",
         "LANGUAGE_DESCRIPTION": "애플리케이션 언어 선택",
         "THEME_DESCRIPTION": "애플리케이션의 시각적 테마 선택",
@@ -452,7 +461,31 @@
         "ATTRIBUTION": "Attribution",
         "ATTRIBUTION_DESCRIPTION": "CarbonCast IPTV is a fork of CarbonCast IPTV (github.com/4gray/iptvnator). The upstream project and its contributors are credited under the original license. CarbonCast IPTV is an independent fork and is not endorsed by the upstream maintainers.",
         "MIRROR_LAYOUT": "Mirror layout",
-        "MIRROR_LAYOUT_DESCRIPTION": "Put the player on the left and the channel/category rail on the right. Applies to the playlist player and Xtream/Stalker live views."
+        "MIRROR_LAYOUT_DESCRIPTION": "Put the player on the left and the channel/category rail on the right. Applies to the playlist player and Xtream/Stalker live views.",
+        "NAV_NETWORK": "Network",
+        "PROXY": "Proxy",
+        "PROXY_DESCRIPTION": "Route this app’s streaming through a proxy so region-locked channels resolve from another country. Only CarbonCast IPTV is affected — the rest of your system keeps its normal connection.",
+        "PROXY_ENABLED": "Route streaming through a proxy",
+        "PROXY_ENABLED_DESCRIPTION": "Applies immediately. Playlist and EPG downloads keep their direct route; only the player’s stream requests are proxied.",
+        "PROXY_SERVER": "Proxy server",
+        "PROXY_SERVER_DESCRIPTION": "Most VPN providers publish a SOCKS5 endpoint you can use here.",
+        "PROXY_PROTOCOL": "Type",
+        "PROXY_HOST": "Host",
+        "PROXY_PORT": "Port",
+        "PROXY_CREDENTIALS": "Credentials",
+        "PROXY_CREDENTIALS_DESCRIPTION": "Leave blank if the proxy needs no sign-in.",
+        "PROXY_USERNAME": "Username",
+        "PROXY_PASSWORD": "Password",
+        "PROXY_BYPASS": "Bypass list",
+        "PROXY_BYPASS_DESCRIPTION": "Hosts that skip the proxy, comma separated. Loopback and local network addresses are always bypassed.",
+        "PROXY_BYPASS_LABEL": "Bypass hosts",
+        "PROXY_TEST": "Test connection",
+        "PROXY_TEST_DESCRIPTION": "Dials the proxy and reports the exit address your streams will appear to come from. Contacts ipinfo.io.",
+        "PROXY_TEST_ACTION": "Test connection",
+        "PROXY_TEST_OK": "Connected — exit",
+        "PROXY_TEST_FAILED": "Could not reach the proxy.",
+        "PROXY_TEST_INCOMPLETE": "Enter a proxy host first.",
+        "PROXY_TEST_DESKTOP_ONLY": "Proxy support requires the desktop app."
     },
     "THEMES": {
         "DARK_THEME": "어둡게",
@@ -497,6 +530,9 @@
             "AUDIO_TRACK_FALLBACK": "오디오 {{index}}",
             "SUBTITLE_TRACK_FALLBACK": "자막 {{index}}",
             "PLAYBACK_SPEED": "재생 속도",
+            "QUALITY": "화질",
+            "QUALITY_TOOLTIP": "화질: {{quality}}",
+            "QUALITY_AUTO": "자동",
             "SPEED_TOOLTIP": "속도: {{speed}}",
             "ASPECT_RATIO": "화면 비율",
             "ASPECT_TOOLTIP": "비율: {{aspect}}",
@@ -656,7 +692,9 @@
             "SEARCH_PLACEHOLDER": "그룹 검색...",
             "NO_RESULTS": "일치하는 그룹을 찾을 수 없습니다",
             "SAVE": "저장"
-        }
+        },
+        "CHANNEL_UP": "다음 채널",
+        "CHANNEL_DOWN": "이전 채널"
     },
     "TOP_MENU": {
         "OPEN_MULTI_EPG": "Open Multi-EPG view"
@@ -749,7 +787,10 @@
             "ZOOM_DETAIL": "상세",
             "GROUP_SHORT": "짧은 프로그램",
             "GROUP_EXPAND": "보기 ›"
-        }
+        },
+        "NOT_IN_PLAYLIST": "목록에 없음",
+        "CHANNEL_NOT_IN_PLAYLIST": "\"{{channel}}\"은(는) 이 재생목록에 없습니다",
+        "PROGRAM_INFO": "프로그램 정보"
     },
     "EPG_MAPPING_DIALOG": {
         "TITLE": "EPG 채널 매핑",

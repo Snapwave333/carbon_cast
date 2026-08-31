@@ -37,7 +37,6 @@ class StubSeasonContainerComponent {
     readonly playlistId = input('');
     readonly seriesTitle = input<string | undefined>(undefined);
     readonly playbackPositions = input<unknown>(null);
-    readonly xtreamDownloadContext = input<unknown>(null);
     readonly openingEpisodeId = input<number | null>(null);
     readonly activeEpisodeId = input<number | null>(null);
     readonly playingEpisodeId = input<number | null>(null);
@@ -493,9 +492,7 @@ describe('SerialDetailsComponent', () => {
             fixture.nativeElement.querySelector(
                 '[data-testid="series-quick-start"]'
             );
-        expect(quickStartButton?.textContent).toContain(
-            'XTREAM.PLAY_EPISODE'
-        );
+        expect(quickStartButton?.textContent).toContain('XTREAM.PLAY_EPISODE');
         expect(quickStartButton?.textContent).toContain(
             'S02E01 \u00b7 Season 2 Episode 1'
         );
@@ -614,9 +611,7 @@ describe('SerialDetailsComponent', () => {
         expect(quickStartButton()?.textContent).toContain(
             'XTREAM.RESUME_EPISODE'
         );
-        expect(quickStartButton()?.textContent).toContain(
-            'S01E01 · Episode 1'
-        );
+        expect(quickStartButton()?.textContent).toContain('S01E01 · Episode 1');
     });
 
     it('persists the launched episode after an external fallback succeeds', async () => {

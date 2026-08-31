@@ -1,442 +1,360 @@
 :host {
-    // The rail occupies a full-height grid cell but should hug its handful of
-    // icons, not stretch — a stretched rail leaves a growing empty void
-    // between the destinations and the pinned settings tile. Centre the
-    // content-sized panel vertically in the cell instead.
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: block;
     min-width: 0;
-    min-height: 0;
 }
 
-// Floating glass rail over the carbon-fiber shell background.
-.app-rail {
+// CarbonCast keeps one persistent bottom dock. It replaces the former
+// playlist/search footer and leaves the entire top edge to the window frame
+// and the guide itself.
+.app-nav-dock {
     position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: var(--rail-gap);
+    isolation: isolate;
     box-sizing: border-box;
-    width: 62px;
-    // Hug the icons; only cap and scroll when a playlist context section makes
-    // the column taller than the window allows.
-    height: auto;
-    max-height: calc(100% - 24px);
-    margin: 12px 0 12px 12px;
-    padding: 10px 8px;
-
-    // Tile geometry, shared with app-workspace-shell-rail-links. Sized so
-    // every destination fits the column without scrolling — a hidden
-    // scrollbar used to push the last one out of reach.
-    --rail-tile-size: 40px;
-    --rail-tile-radius: 11px;
-    --rail-icon-size: 18px;
-    --rail-gap: 6px;
-    background: linear-gradient(
-        135deg,
-        rgba(255, 255, 255, 0.12),
-        rgba(255, 255, 255, 0.035)
-    );
-    border: 1px solid rgba(255, 255, 255, 0.16);
-    border-radius: 18px;
-    box-shadow:
-        0 18px 45px rgba(0, 0, 0, 0.55),
-        inset 0 1px 0 rgba(255, 255, 255, 0.18),
-        inset 0 -1px 0 rgba(0, 0, 0, 0.35);
-    backdrop-filter: blur(18px) saturate(135%);
-    -webkit-backdrop-filter: blur(18px) saturate(135%);
-    app-region: drag;
+    min-width: 0;
+    margin: 5px var(--app-shell-gutter) 6px;
     overflow: hidden;
+    color: var(--mat-sys-on-surface);
+    // A translucent, refractive layer lets the dark shell show through while
+    // keeping the dock's text as stable as a solid control surface.
+    background:
+        linear-gradient(
+            118deg,
+            color-mix(in srgb, #fff 13%, transparent) -16%,
+            transparent 23%,
+            color-mix(in srgb, var(--mat-sys-tertiary) 10%, transparent) 64%,
+            transparent 100%
+        ),
+        radial-gradient(
+            circle at 12% -130%,
+            color-mix(in srgb, var(--mat-sys-primary) 24%, transparent),
+            transparent 48%
+        ),
+        color-mix(in srgb, var(--app-shell-bg, #08090c) 76%, transparent);
+    border: 1px solid
+        color-mix(in srgb, #fff 14%, var(--mat-sys-outline-variant));
+    border-radius: 999px;
+    backdrop-filter: blur(24px) saturate(1.26) brightness(1.08);
+    -webkit-backdrop-filter: blur(24px) saturate(1.26) brightness(1.08);
+    box-shadow:
+        0 -16px 38px color-mix(in srgb, #02060d 56%, transparent),
+        0 2px 1px color-mix(in srgb, #fff 10%, transparent),
+        inset 0 1px 0 color-mix(in srgb, #fff 32%, transparent),
+        inset 0 -1px 0 color-mix(in srgb, #02060d 34%, transparent);
+    app-region: drag;
 
-    // Glass link palette consumed by app-workspace-shell-rail-links.
-    --rail-link-color: rgba(255, 255, 255, 0.78);
-    --rail-link-hover-color: #fff;
-    --rail-link-hover-bg: rgba(255, 255, 255, 0.12);
-    --rail-link-hover-border: rgba(255, 255, 255, 0.2);
-    --rail-link-active-bg: rgba(255, 255, 255, 0.16);
-    --rail-link-active-bg-strong: rgba(255, 255, 255, 0.16);
-    --rail-link-active-color: #fff;
-    --rail-link-active-icon: #fff;
-    --rail-link-active-border: rgba(255, 255, 255, 0.28);
-    --rail-link-active-glow: rgba(0, 0, 0, 0.35);
-
-    &.is-macos {
-        padding-top: 36px;
-    }
+    --rail-link-color: var(--mat-sys-on-surface-variant);
+    --rail-link-hover-color: var(--mat-sys-on-surface);
+    --rail-link-hover-bg: color-mix(
+        in srgb,
+        var(--mat-sys-on-surface) 8%,
+        transparent
+    );
+    --rail-link-hover-border: color-mix(
+        in srgb,
+        var(--mat-sys-outline) 38%,
+        transparent
+    );
+    --rail-link-active-bg: color-mix(
+        in srgb,
+        var(--mat-sys-primary) 14%,
+        transparent
+    );
+    --rail-link-active-color: var(--mat-sys-on-surface);
+    --rail-link-active-icon: var(--mat-sys-primary);
+    --rail-link-active-border: color-mix(
+        in srgb,
+        var(--mat-sys-primary) 34%,
+        transparent
+    );
 }
 
-// Mirrored layout puts the rail against the right edge; the inset margin has
-// to follow, and on frameless platforms the brand button would otherwise sit
-// underneath the floating window controls.
-@media (min-width: 641px) {
-    :host-context(body.layout-mirrored) .app-rail {
-        margin: 12px 12px 12px 0;
-    }
-
-    :host-context(body.frameless-platform.layout-mirrored) .app-rail:not(.is-macos) {
-        padding-top: 42px;
-    }
-}
-
-// Destinations column. It does not scroll: the tiles shrink to fit instead,
-// because a scrolling rail with a hidden scrollbar gives no hint that further
-// destinations exist below the fold.
-.rail-scroll {
-    // Never grow (a stretched column is what created the void); shrink only if
-    // the rail hits its height cap, letting the context region scroll within.
-    flex: 0 1 auto;
-    min-height: 0;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: var(--rail-gap);
-
-    // The brand and the workspace destinations always keep their full size.
-    > .brand,
-    > app-workspace-shell-rail-links {
-        flex: 0 0 auto;
-    }
-}
-
-// Short windows, and windows with a playlist context section open, need a
-// tighter tile before the column would otherwise run past the footer.
-@media (max-height: 780px) {
-    .app-rail {
-        --rail-tile-size: 36px;
-        --rail-icon-size: 17px;
-        --rail-gap: 5px;
-    }
-}
-
-@media (max-height: 660px) {
-    .app-rail {
-        --rail-tile-size: 32px;
-        --rail-tile-radius: 9px;
-        --rail-icon-size: 16px;
-        --rail-gap: 4px;
-    }
-}
-
-// Soft glass reflection sweeping across the panel.
-.app-rail::before {
+.app-nav-dock::before {
     content: '';
     position: absolute;
     inset: 0;
     pointer-events: none;
-    background: linear-gradient(
-        110deg,
-        rgba(255, 255, 255, 0.14),
-        transparent 28%,
-        transparent 72%,
-        rgba(255, 255, 255, 0.035)
+    z-index: 0;
+    opacity: 0.52;
+    background:
+        radial-gradient(
+            ellipse 44% 180% at 8% -80%,
+            color-mix(in srgb, #fff 22%, transparent),
+            transparent 70%
+        ),
+        linear-gradient(
+            106deg,
+            transparent 28%,
+            color-mix(in srgb, #fff 12%, transparent) 47%,
+            color-mix(in srgb, var(--mat-sys-tertiary) 10%, transparent) 54%,
+            transparent 70%
+        );
+    background-size: 145% 100%;
+    background-position: 12% 50%;
+    mask-image: linear-gradient(
+        to right,
+        #000 4%,
+        color-mix(in srgb, #000 72%, transparent) 50%,
+        transparent 96%
     );
+    animation: dock-liquid-sheen 14s ease-in-out infinite alternate;
 }
 
-// Direct rail buttons (brand, settings shortcut): same glass squares as the
-// links component.
-.app-rail a {
-    width: var(--rail-tile-size);
-    height: var(--rail-tile-size);
-    border-radius: var(--rail-tile-radius);
-    position: relative;
-    z-index: 1;
-    display: grid;
-    place-items: center;
-    box-sizing: border-box;
-    color: var(--rail-link-color);
-    background: rgba(255, 255, 255, 0.055);
-    border: 1px solid rgba(255, 255, 255, 0.09);
-    box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.08),
-        0 5px 12px rgba(0, 0, 0, 0.25);
-    text-decoration: none;
-    transition:
-        transform 150ms ease,
-        background 150ms ease,
-        color 150ms ease,
-        border-color 150ms ease;
-    app-region: no-drag;
+.app-nav-dock::after {
+    content: '';
+    position: absolute;
+    z-index: 0;
+    inset: 1px;
+    pointer-events: none;
+    border: 1px solid color-mix(in srgb, #fff 11%, transparent);
+    border-radius: inherit;
+    box-shadow: inset 0 1px 1px color-mix(in srgb, #fff 15%, transparent);
+    mask-image: linear-gradient(to bottom, #000, transparent 48%);
+}
 
-    mat-icon {
-        font-size: var(--rail-icon-size);
-        width: var(--rail-icon-size);
-        height: var(--rail-icon-size);
+@keyframes dock-liquid-sheen {
+    from {
+        background-position: 12% 50%;
+        opacity: 0.4;
+    }
+
+    to {
+        background-position: 88% 50%;
+        opacity: 0.6;
     }
 }
 
-.app-rail a:hover {
-    transform: translateY(-2px);
-    color: var(--rail-link-hover-color);
+.nav-primary-row {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: var(--app-space-2);
+    min-width: 0;
+    padding: 4px 6px;
+}
+
+.brand,
+.nav-settings {
+    position: relative;
+    display: flex;
+    align-items: center;
+    height: 36px;
+    box-sizing: border-box;
+    color: var(--mat-sys-on-surface);
+    text-decoration: none;
+    border: 1px solid transparent;
+    app-region: no-drag;
+    transition:
+        transform var(--app-motion-fast, 140ms) var(--app-ease, ease),
+        background var(--app-motion-base, 200ms) var(--app-ease, ease),
+        border-color var(--app-motion-base, 200ms) var(--app-ease, ease);
+}
+
+.nav-channel-actions {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    padding-right: var(--app-space-2);
+    border-right: 1px solid var(--mat-sys-outline-variant);
+    app-region: no-drag;
+}
+
+.nav-channel-button {
+    color: var(--app-selection-color, var(--mat-sys-primary));
+    border-radius: 999px;
+
+    &:hover {
+        background: var(--rail-link-hover-bg);
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--app-focus-ring-color, var(--mat-sys-primary));
+        outline-offset: 2px;
+    }
+}
+
+.brand {
+    gap: 9px;
+    padding: 0 10px 0 7px;
+    border-radius: 999px;
+}
+
+.brand:hover,
+.nav-settings:hover {
+    transform: translateY(-1px);
     background: var(--rail-link-hover-bg);
     border-color: var(--rail-link-hover-border);
 }
 
-.app-rail a:active {
-    transform: translateY(0) scale(0.96);
+.brand:active,
+.nav-settings:active {
+    transform: translateY(0) scale(0.98);
 }
 
-.app-rail a.is-active,
-.app-rail a.active {
-    color: var(--rail-link-active-color);
-    background: var(--rail-link-active-bg);
-    border-color: var(--rail-link-active-border);
-    box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.2),
-        0 6px 18px rgba(0, 0, 0, 0.35);
-
-    mat-icon {
-        color: var(--rail-link-active-icon);
-    }
-}
-
-// The expand toggle is a <button>, so it needs the glass-tile look the anchor
-// rule above gives the other tiles.
-.rail-toggle {
-    width: var(--rail-tile-size);
-    height: var(--rail-tile-size);
-    border-radius: var(--rail-tile-radius);
-    padding: 0;
-    box-sizing: border-box;
-    display: grid;
-    place-items: center;
-    color: var(--rail-link-color);
-    background: rgba(255, 255, 255, 0.055);
-    border: 1px solid rgba(255, 255, 255, 0.09);
-    box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.08),
-        0 5px 12px rgba(0, 0, 0, 0.25);
-    cursor: pointer;
-    app-region: no-drag;
-    transition:
-        transform 150ms ease,
-        background 150ms ease,
-        color 150ms ease,
-        border-color 150ms ease;
-
-    mat-icon {
-        font-size: var(--rail-icon-size);
-        width: var(--rail-icon-size);
-        height: var(--rail-icon-size);
-    }
-
-    &:hover {
-        transform: translateY(-2px);
-        color: var(--rail-link-hover-color);
-        background: var(--rail-link-hover-bg);
-        border-color: var(--rail-link-hover-border);
-    }
-}
-
-// ─── Expanded rail: wide, labelled, horizontal tiles ─────────────────────────
-.app-rail.is-expanded {
-    width: 208px;
-    align-items: stretch;
-    transition: width 200ms cubic-bezier(0.32, 0.72, 0, 1);
-
-    .rail-scroll {
-        align-items: stretch;
-    }
-
-    // Every tile becomes an icon + full label row.
-    a,
-    .rail-toggle {
-        width: 100%;
-        height: 42px;
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: flex-start;
-        gap: 12px;
-        padding: 0 14px;
-        border-radius: 11px;
-    }
-
-    .brand {
-        height: 46px;
-    }
-}
-
-.rail-tile-label {
-    font-size: 0.82rem;
-    font-weight: 500;
-    line-height: 1.2;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    color: inherit;
-    opacity: 0.92;
-}
-
-.brand {
-    margin-bottom: 0;
+.brand:focus-visible,
+.nav-settings:focus-visible {
+    outline: 2px solid var(--app-focus-ring-color, var(--mat-sys-primary));
+    outline-offset: 2px;
 }
 
 .brand img {
-    width: calc(var(--rail-icon-size) + 4px);
-    height: calc(var(--rail-icon-size) + 4px);
+    width: 28px;
+    height: 28px;
+    flex: 0 0 auto;
     object-fit: contain;
+    filter: drop-shadow(
+        0 4px 10px color-mix(in srgb, var(--mat-sys-primary) 28%, transparent)
+    );
 }
 
-.rail-context-region {
-    --region-accent: var(--mat-sys-outline-variant);
+.brand-wordmark {
+    font-size: 0.94rem;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.035em;
+    white-space: nowrap;
+}
+
+.nav-destinations-scroll {
     display: flex;
-    flex-direction: column;
     align-items: center;
-    gap: var(--rail-gap);
-    width: 100%;
-    padding: 4px 0;
-    margin: 0;
-    // A playlist can contribute more sections than a short window has room
-    // for. Only this region gives way, so the workspace destinations above it
-    // — including Radio — are never pushed out of reach.
-    flex: 0 1 auto;
-    min-height: 0;
-    overflow-y: auto;
+    gap: var(--app-space-2);
+    min-width: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
     scrollbar-width: none;
+    app-region: no-drag;
 
     &::-webkit-scrollbar {
         display: none;
     }
-    border-radius: 16px;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    position: relative;
-    animation: region-enter 0.25s ease-out both;
+}
 
-    &::before {
-        content: '';
-        position: absolute;
-        top: -1px;
-        left: 12px;
-        right: 12px;
-        height: 2px;
-        border-radius: 0 0 2px 2px;
-        background: var(--region-accent);
-        opacity: 0.55;
+.nav-settings {
+    gap: var(--app-space-2);
+    padding: 0 11px;
+    border-radius: 999px;
+    color: var(--rail-link-color);
+
+    mat-icon {
+        width: 18px;
+        height: 18px;
+        font-size: 18px;
     }
 
-    .rail-divider {
-        width: 24px;
-        margin: 0;
-        opacity: 0.25;
-    }
-}
+    &.is-active {
+        color: var(--rail-link-active-color);
+        background: var(--rail-link-active-bg);
+        border-color: var(--rail-link-active-border);
 
-.rail-context-region--xtreams {
-    --region-accent: #7c8cf5;
-}
-
-.rail-context-region--stalker {
-    --region-accent: #4ecdc4;
-}
-
-.rail-context-region--playlists {
-    --region-accent: #f5a623;
-}
-
-@keyframes region-enter {
-    from {
-        opacity: 0;
-        transform: scale(0.95);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1);
+        mat-icon {
+            color: var(--rail-link-active-icon);
+        }
     }
 }
 
-.rail-divider {
-    width: 44px;
-    height: 1px;
-    background: rgba(255, 255, 255, 0.12);
-    margin: 2px 0;
+.nav-link-label {
+    font-size: 0.79rem;
+    font-weight: 600;
+    line-height: 1;
+    white-space: nowrap;
 }
 
-.rail-footer {
-    flex: 0 0 auto;
-    // A hairline separates the pinned utility tiles (expand, settings) from the
-    // destinations now that the rail hugs its content and the groups sit close.
-    margin-top: 10px;
-    padding-top: 10px;
-    width: 100%;
+// Playlist tabs lead the single destination strip so the current source's
+// important views remain visible. Global navigation continues in the same bar.
+.nav-context-cluster {
     display: flex;
-    flex-direction: column;
     align-items: center;
-    gap: var(--rail-gap);
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    position: relative;
-    z-index: 1;
+    gap: 6px;
+    flex: 0 0 auto;
 }
 
-.app-rail.is-expanded .rail-footer {
-    align-items: stretch;
+.nav-context-divider,
+.nav-scope-divider {
+    flex: 0 0 auto;
+    width: 1px;
+    height: 24px;
+    margin: 0 2px;
+    background: color-mix(
+        in srgb,
+        var(--mat-sys-outline-variant) 74%,
+        transparent
+    );
+}
+
+.nav-scope-divider {
+    height: 30px;
+    margin-inline: 2px;
+}
+
+@media (max-width: 1380px) {
+    .brand-wordmark {
+        display: none;
+    }
+
+    .brand {
+        width: 40px;
+        justify-content: center;
+        padding-inline: 0;
+    }
+}
+
+@media (max-width: 820px) {
+    .app-nav-dock {
+        margin-inline: 8px;
+    }
+
+    .nav-link-label {
+        display: none;
+    }
+
+    .nav-settings {
+        width: 40px;
+        justify-content: center;
+        padding-inline: 0;
+    }
 }
 
 @media (max-width: 640px) {
-    .app-rail {
-        flex-direction: row;
-        justify-content: space-between;
-        width: auto;
-        height: auto;
-        margin: 12px;
-        padding: 8px 10px;
-
-        .brand {
-            margin-bottom: 0;
-        }
+    .app-nav-dock {
+        margin: 5px 6px 6px;
+        border-radius: 999px;
     }
 
-    // Horizontal rail: here the row genuinely can outgrow a narrow phone, and
-    // sideways scrolling is discoverable in a way the vertical column was not.
-    .rail-scroll {
-        flex-direction: row;
-        align-items: center;
-        width: auto;
-        overflow-x: auto;
-        overflow-y: hidden;
-        scrollbar-width: none;
-
-        &::-webkit-scrollbar {
-            display: none;
-        }
+    .nav-primary-row {
+        gap: 6px;
+        padding: 4px;
     }
 
-    .rail-divider {
-        width: 1px;
-        height: 24px;
-        margin: 0 4px;
+    .nav-channel-actions {
+        padding-right: 0;
+        border-right: 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .app-nav-dock::before {
+        animation: none;
     }
 
-    .rail-context-region {
-        width: auto;
-        flex-direction: row;
-        margin: 0;
-        padding: 0 6px;
-        border-radius: 12px;
+    .brand,
+    .nav-settings {
+        transition: none;
+    }
+}
 
-        &::before {
-            display: none;
-        }
-
-        .rail-divider {
-            width: 1px;
-            height: 24px;
-            margin: 0 2px;
-        }
+@media (prefers-contrast: more) {
+    .app-nav-dock {
+        background: var(--app-shell-bg, var(--mat-sys-surface));
+        border-color: var(--mat-sys-outline);
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+        box-shadow: none;
     }
 
-    // Horizontal rail: the settings divider runs down the left edge, not across
-    // the top, and the footer no longer needs the full-width vertical framing.
-    .rail-footer {
-        flex-direction: row;
-        width: auto;
-        margin-top: 0;
-        margin-left: 8px;
-        padding-top: 0;
-        padding-left: 8px;
-        border-top: 0;
-        border-left: 1px solid rgba(255, 255, 255, 0.1);
+    .app-nav-dock::before,
+    .app-nav-dock::after {
+        display: none;
     }
 }

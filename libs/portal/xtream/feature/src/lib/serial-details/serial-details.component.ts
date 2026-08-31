@@ -21,7 +21,6 @@ import {
     PortalDetailShellComponent,
     SeasonContainerComponent,
     SeasonContainerPlaybackToggleRequest,
-    SeasonContainerXtreamDownloadContext,
 } from '@iptvnator/ui/components';
 import { XtreamStore } from '@iptvnator/portal/xtream/data-access';
 import {
@@ -101,8 +100,6 @@ export class SerialDetailsComponent implements OnInit, OnDestroy {
     readonly isLoadingDetails = this.xtreamStore.isLoadingDetails;
     readonly detailsError = this.xtreamStore.detailsError;
     readonly currentPlaylistId = signal('');
-    readonly xtreamDownloadContext =
-        signal<SeasonContainerXtreamDownloadContext | null>(null);
     /** `playlistId:categoryId:serialId` of the last initialized view */
     private readonly lastInitKey = signal<string | null>(null);
     private readonly backdropBackfillKey = signal<string | null>(null);
@@ -235,16 +232,8 @@ export class SerialDetailsComponent implements OnInit, OnDestroy {
         });
 
         effect(() => {
-            const playlist = this.xtreamStore.currentPlaylist();
-            this.currentPlaylistId.set(playlist?.id ?? '');
-            this.xtreamDownloadContext.set(
-                playlist
-                    ? {
-                          serverUrl: playlist.serverUrl,
-                          username: playlist.username,
-                          password: playlist.password,
-                      }
-                    : null
+            this.currentPlaylistId.set(
+                this.xtreamStore.currentPlaylist()?.id ?? ''
             );
         });
 

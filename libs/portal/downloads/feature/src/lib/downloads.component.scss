@@ -56,13 +56,13 @@
         align-items: center;
         justify-content: space-between;
         margin-bottom: 1rem;
-        padding: 24px 16px 12px;
+        padding: var(--app-space-5) var(--app-content-gutter) var(--app-space-3);
         border-bottom: 1px solid var(--mat-sys-outline-variant);
 
         &-left {
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: var(--app-space-4);
 
             .settings-group__header-text {
                 display: flex;
@@ -170,13 +170,13 @@
         flex: 1;
         overflow-y: auto;
         overflow-x: hidden;
-        padding: 0 16px;
+        padding-inline: var(--app-content-gutter);
         container-type: inline-size;
 
         &--loading {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: var(--app-space-3);
         }
     }
 
@@ -184,7 +184,7 @@
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr));
         gap: 12px;
-        padding-bottom: 24px;
+        padding-bottom: var(--app-space-6);
         align-content: start;
 
         &--skeleton {
@@ -300,10 +300,7 @@
         gap: 1rem;
         padding: 1rem;
         min-width: 0;
-        background: var(
-            --app-widget-bg,
-            var(--mat-sys-surface-container-high)
-        );
+        background: var(--app-widget-bg, var(--mat-sys-surface-container-high));
         border-radius: 14px;
         border: 1px solid var(--app-separator, var(--mat-sys-outline-variant));
         box-shadow: var(--app-widget-shadow, none);
@@ -348,7 +345,8 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            border: 1px solid var(--app-separator, var(--mat-sys-outline-variant));
+            border: 1px solid
+                var(--app-separator, var(--mat-sys-outline-variant));
 
             img {
                 width: 100%;

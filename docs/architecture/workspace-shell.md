@@ -10,8 +10,9 @@ Related:
 ## Summary
 
 - `/workspace` is the primary app surface.
-- `WorkspaceShellComponent` owns the persistent frame: rail, header, optional
-  context panel, content outlet, and external playback footer.
+- `WorkspaceShellComponent` owns the persistent frame: top navigation dock,
+  bottom action header, optional context panel, content outlet, and external
+  playback footer.
 - Descendant workspace pages inherit `layout = 'workspace'` from the
   `/workspace` root route.
 - Provider route trees now bootstrap through route-scoped session providers
@@ -80,29 +81,18 @@ Provider route integration:
 
 The shell is intentionally split into four persistent regions:
 
-1. Left rail:
-    1. Static workspace links for dashboard, sources, radio, collections, and
-       followed series. The routed global-search link is Electron-capability
-       gated because its data source is the SQLite worker bridge.
-    2. Provider-aware context links derived from the active or current playlist.
-    3. Settings remains a persistent footer shortcut in the rail.
-2. Top header:
-    1. Playlist switcher.
-    2. Route-aware search input and command palette trigger.
-    3. Add source action.
-    4. Optional playlist refresh and route-specific shortcut actions.
-    5. Downloads shortcut in Electron.
-3. Main body:
-    1. Optional left context panel.
-    2. Main router outlet content.
-4. Optional footer:
-    1. External playback session bar when a docked session is visible.
+| Region                   | Contract                                                                                                                                                                                                                      |
+| ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Top navigation dock      | One bar contains the brand, a shared destination strip, and Settings. Playlist tabs lead the scrolling strip, followed by global destinations. The dock always spans the top; `mirrorLayout` does not move it to a side edge. |
+| Bottom action header     | Playlist switcher, route-aware search and command palette trigger, add-source action, optional refresh/route actions, and the Electron downloads shortcut.                                                                    |
+| Main body                | Optional left context panel plus the main router outlet.                                                                                                                                                                      |
+| Optional playback footer | Persistent internal playback bar and the external playback session dock when visible.                                                                                                                                         |
 
 `WorkspaceShellComponent` binds only to `WorkspaceShellFacade`. The facade is
 kept as a thin template-facing API and delegates ownership to component-scoped
 services:
 
-1. `WorkspaceShellRouteStateService` owns current route parsing, rail links,
+1. `WorkspaceShellRouteStateService` owns current route parsing, navigation links,
    context-panel state, dashboard startup preference, and playlist source
    signals.
 2. `WorkspaceShellSearchService` owns the route-aware header search capability
@@ -162,13 +152,18 @@ Search is shell-owned and route-aware:
    search phrase to the `q` query parameter, so history/back-forward behavior
    matches the rest of the workspace.
 
-Rail navigation is also shell-owned:
+Top-dock navigation is also shell-owned:
 
 1. Workspace-global entries are static.
 2. Provider entries come from `buildPortalRailLinks(...)`.
 3. On dashboard, sources, settings, global search, global favorites, and global
    recent, the shell falls back to the currently selected playlist so provider
    navigation remains available even outside a provider route.
+4. Provider destinations lead the single scrolling strip, followed by a quiet
+   divider and the workspace-global destinations. No second navigation row is
+   introduced.
+5. The dock scrolls horizontally at narrow widths while the brand and Settings
+   remain reachable.
 
 Command palette behavior is shell-owned but view-extensible:
 
@@ -263,17 +258,17 @@ handlers in `apps/electron-backend/src/app/events/window.events.ts`):
    snap, F11). The controls hide themselves while the window is
    fullscreen.
 
-   Window state is **never re-read at event time**. `attachWindowStateEvents`
-   seeds `{ isMaximized, isFullScreen }` once at window creation and each
-   event patches only the flag it names; every push carries a copy of that
-   tracked state. On Windows both getters can still report the
-   pre-transition value while the matching event fires — `isFullScreen()`
-   stays `true` during an HTML fullscreen exit, and `isMaximized()` reads
-   `false` while the window is fullscreen. Because the renderer replaces
-   both flags on every push and no later event corrects a stale one,
-   polling left the controls hidden forever after leaving fullscreen and
-   stuck the maximize/restore glyph on the wrong icon. Regression coverage:
-   `app-window-state.spec.ts` and `window-controls.e2e.ts`.
+    Window state is **never re-read at event time**. `attachWindowStateEvents`
+    seeds `{ isMaximized, isFullScreen }` once at window creation and each
+    event patches only the flag it names; every push carries a copy of that
+    tracked state. On Windows both getters can still report the
+    pre-transition value while the matching event fires — `isFullScreen()`
+    stays `true` during an HTML fullscreen exit, and `isMaximized()` reads
+    `false` while the window is fullscreen. Because the renderer replaces
+    both flags on every push and no later event corrects a stale one,
+    polling left the controls hidden forever after leaving fullscreen and
+    stuck the maximize/restore glyph on the wrong icon. Regression coverage:
+    `app-window-state.spec.ts` and `window-controls.e2e.ts`.
 
 Layout integration:
 

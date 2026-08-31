@@ -242,7 +242,7 @@ describe('HtmlVideoPlayerComponent shared controls sources', () => {
             lifecycle
                 .slice(0, destroyIndex)
                 .filter((event) => event.startsWith('off:'))
-        ).toHaveLength(7);
+        ).toHaveLength(10);
         const internals = readHtmlPlayerInternals(component);
         expect(setSource).toHaveBeenCalledTimes(1);
         expect(setSource).toHaveBeenCalledWith({ kind: 'native' });
@@ -251,7 +251,8 @@ describe('HtmlVideoPlayerComponent shared controls sources', () => {
         expect(internals.mpegtsPlayer).toBeNull();
         expect(hlsInstances).toHaveLength(1);
         expect(mpegTsInstances).toHaveLength(0);
-        expect(hls.off).toHaveBeenCalledTimes(7);
+        // Seven track/caption events plus the three quality-ladder events.
+        expect(hls.off).toHaveBeenCalledTimes(10);
         expect(adapter.state().audioTracks).toEqual([]);
         expect(adapter.state().subtitleTracks).toEqual([]);
     });

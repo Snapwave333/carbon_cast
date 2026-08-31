@@ -34,18 +34,16 @@ import {
 import {
     CrossPortalSimilarItem,
     CrossPortalSimilarService,
-    DownloadsService,
 } from '@iptvnator/services';
 import type { PlaybackFallbackRequest } from '../playback-diagnostics/playback-diagnostics.util';
 import { PortalInlinePlayerComponent } from '../portal-inline-player/portal-inline-player.component';
-import { createVodDownloadState } from './vod-download-state.util';
 
 /**
  * Unified VOD details component for both Xtream and Stalker portals.
  *
  * Uses discriminated union (VodDetailsItem) for type-safe handling.
  * All actions are emitted as outputs - parent components handle
- * store-specific operations (play, favorites, downloads).
+ * store-specific operations (play and favorites).
  *
  * @example
  * ```html
@@ -112,9 +110,6 @@ export class VodDetailsComponent {
     /** Emitted when back button is clicked */
     readonly backClicked = output<void>();
 
-    /** Emitted when download is requested (parent handles URL construction) */
-    readonly downloadRequested = output<VodDetailsItem>();
-
     /** Emitted when inline playback position changes */
     readonly inlineTimeUpdated = output<{
         currentTime: number;
@@ -133,15 +128,11 @@ export class VodDetailsComponent {
 
     // ============ Services ============
 
-    private readonly downloadsService = inject(DownloadsService);
     private readonly crossPortalSimilar = inject(CrossPortalSimilarService);
     private readonly externalPlaybackActions = inject(PORTAL_EXTERNAL_PLAYBACK);
     private readonly router = inject(Router);
 
     // ============ Computed State ============
-
-    /** Whether running in Electron (downloads available) */
-    readonly isElectron = computed(() => this.downloadsService.isAvailable());
 
     /** Normalized metadata for display */
     readonly normalizedMeta = computed(() => {
@@ -207,14 +198,6 @@ export class VodDetailsComponent {
         }
         return `${minutes}:${seconds.toString().padStart(2, '0')}`;
     });
-
-    private readonly downloadState = createVodDownloadState(
-        this.downloadsService,
-        this.item
-    );
-    readonly isDownloaded = this.downloadState.isDownloaded;
-    readonly isDownloading = this.downloadState.isDownloading;
-    readonly isPausedDownload = this.downloadState.isPausedDownload;
 
     private readonly externalButton = createExternalPlaybackButtonState({
         session: this.externalPlayback,
@@ -290,21 +273,6 @@ export class VodDetailsComponent {
         this.backClicked.emit();
     }
 
-    /** Handle download request */
-    onDownload(): void {
-        this.downloadRequested.emit(this.item());
-    }
-
-    /** Resume the paused download of this VOD */
-    async resumePausedDownload(): Promise<void> {
-        const item = this.item();
-        await this.downloadsService.resumeDownloadByContent(
-            getVodNumericId(item),
-            item.playlistId,
-            'vod'
-        );
-    }
-
     onInlineTimeUpdate(event: { currentTime: number; duration: number }): void {
         this.inlineTimeUpdated.emit(event);
     }
@@ -325,21 +293,5 @@ export class VodDetailsComponent {
         await this.externalPlaybackActions.closeSession(
             this.matchedExternalPlayback()
         );
-    }
-
-    /** Play from local downloaded file */
-    async playFromLocal(): Promise<void> {
-        const item = this.item();
-        const vodId = getVodNumericId(item);
-
-        const filePath = this.downloadsService.getDownloadedFilePath(
-            vodId,
-            item.playlistId,
-            'vod'
-        );
-
-        if (filePath) {
-            await this.downloadsService.playDownload(filePath);
-        }
     }
 }

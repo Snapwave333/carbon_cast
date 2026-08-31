@@ -31,6 +31,17 @@ export class AppWorkspaceShellActionsService implements WorkspaceShellActions {
         );
     }
 
+    openMergePlaylistsDialog(): void {
+        void import('@iptvnator/playlist/import/feature').then(
+            ({ MergePlaylistsDialogComponent }) => {
+                this.dialog.open(MergePlaylistsDialogComponent, {
+                    width: '560px',
+                    maxWidth: '92vw',
+                });
+            }
+        );
+    }
+
     openGlobalSearch(initialQuery = ''): void {
         const query = initialQuery.trim();
         void this.router.navigate(['/workspace/search'], {

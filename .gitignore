@@ -107,3 +107,8 @@ upstream-detection.json
 
 # Playwright test output that escapes the root-anchored /dist rule
 apps/web-e2e/dist/
+
+# Local secrets — never commit. TMDB_API_KEY etc.
+.env
+.env.*
+!.env.example

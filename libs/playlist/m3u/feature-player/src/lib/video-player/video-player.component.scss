@@ -47,17 +47,34 @@
     background: var(--mat-sys-surface);
 }
 
-// TV-guide section: the grid owns the stage. A playing channel keeps running
-// in a compact strip above it — the guide-over-live layout — so
-// opening the guide never interrupts playback.
+// The player stage keeps normal playback structurally identical while giving
+// the full guide a broadcast-style screen + programme-information deck.
+.player-stage {
+    flex: 1 1 0;
+    display: flex;
+    min-height: 0;
+    overflow: hidden;
+
+    .video-player {
+        flex: 1 1 0;
+    }
+}
+
+// TV-guide section: the grid owns the stage. Playback stays live on the left;
+// the programme details on the right make the selected channel legible before
+// scanning the grid, as on a traditional TV guide.
 .content-container.guide-mode {
     flex: 1 1 100%;
     width: 100%;
+    background: #000;
 
-    .video-player {
-        flex: 0 0 38%;
-        min-height: 180px;
-        max-height: 420px;
+    .player-stage--guide {
+        // A guide is a dense browsing surface. Keep the live preview useful,
+        // but never let it consume the grid on a laptop-height window.
+        flex: 0 0 clamp(118px, 19vh, 176px);
+        min-height: 118px;
+        background: #000;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.13);
     }
 
     app-multi-epg-container.inline-guide {
@@ -81,6 +98,132 @@
         min-height: 0;
         display: block;
     }
+}
+
+.guide-player-details {
+    --guide-category-accent: rgba(255, 255, 255, 0.64);
+
+    flex: 1 1 44%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: min(320px, 42%);
+    padding: clamp(12px, 1.7vw, 24px);
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+    background:
+        linear-gradient(90deg, rgba(255, 255, 255, 0.035), transparent 30%),
+        #000;
+    color: #f6f6f4;
+    overflow: hidden;
+}
+
+.guide-player-details__channel {
+    display: flex;
+    align-items: center;
+    gap: var(--app-space-3);
+    min-width: 0;
+    margin-bottom: 8px;
+}
+
+.guide-player-details__logo {
+    width: 36px;
+    height: 36px;
+    flex: 0 0 auto;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 4px;
+    background: #0c0c0c;
+    object-fit: contain;
+}
+
+.guide-player-details__logo--fallback {
+    display: grid;
+    place-items: center;
+    color: #fff;
+    font-size: 1.05rem;
+    font-weight: 700;
+}
+
+.guide-player-details__eyebrow,
+.guide-player-details__category {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    color: rgba(255, 255, 255, 0.56);
+    font-family: var(--app-monospace-font, ui-monospace, monospace);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.11em;
+    line-height: 1.2;
+    text-transform: uppercase;
+}
+
+.guide-player-details__eyebrow i {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #f25f64;
+    box-shadow: 0 0 0 3px rgba(242, 95, 100, 0.13);
+}
+
+.guide-player-details__channel-name {
+    display: block;
+    min-width: 0;
+    margin-top: 3px;
+    overflow: hidden;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.88rem;
+    font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.guide-player-details__program {
+    min-width: 0;
+}
+
+.guide-player-details__category {
+    margin-bottom: var(--app-space-2);
+    color: var(--guide-category-accent);
+}
+
+.guide-player-details h1 {
+    max-width: 28ch;
+    margin: 0;
+    color: #fff;
+    font-size: clamp(1.15rem, 1.75vw, 1.75rem);
+    font-weight: 670;
+    letter-spacing: -0.035em;
+    line-height: 0.98;
+    text-wrap: balance;
+}
+
+.guide-player-details__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--app-space-2) var(--app-space-3);
+    margin-top: var(--app-space-3);
+    color: rgba(255, 255, 255, 0.58);
+    font-family: var(--app-monospace-font, ui-monospace, monospace);
+    font-size: 0.75rem;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.03em;
+}
+
+.guide-player-details__meta span {
+    padding-left: 12px;
+    border-left: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.guide-player-details p {
+    display: -webkit-box;
+    max-width: 68ch;
+    margin: var(--app-space-2) 0 0;
+    overflow: hidden;
+    color: rgba(255, 255, 255, 0.72);
+    font-size: clamp(0.8rem, 1vw, 0.98rem);
+    line-height: 1.45;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
 }
 
 .epg {
@@ -156,6 +299,34 @@
 
     .content-container {
         height: 50vh;
+    }
+
+    .content-container.guide-mode {
+        .player-stage--guide {
+            flex-basis: min(58vh, 500px);
+            flex-direction: column;
+        }
+    }
+
+    .guide-player-details {
+        min-width: 0;
+        min-height: 154px;
+        padding: 18px 20px 22px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        border-left: none;
+    }
+
+    .guide-player-details__channel {
+        margin-bottom: 13px;
+    }
+
+    .guide-player-details__logo {
+        width: 34px;
+        height: 34px;
+    }
+
+    .guide-player-details h1 {
+        font-size: 1.35rem;
     }
 
     .sidebar-restore {

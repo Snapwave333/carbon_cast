@@ -67,32 +67,120 @@
             activeChannel.radio === 'true' ||
             shouldShowInlinePlayer(activeChannel)
         ) {
-            <div class="video-player">
-                @if (activeChannel.radio === 'true') {
-                    <app-audio-player
-                        [url]="activeChannel.url"
-                        [icon]="activeChannel?.tvg?.logo!"
-                        [channelName]="displayChannelName()"
-                        [volume]="volume()"
-                        (volumeChange)="onInlineVolumeChange($event)"
-                    />
-                } @else {
-                    <app-web-player-view
-                        [streamUrl]="embeddedPlayback()?.streamUrl ?? ''"
-                        [title]="inlinePlayerTitle()"
-                        [playback]="embeddedPlayback()"
-                        [playerOverride]="
-                            activeChannelIsDash()
-                                ? dashPlayerOverride()
-                                : (playerSettings.player ?? null)
-                        "
-                        [volume]="volume()"
-                        (externalFallbackRequested)="
-                            handleExternalFallbackRequest($event)
-                        "
-                    />
+            <section
+                class="player-stage"
+                [class.player-stage--guide]="activeView() === 'guide'"
+                [attr.aria-label]="
+                    activeView() === 'guide'
+                        ? ('EPG.TIMELINE.ON_NOW' | translate)
+                        : null
+                "
+            >
+                @if (
+                    activeChannel.radio === 'true' ||
+                    shouldShowInlinePlayer(activeChannel)
+                ) {
+                    <div class="video-player">
+                        @if (activeChannel.radio === 'true') {
+                            <app-audio-player
+                                [url]="activeChannel.url"
+                                [icon]="activeChannel?.tvg?.logo!"
+                                [channelName]="displayChannelName()"
+                                [volume]="volume()"
+                                (volumeChange)="onInlineVolumeChange($event)"
+                            />
+                        } @else {
+                            <app-web-player-view
+                                [streamUrl]="
+                                    embeddedPlayback()?.streamUrl ?? ''
+                                "
+                                [title]="inlinePlayerTitle()"
+                                [playback]="embeddedPlayback()"
+                                [playerOverride]="
+                                    activeChannelIsDash()
+                                        ? dashPlayerOverride()
+                                        : (playerSettings.player ?? null)
+                                "
+                                [volume]="volume()"
+                                [channelNavigation]="true"
+                                (channelUpRequested)="changeChannel('up')"
+                                (channelDownRequested)="changeChannel('down')"
+                                (externalFallbackRequested)="
+                                    handleExternalFallbackRequest($event)
+                                "
+                            />
+                        }
+                    </div>
                 }
-            </div>
+
+                @if (activeView() === 'guide') {
+                    <aside
+                        class="guide-player-details"
+                        [style.--guide-category-accent]="
+                            guideNowCategoryAccent()
+                        "
+                        aria-live="polite"
+                    >
+                        <div class="guide-player-details__channel">
+                            @if (timelineChannelLogo(); as channelLogo) {
+                                <img
+                                    class="guide-player-details__logo"
+                                    [src]="channelLogo"
+                                    alt=""
+                                    decoding="async"
+                                    referrerpolicy="no-referrer"
+                                />
+                            } @else {
+                                <span
+                                    class="guide-player-details__logo guide-player-details__logo--fallback"
+                                    aria-hidden="true"
+                                >
+                                    {{ displayChannelName().slice(0, 1) }}
+                                </span>
+                            }
+                            <div>
+                                <span class="guide-player-details__eyebrow">
+                                    <i aria-hidden="true"></i>
+                                    {{ 'EPG.TIMELINE.ON_NOW' | translate }}
+                                </span>
+                                <span
+                                    class="guide-player-details__channel-name"
+                                    >{{ displayChannelName() }}</span
+                                >
+                            </div>
+                        </div>
+
+                        @if (guideNowProgram(); as program) {
+                            <div class="guide-player-details__program">
+                                @if (program.category) {
+                                    <span
+                                        class="guide-player-details__category"
+                                        >{{ program.category }}</span
+                                    >
+                                }
+                                <h1>{{ program.title }}</h1>
+                                <div class="guide-player-details__meta">
+                                    <time>
+                                        {{ program.start | date: 'HH:mm' }} –
+                                        {{ program.stop | date: 'HH:mm' }}
+                                    </time>
+                                    @if (program.episodeNum) {
+                                        <span>{{ program.episodeNum }}</span>
+                                    }
+                                </div>
+                                @if (program.desc) {
+                                    <p>{{ program.desc }}</p>
+                                }
+                            </div>
+                        } @else {
+                            <div class="guide-player-details__program">
+                                <h1>{{ inlinePlayerTitle() }}</h1>
+                                <p>{{ 'EPG.NO_PROGRAM_INFO' | translate }}</p>
+                            </div>
+                        }
+                    </aside>
+                }
+            </section>
         }
 
         @if (
@@ -115,7 +203,9 @@
                             [programs]="epgPrograms()"
                             [channelName]="timelineChannelName()"
                             [channelLogo]="timelineChannelLogo()"
-                            [archivePlaybackAvailable]="archivePlaybackAvailable()"
+                            [archivePlaybackAvailable]="
+                                archivePlaybackAvailable()
+                            "
                             [archiveDays]="epgArchiveDays()"
                             [activeProgram]="activeEpgProgramOrNull()"
                             [isLivePlayback]="!showReturnToLive()"
@@ -141,7 +231,9 @@
                             [programs]="epgPrograms()"
                             [channelName]="timelineChannelName()"
                             [channelLogo]="timelineChannelLogo()"
-                            [archivePlaybackAvailable]="archivePlaybackAvailable()"
+                            [archivePlaybackAvailable]="
+                                archivePlaybackAvailable()
+                            "
                             [archiveDays]="epgArchiveDays()"
                             [activeProgram]="activeEpgProgramOrNull()"
                             [isLivePlayback]="!showReturnToLive()"
@@ -193,6 +285,7 @@
             [playlistChannels]="channels$"
             [activeChannelId]="activeChannel()?.tvg?.id ?? null"
             [catchupResolver]="guideCatchupResolver"
+            [channelAvailabilityResolver]="guideChannelAvailabilityResolver"
             (playRequested)="onGuidePlayRequested($event)"
         />
     }

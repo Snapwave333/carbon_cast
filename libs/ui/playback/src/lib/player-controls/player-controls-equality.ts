@@ -19,6 +19,7 @@ export function playerCapabilitiesEqual(
         a.volume === b.volume &&
         a.audioTracks === b.audioTracks &&
         a.subtitles === b.subtitles &&
+        a.quality === b.quality &&
         a.playbackSpeed === b.playbackSpeed &&
         a.aspectRatio === b.aspectRatio &&
         a.recording === b.recording &&

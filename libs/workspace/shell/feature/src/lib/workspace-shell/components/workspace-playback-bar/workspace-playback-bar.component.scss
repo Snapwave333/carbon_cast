@@ -35,7 +35,15 @@
     min-height: 88px;
     overflow: hidden;
     border-top: 1px solid var(--mat-sys-outline-variant);
-    background: var(--mat-sys-surface-container);
+    background: color-mix(
+        in srgb,
+        var(--mat-sys-surface-container) 92%,
+        transparent
+    );
+    backdrop-filter: blur(20px) saturate(1.2);
+    box-shadow:
+        0 -4px 24px rgba(0, 0, 0, 0.25),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
     transition: height 220ms cubic-bezier(0.32, 0.72, 0, 1);
 
     &.is-popped-out {
@@ -44,11 +52,11 @@
 
     &__chrome {
         position: absolute;
-        top: 4px;
-        right: 8px;
+        top: 6px;
+        right: 10px;
         z-index: 2;
         display: flex;
-        gap: 2px;
+        gap: 4px;
     }
 
     &__chrome-button {
@@ -56,9 +64,18 @@
         width: 32px;
         height: 32px;
         padding: 4px;
+        border-radius: 50%;
         color: var(--mat-sys-on-surface-variant);
-        background: color-mix(in srgb, var(--mat-sys-surface) 55%, transparent);
-        backdrop-filter: blur(6px);
+        background: color-mix(in srgb, var(--mat-sys-surface) 65%, transparent);
+        border: 1px solid color-mix(in srgb, white 10%, transparent);
+        backdrop-filter: blur(8px);
+        transition: transform 0.16s ease, background 0.16s ease, color 0.16s ease;
+
+        &:hover {
+            transform: scale(1.08);
+            color: var(--mat-sys-on-surface);
+            background: color-mix(in srgb, var(--mat-sys-surface) 85%, transparent);
+        }
     }
 
     &__slot,

@@ -4,13 +4,13 @@ This file provides guidance to coding agents working in this repository.
 
 ## Repository Navigation
 
-| Guide | Purpose |
-| --- | --- |
+| Guide                                            | Purpose                                                                                              |
+| ------------------------------------------------ | ---------------------------------------------------------------------------------------------------- |
 | [`TABLE_OF_CONTENTS.md`](./TABLE_OF_CONTENTS.md) | Canonical map of apps, libraries, feature ownership, architecture docs, tools, and generated folders |
-| [`README.md`](./README.md) | Product overview, downloads, self-hosting, and contributor setup |
-| [`CLAUDE.md`](./CLAUDE.md) | Detailed architecture, commands, feature ownership, and implementation notes |
-| [`docs/architecture/`](./docs/architecture/) | Maintained subsystem contracts; prefer these over historical plans |
-| [`.changes/README.md`](./.changes/README.md) | Release-note schema and writing policy |
+| [`README.md`](./README.md)                       | Product overview, downloads, self-hosting, and contributor setup                                     |
+| [`CLAUDE.md`](./CLAUDE.md)                       | Detailed architecture, commands, feature ownership, and implementation notes                         |
+| [`docs/architecture/`](./docs/architecture/)     | Maintained subsystem contracts; prefer these over historical plans                                   |
+| [`.changes/README.md`](./.changes/README.md)     | Release-note schema and writing policy                                                               |
 
 Start repository exploration from the table of contents instead of recursively
 scanning generated output such as `node_modules/`, `dist/`, `coverage/`, `.nx/`,
@@ -57,7 +57,7 @@ or `tmp/`.
 - Skip the note for test-only changes, docs, CI/workflow plumbing, and pure refactors with no behavior change. When skipping on a PR that touches `apps/**` or `libs/**`, apply the `no-release-note` label.
 - CI enforces this: the "Release note gate" job in `.github/workflows/ci.yml` fails PRs that change runtime code without an added `.changes/*.md` or the label (policy in `tools/release/check-release-note-gate.mjs`; tests/e2e/website/mock-server/docs paths are auto-exempt).
 - The `release-notes` skill covers writing notes; the `release-cut` skill covers the full release sequence.
-- Validate before finishing: `pnpm run release:notes:validate`.
+- Validate before finishing: `node tools/release/build-release-notes.mjs --validate`. There is no `release:notes:validate` package script — call the tool directly.
 - Release-post screenshots come only from the release capture script running against the mock servers. Never add a screenshot taken from a real playlist or account to `apps/website/public/blog/**` — real streams, logos, and metadata are copyrighted, and credentials must never reach a published image.
 - Final task summaries should state whether a release note was added or why it was skipped.
 
@@ -73,6 +73,17 @@ or `tmp/`.
     4. Prefer specific atomized E2E targets before broad suites when they cover the changed behavior, for example `pnpm nx run web-e2e:e2e-ci--src/xtream.e2e.ts` or `pnpm nx run electron-backend-e2e:e2e-ci--src/search.e2e.ts`.
 - Electron-specific changes affecting IPC, SQLite, packaged runtime, external players, native file access, or Electron-only routes require Electron E2E coverage where available, or CDP/manual verification with `agent-browser` and the tracing flags documented below.
 - Final task summaries must list tests added or updated, validation commands run with results, and any skipped validation with the reason. For docs-only changes, state that unit/E2E validation was not required and verify the changed Markdown instead.
+
+## Packaged Builds Vs The Installed App
+
+- Building the repo does not update the app the desktop/Start-menu launcher
+  opens. That launcher points at the installed copy
+  (`%LOCALAPPDATA%\Programs\iptvnator` on Windows), which only an installer run
+  from `dist/executables/` refreshes. Never tell a user to "check the app"
+  after a build alone — a stale install launches and runs normally, and reports
+  the same version as a fresh one.
+- Full procedure, plus the orphaned `win-unpacked.tmp` `EPERM` trap:
+  `Running A Packaged Build Locally` in `CLAUDE.md`.
 
 ## Electron Debugging (CDP)
 
@@ -315,6 +326,16 @@ Key files:
   from any directory. The renderer's `AgentControlPresenceService` keeps an
   **Agent connected** badge visible and pulses the affected surface for 180 ms,
   respecting `prefers-reduced-motion`.
+
+## Design System & UI/UX Standards
+
+- **Spatial Scale & Tokens**: The app uses an 8-point spatial system (`--app-space-1` through `--app-space-8`) and responsive gutters (`--app-shell-gutter`, `--app-content-gutter`, `--app-page-gutter`, `--app-section-gap`).
+- **Motion & Micro-interactions**: Standardized motion durations (`--app-motion-instant: 90ms`, `--app-motion-fast: 140ms`, `--app-motion-base: 200ms`, `--app-motion-slow: 320ms`) and easings (`--app-ease`, `--app-ease-out`, `--app-ease-spring`). Interactive cards (`.link-card`, `.playlist-item`, `.rail__card`, `.episode-card`) lift toward the pointer with `translateY(-3px) scale(1.01-1.02)` and dynamic elevation shadows.
+- **Glassmorphism Surfaces**: Floating surfaces (player HUD, overlay drawers, dialog headers, persistent playback bar, search bar) use balanced `backdrop-filter: blur(...) saturate(...)` with subtle top/inner highlights (`rgba(255, 255, 255, 0.08)`).
+- **Reusable Surface & Feedback Classes**:
+    - `.app-glass-panel` for frosted acrylic container surfaces
+    - `.app-count-badge` for theme-aware, tabular-num count pills across section rails and sidebars
+    - `.skeleton-shimmer` for fluid continuous wave placeholder loading states
 
 ## Linux Embedded MPV Packaging
 

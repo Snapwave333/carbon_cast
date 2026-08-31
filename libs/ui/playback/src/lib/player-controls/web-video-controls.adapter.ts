@@ -44,6 +44,9 @@ export interface WebVideoControlsOptions extends WebVideoMetadataOptions {
     setAudioTrack?: (id: number) => void | Promise<void>;
     getSubtitleTracks?: () => PlayerTrack[];
     setSubtitleTrack?: (id: number) => void | Promise<void>;
+    /** Menu entries, "Auto" first. Empty when the source has no ladder. */
+    getQualityLevels?: () => PlayerTrack[];
+    setQualityLevel?: (id: number) => void | Promise<void>;
 }
 
 interface WebVideoControlsContext {
@@ -103,6 +106,14 @@ export class WebVideoControlsAdapter implements PlayerController {
         { equal: playerTracksEqual }
     );
 
+    private readonly qualityLevels = computed<PlayerTrack[]>(
+        () => {
+            this.tick();
+            return this.opts.getQualityLevels?.() ?? [];
+        },
+        { equal: playerTracksEqual }
+    );
+
     readonly capabilities = computed<PlayerControlsCapabilities>(
         () => {
             this.tick();
@@ -126,6 +137,9 @@ export class WebVideoControlsAdapter implements PlayerController {
                 fullscreen: true,
                 audioTracks: hasAudioTracks,
                 subtitles: hasSubtitles,
+                quality:
+                    typeof this.opts.setQualityLevel === 'function' &&
+                    this.qualityLevels().length > 0,
                 aspectRatio: false,
                 recording: false,
                 pictureInPicture: pictureInPicture.supported,
@@ -166,6 +180,7 @@ export class WebVideoControlsAdapter implements PlayerController {
             audioTracks,
             subtitleTracks,
             subtitlesEnabled: subtitleTracks.some((track) => track.selected),
+            qualityLevels: this.qualityLevels(),
             playbackSpeed: video?.playbackRate ?? 1,
             speedPresets: DEFAULT_SPEED_PRESETS,
             aspectRatio: 'no',
@@ -198,6 +213,10 @@ export class WebVideoControlsAdapter implements PlayerController {
             ),
         setSubtitleTrack: (id) =>
             applyTrackSelection(this.opts.setSubtitleTrack, id, () =>
+                this.refresh()
+            ),
+        setQualityLevel: (id) =>
+            applyTrackSelection(this.opts.setQualityLevel, id, () =>
                 this.refresh()
             ),
         setPlaybackSpeed: (speed) => applyVideoSpeed(this.video, speed),

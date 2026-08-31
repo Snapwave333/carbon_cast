@@ -5,14 +5,18 @@
             [mediaTitle]="resolvedMediaTitle()"
             [volume]="volume()"
             [showCaptions]="showCaptions()"
+            [preferredQuality]="preferredQuality()"
             [interactionEnabled]="playbackInteractionEnabled()"
             [startTime]="startTime()"
             [seriesNavigation]="seriesNavigation()"
             (timeUpdate)="timeUpdate.emit($event)"
             (playbackIssue)="handlePlaybackIssue($event)"
             (playbackEnded)="playbackEnded.emit()"
+            [channelNavigation]="channelNavigation()"
             (previousEpisodeRequested)="previousEpisodeRequested.emit()"
             (nextEpisodeRequested)="nextEpisodeRequested.emit()"
+            (channelUpRequested)="channelUpRequested.emit()"
+            (channelDownRequested)="channelDownRequested.emit()"
         />
     } @placeholder {
         <div class="web-player-defer-placeholder" aria-hidden="true"></div>
@@ -24,6 +28,7 @@
             [mediaTitle]="resolvedMediaTitle()"
             [volume]="volume()"
             [showCaptions]="showCaptions()"
+            [preferredQuality]="preferredQuality()"
             [isLive]="resolvedIsLive()"
             [interactionEnabled]="playbackInteractionEnabled()"
             [startTime]="startTime()"
@@ -31,8 +36,11 @@
             (timeUpdate)="timeUpdate.emit($event)"
             (playbackIssue)="handlePlaybackIssue($event)"
             (playbackEnded)="playbackEnded.emit()"
+            [channelNavigation]="channelNavigation()"
             (previousEpisodeRequested)="previousEpisodeRequested.emit()"
             (nextEpisodeRequested)="nextEpisodeRequested.emit()"
+            (channelUpRequested)="channelUpRequested.emit()"
+            (channelDownRequested)="channelDownRequested.emit()"
         />
     } @placeholder {
         <div class="web-player-defer-placeholder" aria-hidden="true"></div>
@@ -44,6 +52,7 @@
             [mediaTitle]="resolvedMediaTitle()"
             [volume]="volume()"
             [showCaptions]="showCaptions()"
+            [preferredQuality]="preferredQuality()"
             [isLive]="resolvedIsLive()"
             [interactionEnabled]="playbackInteractionEnabled()"
             [startTime]="startTime()"
@@ -51,8 +60,11 @@
             (timeUpdate)="timeUpdate.emit($event)"
             (playbackIssue)="handlePlaybackIssue($event)"
             (playbackEnded)="playbackEnded.emit()"
+            [channelNavigation]="channelNavigation()"
             (previousEpisodeRequested)="previousEpisodeRequested.emit()"
             (nextEpisodeRequested)="nextEpisodeRequested.emit()"
+            (channelUpRequested)="channelUpRequested.emit()"
+            (channelDownRequested)="channelDownRequested.emit()"
         />
     } @placeholder {
         <div class="web-player-defer-placeholder" aria-hidden="true"></div>
@@ -65,8 +77,11 @@
         [seriesNavigation]="seriesNavigation()"
         (timeUpdate)="timeUpdate.emit($event)"
         (playbackEnded)="playbackEnded.emit()"
+        [channelNavigation]="channelNavigation()"
         (previousEpisodeRequested)="previousEpisodeRequested.emit()"
         (nextEpisodeRequested)="nextEpisodeRequested.emit()"
+        (channelUpRequested)="channelUpRequested.emit()"
+        (channelDownRequested)="channelDownRequested.emit()"
     />
 } @else {
     @defer (on immediate) {
@@ -75,14 +90,18 @@
             [mediaTitle]="resolvedMediaTitle()"
             [volume]="volume()"
             [showCaptions]="showCaptions()"
+            [preferredQuality]="preferredQuality()"
             [interactionEnabled]="playbackInteractionEnabled()"
             [startTime]="startTime()"
             [seriesNavigation]="seriesNavigation()"
             (timeUpdate)="timeUpdate.emit($event)"
             (playbackIssue)="handlePlaybackIssue($event)"
             (playbackEnded)="playbackEnded.emit()"
+            [channelNavigation]="channelNavigation()"
             (previousEpisodeRequested)="previousEpisodeRequested.emit()"
             (nextEpisodeRequested)="nextEpisodeRequested.emit()"
+            (channelUpRequested)="channelUpRequested.emit()"
+            (channelDownRequested)="channelDownRequested.emit()"
         />
     } @placeholder {
         <div class="web-player-defer-placeholder" aria-hidden="true"></div>

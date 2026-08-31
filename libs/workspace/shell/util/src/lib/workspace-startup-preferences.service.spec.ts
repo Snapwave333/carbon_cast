@@ -1,11 +1,7 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
-import {
-    PlaylistsService,
-    RuntimeCapabilitiesService,
-    SettingsStore,
-} from '@iptvnator/services';
+import { PlaylistsService, SettingsStore } from '@iptvnator/services';
 import {
     DefaultWorkspacePage,
     StartupBehavior,
@@ -21,7 +17,6 @@ describe('WorkspaceStartupPreferencesService', () => {
         startupBehavior: ReturnType<typeof signal<StartupBehavior>>;
         defaultWorkspacePage: ReturnType<typeof signal<DefaultWorkspacePage>>;
     };
-    let runtime: { supportsDownloads: boolean };
 
     beforeEach(() => {
         localStorage.clear();
@@ -37,8 +32,6 @@ describe('WorkspaceStartupPreferencesService', () => {
             startupBehavior: signal(StartupBehavior.FirstView),
             defaultWorkspacePage: signal<DefaultWorkspacePage>('dashboard'),
         };
-        runtime = { supportsDownloads: true };
-
         TestBed.configureTestingModule({
             providers: [
                 WorkspaceStartupPreferencesService,
@@ -49,10 +42,6 @@ describe('WorkspaceStartupPreferencesService', () => {
                 {
                     provide: SettingsStore,
                     useValue: settingsStore,
-                },
-                {
-                    provide: RuntimeCapabilitiesService,
-                    useValue: runtime,
                 },
             ],
         });

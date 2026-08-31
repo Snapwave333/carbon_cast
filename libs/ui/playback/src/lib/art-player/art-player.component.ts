@@ -12,7 +12,12 @@ import {
     viewChild,
 } from '@angular/core';
 import Artplayer from 'artplayer';
-import { Channel, createDevLogger } from '@iptvnator/shared/interfaces';
+import {
+    Channel,
+    createDevLogger,
+    DEFAULT_PREFERRED_QUALITY,
+    type PreferredQuality,
+} from '@iptvnator/shared/interfaces';
 import type { PlaybackDiagnostic } from '../playback-diagnostics/playback-diagnostics.util';
 import {
     PlayerControlsComponent,
@@ -49,6 +54,9 @@ export class ArtPlayerComponent implements OnInit, OnDestroy, OnChanges {
     readonly channel = input.required<Channel>();
     readonly volume = input(1);
     readonly showCaptions = input(false);
+    readonly preferredQuality = input<PreferredQuality>(
+        DEFAULT_PREFERRED_QUALITY
+    );
     readonly startTime = input(0);
     readonly seriesNavigation = input<SeriesPlaybackNavigation | null>(null);
     readonly isLive = input(true);
@@ -63,6 +71,9 @@ export class ArtPlayerComponent implements OnInit, OnDestroy, OnChanges {
     readonly playbackEnded = output<void>();
     readonly previousEpisodeRequested = output<void>();
     readonly nextEpisodeRequested = output<void>();
+    readonly channelNavigation = input(false);
+    readonly channelUpRequested = output<void>();
+    readonly channelDownRequested = output<void>();
 
     readonly sharedControls = inject(WEB_PLAYER_SHARED_CONTROLS);
     readonly controlsAdapter = inject(WebVideoControlsAdapter);
@@ -103,7 +114,7 @@ export class ArtPlayerComponent implements OnInit, OnDestroy, OnChanges {
             this.initPlayer();
         }
 
-        if (changes['showCaptions']) {
+        if (changes['showCaptions'] || changes['preferredQuality']) {
             this.sourceSession?.refreshInputs();
         }
         if (changes['interactionEnabled']?.currentValue === false) {
@@ -135,6 +146,7 @@ export class ArtPlayerComponent implements OnInit, OnDestroy, OnChanges {
             controlsAdapter: this.controlsAdapter,
             isLive: () => this.isLive(),
             showCaptions: () => this.showCaptions(),
+            preferredQuality: () => this.preferredQuality(),
             emitPlaybackIssue: (issue) => this.playbackIssue.emit(issue),
             getDrm: () => this.channel().drm,
         });

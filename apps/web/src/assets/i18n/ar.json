@@ -219,6 +219,10 @@
         "GUIDE_ARTWORK": "صور دليل التلفاز",
         "GUIDE_ARTWORK_DESCRIPTION": "عرض صور البرامج والقنوات في دليل التلفاز. أوقفه للحصول على دليل نصي أكثر كثافة.",
         "TITLE": "الإعدادات",
+        "ESSENTIALS": "الأساسيات",
+        "ESSENTIALS_DESCRIPTION": "يتم عرض الإعدادات التي يحتاجها معظم المستخدمين فقط.",
+        "SHOW_ADVANCED": "إظهار الإعدادات المتقدمة",
+        "HIDE_ADVANCED": "إخفاء الإعدادات المتقدمة",
         "GENERAL": "عام",
         "GENERAL_SUBTITLE": "تغيير تكوين التطبيق",
         "PLAYBACK": "التشغيل",
@@ -316,6 +320,11 @@
         "PLAYER_AMBIENT_MODE_DESCRIPTION": "تعبئة المساحة حول المشغل بنسخة مشوشة ومعتمة من الملصق بدلاً من الخطوط السوداء.",
         "PLAYER_UP_NEXT_RAIL": "شريط الحلقات التالية",
         "PLAYER_UP_NEXT_RAIL_DESCRIPTION": "في النوافذ العريضة، تثبيت مشغل المسلسل على اليسار وعرض الحلقات القادمة بجانبه.",
+        "PREFERRED_QUALITY": "جودة الفيديو المفضلة",
+        "PREFERRED_QUALITY_DESCRIPTION": "الجودة التي تستهدفها المشغلات المدمجة في كل بث. تُشغَّل عمليات البث التي لا تتضمن هذه الدقة بأعلى جودة متاحة.",
+        "PREFERRED_QUALITY_2160P": "4K (2160p)",
+        "PREFERRED_QUALITY_1080P": "Full HD (1080p)",
+        "PREFERRED_QUALITY_AUTO": "تلقائي (تكيفي)",
         "STREAM_FORMAT_DESCRIPTION": "اختر تنسيق البث الافتراضي (xtream)",
         "LANGUAGE_DESCRIPTION": "اختر لغة التطبيق",
         "THEME_DESCRIPTION": "اختر السمة البصرية للتطبيق",
@@ -452,7 +461,31 @@
         "ATTRIBUTION": "Attribution",
         "ATTRIBUTION_DESCRIPTION": "CarbonCast IPTV is a fork of CarbonCast IPTV (github.com/4gray/iptvnator). The upstream project and its contributors are credited under the original license. CarbonCast IPTV is an independent fork and is not endorsed by the upstream maintainers.",
         "MIRROR_LAYOUT": "Mirror layout",
-        "MIRROR_LAYOUT_DESCRIPTION": "Put the player on the left and the channel/category rail on the right. Applies to the playlist player and Xtream/Stalker live views."
+        "MIRROR_LAYOUT_DESCRIPTION": "Put the player on the left and the channel/category rail on the right. Applies to the playlist player and Xtream/Stalker live views.",
+        "NAV_NETWORK": "Network",
+        "PROXY": "Proxy",
+        "PROXY_DESCRIPTION": "Route this app’s streaming through a proxy so region-locked channels resolve from another country. Only CarbonCast IPTV is affected — the rest of your system keeps its normal connection.",
+        "PROXY_ENABLED": "Route streaming through a proxy",
+        "PROXY_ENABLED_DESCRIPTION": "Applies immediately. Playlist and EPG downloads keep their direct route; only the player’s stream requests are proxied.",
+        "PROXY_SERVER": "Proxy server",
+        "PROXY_SERVER_DESCRIPTION": "Most VPN providers publish a SOCKS5 endpoint you can use here.",
+        "PROXY_PROTOCOL": "Type",
+        "PROXY_HOST": "Host",
+        "PROXY_PORT": "Port",
+        "PROXY_CREDENTIALS": "Credentials",
+        "PROXY_CREDENTIALS_DESCRIPTION": "Leave blank if the proxy needs no sign-in.",
+        "PROXY_USERNAME": "Username",
+        "PROXY_PASSWORD": "Password",
+        "PROXY_BYPASS": "Bypass list",
+        "PROXY_BYPASS_DESCRIPTION": "Hosts that skip the proxy, comma separated. Loopback and local network addresses are always bypassed.",
+        "PROXY_BYPASS_LABEL": "Bypass hosts",
+        "PROXY_TEST": "Test connection",
+        "PROXY_TEST_DESCRIPTION": "Dials the proxy and reports the exit address your streams will appear to come from. Contacts ipinfo.io.",
+        "PROXY_TEST_ACTION": "Test connection",
+        "PROXY_TEST_OK": "Connected — exit",
+        "PROXY_TEST_FAILED": "Could not reach the proxy.",
+        "PROXY_TEST_INCOMPLETE": "Enter a proxy host first.",
+        "PROXY_TEST_DESKTOP_ONLY": "Proxy support requires the desktop app."
     },
     "THEMES": {
         "DARK_THEME": "داكن",
@@ -497,6 +530,9 @@
             "AUDIO_TRACK_FALLBACK": "صوت {{index}}",
             "SUBTITLE_TRACK_FALLBACK": "ترجمة {{index}}",
             "PLAYBACK_SPEED": "سرعة التشغيل",
+            "QUALITY": "الجودة",
+            "QUALITY_TOOLTIP": "الجودة: {{quality}}",
+            "QUALITY_AUTO": "تلقائي",
             "SPEED_TOOLTIP": "السرعة: {{speed}}",
             "ASPECT_RATIO": "نسبة العرض إلى الارتفاع",
             "ASPECT_TOOLTIP": "النسبة: {{aspect}}",
@@ -656,7 +692,9 @@
             "SEARCH_PLACEHOLDER": "بحث في المجموعات...",
             "NO_RESULTS": "لم يتم العثور على مجموعات مطابقة",
             "SAVE": "حفظ"
-        }
+        },
+        "CHANNEL_UP": "القناة التالية",
+        "CHANNEL_DOWN": "القناة السابقة"
     },
     "TOP_MENU": {
         "OPEN_MULTI_EPG": "فتح عرض Multi-EPG"
@@ -749,7 +787,10 @@
             "ZOOM_DETAIL": "تفصيلي",
             "GROUP_SHORT": "برامج قصيرة",
             "GROUP_EXPAND": "عرض ›"
-        }
+        },
+        "NOT_IN_PLAYLIST": "ليس في القائمة",
+        "CHANNEL_NOT_IN_PLAYLIST": "\"{{channel}}\" ليس في قائمة التشغيل هذه",
+        "PROGRAM_INFO": "تفاصيل البرنامج"
     },
     "EPG_MAPPING_DIALOG": {
         "TITLE": "ربط قناة دليل البرامج (EPG)",

@@ -21,15 +21,15 @@
         minmax(var(--cover-grid-min-width, 148px), 1fr)
     );
     gap: var(--cover-gap, 16px);
-    padding: 16px;
+    padding: var(--app-content-gutter);
     align-content: start;
 }
 
 .collection-header {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 10px 16px;
+    gap: var(--app-space-3);
+    padding: var(--app-space-2) var(--app-content-gutter);
     flex-shrink: 0;
     border-bottom: 1px solid var(--app-separator);
 }
@@ -48,7 +48,7 @@
 .collection-header-toggles {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: var(--app-space-3);
     margin-left: auto;
 }
 
@@ -97,7 +97,7 @@ app-unified-live-tab {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 64px 24px;
+    padding: var(--app-empty-state-padding) var(--app-content-gutter);
     flex: 1;
     text-align: center;
     color: var(--mat-sys-on-surface-variant);
@@ -106,7 +106,7 @@ app-unified-live-tab {
         font-size: 56px;
         height: 56px;
         width: 56px;
-        margin-bottom: 16px;
+        margin-bottom: var(--app-space-4);
         opacity: 0.4;
     }
 

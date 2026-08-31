@@ -1,11 +1,10 @@
 import { buildPortalRailLinks } from './portal-rail-links';
 
 describe('buildPortalRailLinks', () => {
-    it('builds Xtream links with scoped tooltip labels when downloads are supported', () => {
+    it('builds Xtream links with scoped tooltip labels', () => {
         const links = buildPortalRailLinks({
             provider: 'xtreams',
             playlistId: 'xtream-1',
-            supportsDownloads: true,
             workspace: false,
         });
 
@@ -17,18 +16,15 @@ describe('buildPortalRailLinks', () => {
         expect(links.secondary.map((link) => link.section)).toEqual([
             'recently-added',
             'search',
-            'downloads',
         ]);
 
         expect(links.primary[0]?.tooltip).toBe('Movies (this playlist)');
-        expect(links.secondary[2]?.tooltip).toBe('Downloads (this playlist)');
     });
 
-    it('builds workspace Xtream content links on web without downloads', () => {
+    it('builds workspace Xtream content links', () => {
         const links = buildPortalRailLinks({
             provider: 'xtreams',
             playlistId: 'xtream-web',
-            supportsDownloads: false,
             workspace: true,
         });
 
@@ -41,16 +37,12 @@ describe('buildPortalRailLinks', () => {
             'recently-added',
             'search',
         ]);
-        expect(
-            links.secondary.some((link) => link.section === 'downloads')
-        ).toBe(false);
     });
 
     it('builds workspace Stalker links with scoped tooltip labels on web', () => {
         const links = buildPortalRailLinks({
             provider: 'stalker',
             playlistId: 'portal-1',
-            supportsDownloads: false,
             workspace: true,
         });
 
@@ -65,16 +57,12 @@ describe('buildPortalRailLinks', () => {
         expect(links.primary[1]?.tooltip).toBe('Live TV (this playlist)');
         expect(links.primary[2]?.tooltip).toBe('Radio (this playlist)');
         expect(links.secondary[0]?.tooltip).toBe('Search (this playlist)');
-        expect(
-            links.secondary.some((link) => link.section === 'downloads')
-        ).toBe(false);
     });
 
     it('builds M3U playlist links with scoped tooltip labels', () => {
         const links = buildPortalRailLinks({
             provider: 'playlists',
             playlistId: 'm3u-1',
-            supportsDownloads: true,
             workspace: true,
         });
 
@@ -88,7 +76,7 @@ describe('buildPortalRailLinks', () => {
             },
             {
                 icon: 'folder',
-                tooltip: 'Groups (this playlist)',
+                tooltip: 'Categories (this playlist)',
                 path: ['/workspace', 'playlists', 'm3u-1', 'groups'],
                 exact: true,
                 section: 'groups',
@@ -102,13 +90,6 @@ describe('buildPortalRailLinks', () => {
                 exact: true,
                 section: 'favorites',
             },
-            {
-                icon: 'history',
-                tooltip: 'Recently viewed (this playlist)',
-                path: ['/workspace', 'playlists', 'm3u-1', 'recent'],
-                exact: true,
-                section: 'recent',
-            },
         ]);
     });
 
@@ -116,7 +97,6 @@ describe('buildPortalRailLinks', () => {
         const links = buildPortalRailLinks({
             provider: 'playlists',
             playlistId: 'm3u-1',
-            supportsDownloads: true,
             supportsEpg: true,
             workspace: true,
         });
@@ -128,22 +108,23 @@ describe('buildPortalRailLinks', () => {
             exact: true,
             section: 'guide',
         });
-        expect(
-            links.primary.map((link) => link.section)
-        ).toEqual(['guide', 'all', 'groups']);
+        expect(links.primary.map((link) => link.section)).toEqual([
+            'guide',
+            'all',
+            'groups',
+        ]);
     });
 
     it('hides the TV guide tab on runtimes without the EPG stack', () => {
         const links = buildPortalRailLinks({
             provider: 'playlists',
             playlistId: 'm3u-1',
-            supportsDownloads: true,
             supportsEpg: false,
             workspace: true,
         });
 
-        expect(
-            links.primary.some((link) => link.section === 'guide')
-        ).toBe(false);
+        expect(links.primary.some((link) => link.section === 'guide')).toBe(
+            false
+        );
     });
 });

@@ -18,7 +18,6 @@ import {
 import { StalkerStore } from '@iptvnator/portal/stalker/data-access';
 import { XtreamStore } from '@iptvnator/portal/xtream/data-access';
 import {
-    DownloadsService,
     PlaylistsService,
     RuntimeCapabilitiesService,
     SettingsStore,
@@ -130,6 +129,7 @@ describe('WorkspaceShellFacade', () => {
     };
     let workspaceActions: {
         openAddPlaylistDialog: jest.Mock;
+        openMergePlaylistsDialog: jest.Mock;
         openGlobalSearch: jest.Mock;
         openGlobalRecent: jest.Mock;
         openAccountInfo: jest.Mock;
@@ -139,7 +139,6 @@ describe('WorkspaceShellFacade', () => {
         typeof signal<PlaylistSignalMeta | null>
     >;
     let playlistsSignal: ReturnType<typeof signal<PlaylistSignalMeta[]>>;
-    let downloadsActiveCountSignal: ReturnType<typeof signal<number>>;
     let refreshPreparationSignal: ReturnType<
         typeof signal<XtreamRefreshPreparationState | null>
     >;
@@ -153,7 +152,6 @@ describe('WorkspaceShellFacade', () => {
     let runtime: {
         isElectron: boolean;
         isMacOS: boolean;
-        supportsDownloads: boolean;
     };
 
     beforeEach(() => {
@@ -161,7 +159,6 @@ describe('WorkspaceShellFacade', () => {
         runtime = {
             isElectron: true,
             isMacOS: true,
-            supportsDownloads: true,
         };
 
         activePlaylistSignal = signal({
@@ -174,7 +171,6 @@ describe('WorkspaceShellFacade', () => {
             { _id: 'pl-1', serverUrl: 'http://example.com' },
             { _id: 'pl-2', macAddress: '00:11:22:33' },
         ]);
-        downloadsActiveCountSignal = signal(0);
         refreshPreparationSignal = signal<XtreamRefreshPreparationState | null>(
             null
         );
@@ -204,6 +200,7 @@ describe('WorkspaceShellFacade', () => {
         };
         workspaceActions = {
             openAddPlaylistDialog: jest.fn(),
+            openMergePlaylistsDialog: jest.fn(),
             openGlobalSearch: jest.fn(),
             openGlobalRecent: jest.fn(),
             openAccountInfo: jest.fn(),
@@ -293,12 +290,6 @@ describe('WorkspaceShellFacade', () => {
                 {
                     provide: PlaylistsService,
                     useValue: playlistsService,
-                },
-                {
-                    provide: DownloadsService,
-                    useValue: {
-                        activeCount: downloadsActiveCountSignal,
-                    },
                 },
                 {
                     provide: MatDialog,
@@ -522,14 +513,14 @@ describe('WorkspaceShellFacade', () => {
     it('keeps stalker local-filter routes on the same page and syncs q', () => {
         router.navigate.mockClear();
         router.navigateByUrl.mockClear();
-        facade.currentUrl.set('/workspace/stalker/pl-1/downloads');
+        facade.currentUrl.set('/workspace/stalker/pl-1/vod');
 
         facade.onSearchEnter('Neo');
         TestBed.flushEffects();
 
         expect(router.navigate).not.toHaveBeenCalled();
         expect(router.navigateByUrl).toHaveBeenCalledWith(
-            '/workspace/stalker/pl-1/downloads?q=Neo',
+            '/workspace/stalker/pl-1/vod?q=Neo',
             {
                 replaceUrl: true,
             }
@@ -665,35 +656,14 @@ describe('WorkspaceShellFacade', () => {
         );
     });
 
-    it('drops the sources tile the brand duplicates when dashboard is hidden', () => {
+    it('keeps the bottom dock focused on viewing destinations when dashboard is hidden', () => {
         showDashboardSignal.set(false);
 
-        // Brand → sources (first available), so the sources tile is filtered
-        // out to avoid two rail buttons leading to the same place. Radio sits
-        // with the content sources, ahead of the personal collections.
         expect(facade.workspaceLinks()).toEqual([
-            {
-                icon: 'search',
-                tooltip: 'WORKSPACE.SHELL.RAIL_GLOBAL_SEARCH',
-                path: ['/workspace/search'],
-                exact: true,
-            },
             {
                 icon: 'radio',
                 tooltip: 'WORKSPACE.SHELL.RAIL_RADIO_PODCASTS',
                 path: ['/workspace/radio'],
-                exact: true,
-            },
-            {
-                icon: 'favorite',
-                tooltip: 'HOME.PLAYLISTS.GLOBAL_FAVORITES',
-                path: ['/workspace/global-favorites'],
-                exact: true,
-            },
-            {
-                icon: 'history',
-                tooltip: 'WORKSPACE.SHELL.RAIL_GLOBAL_RECENT',
-                path: ['/workspace/global-recent'],
                 exact: true,
             },
             {
@@ -706,15 +676,12 @@ describe('WorkspaceShellFacade', () => {
         expect(facade.brandLink()).toBe('/workspace/sources');
     });
 
-    it('hides the Electron-only global search rail link in the web runtime', () => {
+    it('uses the same focused bottom dock in the web runtime', () => {
         runtime.isElectron = false;
         showDashboardSignal.set(false);
 
-        // Sources filtered (brand target); radio leads the remaining tiles.
         expect(facade.workspaceLinks().map((link) => link.path)).toEqual([
             ['/workspace/radio'],
-            ['/workspace/global-favorites'],
-            ['/workspace/global-recent'],
             ['/workspace/followed-series'],
         ]);
     });
@@ -742,7 +709,6 @@ describe('WorkspaceShellFacade', () => {
         expect(commands.map((command) => command.id)).toEqual([
             'open-global-favorites',
             'open-global-recent',
-            'open-downloads',
             'open-settings',
             'open-sources',
             'add-playlist-stalker',
@@ -811,19 +777,6 @@ describe('WorkspaceShellFacade', () => {
         expect(
             facade.commandPaletteCommands().map((command) => command.id)
         ).not.toContain('global-search');
-    });
-
-    it('hides the downloads command when downloads are unsupported', () => {
-        runtime.supportsDownloads = false;
-        activePlaylistSignal.set(null);
-        playlistsSignal.set([]);
-        facade.currentUrl.set('/workspace/dashboard');
-
-        const commands = facade.commandPaletteCommands();
-
-        expect(commands.map((command) => command.id)).not.toContain(
-            'open-downloads'
-        );
     });
 
     it('includes M3U navigation, playlist actions, and Multi-EPG on playlist routes', () => {

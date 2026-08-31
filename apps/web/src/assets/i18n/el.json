@@ -219,6 +219,10 @@
         "GUIDE_ARTWORK": "Εικόνες στον οδηγό TV",
         "GUIDE_ARTWORK_DESCRIPTION": "Εμφάνιση εικόνων προγραμμάτων και καναλιών στον οδηγό TV. Απενεργοποιήστε για πιο πυκνό οδηγό μόνο με κείμενο.",
         "TITLE": "Ρυθμίσεις",
+        "ESSENTIALS": "Βασικές ρυθμίσεις",
+        "ESSENTIALS_DESCRIPTION": "Εμφανίζονται μόνο οι ρυθμίσεις που χρειάζονται οι περισσότεροι χρήστες.",
+        "SHOW_ADVANCED": "Εμφάνιση σύνθετων ρυθμίσεων",
+        "HIDE_ADVANCED": "Απόκρυψη σύνθετων ρυθμίσεων",
         "GENERAL": "Γενικά",
         "GENERAL_SUBTITLE": "Αλλαγή της διαμόρφωσης της εφαρμογής",
         "PLAYBACK": "Αναπαραγωγή",
@@ -316,6 +320,11 @@
         "PLAYER_AMBIENT_MODE_DESCRIPTION": "Γεμίστε το χώρο γύρω από τον αναπαραγωγό με θολωμένη, σκοτεινή αφίσα αντί για απλές μαύρες ράβδους.",
         "PLAYER_UP_NEXT_RAIL": "Λίστα επόμενων επεισοδίων",
         "PLAYER_UP_NEXT_RAIL_DESCRIPTION": "Σε πλατιά παράθυρα, ο αναπαραγωγός σειρών αγκυρώνεται στα αριστερά και τα επόμενα επεισόδια εμφανίζονται δίπλα του.",
+        "PREFERRED_QUALITY": "Προτιμώμενη ποιότητα βίντεο",
+        "PREFERRED_QUALITY_DESCRIPTION": "Η ποιότητα που στοχεύουν οι ενσωματωμένες συσκευές αναπαραγωγής σε κάθε ροή. Οι ροές χωρίς αυτή την ανάλυση αναπαράγονται στην υψηλότερη διαθέσιμη.",
+        "PREFERRED_QUALITY_2160P": "4K (2160p)",
+        "PREFERRED_QUALITY_1080P": "Full HD (1080p)",
+        "PREFERRED_QUALITY_AUTO": "Αυτόματη (προσαρμοστική)",
         "STREAM_FORMAT_DESCRIPTION": "Επιλογή προεπιλεγμένης μορφής ροής (xtream)",
         "LANGUAGE_DESCRIPTION": "Επιλέξτε τη γλώσσα της εφαρμογής",
         "THEME_DESCRIPTION": "Επιλέξτε οπτικό θέμα της εφαρμογής",
@@ -452,7 +461,31 @@
         "ATTRIBUTION": "Attribution",
         "ATTRIBUTION_DESCRIPTION": "CarbonCast IPTV is a fork of CarbonCast IPTV (github.com/4gray/iptvnator). The upstream project and its contributors are credited under the original license. CarbonCast IPTV is an independent fork and is not endorsed by the upstream maintainers.",
         "MIRROR_LAYOUT": "Mirror layout",
-        "MIRROR_LAYOUT_DESCRIPTION": "Put the player on the left and the channel/category rail on the right. Applies to the playlist player and Xtream/Stalker live views."
+        "MIRROR_LAYOUT_DESCRIPTION": "Put the player on the left and the channel/category rail on the right. Applies to the playlist player and Xtream/Stalker live views.",
+        "NAV_NETWORK": "Network",
+        "PROXY": "Proxy",
+        "PROXY_DESCRIPTION": "Route this app’s streaming through a proxy so region-locked channels resolve from another country. Only CarbonCast IPTV is affected — the rest of your system keeps its normal connection.",
+        "PROXY_ENABLED": "Route streaming through a proxy",
+        "PROXY_ENABLED_DESCRIPTION": "Applies immediately. Playlist and EPG downloads keep their direct route; only the player’s stream requests are proxied.",
+        "PROXY_SERVER": "Proxy server",
+        "PROXY_SERVER_DESCRIPTION": "Most VPN providers publish a SOCKS5 endpoint you can use here.",
+        "PROXY_PROTOCOL": "Type",
+        "PROXY_HOST": "Host",
+        "PROXY_PORT": "Port",
+        "PROXY_CREDENTIALS": "Credentials",
+        "PROXY_CREDENTIALS_DESCRIPTION": "Leave blank if the proxy needs no sign-in.",
+        "PROXY_USERNAME": "Username",
+        "PROXY_PASSWORD": "Password",
+        "PROXY_BYPASS": "Bypass list",
+        "PROXY_BYPASS_DESCRIPTION": "Hosts that skip the proxy, comma separated. Loopback and local network addresses are always bypassed.",
+        "PROXY_BYPASS_LABEL": "Bypass hosts",
+        "PROXY_TEST": "Test connection",
+        "PROXY_TEST_DESCRIPTION": "Dials the proxy and reports the exit address your streams will appear to come from. Contacts ipinfo.io.",
+        "PROXY_TEST_ACTION": "Test connection",
+        "PROXY_TEST_OK": "Connected — exit",
+        "PROXY_TEST_FAILED": "Could not reach the proxy.",
+        "PROXY_TEST_INCOMPLETE": "Enter a proxy host first.",
+        "PROXY_TEST_DESKTOP_ONLY": "Proxy support requires the desktop app."
     },
     "THEMES": {
         "DARK_THEME": "Σκούρο",
@@ -497,6 +530,9 @@
             "AUDIO_TRACK_FALLBACK": "Ήχος {{index}}",
             "SUBTITLE_TRACK_FALLBACK": "Υπότιτλος {{index}}",
             "PLAYBACK_SPEED": "Ταχύτητα αναπαραγωγής",
+            "QUALITY": "Ποιότητα",
+            "QUALITY_TOOLTIP": "Ποιότητα: {{quality}}",
+            "QUALITY_AUTO": "Αυτόματη",
             "SPEED_TOOLTIP": "Ταχύτητα: {{speed}}",
             "ASPECT_RATIO": "Αναλογία εικόνας",
             "ASPECT_TOOLTIP": "Αναλογία: {{aspect}}",
@@ -656,7 +692,9 @@
             "SEARCH_PLACEHOLDER": "Αναζήτηση ομάδων...",
             "NO_RESULTS": "Δεν βρέθηκαν αντίστοιχες ομάδες",
             "SAVE": "Αποθήκευση"
-        }
+        },
+        "CHANNEL_UP": "Επόμενο κανάλι",
+        "CHANNEL_DOWN": "Προηγούμενο κανάλι"
     },
     "TOP_MENU": {
         "OPEN_MULTI_EPG": "Άνοιγμα προβολής Πολλαπλού EPG"
@@ -749,7 +787,10 @@
             "ZOOM_DETAIL": "Λεπτομερής",
             "GROUP_SHORT": "σύντομα προγρ.",
             "GROUP_EXPAND": "εμφάνιση ›"
-        }
+        },
+        "NOT_IN_PLAYLIST": "Εктός λίστας",
+        "CHANNEL_NOT_IN_PLAYLIST": "Το «{{channel}}» δεν είναι σε αυτή τη λίστα",
+        "PROGRAM_INFO": "Λεπτομέρειες προγράμματος"
     },
     "EPG_MAPPING_DIALOG": {
         "TITLE": "Αντιστοίχιση καναλιού EPG",

@@ -146,7 +146,7 @@ describe('RuntimeCapabilitiesService', () => {
         expect(service.supportsEpg).toBe(true);
         expect(service.supportsSqlite).toBe(true);
         expect(service.supportsXtreamSqliteDataSource).toBe(true);
-        expect(service.supportsDownloads).toBe(true);
+        expect(service.supportsDownloads).toBe(false);
         expect(service.supportsPortalActivityStorage).toBe(true);
         expect(service.supportsPlaybackPositionStorage).toBe(true);
         expect(service.supportsPlaybackPositionUpdates).toBe(true);
@@ -355,7 +355,7 @@ describe('RuntimeCapabilitiesService', () => {
         expect(service.supportsEpgProgramSearch).toBe(false);
     });
 
-    it('requires the complete downloads preload surface', () => {
+    it('keeps offline media downloads unavailable even with a legacy preload', () => {
         testWindow.electron = {
             downloadsGetList: jest.fn(),
         };
@@ -382,7 +382,7 @@ describe('RuntimeCapabilitiesService', () => {
             onDownloadsUpdate: jest.fn(),
         };
 
-        expect(service.supportsDownloads).toBe(true);
+        expect(service.supportsDownloads).toBe(false);
     });
 
     it('requires both desktop file-save preload methods', () => {

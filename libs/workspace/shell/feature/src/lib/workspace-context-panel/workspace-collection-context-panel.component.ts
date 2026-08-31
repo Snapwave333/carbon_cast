@@ -1,6 +1,9 @@
 import { Component, computed, inject } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
-import { PortalCollectionContextService } from '@iptvnator/portal/shared/util';
+import {
+    PortalCollectionContextService,
+    sortPortalCategoryItems,
+} from '@iptvnator/portal/shared/util';
 import { WorkspaceContextCategoryViewComponent } from './components/workspace-context-category-view.component';
 
 /**
@@ -42,7 +45,7 @@ import { WorkspaceContextCategoryViewComponent } from './components/workspace-co
             <div class="context-divider"></div>
 
             <app-workspace-context-category-view
-                [items]="ctx.categories()"
+                [items]="orderedCategories()"
                 [selectedCategoryId]="ctx.selectedCategoryId()"
                 (categoryClicked)="onCategoryClicked($event)"
             />
@@ -52,6 +55,21 @@ import { WorkspaceContextCategoryViewComponent } from './components/workspace-co
 })
 export class WorkspaceCollectionContextPanelComponent {
     readonly ctx = inject(PortalCollectionContextService);
+
+    readonly orderedCategories = computed(() =>
+        sortPortalCategoryItems(
+            this.ctx.categories(),
+            'name-asc',
+            (category) => category.category_name,
+            (category) =>
+                String(category.category_id ?? category.id)
+                    .trim()
+                    .toLocaleLowerCase() === 'all' ||
+                /^all(?:\s+(?:items?|channels?|categories|movies|shows|series|radio))?$/i.test(
+                    String(category.category_name ?? '').trim()
+                )
+        )
+    );
 
     readonly selectedCategory = computed(() => {
         const categories = this.ctx.categories();

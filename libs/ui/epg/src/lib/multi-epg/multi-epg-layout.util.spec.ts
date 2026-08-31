@@ -23,6 +23,22 @@ function program(title: string, start: string, stop: string) {
 }
 
 describe('layoutEpgChannelsForDay', () => {
+    it('omits source-only rows when the host marks them unavailable', () => {
+        const rows = layoutEpgChannelsForDay(
+            [
+                { ...channel, id: 'playable' },
+                { ...channel, id: 'source-only' },
+            ],
+            '20260812',
+            120,
+            new Map(),
+            (item) => item.id === 'playable'
+        );
+
+        expect(rows).toHaveLength(1);
+        expect(rows[0].id).toBe('playable');
+    });
+
     it('keeps and clips programmes that cross into the selected day', () => {
         const [laidOut] = layoutEpgChannelsForDay(
             [
@@ -92,6 +108,66 @@ describe('layoutEpgChannelsForDay', () => {
         );
 
         expect(laidOut.programs).toEqual([]);
+    });
+
+    it('groups guide rows by programme category before channel name', () => {
+        const channels = layoutEpgChannelsForDay(
+            [
+                {
+                    ...channel,
+                    id: 'news-z',
+                    displayName: 'Zulu News',
+                    programs: [
+                        {
+                            ...program(
+                                'News hour',
+                                '2026-08-12T09:00:00',
+                                '2026-08-12T10:00:00'
+                            ),
+                            category: 'News',
+                        },
+                    ],
+                },
+                {
+                    ...channel,
+                    id: 'movie-a',
+                    displayName: 'Alpha Movies',
+                    programs: [
+                        {
+                            ...program(
+                                'Film',
+                                '2026-08-12T09:00:00',
+                                '2026-08-12T10:00:00'
+                            ),
+                            category: 'Movies',
+                        },
+                    ],
+                },
+                {
+                    ...channel,
+                    id: 'movie-b',
+                    displayName: 'Bravo Movies',
+                    programs: [
+                        {
+                            ...program(
+                                'Film',
+                                '2026-08-12T09:00:00',
+                                '2026-08-12T10:00:00'
+                            ),
+                            category: 'Movies',
+                        },
+                    ],
+                },
+            ],
+            '20260812',
+            120
+        );
+
+        expect(channels.map((item) => item.id)).toEqual([
+            'movie-a',
+            'movie-b',
+            'news-z',
+        ]);
     });
 
     it('builds an accessible programme label with its original times', () => {

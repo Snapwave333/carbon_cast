@@ -17,6 +17,32 @@ export const TMDB_STILL_SIZE = 'w300';
  */
 export const DEFAULT_TMDB_API_KEY = '';
 
+/**
+ * Cleans a key as typed into settings. TMDB's own dashboard labels the v4
+ * token "API Read Access Token" and users paste it the way it is used in
+ * curl examples — with a leading `Bearer `, sometimes wrapped in quotes.
+ * That prefix stops the JWT detection below from firing, the token is sent
+ * as a v3 `api_key` query param instead, and TMDB answers 401 for what is
+ * actually a valid key. Strip it here so every caller sees the bare key.
+ */
+export function normalizeTmdbApiKey(
+    apiKey: string | null | undefined
+): string {
+    // Quotes come off first: a `'Bearer eyJ…'` paste hides the prefix from
+    // the Bearer match until the surrounding quote is gone
+    return (apiKey ?? '')
+        .trim()
+        .replace(/^["']|["']$/g, '')
+        .trim()
+        .replace(/^bearer\s+/i, '')
+        .trim();
+}
+
+/** A v4 read access token is a JWT; v3 keys are opaque hex strings */
+export function isTmdbBearerToken(apiKey: string): boolean {
+    return apiKey.startsWith('eyJ');
+}
+
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 /** How long cached TMDB details payloads stay fresh */

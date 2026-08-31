@@ -1,4 +1,8 @@
 import { Component, input, output } from '@angular/core';
+import {
+    DEFAULT_PREFERRED_QUALITY,
+    type PreferredQuality,
+} from '@iptvnator/shared/interfaces';
 import type { PlaybackDiagnostic } from '../playback-diagnostics/playback-diagnostics.util';
 
 /**
@@ -13,6 +17,9 @@ export class StubVjsPlayerComponent {
     readonly mediaTitle = input<unknown>(null);
     readonly volume = input(1);
     readonly showCaptions = input(false);
+    readonly preferredQuality = input<PreferredQuality>(
+        DEFAULT_PREFERRED_QUALITY
+    );
     readonly interactionEnabled = input(true);
     readonly startTime = input(0);
     readonly seriesNavigation = input<unknown>(null);
@@ -21,6 +28,9 @@ export class StubVjsPlayerComponent {
     readonly playbackEnded = output<void>();
     readonly previousEpisodeRequested = output<void>();
     readonly nextEpisodeRequested = output<void>();
+    readonly channelNavigation = input(false);
+    readonly channelUpRequested = output<void>();
+    readonly channelDownRequested = output<void>();
 }
 
 @Component({ selector: 'app-html-video-player', template: '' })
@@ -29,6 +39,9 @@ export class StubHtmlVideoPlayerComponent {
     readonly mediaTitle = input<unknown>(null);
     readonly volume = input(1);
     readonly showCaptions = input(false);
+    readonly preferredQuality = input<PreferredQuality>(
+        DEFAULT_PREFERRED_QUALITY
+    );
     readonly isLive = input(true);
     readonly interactionEnabled = input(true);
     readonly startTime = input(0);
@@ -38,6 +51,9 @@ export class StubHtmlVideoPlayerComponent {
     readonly playbackEnded = output<void>();
     readonly previousEpisodeRequested = output<void>();
     readonly nextEpisodeRequested = output<void>();
+    readonly channelNavigation = input(false);
+    readonly channelUpRequested = output<void>();
+    readonly channelDownRequested = output<void>();
 }
 
 @Component({ selector: 'app-art-player', template: '' })
@@ -46,6 +62,9 @@ export class StubArtPlayerComponent {
     readonly mediaTitle = input<unknown>(null);
     readonly volume = input(1);
     readonly showCaptions = input(false);
+    readonly preferredQuality = input<PreferredQuality>(
+        DEFAULT_PREFERRED_QUALITY
+    );
     readonly isLive = input(true);
     readonly interactionEnabled = input(true);
     readonly startTime = input(0);
@@ -55,6 +74,9 @@ export class StubArtPlayerComponent {
     readonly playbackEnded = output<void>();
     readonly previousEpisodeRequested = output<void>();
     readonly nextEpisodeRequested = output<void>();
+    readonly channelNavigation = input(false);
+    readonly channelUpRequested = output<void>();
+    readonly channelDownRequested = output<void>();
 }
 
 @Component({ selector: 'app-embedded-mpv-player', template: '' })
@@ -67,4 +89,7 @@ export class StubEmbeddedMpvPlayerComponent {
     readonly playbackEnded = output<void>();
     readonly previousEpisodeRequested = output<void>();
     readonly nextEpisodeRequested = output<void>();
+    readonly channelNavigation = input(false);
+    readonly channelUpRequested = output<void>();
+    readonly channelDownRequested = output<void>();
 }

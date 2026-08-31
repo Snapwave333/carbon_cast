@@ -3,8 +3,10 @@ import { Component, input, output, ViewEncapsulation } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslateModule } from '@ngx-translate/core';
 import { CoverSize, Language } from '@iptvnator/shared/interfaces';
 import {
@@ -21,7 +23,9 @@ import {
         MatCheckboxModule,
         MatFormFieldModule,
         MatIconModule,
+        MatInputModule,
         MatSelectModule,
+        MatTooltipModule,
         ReactiveFormsModule,
         TranslateModule,
     ],
@@ -32,6 +36,7 @@ import {
 export class SettingsGeneralSectionComponent {
     readonly form = input.required<FormGroup>();
     readonly activeSection = input.required<string>();
+    readonly showAdvanced = input(false);
     readonly languageEnum = input.required<typeof Language>();
     readonly coverSizeOptions = input.required<CoverSizeOption[]>();
     readonly startupBehaviorOptions = input.required<StartupBehaviorOption[]>();

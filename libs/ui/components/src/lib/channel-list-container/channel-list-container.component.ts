@@ -38,8 +38,10 @@ import {
     PlaylistRecentlyViewedItem,
 } from '@iptvnator/shared/interfaces';
 import {
-    expandChannelCategories,
+    applyChannelContentFilter,
+    isExplicitlyNonUsChannel,
     isSpanishLanguageChannel,
+    resolveChannelCategories,
 } from '@iptvnator/shared/m3u-utils';
 import { ChannelGroup } from './channel-group.model';
 import { ChannelListEpgController } from './channel-list-epg.controller';
@@ -55,9 +57,7 @@ function groupChannelsByCategory(channels: Channel[]): ChannelGroup[] {
     const buckets = new Map<string, { label: string; channels: Channel[] }>();
 
     for (const channel of channels) {
-        for (const { key, label } of expandChannelCategories(
-            channel.group?.title
-        )) {
+        for (const { key, label } of resolveChannelCategories(channel)) {
             let bucket = buckets.get(key);
             if (!bucket) {
                 bucket = { label, channels: [] };
@@ -110,9 +110,7 @@ export class ChannelListContainerComponent implements OnInit, OnDestroy {
      * EPG side-car state. Declared after `channelListSignal` so the controller
      * receives an initialized signal.
      */
-    private readonly epg = new ChannelListEpgController(
-        this.channelListSignal
-    );
+    private readonly epg = new ChannelListEpgController(this.channelListSignal);
     readonly channelEpgMap = this.epg.channelEpgMap;
     readonly channelIconMap = this.epg.channelIconMap;
     readonly playlistEpgUrls = this.epg.playlistEpgUrls;
@@ -181,17 +179,32 @@ export class ChannelListContainerComponent implements OnInit, OnDestroy {
         return playlist.hiddenGroupTitles ?? [];
     });
 
-    /** Channels the views render, minus the ones the language filter hides. */
+    /**
+     * Channels the views render, minus the countries, languages and
+     * categories hidden by default.
+     */
     readonly displayedChannels = computed(() => {
         const channels = this.channelListSignal();
-        if (!this.settingsStore.hideSpanishChannels?.()) {
-            return channels;
-        }
+        const hideSpanishChannels =
+            this.settingsStore.hideSpanishChannels?.() === true;
+        const hideNonUsChannels =
+            this.settingsStore.hideNonUsChannels?.() ?? true;
 
-        return channels.filter(
+        const byRegionAndLanguage = channels.filter(
             (channel) =>
-                !isSpanishLanguageChannel(channel.name, channel.group?.title)
+                (!hideNonUsChannels || !isExplicitlyNonUsChannel(channel)) &&
+                (!hideSpanishChannels ||
+                    !isSpanishLanguageChannel(
+                        channel.name,
+                        channel.group?.title
+                    ))
         );
+
+        return applyChannelContentFilter(byRegionAndLanguage, {
+            hideReligious: this.settingsStore.hideReligiousChannels?.() ?? true,
+            localNewsOnly: this.settingsStore.localNewsOnly?.() ?? true,
+            homeCountry: this.settingsStore.homeCountryCode?.(),
+        });
     });
 
     /** Channels merged into canonical, de-duplicated category buckets */

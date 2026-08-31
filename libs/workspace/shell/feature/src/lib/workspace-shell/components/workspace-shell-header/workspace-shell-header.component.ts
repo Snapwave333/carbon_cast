@@ -2,16 +2,27 @@ import {
     ChangeDetectionStrategy,
     Component,
     ElementRef,
+    computed,
+    inject,
     input,
     output,
     viewChild,
 } from '@angular/core';
+import { Store } from '@ngrx/store';
 import { MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { MatTooltip } from '@angular/material/tooltip';
 import { TranslatePipe } from '@ngx-translate/core';
+import {
+    ChannelActions,
+    selectActive,
+    selectChannels,
+} from '@iptvnator/m3u-state';
 import { PlaylistSwitcherComponent } from '@iptvnator/playlist/shared/ui';
-import { WorkspaceHeaderAction } from '@iptvnator/portal/shared/util';
+import {
+    getAdjacentChannelItem,
+    WorkspaceHeaderAction,
+} from '@iptvnator/portal/shared/util';
 import { WorkspaceHeaderBulkAction } from '../../services/helpers/workspace-shell-constants';
 
 @Component({
@@ -28,8 +39,11 @@ import { WorkspaceHeaderBulkAction } from '../../services/helpers/workspace-shel
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WorkspaceShellHeaderComponent {
+    private readonly store = inject(Store);
     private readonly searchInput =
         viewChild<ElementRef<HTMLInputElement>>('searchInput');
+    private readonly channels = this.store.selectSignal(selectChannels);
+    private readonly activeChannel = this.store.selectSignal(selectActive);
 
     readonly isMac =
         typeof navigator !== 'undefined' &&
@@ -49,19 +63,22 @@ export class WorkspaceShellHeaderComponent {
     readonly headerBulkAction = input<WorkspaceHeaderBulkAction | null>(null);
     readonly canRefreshPlaylist = input(false);
     readonly isRefreshingPlaylist = input(false);
-    readonly isElectron = input(false);
     readonly hasNoPlaylists = input(false);
-    readonly isDownloadsView = input(false);
-    readonly hasActiveDownloads = input(false);
-    /**
-     * When true the playlist switcher + the "+ Add source" / refresh /
-     * bulk-action buttons are hidden — those controls scope to a
-     * playlist, but Settings is a global page, so leaving them visible
-     * implies (falsely) that switching the playlist changes which
-     * settings you're editing. Driven from the shell facade's existing
-     * isSettingsRoute computed.
-     */
     readonly isSettingsRoute = input(false);
+    readonly isM3uPlaylistRoute = input(false);
+
+    /** Only offer channel flipping when the current M3U playlist has a real selection. */
+    readonly canNavigateChannels = computed(() => {
+        const activeChannel = this.activeChannel();
+        const channels = this.channels();
+
+        return (
+            this.isM3uPlaylistRoute() &&
+            !!activeChannel &&
+            channels.length > 1 &&
+            channels.some((channel) => channel.id === activeChannel.id)
+        );
+    });
 
     readonly searchChanged = output<string>();
     readonly searchSubmitted = output<string>();
@@ -71,7 +88,6 @@ export class WorkspaceShellHeaderComponent {
     readonly headerShortcutRequested = output<void>();
     readonly headerBulkActionRequested = output<void>();
     readonly refreshPlaylistRequested = output<void>();
-    readonly downloadsRequested = output<void>();
     readonly playlistInfoRequested = output<void>();
     readonly accountInfoRequested = output<void>();
 
@@ -134,7 +150,27 @@ export class WorkspaceShellHeaderComponent {
         this.refreshPlaylistRequested.emit();
     }
 
-    onDownloadsRequested(): void {
-        this.downloadsRequested.emit();
+    changeChannel(direction: 'up' | 'down'): void {
+        const activeChannel = this.activeChannel();
+        if (!activeChannel || !this.canNavigateChannels()) {
+            return;
+        }
+
+        const channel = getAdjacentChannelItem(
+            this.channels(),
+            activeChannel.id,
+            direction,
+            (item) => item.id
+        );
+        if (!channel) {
+            return;
+        }
+
+        this.store.dispatch(
+            ChannelActions.setActiveChannel({
+                channel,
+                startPlayback: true,
+            })
+        );
     }
 }

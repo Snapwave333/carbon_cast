@@ -1,3 +1,4 @@
+import type { PreferredQuality } from '@iptvnator/shared/interfaces';
 import type { PlayerTrack } from '../player-controls/player-controls.model';
 import type { WebVideoControlsAdapter } from '../player-controls/web-video-controls.adapter';
 import {
@@ -12,6 +13,7 @@ export interface WebVideoSourceControlsBridgeConfig {
     adapter: WebVideoControlsAdapter;
     isLive: () => boolean;
     showCaptions: () => boolean;
+    preferredQuality: () => PreferredQuality;
 }
 
 export class WebVideoSourceControlsBridge {
@@ -25,6 +27,7 @@ export class WebVideoSourceControlsBridge {
         this.tracks = new WebVideoSourceTracks({
             video: config.video,
             showCaptions: config.showCaptions,
+            preferredQuality: config.preferredQuality,
             refresh: () => this.config.adapter.refresh(),
         });
     }
@@ -41,6 +44,8 @@ export class WebVideoSourceControlsBridge {
             setAudioTrack: (id) => this.setAudioTrack(id),
             getSubtitleTracks: () => this.getSubtitleTracks(),
             setSubtitleTrack: (id) => this.setSubtitleTrack(id),
+            getQualityLevels: () => this.tracks.getQualityLevels(),
+            setQualityLevel: (id) => this.tracks.setQualityLevel(id),
         });
         this.attached = true;
     }

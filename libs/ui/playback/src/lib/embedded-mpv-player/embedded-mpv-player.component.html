@@ -101,8 +101,11 @@
             [mediaTitle]="mediaTitle()"
             [showControls]="showControls()"
             [shortcutsEnabled]="sharedShortcutsEnabled()"
+            [channelNavigation]="channelNavigation()"
             (previousEpisodeRequested)="requestPreviousEpisode()"
             (nextEpisodeRequested)="requestNextEpisode()"
+            (channelUpRequested)="requestChannelUp()"
+            (channelDownRequested)="requestChannelDown()"
         />
     }
 
@@ -147,6 +150,38 @@
                     >
                         <mat-icon [svgIcon]="isPaused() ? 'play_arrow' : 'pause'"></mat-icon>
                     </button>
+
+                    @if (channelNavigation()) {
+                        <button
+                            mat-icon-button
+                            type="button"
+                            class="embedded-mpv-player__control-button"
+                            data-test-id="embedded-mpv-channel-up"
+                            (click)="requestChannelUp()"
+                            [attr.aria-label]="
+                                'CHANNELS.CHANNEL_UP' | translate
+                            "
+                            [matTooltip]="'CHANNELS.CHANNEL_UP' | translate"
+                            matTooltipPosition="above"
+                        >
+                            <mat-icon svgIcon="arrow_upward"></mat-icon>
+                        </button>
+
+                        <button
+                            mat-icon-button
+                            type="button"
+                            class="embedded-mpv-player__control-button"
+                            data-test-id="embedded-mpv-channel-down"
+                            (click)="requestChannelDown()"
+                            [attr.aria-label]="
+                                'CHANNELS.CHANNEL_DOWN' | translate
+                            "
+                            [matTooltip]="'CHANNELS.CHANNEL_DOWN' | translate"
+                            matTooltipPosition="above"
+                        >
+                            <mat-icon svgIcon="arrow_downward"></mat-icon>
+                        </button>
+                    }
 
                     @if (showSeriesNavigation()) {
                         <button

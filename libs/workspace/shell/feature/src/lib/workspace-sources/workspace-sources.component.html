@@ -8,6 +8,17 @@
                 <h2 class="sources-title">{{ title() }}</h2>
                 <span class="sources-subtitle">{{ subtitle() }}</span>
             </div>
+            @if (canMergePlaylists()) {
+                <button
+                    type="button"
+                    mat-stroked-button
+                    class="merge-trigger"
+                    (click)="openMergeDialog()"
+                >
+                    <mat-icon svgIcon="swap_horiz"></mat-icon>
+                    <span>{{ 'HOME.MERGE.TITLE' | translate }}</span>
+                </button>
+            }
             <button
                 type="button"
                 mat-stroked-button

@@ -59,6 +59,12 @@ describe('getEpgCategoryAccent', () => {
         expect(getEpgCategoryAccent('Movie')).not.toBe(
             getEpgCategoryAccent('Sports')
         );
+        expect(getEpgCategoryAccent('Comedy')).not.toBe(
+            getEpgCategoryAccent('Drama series')
+        );
+        expect(getEpgCategoryAccent('Animation')).not.toBe(
+            getEpgCategoryAccent('Kids')
+        );
     });
 
     it('gives unknown categories a stable colour via hashing', () => {
@@ -155,7 +161,11 @@ describe('getProgramArtworkUrl', () => {
         expect(
             getProgramArtworkUrl({ iconUrl: 'data:image/png;base64,AAAA' })
         ).toBeNull();
-        expect(getProgramArtworkUrl({ iconUrl: 'file:///etc/x.png' })).toBeNull();
-        expect(getProgramArtworkUrl({ iconUrl: 'relative/path.png' })).toBeNull();
+        expect(
+            getProgramArtworkUrl({ iconUrl: 'file:///etc/x.png' })
+        ).toBeNull();
+        expect(
+            getProgramArtworkUrl({ iconUrl: 'relative/path.png' })
+        ).toBeNull();
     });
 });

@@ -6,11 +6,6 @@ import { provideStalkerWorkspaceRouteSession } from './stalker-workspace-route-s
 
 type ComponentLoader = NonNullable<Route['loadComponent']>;
 
-const loadDownloadsComponent: ComponentLoader = () =>
-    import('@iptvnator/portal/downloads/feature').then(
-        (c) => c.DownloadsComponent
-    );
-
 const loadStalkerLiveStreamLayoutComponent: ComponentLoader = () =>
     import('./stalker-live-stream-layout/stalker-live-stream-layout.component').then(
         (c) => c.StalkerLiveStreamLayoutComponent
@@ -128,10 +123,6 @@ export function createStalkerRoutes(): Route[] {
                 {
                     path: 'actor/:personId',
                     loadComponent: loadStalkerActorRouteComponent,
-                },
-                {
-                    path: 'downloads',
-                    loadComponent: loadDownloadsComponent,
                 },
             ],
         },

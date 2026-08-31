@@ -2,59 +2,76 @@ import { expect, test } from './fixtures';
 import type { Page } from '@playwright/test';
 
 /**
- * E2E coverage for the workspace rail's layout behaviours: the expand /
- * collapse toggle, the hug-content sizing that replaced the full-height
- * stretch, and the guarantees that came out of visual review — no duplicate
- * destinations and a stable, intentional ordering.
+ * E2E coverage for the workspace navigation dock. The file keeps its historic
+ * name so Nx's atomized target remains stable while the UI moves from a side
+ * rail to labelled navigation above the workspace.
  */
 
 async function openWorkspace(page: Page): Promise<void> {
     await page.goto('/');
-    await expect(page.locator('.app-rail')).toBeVisible({ timeout: 20_000 });
+    await expect(page.locator('.app-nav-dock')).toBeVisible({
+        timeout: 20_000,
+    });
 }
 
-test('@web @rail hugs its content instead of stretching to full height', async ({
+test('@web @rail navigation spans the top instead of consuming a side column', async ({
     page,
 }) => {
     await openWorkspace(page);
 
-    // Measured in-page so the numbers are plain values, never null boxes.
     const metrics = await page.evaluate(() => {
-        const rail = document
-            .querySelector('.app-rail')
+        const dock = document
+            .querySelector('.app-nav-dock')
             ?.getBoundingClientRect();
-        const settings = document
-            .querySelector('.rail-footer a[href="/workspace/settings"]')
+        const content = document
+            .querySelector('.workspace-body')
             ?.getBoundingClientRect();
         return {
-            railHeight: rail?.height ?? 0,
-            railBottom: rail ? rail.top + rail.height : 0,
-            settingsBottom: settings ? settings.top + settings.height : -1,
-            viewportHeight: window.innerHeight,
+            dock: dock
+                ? {
+                      top: dock.top,
+                      bottom: dock.bottom,
+                      width: dock.width,
+                      height: dock.height,
+                  }
+                : null,
+            content: content
+                ? {
+                      top: content.top,
+                      left: content.left,
+                      width: content.width,
+                  }
+                : null,
+            viewportWidth: window.innerWidth,
         };
     });
 
-    // The old layout stretched the rail to the window edge, leaving a large
-    // dead gap between the destinations and settings. Content-sized, the rail
-    // must end well above the bottom on a default desktop viewport...
-    expect(metrics.railHeight).toBeGreaterThan(0);
-    expect(metrics.railHeight).toBeLessThan(metrics.viewportHeight - 40);
-
-    // ... and the settings tile sits inside it, directly after the divider,
-    // not pinned to the window edge.
-    expect(metrics.settingsBottom).toBeGreaterThan(0);
-    expect(metrics.settingsBottom).toBeLessThanOrEqual(metrics.railBottom + 1);
+    expect(metrics.dock).not.toBeNull();
+    expect(metrics.content).not.toBeNull();
+    expect(metrics.dock?.width ?? 0).toBeGreaterThan(
+        metrics.viewportWidth * 0.9
+    );
+    expect(metrics.dock?.height ?? 0).toBeLessThan(70);
+    expect(metrics.content?.top ?? 0).toBeGreaterThanOrEqual(
+        metrics.dock?.bottom ?? 0
+    );
+    expect(metrics.content?.left ?? -1).toBeLessThanOrEqual(1);
+    expect(metrics.content?.width ?? 0).toBeGreaterThan(
+        metrics.viewportWidth * 0.98
+    );
+    await expect(page.locator('.nav-primary-row')).toHaveCount(1);
+    await expect(page.locator('.nav-context-row')).toHaveCount(0);
 });
 
-test('@web @rail no two rail buttons lead to the same destination', async ({
+test('@web @rail no two navigation links lead to the same destination', async ({
     page,
 }) => {
     await openWorkspace(page);
 
     const hrefs = await page
-        .locator('.app-rail a[href]')
+        .locator('.app-nav-dock a[href]')
         .evaluateAll((anchors) =>
-            anchors.map((a) => a.getAttribute('href') ?? '')
+            anchors.map((anchor) => anchor.getAttribute('href') ?? '')
         );
 
     expect(hrefs.length).toBeGreaterThan(3);
@@ -69,7 +86,7 @@ test('@web @rail orders content sources ahead of personal collections', async ({
     const hrefs = await page
         .locator('app-workspace-shell-rail-links a[href]')
         .evaluateAll((anchors) =>
-            anchors.map((a) => a.getAttribute('href') ?? '')
+            anchors.map((anchor) => anchor.getAttribute('href') ?? '')
         );
 
     const radio = hrefs.indexOf('/workspace/radio');
@@ -83,57 +100,38 @@ test('@web @rail orders content sources ahead of personal collections', async ({
     expect(recent).toBeLessThan(followed);
 });
 
-test('@web @rail expands into labelled tiles and persists across reload', async ({
+test('@web @rail exposes readable destination labels without an expansion mode', async ({
     page,
 }) => {
     await openWorkspace(page);
 
-    const rail = page.locator('.app-rail');
-    const collapsed = await rail.boundingBox();
-
-    await page.getByRole('button', { name: 'Expand sidebar' }).click();
-
-    // Wider rail, labelled tiles, and the labels are full text — the sources
-    // tile shows its name rather than an icon-only square.
-    await expect(rail).toHaveClass(/is-expanded/);
-    await expect
-        .poll(async () => (await rail.boundingBox())?.width ?? 0)
-        .toBeGreaterThan((collapsed?.width ?? 0) + 100);
     await expect(
-        page.locator('app-workspace-shell-rail-links a', {
-            hasText: 'Sources',
-        })
-    ).toBeVisible();
-
-    // The choice survives a full reload.
-    await page.reload();
-    await expect(page.locator('.app-rail')).toBeVisible({ timeout: 20_000 });
-    await expect(page.locator('.app-rail')).toHaveClass(/is-expanded/);
-
-    // And collapses back to icon-only tiles.
-    await page.getByRole('button', { name: 'Collapse sidebar' }).click();
-    await expect(page.locator('.app-rail')).not.toHaveClass(/is-expanded/);
-    await expect
-        .poll(async () => (await rail.boundingBox())?.width ?? 0)
-        .toBeLessThan(100);
+        page.locator('.app-nav-dock a[href="/workspace/radio"]')
+    ).toContainText('Radio & podcasts');
+    await expect(
+        page.locator('.app-nav-dock a[href="/workspace/settings"]')
+    ).toContainText('Settings');
+    await expect(page.locator('.app-nav-dock .rail-toggle')).toHaveCount(0);
 });
 
-test('@web @rail collapsed tiles expose hover hints via tooltips', async ({
+test('@web @rail keeps the top dock usable at narrow widths', async ({
     page,
 }) => {
+    await page.setViewportSize({ width: 620, height: 760 });
     await openWorkspace(page);
 
-    // Collapsed tiles are icon-only, so every destination must carry an
-    // accessible name and a tooltip trigger for its hover hint.
-    const radioTile = page.locator('.app-rail a[href="/workspace/radio"]');
-    await expect(radioTile).toHaveAttribute('aria-label', 'Radio & podcasts');
+    const dock = page.locator('.app-nav-dock');
+    const bounds = await dock.boundingBox();
+    const workspaceScroll = page.locator('.nav-destinations-scroll');
 
-    await radioTile.hover();
-    // Material renders the tooltip as nested surfaces; match on the text.
+    await expect(dock).toBeVisible();
     await expect(
-        page
-            .locator('mat-tooltip-component, .mdc-tooltip')
-            .filter({ hasText: 'Radio & podcasts' })
-            .first()
-    ).toBeVisible({ timeout: 5_000 });
+        page.locator('.app-nav-dock a[href="/workspace/settings"]')
+    ).toBeVisible();
+    expect(bounds?.width ?? 0).toBeGreaterThan(590);
+    expect(
+        await workspaceScroll.evaluate(
+            (element) => element.scrollWidth >= element.clientWidth
+        )
+    ).toBe(true);
 });

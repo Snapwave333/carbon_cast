@@ -894,9 +894,13 @@ class EpgService {
 
 The playlist-scoped `guide` route hides the redundant channel-list sidebar and
 embeds `MultiEpgContainerComponent` as a full-width page while preserving
-active playback above the grid. Fresh profiles open this view by default, and
-the user can choose another playlist section or disable last-channel resume in
-Settings.
+active playback above the grid. For an inline player, that playback becomes a
+black broadcast stage: video occupies the left and the channel logo, live
+programme, time range, category, episode data, and truncated description occupy
+the right. An external-player session deliberately omits the stage so the grid
+fills the page instead of leaving an empty black panel. Fresh profiles open this
+view by default, and the user can choose another playlist section or disable
+last-channel resume in Settings.
 
 The grid uses overlap-based day layout: programmes crossing midnight are
 clipped to the selected day's 24-hour canvas rather than omitted. Its real
@@ -908,9 +912,10 @@ Programme tiles follow the grid keyboard pattern (`MultiEpgProgramFocus` in
 tabbable, so Tab steps past the whole guide in one press instead of stopping at
 every programme; left/right move along the channel, up/down move to the
 neighbouring channel's programme nearest the same point on the timeline (rows
-almost never share ordinals), and Enter or Space opens the details dialog. The
-template stamps each cell's `data-program-key` so the controller can focus the
-new cell after the tabindex swap lands.
+almost never share ordinals), Enter or Space tunes to the programme's channel,
+and `i` opens the opt-in details dialog. The template stamps each cell's
+`data-program-key` so the controller can focus the new cell after the tabindex
+swap lands.
 
 Programme times are read through `getProgramTimeMs`, which rejects implausible
 values rather than plotting them: a feed already emitting **milliseconds** in
@@ -951,22 +956,30 @@ empty channel rows render a "no programmes" note, and each channel's icon is
 sanitized once per layout into `safeIconUrl` rather than per cell per
 change-detection pass. Programmes are
 colour-coded by XMLTV category via `getEpgCategoryAccent`
-(`epg-program.utils.ts`): keyword buckets (movies/news/sports/kids/music/
-documentary/series, several languages) map to a fixed palette and unknown
-categories hash onto it, rendered as an accent edge + wash on guide cells
-and timeline blocks, a dot in list rows and search results, and a tinted
-category label in the dialog. Clicking a programme
-opens the details dialog through `openMultiEpgProgramDialog`
-(`multi-epg-program-dialog.ts`); when the programme is airing now it offers
-"Watch live"; past programmes offer "Watch from start" when the host's
-`catchupResolver` input reports the channel catch-up-capable and the
-programme is inside its archive window (shared `epg-archive.util` gating).
-Either action emits the guide's `playRequested` output — the M3U player
-page resolves it to a playlist channel (tvg-id first, display-name
-fallback) and dispatches the playback request; timeshift additionally
-dispatches `setActiveEpgProgram` after the synchronous channel switch, so
-the existing catch-up URL resolution effect (with its live-fallback
-snackbar) handles the rest. `MultiEpgArtwork`
+(`epg-program.utils.ts`): keyword buckets (movies, comedy, animation, news,
+sports, kids, music, documentary, lifestyle, and series; several languages)
+map to a fixed, restrained palette and unknown categories hash onto it. The
+colour is rendered as an accent edge + wash on guide cells and timeline blocks,
+a dot in list rows and search results, a tinted category label in the dialog,
+and the category label beside the broadcast-stage player details. Clicking a
+programme tunes to its channel
+(`MultiEpgProgramActivator` in `multi-epg-program-activation.ts`), the way a TV
+guide is expected to work — even for a programme that started earlier. The
+programme description card is opt-in via each cell's info button (keyboard:
+`i`), and only that card offers playback actions: `openMultiEpgProgramDialog`
+(`multi-epg-program-dialog.ts`) shows "Watch live" while the programme is airing
+now, and "Watch from start" for a past programme when the host's
+`catchupResolver` input reports the channel catch-up-capable and the programme
+is inside its archive window (shared `epg-archive.util` gating). Every play
+choice emits the guide's `playRequested` output — the M3U player page resolves
+it to a playlist channel (tvg-id first, display-name fallback) and dispatches
+the playback request; timeshift additionally dispatches `setActiveEpgProgram`
+after the synchronous channel switch, so the existing catch-up URL resolution
+effect (with its live-fallback snackbar) handles the rest. EPG-store channels
+are not scoped to the open playlist, so rows with no playable counterpart are
+dimmed and badged via the host's `channelAvailabilityResolver`; tuning one still
+surfaces a "not in this playlist" message rather than failing silently.
+`MultiEpgArtwork`
 (`multi-epg-artwork.ts`) owns the width gating, restricts artwork to absolute
 http(s) URLs (XMLTV is untrusted input), and remembers failed URLs so a dead
 artwork host is never re-requested on zoom or day switches.
@@ -976,7 +989,13 @@ Playlist refreshes generation-gate pending page requests so stale results
 cannot repopulate a reset grid. Debounced programme search uses the same
 latest-request-wins rule, preventing a slow prior query from replacing newer
 results. Pure layout and search state live beside the component in
-`multi-epg-layout.util.ts` and `multi-epg-program-search.ts`.
+`multi-epg-layout.util.ts` and `multi-epg-program-search.ts`; the day/clock time
+model (selected day, live playhead, minute clock) and the two toolbar search
+fields (open/close, focus-on-open, Escape-to-close) are split into
+`multi-epg-time-axis.ts` and `multi-epg-search-fields.ts` so the container stays
+a thin coordinator. Opening either search field moves keyboard focus straight
+into it, and Escape closes whichever is open (the guide's own overlay, if any,
+closes only on the next Escape).
 
 ## Video Player
 

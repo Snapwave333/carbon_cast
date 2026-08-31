@@ -28,9 +28,45 @@
         }
 
         <div class="settings-content">
+            <div class="settings-scope" data-test-id="settings-scope">
+                <div class="settings-scope__copy">
+                    <strong>{{ 'SETTINGS.ESSENTIALS' | translate }}</strong>
+                    <span>{{
+                        'SETTINGS.ESSENTIALS_DESCRIPTION' | translate
+                    }}</span>
+                </div>
+                <button
+                    mat-button
+                    type="button"
+                    class="settings-scope__toggle"
+                    [attr.aria-expanded]="advancedSettingsVisible()"
+                    [matTooltip]="
+                        (advancedSettingsVisible()
+                            ? 'SETTINGS.HIDE_ADVANCED'
+                            : 'SETTINGS.SHOW_ADVANCED'
+                        ) | translate
+                    "
+                    (click)="toggleAdvancedSettings()"
+                    data-test-id="toggle-advanced-settings"
+                >
+                    <mat-icon
+                        [svgIcon]="
+                            advancedSettingsVisible() ? 'expand_less' : 'tune'
+                        "
+                    ></mat-icon>
+                    {{
+                        (advancedSettingsVisible()
+                            ? 'SETTINGS.HIDE_ADVANCED'
+                            : 'SETTINGS.SHOW_ADVANCED'
+                        ) | translate
+                    }}
+                </button>
+            </div>
+
             <app-settings-general-section
                 [form]="settingsForm"
                 [activeSection]="activeSection()"
+                [showAdvanced]="advancedSettingsVisible()"
                 [languageEnum]="languageEnum"
                 [coverSizeOptions]="coverSizeOptions"
                 [startupBehaviorOptions]="startupBehaviorOptions"
@@ -42,6 +78,7 @@
             <app-settings-playback-section
                 [form]="settingsForm"
                 [activeSection]="activeSection()"
+                [showAdvanced]="advancedSettingsVisible()"
                 [players]="players()"
                 [streamFormatEnum]="streamFormatEnum"
                 [isDesktop]="isDesktop"
@@ -60,6 +97,7 @@
                 <app-settings-epg-section
                     [form]="settingsForm"
                     [activeSection]="activeSection()"
+                    [showAdvanced]="advancedSettingsVisible()"
                     [epgUrl]="form.epgUrl"
                     [isClearingEpgData]="epg.isClearing()"
                     [epgViewModeOptions]="epgViewModeOptions"
@@ -72,64 +110,80 @@
                 />
             }
 
-            <app-settings-dashboard-section
-                [form]="settingsForm"
-                [activeSection]="activeSection()"
-            />
-
-            @if (supportsRemoteControl) {
-                <app-settings-remote-control-section
+            @if (supportsProxy) {
+                <app-settings-network-section
                     [form]="settingsForm"
                     [activeSection]="activeSection()"
-                    [localIpAddresses]="remoteControl.localIpAddresses()"
-                    [visibleQrCodeIp]="remoteControl.visibleQrCodeIp()"
-                    (toggleQrCode)="remoteControl.toggleQrCode($event)"
+                    [isTesting]="proxy.isTesting()"
+                    [testResult]="proxy.result()"
+                    (testProxy)="testProxyConnection()"
                 />
             }
 
-            <app-settings-tmdb-section
-                [form]="settingsForm"
-                [activeSection]="activeSection()"
-            />
+            <div
+                class="settings-advanced-sections"
+                [hidden]="!advancedSettingsVisible()"
+                data-test-id="advanced-settings-sections"
+            >
+                <app-settings-dashboard-section
+                    [form]="settingsForm"
+                    [activeSection]="activeSection()"
+                />
 
-            <app-settings-backup-section
-                [activeSection]="activeSection()"
-                [isPwa]="isPwa"
-                [isRemovingAllPlaylists]="
-                    playlistReset.isRemovingAllPlaylists()
-                "
-                [isExportingData]="backup.isExportingData()"
-                [isImportingData]="backup.isImportingData()"
-                (importData)="importData()"
-                (exportData)="exportData()"
-            />
+                @if (supportsRemoteControl) {
+                    <app-settings-remote-control-section
+                        [form]="settingsForm"
+                        [activeSection]="activeSection()"
+                        [localIpAddresses]="remoteControl.localIpAddresses()"
+                        [visibleQrCodeIp]="remoteControl.visibleQrCodeIp()"
+                        (toggleQrCode)="remoteControl.toggleQrCode($event)"
+                    />
+                }
 
-            <app-settings-reset-section
-                [activeSection]="activeSection()"
-                [isRemovingAllPlaylists]="
-                    playlistReset.isRemovingAllPlaylists()
-                "
-                [canRemoveAllPlaylists]="playlistReset.canRemoveAll()"
-                [playlistDeleteSummary]="playlistReset.deleteSummary()"
-                [removeAllProgressLabel]="
-                    playlistReset.removeAllProgressLabel()
-                "
-                (removeAll)="removeAll()"
-            />
+                <app-settings-tmdb-section
+                    [form]="settingsForm"
+                    [activeSection]="activeSection()"
+                />
 
-            <app-settings-about-section
-                [activeSection]="activeSection()"
-                [isDesktop]="isDesktop"
-                [version]="appUpdate.version()"
-                [buildCommit]="buildCommit"
-                [updateMessage]="appUpdate.updateMessage()"
-                [appUpdateStatus]="appUpdate.status()"
-                (checkForAppUpdate)="appUpdate.checkForAppUpdate()"
-                (downloadAppUpdate)="appUpdate.downloadAppUpdate()"
-                (installAppUpdate)="appUpdate.installAppUpdate()"
-                (openManualAppUpdate)="appUpdate.openManualAppUpdate()"
-                (openAppUpdateReleaseNotes)="appUpdate.openReleaseNotes()"
-            />
+                <app-settings-backup-section
+                    [activeSection]="activeSection()"
+                    [isPwa]="isPwa"
+                    [isRemovingAllPlaylists]="
+                        playlistReset.isRemovingAllPlaylists()
+                    "
+                    [isExportingData]="backup.isExportingData()"
+                    [isImportingData]="backup.isImportingData()"
+                    (importData)="importData()"
+                    (exportData)="exportData()"
+                />
+
+                <app-settings-reset-section
+                    [activeSection]="activeSection()"
+                    [isRemovingAllPlaylists]="
+                        playlistReset.isRemovingAllPlaylists()
+                    "
+                    [canRemoveAllPlaylists]="playlistReset.canRemoveAll()"
+                    [playlistDeleteSummary]="playlistReset.deleteSummary()"
+                    [removeAllProgressLabel]="
+                        playlistReset.removeAllProgressLabel()
+                    "
+                    (removeAll)="removeAll()"
+                />
+
+                <app-settings-about-section
+                    [activeSection]="activeSection()"
+                    [isDesktop]="isDesktop"
+                    [version]="appUpdate.version()"
+                    [buildCommit]="buildCommit"
+                    [updateMessage]="appUpdate.updateMessage()"
+                    [appUpdateStatus]="appUpdate.status()"
+                    (checkForAppUpdate)="appUpdate.checkForAppUpdate()"
+                    (downloadAppUpdate)="appUpdate.downloadAppUpdate()"
+                    (installAppUpdate)="appUpdate.installAppUpdate()"
+                    (openManualAppUpdate)="appUpdate.openManualAppUpdate()"
+                    (openAppUpdateReleaseNotes)="appUpdate.openReleaseNotes()"
+                />
+            </div>
 
             <footer class="action-bar" data-test-id="settings-action-bar">
                 @if (isDialog) {

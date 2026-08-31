@@ -168,8 +168,23 @@ export class WorkspaceSourcesComponent {
         );
     });
 
+    /**
+     * Merging needs two M3U playlists; portals hold their channels in the
+     * database behind a session, not in `playlist.items`, so they do not count.
+     */
+    readonly canMergePlaylists = computed(
+        () =>
+            this.playlists().filter(
+                (playlist) => !playlist.serverUrl && !playlist.macAddress
+            ).length >= 2
+    );
+
     onAddPlaylist(type?: WorkspacePlaylistType): void {
         this.workspaceActions.openAddPlaylistDialog(type);
+    }
+
+    openMergeDialog(): void {
+        this.workspaceActions.openMergePlaylistsDialog();
     }
 
     isSortActive(option: SortOption): boolean {

@@ -7,8 +7,13 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslateModule } from '@ngx-translate/core';
-import { StreamFormat, VideoPlayer } from '@iptvnator/shared/interfaces';
+import {
+    type PreferredQuality,
+    StreamFormat,
+    VideoPlayer,
+} from '@iptvnator/shared/interfaces';
 import { SettingsPlayerOption } from './settings.models';
 
 @Component({
@@ -21,6 +26,7 @@ import { SettingsPlayerOption } from './settings.models';
         MatIconModule,
         MatInputModule,
         MatSelectModule,
+        MatTooltipModule,
         ReactiveFormsModule,
         TranslateModule,
     ],
@@ -40,8 +46,18 @@ export class SettingsPlaybackSectionComponent {
         '--height=360',
     ].join('\n');
 
+    readonly qualityOptions: ReadonlyArray<{
+        value: PreferredQuality;
+        labelKey: string;
+    }> = [
+        { value: '2160p', labelKey: 'SETTINGS.PREFERRED_QUALITY_2160P' },
+        { value: '1080p', labelKey: 'SETTINGS.PREFERRED_QUALITY_1080P' },
+        { value: 'auto', labelKey: 'SETTINGS.PREFERRED_QUALITY_AUTO' },
+    ];
+
     readonly form = input.required<FormGroup>();
     readonly activeSection = input.required<string>();
+    readonly showAdvanced = input(false);
     readonly players = input.required<SettingsPlayerOption[]>();
     readonly streamFormatEnum = input.required<typeof StreamFormat>();
     readonly isDesktop = input(false);

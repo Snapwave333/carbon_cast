@@ -38,6 +38,11 @@
 
         <div class="apd-form-area">
             @switch (playlistType()) {
+                @case ('discover') {
+                    <app-channel-source-directory
+                        (imported)="closeDialog()"
+                    />
+                }
                 @case ('file') {
                     <app-file-upload
                         (fileRejected)="rejectFile($event)"

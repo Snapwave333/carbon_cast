@@ -72,6 +72,7 @@ describe('MultiEpgContainerComponent runtime gates', () => {
                         currentLang: 'en',
                         defaultLang: 'en',
                         onLangChange: of(null),
+                        instant: (key: string) => key,
                     },
                 },
             ],
@@ -152,7 +153,7 @@ describe('MultiEpgContainerComponent runtime gates', () => {
         expect(component.currentTimeLabel()).toBe('09:01');
     });
 
-    it('opens programme details from Enter and Space keyboard activation', () => {
+    it('tunes to the channel from Enter and Space keyboard activation', () => {
         const program = {
             title: 'News',
             start: '2026-08-12T09:00:00',
@@ -161,6 +162,8 @@ describe('MultiEpgContainerComponent runtime gates', () => {
             desc: null,
             category: null,
         };
+        const played: unknown[] = [];
+        component.playRequested.subscribe((request) => played.push(request));
         const enter = {
             key: 'Enter',
             preventDefault: jest.fn(),
@@ -175,7 +178,36 @@ describe('MultiEpgContainerComponent runtime gates', () => {
 
         expect(enter.preventDefault).toHaveBeenCalled();
         expect(space.preventDefault).toHaveBeenCalled();
-        expect(dialog.open).toHaveBeenCalledTimes(2);
+        // Selecting a programme picks its channel; the description card is
+        // opt-in via the cell's info button (or "i").
+        expect(played).toHaveLength(2);
+        expect(dialog.open).not.toHaveBeenCalled();
+    });
+
+    it('opens programme details from the "i" key, not from selection', () => {
+        const program = {
+            title: 'News',
+            start: '2026-08-12T09:00:00',
+            stop: '2026-08-12T09:30:00',
+            channel: 'channel-1',
+            desc: null,
+            category: null,
+        };
+        const info = {
+            key: 'i',
+            preventDefault: jest.fn(),
+        } as unknown as KeyboardEvent;
+
+        component.onProgramKeydown(info, program as never, 0, 0);
+
+        expect(info.preventDefault).toHaveBeenCalled();
+        expect(dialog.open).toHaveBeenCalledTimes(1);
+    });
+
+    it('resolves the "on now" aria label once per language rather than per cell', () => {
+        // Memoized so grid aria-labels do not call translate.instant on every
+        // change-detection pass; the value still tracks the current language.
+        expect(component.onNowLabel()).toBe('EPG.TIMELINE.ON_NOW');
     });
 
     it('does not search EPG programs when the EPG bridge cannot search programs', () => {

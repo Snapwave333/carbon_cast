@@ -1,5 +1,6 @@
 import { jest } from '@jest/globals';
 import Hls from 'hls.js';
+import type { PreferredQuality } from '@iptvnator/shared/interfaces';
 import { WebVideoControlsAdapter } from '../player-controls/web-video-controls.adapter';
 import { HtmlVideoPlayerControlsBridge } from './html-video-player-controls.bridge';
 
@@ -19,15 +20,24 @@ interface FakeHlsTrack {
 
 type FakeHlsListener = (...args: unknown[]) => void;
 
+export interface FakeHlsLevel {
+    height?: number;
+    bitrate?: number;
+}
+
 export class FakeHls {
     audioTracks: FakeHlsTrack[] = [];
     subtitleTracks: FakeHlsTrack[] = [];
+    /** Rendition ladder; empty until the manifest is parsed, as in hls.js. */
+    levels: FakeHlsLevel[] = [];
+    loadLevel = -1;
     readonly assignments: string[] = [];
     subtitleTrackSwitchEvents = 0;
     private readonly listeners = new Map<string, Set<FakeHlsListener>>();
     private emitSubtitleTrackSwitchOnAssignment = false;
     private selectedAudioTrack = -1;
     private selectedSubtitleTrack = -1;
+    private selectedLevel = -1;
     private displaySubtitles = false;
 
     readonly on = jest.fn((event: string, listener: FakeHlsListener): void => {
@@ -48,6 +58,19 @@ export class FakeHls {
     set audioTrack(value: number) {
         this.assignments.push(`audioTrack:${value}`);
         this.selectedAudioTrack = value;
+    }
+
+    get currentLevel(): number {
+        return this.selectedLevel;
+    }
+
+    set currentLevel(value: number) {
+        this.assignments.push(`currentLevel:${value}`);
+        this.selectedLevel = value;
+    }
+
+    get autoLevelEnabled(): boolean {
+        return this.selectedLevel === -1;
     }
 
     get subtitleTrack(): number {
@@ -259,6 +282,7 @@ export function readMpegtsState(options: VideoFixtureOptions, isLive = false) {
         adapter,
         isLive: () => isLive,
         showCaptions: () => true,
+        preferredQuality: () => 'auto',
     });
 
     bridge.attach();
@@ -268,18 +292,24 @@ export function readMpegtsState(options: VideoFixtureOptions, isLive = false) {
     return state;
 }
 
-export function bindHls(fakeHls: FakeHls, showCaptions = true) {
+export function bindHls(
+    fakeHls: FakeHls,
+    showCaptions = true,
+    preferredQuality: PreferredQuality = 'auto'
+) {
     const adapter = new WebVideoControlsAdapter();
     const captionPreference = { value: showCaptions };
+    const qualityPreference = { value: preferredQuality };
     const bridge = new HtmlVideoPlayerControlsBridge({
         video: createVideo({ duration: 90, seekableEnds: [80] }),
         adapter,
         isLive: () => false,
         showCaptions: () => captionPreference.value,
+        preferredQuality: () => qualityPreference.value,
     });
     bridge.attach();
     bridge.setSource({ kind: 'hls', hls: fakeHls.asHls() });
-    return { adapter, bridge, captionPreference };
+    return { adapter, bridge, captionPreference, qualityPreference };
 }
 
 export function bindNativeTracks(
@@ -294,12 +324,14 @@ export function bindNativeTracks(
         value: textTracks.asTextTrackList(),
     });
     const captionPreference = { value: showCaptions };
+    const qualityPreference = { value: 'auto' as PreferredQuality };
     const adapter = new WebVideoControlsAdapter();
     const bridge = new HtmlVideoPlayerControlsBridge({
         video,
         adapter,
         isLive: () => false,
         showCaptions: () => captionPreference.value,
+        preferredQuality: () => qualityPreference.value,
     });
     bridge.attach();
     bridge.setSource({ kind });

@@ -31,7 +31,6 @@ import {
 import {
     CrossPortalSimilarItem,
     CrossPortalSimilarService,
-    DownloadsService,
     SettingsStore,
 } from '@iptvnator/services';
 import {
@@ -81,7 +80,6 @@ export class VodDetailsRouteComponent implements OnInit, OnDestroy {
     private readonly router = inject(Router);
     private readonly crossPortalSimilar = inject(CrossPortalSimilarService);
     private readonly xtreamStore = inject(XtreamStore);
-    private readonly downloadsService = inject(DownloadsService);
     private readonly snackBar = inject(MatSnackBar);
     private readonly translateService = inject(TranslateService);
     private readonly playback = inject(VodDetailsPlaybackService);
@@ -102,8 +100,6 @@ export class VodDetailsRouteComponent implements OnInit, OnDestroy {
     });
 
     readonly theme = this.settingsStore.theme;
-    readonly isElectron = this.downloadsService.isAvailable;
-
     readonly isFavorite = this.xtreamStore.isFavorite;
     readonly selectedItem = computed(
         () =>
@@ -202,30 +198,6 @@ export class VodDetailsRouteComponent implements OnInit, OnDestroy {
         this.playback.externalPrimaryButtonState;
     readonly vodPlaybackProgress = this.playback.vodPlaybackProgress;
     readonly hasPlaybackPosition = this.playback.hasPlaybackPosition;
-
-    readonly isDownloaded = computed(() => {
-        const vodId = this.selectedVodId();
-        const playlistId = this.xtreamStore.currentPlaylist()?.id;
-        if (!playlistId) return false;
-        this.downloadsService.downloads();
-        return this.downloadsService.isDownloaded(vodId, playlistId, 'vod');
-    });
-
-    readonly isDownloading = computed(() => {
-        const vodId = this.selectedVodId();
-        const playlistId = this.xtreamStore.currentPlaylist()?.id;
-        if (!playlistId) return false;
-        this.downloadsService.downloads();
-        return this.downloadsService.isDownloading(vodId, playlistId, 'vod');
-    });
-
-    readonly isPausedDownload = computed(() => {
-        const vodId = this.selectedVodId();
-        const playlistId = this.xtreamStore.currentPlaylist()?.id;
-        if (!playlistId) return false;
-        this.downloadsService.downloads();
-        return this.downloadsService.isPaused(vodId, playlistId, 'vod');
-    });
 
     readonly trailerEmbedUrl = computed(() =>
         youtubeEmbedUrl(this.selectedVodInfo()?.youtube_trailer)
@@ -437,69 +409,6 @@ export class VodDetailsRouteComponent implements OnInit, OnDestroy {
 
     handleExternalFallbackRequest(request: PlaybackFallbackRequest): void {
         this.playback.handleExternalFallbackRequest(request);
-    }
-
-    async resumePausedDownload(): Promise<void> {
-        const playlistId = this.xtreamStore.currentPlaylist()?.id;
-        if (!playlistId) {
-            return;
-        }
-        await this.downloadsService.resumeDownloadByContent(
-            this.selectedVodId(),
-            playlistId,
-            'vod'
-        );
-    }
-
-    async downloadVod(vodItem: XtreamVodDetails | null): Promise<void> {
-        if (!vodItem) {
-            return;
-        }
-
-        const info = getXtreamVodInfo(vodItem);
-        const streamUrl = this.xtreamStore.constructVodStreamUrl(vodItem);
-        const routeVodId = this.route.snapshot.params.vodId;
-        const id = routeVodId
-            ? Number(routeVodId)
-            : Number(
-                  vodItem.movie_data?.stream_id ||
-                      (vodItem as { stream_id?: number }).stream_id
-              );
-
-        const playlist = this.xtreamStore.currentPlaylist();
-        if (!playlist) {
-            return;
-        }
-
-        await this.downloadsService.startDownload({
-            playlistId: playlist.id,
-            xtreamId: id,
-            contentType: 'vod',
-            title: info?.name ?? vodItem.movie_data?.name ?? 'Unknown',
-            url: streamUrl,
-            posterUrl: info?.movie_image,
-            headers: {
-                userAgent: playlist.userAgent,
-                referer: playlist.referrer,
-                origin: playlist.origin,
-            },
-        });
-    }
-
-    async playFromLocal(): Promise<void> {
-        const vodId = Number(this.route.snapshot.params.vodId);
-        const playlistId = this.xtreamStore.currentPlaylist()?.id;
-        if (!playlistId) return;
-
-        const filePath = this.downloadsService.getDownloadedFilePath(
-            vodId,
-            playlistId,
-            'vod'
-        );
-
-        if (filePath) {
-            await this.downloadsService.playDownload(filePath);
-        }
     }
 
     private initializeVodDetails(playlistId: string, vodId: number): void {

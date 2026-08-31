@@ -17,7 +17,7 @@ import {
     XtreamVodDetails,
     XtreamVodStream,
 } from '@iptvnator/shared/interfaces';
-import { DownloadsService, SettingsStore } from '@iptvnator/services';
+import { SettingsStore } from '@iptvnator/services';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { VodDetailsRouteComponent } from './vod-details-route.component';
 
@@ -45,7 +45,6 @@ describe('VodDetailsRouteComponent', () => {
         .fn()
         .mockReturnValue('http://example.com/movie/650020.mp4');
     const addRecentItem = jest.fn();
-    const downloads = signal([]);
     const getPlaybackPosition = jest.fn().mockResolvedValue(null);
 
     beforeEach(async () => {
@@ -144,18 +143,6 @@ describe('VodDetailsRouteComponent', () => {
                     provide: SettingsStore,
                     useValue: {
                         theme: signal('dark'),
-                    },
-                },
-                {
-                    provide: DownloadsService,
-                    useValue: {
-                        isAvailable: signal(false),
-                        downloads,
-                        isDownloaded: jest.fn().mockReturnValue(false),
-                        isDownloading: jest.fn().mockReturnValue(false),
-                        startDownload: jest.fn(),
-                        getDownloadedFilePath: jest.fn(),
-                        playDownload: jest.fn(),
                     },
                 },
                 {

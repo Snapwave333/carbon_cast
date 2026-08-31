@@ -48,7 +48,7 @@ or `tmp/`.
 - Skip the note for test-only changes, docs, CI/workflow plumbing, and pure refactors with no behavior change. When skipping on a PR that touches `apps/**` or `libs/**`, apply the `no-release-note` label.
 - CI enforces this: the "Release note gate" job in `.github/workflows/ci.yml` fails PRs that change runtime code without an added `.changes/*.md` or the label (policy in `tools/release/check-release-note-gate.mjs`; tests/e2e/website/mock-server/docs paths are auto-exempt).
 - The `release-notes` skill covers writing notes; the `release-cut` skill covers the full release sequence.
-- Validate before finishing: `pnpm run release:notes:validate`.
+- Validate before finishing: `node tools/release/build-release-notes.mjs --validate`. There is no `release:notes:validate` package script — call the tool directly.
 - Release-post screenshots come only from the release capture script running against the mock servers. Never add a screenshot taken from a real playlist or account to `apps/website/public/blog/**` — real streams, logos, and metadata are copyrighted, and credentials must never reach a published image.
 - Final task summaries should state whether a release note was added or why it was skipped.
 
@@ -143,6 +143,43 @@ pnpm run make:app
 # or
 nx run electron-backend:make
 ```
+
+### Running A Packaged Build Locally
+
+The desktop and Start-menu launchers point at the **installed** copy
+(`%LOCALAPPDATA%\Programs\iptvnator\CarbonCast IPTV.exe` on Windows, per-user),
+not at anything under `dist/`. Building the repo never updates that copy — only
+re-running an installer from `dist/executables/` does. The failure mode is
+quiet: the launcher opens the newest build that _exists_, so a stale install
+starts and runs normally while missing recent work. Nothing flags it, because
+the installer keeps the `package.json` version and a stale install reports the
+same version as a fresh one. Compare `LastWriteTime` on the installed
+`resources/app.asar` against `dist/apps/web` instead.
+
+To refresh the installed app:
+
+```bash
+pnpm run make:app
+```
+
+then run `dist/executables/iptvnator-<version>-windows-x64-setup.exe`. It is a
+`oneClick`, per-user NSIS installer, so it installs over the existing location
+and auto-launches. Close the running app first — a live instance locks the
+install directory.
+
+When iterating, `pnpm run package:app` plus a launcher retargeted at
+`dist/executables/win-unpacked/` skips the installer step entirely; the
+unpacked build uses the same `userData` profile, so no playlists or settings
+are lost either way.
+
+**`EPERM` on `win-unpacked`.** electron-builder extracts Electron into
+`dist/executables/win-unpacked.tmp` and renames it into place. A run that dies
+mid-package leaves the `.tmp` behind, and the next run fails with
+`EPERM: operation not permitted, rename '...win-unpacked.tmp' ->
+'...win-unpacked'`. Delete the orphaned `.tmp` directory and rerun. If it
+recurs on a clean tree with no process holding a handle, it is realtime
+antivirus scanning the freshly extracted Electron binaries rather than a real
+lock — exclude `dist/executables` from the scanner.
 
 ### Electron CDP Debugging
 
@@ -499,7 +536,14 @@ See `docs/architecture/m3u-playlist-module.md` for complete documentation.
 - Radio & podcasts: `/workspace/radio` — `libs/portal/radio/feature`. Not playlist-scoped, so it carries no portal context rail
 - Global search: `/workspace/search` (Electron-only; a guard redirects the PWA to `/workspace/sources`)
 - Downloads: `/workspace/downloads`
-- Settings: `/workspace/settings` (`/settings` redirects there)
+- Settings: `/workspace/settings` (`/settings` redirects there). Sections marked `advanced` in `sectionNavItems` are hidden until "Show advanced settings" is toggled; collapsing the toggle sends the user back to `general`, because the section they were on may no longer be in the nav
+
+**Workspace navigation is a top bar, not a right-side rail.** Playlist-scoped
+tabs come first, then global destinations, in one horizontal strip
+(`workspace-shell-header` / `workspace-shell-rail-links`). The `*-rail-*`
+filenames are historical — they are the top bar now, so do not "fix" a
+component to match its filename. Channel lists, guides, and the player keep
+the full window width.
 
 **Service Architecture** (Factory Pattern):
 
@@ -542,6 +586,14 @@ Typical split strategies:
 - Utility files: group by domain and export from a barrel `index.ts`
 
 This rule exists to keep the codebase navigable and reviewable. A 150-line file is always preferable to a 500-line file.
+
+**Build the web app after a split.** Moving code out of a file usually means
+pruning its import list, and it is easy to drop a symbol the remainder still
+uses — a type-only import especially, since nothing at runtime references it.
+Lint does not catch this; only `nx build web` (or a typecheck) does. A split
+that removed a still-used `type Channel` import shipped on `main` and broke
+`web:build:production` for days, which silently froze every packaged build at
+the last commit that compiled.
 
 ---
 
@@ -623,6 +675,16 @@ This project uses modern Angular signal-based APIs and patterns. **ALWAYS** use 
     <li *ngFor="let item of items; trackBy: trackById">{{ item.name }}</li>
     ```
 
+**Design System, Theming & UI/UX Standards**:
+
+- **Spatial Scale & Tokens**: The app uses an 8-point spatial system (`--app-space-1` through `--app-space-8`) and responsive gutters (`--app-shell-gutter`, `--app-content-gutter`, `--app-page-gutter`, `--app-section-gap`).
+- **Motion & Micro-interactions**: Defined through standardized motion durations (`--app-motion-instant: 90ms`, `--app-motion-fast: 140ms`, `--app-motion-base: 200ms`, `--app-motion-slow: 320ms`) and easings (`--app-ease`, `--app-ease-out`, `--app-ease-spring`). Interactive cards (`.link-card`, `.playlist-item`, `.rail__card`, `.episode-card`) lift toward the pointer with `translateY(-3px) scale(1.01-1.02)` and dynamic elevation shadows.
+- **Glassmorphism Surfaces**: Floating surfaces (player HUD, overlay drawers, dialog headers, persistent playback bar, search bar) use balanced `backdrop-filter: blur(...) saturate(...)` with subtle top/inner highlights (`rgba(255, 255, 255, 0.08)`).
+- **Reusable Surface & Feedback Classes**:
+    - `.app-glass-panel` for frosted acrylic container surfaces
+    - `.app-count-badge` for theme-aware, tabular-num count pills across section rails and sidebars
+    - `.skeleton-shimmer` for fluid continuous wave placeholder loading states
+
 ### Backend Architecture (Electron)
 
 **Main Entry**: `apps/electron-backend/src/main.ts`
@@ -684,6 +746,28 @@ This project uses modern Angular signal-based APIs and patterns. **ALWAYS** use 
 - M3U/M3U8 files (local or URL)
 - Xtream Codes API (`username`, `password`, `serverUrl`)
 - Stalker portal (`macAddress`, `url`)
+- **Discover** — a bundled catalogue of free public playlists (iptv-org country/region/category/language slices plus curated entries), imported in one click and optionally merged into a single playlist. The catalogue is a committed snapshot regenerated by `node tools/channel-sources/build-catalog.mjs` (`--check` probes for dead URLs), not fetched at dialog-open, so the tab works offline. Every entry names its provider and links to it: the app hosts no streams. Contract: `docs/architecture/channel-source-catalog.md`
+
+**Merging playlists**: `mergeParsedPlaylists` (`libs/shared/m3u-utils`) is pure
+and dedups by **normalized stream URL only** — scheme and host are case-folded,
+the path and query are not (providers treat them as case-sensitive), and
+`tvg-id` is deliberately not a key because aggregators publish several mirrors
+and quality variants per channel. Headers union their `x-tvg-url` so no slice
+loses its guide. `PlaylistMergeService` merges already-imported playlists
+non-destructively (the sources keep their favourites, history and EPG settings);
+only M3U playlists qualify, since a portal's channels live in the database
+behind a session rather than in `playlist.items`.
+
+**Channel content filters** (`channel-content-filter.util.ts`): `hideReligiousChannels`
+and `localNewsOnly` both default **on**, applied in
+`ChannelListContainerComponent.displayedChannels` alongside the existing
+`hideNonUsChannels`/`hideSpanishChannels`. Both read the provider's
+`group-title` and never re-classify from the channel name, matching the
+category normalizer's rule. A news channel whose metadata names no country is
+kept — treating unknown as foreign would empty the news group for
+single-country playlists, which omit `tvg-country` entirely. `homeCountryCode`
+is seeded from the browser locale's region and stays empty when the locale
+names none, which leaves the news filter inert rather than guessing.
 
 **Opening a playlist from the OS** (Electron only): a `.m3u`/`.m3u8` path passed
 on the command line, opened through a file association, or delivered by macOS'
@@ -872,6 +956,7 @@ engine` (restart required) or
   contracts: `docs/architecture/embedded-mpv-native.md` and
   `tools/embedded-mpv/README.md`.
 - Shared player-controls layer: `libs/ui/playback/src/lib/player-controls/` exports the engine-neutral `PlayerController` contract, standalone `app-player-controls`, a generic web-video adapter/helper, and component-scoped `WEB_PLAYER_SHARED_CONTROLS` rollout token. In fullscreen, `app-player-controls` shows a pointer-transparent media-title overlay at the top while controls are revealed (`mediaTitle` input: movie/channel/series name, plus an `S01E03` second line for episodes; series names flow from the detail views through `PortalInlinePlayerComponent.seriesTitle` and `WebPlayerViewComponent.mediaTitle`). Persisted `Settings.webPlayerSharedControls` is default-off, and its checkbox appears only when HTML5, Video.js, or ArtPlayer is selected. `WebPlayerViewComponent` snapshots the preference into the immutable token for each new player host. The parent `/workspace` route awaits the initial `SettingsStore` load, including cold-start direct links, before this snapshot can occur. Saving applies to the next host without an application restart; an existing session never changes controls mode in place. Embedded MPV ignores the web-player preference: frame-copy always uses shared DOM controls through `EmbeddedMpvControlsAdapter`, native-view retains its compositor-safe legacy dock, and external MPV/VLC retain their own UI. The Embedded MPV host selects exactly one controls UI for its reported engine. `showControls=false` detaches the shared surface, modal overlays gate frame-copy playback shortcuts, fullscreen remains DOM-based with Embedded MPV bounds sync, and a playback/session transition key prevents engine or session handoff from presenting stale recording feedback while timers and pending commands are cancelled. Same-session IPC replies yield to a broadcast snapshot received while the command was pending, so a successful recording acknowledgement cannot be rolled back by a stale reply. The built-in HTML5/hls.js player is the second guarded consumer: `HtmlVideoPlayerComponent` provides a component-scoped `WebVideoControlsAdapter`, while its neutral `web-video-support` bridge is shared with ArtPlayer and owns HLS/Shaka(DASH)/native tracks, MPEG-TS VOD duration correction, caption preference, and source cleanup. `HtmlVideoElementSession` owns native video-event lifecycle, persisted volume, and start-time/time/ended propagation. Video.js is the third guarded consumer: `VjsPlayerComponent` provides a component-scoped `WebVideoControlsAdapter`; its bridge rebinds the current Tech video after `playerreset`, exposes source-stable audio/subtitle IDs, preserves caption preference and explicit subtitle-off state, and reads Video.js duration. Reset-driven raw MPEG-TS changes pause first, coalesce to the latest desired source, preserve actual volume across Video.js's reset, and restart when authoritative live/VOD metadata changes. In shared-controls mode, Video.js native controls, click/double-click/hotkey actions, and spatial navigation are disabled. ArtPlayer is the fourth guarded consumer: `ArtPlayerComponent` provides a component-scoped `WebVideoControlsAdapter`; `ArtPlayerSourceSession` owns HLS/DASH(Shaka)/MPEG-TS/native sources, the neutral web-video bridge, exact cleanup, and a destroyed-session guard for delayed `customType` callbacks, while `ArtPlayerVideoSession` owns native media/ArtPlayer events. Shared ArtPlayer mode uses authoritative live/VOD metadata, HLS/Shaka/native tracks and caption preference, MPEG-TS VOD duration correction, and reapplies app volume directly after ArtPlayer restores its own stored volume. Vendor chrome/hotkeys are disabled, and a transparent capture layer gives shared controls exclusive click and double-click ownership. `WebPlayerViewComponent.resolvedIsLive` supplies authoritative metadata; visible playback diagnostics disable shared pointer/keyboard ownership and exit only the active HTML5, Video.js, or ArtPlayer shell's own fullscreen so retry/fallback actions remain visible. On the preference-off path, all three web players retain their existing controls, source behavior, and legacy series navigation. `Settings.showCaptions` is deliberately outside this rollout gate: it is engine state, so the preference-off players apply it through the same helpers without an adapter (`WebVideoSourceTracks` for HTML5/ArtPlayer, `VjsLegacyTracks` for Video.js), re-applying it as the engine adds or switches text tracks. The two modes differ in how long it is enforced: shared controls are authoritative for the session (user intent arrives via `setSubtitleTrack`), while vendor chrome is source-default — the preference seeds each new source and is released once the media reports `playing`, so the engine's own caption menu keeps working. Mode selection is the optional `playbackStarted` probe the legacy owners pass to all three helpers (HLS, native text tracks, Shaka); in that mode the HLS helper deselects (`subtitleTrack = -1`) rather than hiding, since `subtitleDisplay` would override the vendor menu, and DASH is seeded by `ShakaVideoSession.start()` after the manifest loads. `WebPlayerViewComponent` reads it from `SettingsStore` instead of a host input so every host (M3U, Xtream/Stalker live layouts, portal detail inline player) inherits it. Playback shortcuts are unmodified Space/K, F, arrow keys, M, plus Home/End and the digits `0`-`9`, which seek to a fraction of the duration (`3` = 30%) and therefore share the seek gate and never apply to live streams. A `loading` status or a `stalled` state renders a centred buffering indicator (`role="status"`, translated `LOADING_STREAM`); before it, both states only greyed the transport buttons out and a buffering stream gave no feedback. Its visual is a 30-frame sprite strip authored in `apps/remotion-brand` and rendered to `apps/web/src/assets/animations/loading-loop.webp`, stepped with a CSS `steps(30)` transform — frame count, 48px display size and the 1.25s loop duration are hardcoded in the SCSS and must change together with the composition. The `WebVideoControlsAdapter` refreshes on every native media event, so `timeupdate`/`progress` alone fire several times a second: its injected track getters are read through memoized signals (one engine read per refresh, shared by `capabilities` and `state`) and capabilities/track lists compare structurally via `player-controls-equality.ts`, so a position-only refresh does not cascade through the view model or open track menus. Contract: `docs/architecture/player-controls-contract.md`.
+- Preferred video quality: `Settings.preferredQuality` (`auto` | `1080p` | `2160p`, **default `2160p`**, normalized by `normalizePreferredQuality` so an unknown stored value falls back rather than throwing). The target is a **ceiling, not a requirement** — `pickPreferredQualityId` in `libs/ui/playback/src/lib/player-controls/player-quality.util.ts` picks the highest rendition at or below it, falls back to the smallest when every rendition exceeds it, and returns `AUTO_QUALITY_ID` when the preference is `auto` or no rendition reports a height. A stream with no 4K ladder therefore plays its best available instead of failing to match. Engine plumbing: `web-video-quality-controls.ts` (HLS/Shaka/native) and `vjs-quality-levels.ts` (Video.js).
 - Shared controls are bottom-docked; the top fullscreen title is informational only. `Settings.playerControls` captures visibility, auto-hide delay (zero means never hide), compact/expanded density, solid/translucent backdrop, and small/medium/large size when `WebPlayerViewComponent` creates a new host through `PLAYER_CONTROLS_SETTINGS`. Fresh profiles default `mirrorLayout` to player-left/channel-rail-right, but an explicit stored layout is preserved.
 - Agent control: `AgentControlEvents` exposes authenticated `/api/agent-control/v1` endpoints and resolves live commands only after the renderer returns the matching correlation ID. `AgentControlRuntimeService` uses real renderer stores/media state; `apps/agent-control/src/client.mjs` is shared by MCP and `iptvctl`. Tokens are scoped hashed records with expiry/revocation, rate limits, redacted audit records, and SSE events. `diagnostics.screenshot` is the one operation served entirely from the main process (`BrowserWindow.capturePage()`): the reason to ask for a screenshot is usually that the renderer has stopped answering, so gating it on renderer acknowledgement would fail exactly when it is needed. Its file name is generated (a caller-supplied path would be an arbitrary file write) and its result field is `file`, not `path`, because every response passes through the credential redactor whose key pattern includes `path`. Operations that read the M3U channel store (`channel.list`/`switch`/`next`/`previous`) only see channels on routes that render a channel list, so `channel.list` reports `loaded` and the others raise `operation-unsupported` rather than claiming a channel is missing. The bridge only listens when desktop remote control is enabled (`remoteControl` in the main-process config). Canonical contract: `docs/architecture/agent-control.md`.
 - Desktop app lifecycle and window operations are separate from media-element playback: `app.launch` / `app.quit` require `app.lifecycle`; display listing uses `state.read`; display placement and window fullscreen/minimize/restore use `player.control`. `app.launch` waits for `health.ready` and never opens a second instance when the bridge is already booting. `carboncast-cli` is the persistent PowerShell wrapper; it sets `CARBONCAST_HOME`, so commands work from any directory. The renderer's `AgentControlPresenceService` keeps an **Agent connected** badge visible and pulses the affected surface for 180 ms, respecting `prefers-reduced-motion`.
@@ -924,7 +1009,7 @@ engine` (restart required) or
   it to the host's own attribute wherever it appears, so nesting it under the
   size class silently produces a rule that can never match
 - Pop-out uses Document Picture-in-Picture (`DocumentPictureInPictureService`),
-  which *moves* the content element into the floating window rather than
+  which _moves_ the content element into the floating window rather than
   cloning it, so the `<audio>` element keeps playing. Two consequences: the
   `--mat-sys-*` token mapping has to be declared on the moved element itself
   (a host-scoped block stays behind in the main document), and the bar must
@@ -1007,7 +1092,7 @@ playlist:
       others' base positions — not an integrated simulation. The frame loop
       parks when playback stops and resumes later, and a stateful simulation
       would lurch on resume or have to be kept running to stay correct.
-    - **Partner links read *resolved* positions**, so orbs are resolved in
+    - **Partner links read _resolved_ positions**, so orbs are resolved in
       `TEMPERAMENT_RESOLVE_ORDER` (role order, not index order) — satellite
       after anchor, mirror after satellite. Reading base positions instead put
       the mirror opposite the path the satellite had already abandoned.
@@ -1047,12 +1132,12 @@ playlist:
        across it and shows up directly. On the colour terms it is outweighed by
        `density`, which peaks in the same place. For the same reason aerial
        perspective leans on desaturation rather than dimming.
-  When something looks wrong here, render the suspect term straight to
-  `fragColor` as greyscale and look at it — the terms interact in ways that do
-  not survive reasoning about them in the abstract
+       When something looks wrong here, render the suspect term straight to
+       `fragColor` as greyscale and look at it — the terms interact in ways that do
+       not survive reasoning about them in the abstract
 - The synthetic beat is an attack/decay envelope with a **smoothstepped** rise,
   not a bare exponential decay. An exponential decay restarts each beat with a
-  step from silence to full, and an exponential *attack* is at its steepest the
+  step from silence to full, and an exponential _attack_ is at its steepest the
   instant the beat lands; both read as a jolt. `PULSE_PEAK` is scanned once at
   load so the pulse still tops out at 1 whatever the constants are retuned to,
   because every weight applied to it downstream assumes that range
@@ -1064,7 +1149,7 @@ playlist:
   frame and blitted to the canvas, because the drawing buffer itself is cleared
   by the compositor between frames. Two things the implementation depends on:
     - **The frame is combined with `MAX`, not composited over.** Compositing
-      over a faded buffer is a temporal integrator, so a *stationary* region
+      over a faded buffer is a temporal integrator, so a _stationary_ region
       keeps adding to its own decayed self — a halo at alpha 0.3 settles at
       0.79 — and the whole picture washes out instead of growing tails.
       Measured: mean coverage went 0.40 → 0.66 at the large preset. With `MAX`
@@ -1109,6 +1194,21 @@ playlist:
   Tab steps past the guide in one press, arrows move between cells (up/down land
   on the neighbouring channel's programme nearest the same point on the
   timeline), and Enter/Space opens the details dialog
+- The M3U `guide` route pairs an inline player with a black broadcast detail
+  stage (video left; live channel/programme information right) before the
+  multi-channel grid. External-player sessions skip the stage so the grid
+  keeps the full page. XMLTV category colours are intentionally restrained and
+  distinguish films, comedy, animation, news, sports, kids, music, factual,
+  lifestyle, and series surfaces without replacing selection or live-state
+  colours
+- **Default guide order is category-first.** `layoutEpgChannelsForDay` derives
+  a row's group from the first non-empty XMLTV programme category on the
+  selected day, then sorts categories naturally (case-insensitive) and channel
+  names within each category. Rows with no category remain together at the end.
+  This applies before the channel-name search filter, so the normal TV Guide
+  view opens organized by genre without adding another sort control. XMLTV
+  programme categories are used because the guide bridge does not expose a
+  reliable playlist channel-group field.
 - Manual EPG mapping (Electron only): right-click a channel in any list (M3U views, Xtream portal list, Stalker ITV sidebar, global favorites) → "Map EPG channel" attaches it to an uploaded-XMLTV channel; stored in `epg_channel_mappings` keyed by the M3U lookup key or a playlist-scoped portal key (`xtream:{playlistId}:{id}` / `stalker:{playlistId}:{id}`, helpers in `libs/shared/interfaces/src/lib/epg-mapping-key.util.ts`); resolved on every EPG path (single + batch IPC lookups, portal detail views, preview queues); dialog: `libs/ui/components/src/lib/channel-list-container/epg-mapping-dialog/`
 - Followed Series: EPG programme dialogs and Xtream/Stalker series details feed a device-local, versioned schedule at `/workspace/followed-series`; a 14-day indexed EPG lookahead normalizes series/episode identity, groups alternative airings, reconciles schedule moves/cancellations, and arms a min-heap timer. The global countdown supports cancel/switch-now/disable, conflicts support prompt/priority/first-available, and the playback runtime uses bounded probes plus backup channels while respecting recording, casting, browser-background, and return-channel preferences. Canonical contract: `docs/architecture/followed-series-auto-switch.md`
 
@@ -1121,13 +1221,37 @@ playlist:
 - Series detail views show a TMDB production-status chip (`tmdb_status`, e.g. Ended / Returning) — TMDB sends `status` in English regardless of request language, so it is normalized to a token by `normalizeSeriesStatus` and rendered via `seriesStatusLabelKey` translations; person pages show `deathday` alongside `birthday`
 - Actor pages: cast avatar chips are clickable (TMDB person id) and open `actor/:personId` inside the current portal — TMDB person bio + full filmography (acting + directing credits merged; acting wins the per-title dedup); director/creator chips (`tmdb_directors` via `enrichedDirectors`/`enrichedCreators` in `tmdb-credits.ts`) are clickable the same way and open the same person page; Xtream matches titles against the loaded catalog (direct navigation), unmatched titles and all Stalker titles open the portal search prefilled (`?q=`); the in-portal search page shows a Back button (`SearchLayoutComponent.showBackButton` → `Location.back()`) so users can return to the actor page; shared UI in `libs/ui/shared-portals` (`ActorViewComponent`)
 - Actor page "All portals" scope (Electron only): batched `DB_MATCH_TITLES` worker op (trigram FTS over all imported Xtream playlists, `apps/electron-backend/src/app/database/operations/title-match.operations.ts`); `normalizeTitle` is shared renderer/worker via `libs/shared/interfaces/src/lib/title-normalization.util.ts`
-- Opt-in via `Settings > Metadata (TMDB)` (sends titles to TMDB); the section also has a "check key" button and a cache panel (row count + payload size, with a clear button); optional user API key overrides the embedded default (`DEFAULT_TMDB_API_KEY` in `libs/services/src/lib/tmdb/tmdb-config.ts` — an empty placeholder in the repo by design; the real key lives in the `TMDB_API_KEY` GitHub Actions secret and is injected at CI build time by `tools/tmdb/inject-tmdb-key.mjs`)
+- Opt-in via `Settings > Metadata (TMDB)` (sends titles to TMDB); the section also has a "check key" button and a cache panel (row count + payload size, with a clear button); optional user API key overrides the embedded default (`DEFAULT_TMDB_API_KEY` in `libs/services/src/lib/tmdb/tmdb-config.ts` — an empty placeholder in the repo by design; the real key lives in the `TMDB_API_KEY` GitHub Actions secret and is injected at CI build time by `tools/tmdb/inject-tmdb-key.mjs`). A local `.env` holding `TMDB_API_KEY` is gitignored and is **not** read at runtime; it only feeds that inject script
+- **Every TMDB consumer resolves its key through `TmdbRuntimeService`** (opt-in gate, effective key, language), which is exported from the `@iptvnator/services` barrel. Do not re-derive the key from `SettingsStore` in a new service. The key is normalized by `normalizeTmdbApiKey`: TMDB's dashboard calls the v4 token an "API Read Access Token" and users paste it as `Bearer eyJ…`, sometimes quoted, so the prefix and quotes are stripped before `isTmdbBearerToken` decides between an `Authorization` header (v4 JWT) and the `api_key` query param (v3 hex). Without that strip a valid v4 token was sent as a v3 param and TMDB answered 401
 - Match confidence: a provider `tmdb_id` is a strong hint, not gospel — its payload is weighed against the item (`assessProviderId`: title or year agrees → use it; both years known and incompatible → the search may take over; title-only mismatch → keep it, since TMDB localizes titles). A 404 marks the id dead (`badProviderId:<id>` row); transient failures never do. Without a usable id: normalized-title + year (±1) search with a strict gate — no confident match means no enrichment
 - Detail views render provider data immediately; enrichment patches the selection asynchronously (staleness-guarded)
 - Cached in SQLite `tmdb_metadata` (Electron, via DB worker ops `DB_GET/SET_TMDB_METADATA`, plus `DB_GET_TMDB_CACHE_STATS` / `DB_CLEAR_TMDB_METADATA` behind the settings cache panel) or in-memory (PWA); localized via the app language setting. Search-match lookup keys are versioned, and connection startup removes obsolete unversioned rows once through the `migration:tmdb-search-lookup-v2-cache-cleanup:v1` app-state marker.
 - Service layer: `libs/services/src/lib/tmdb/`; store glue: `libs/portal/xtream/data-access/src/lib/stores/xtream-tmdb-enrichment.ts` and `libs/portal/stalker/data-access/src/lib/stores/stalker-tmdb-enrichment.ts` (hooked in `withStalkerSelection().setSelectedItem`)
 - TMDB attribution (logo + disclaimer) is required and shown in the settings TMDB section and About
 - See `docs/architecture/tmdb-metadata-enrichment.md`
+
+**Per-App Proxy** (Electron only, `Settings > Network`):
+
+- Routes the built-in players' Chromium session through a SOCKS5/SOCKS4/HTTP(S)
+  proxy so region-locked channels resolve from the proxy's exit country. Not a
+  VPN: only this app's traffic is affected.
+- Stream requests and everything else the renderer fetches are proxied.
+  Main-process playlist/EPG downloads and the external MPV/VLC processes are
+  **not** — the geo-block lives at the stream CDN, so the Chromium session is
+  the part that matters.
+- Persisted in the main-process store (`PROXY_SETTINGS`), not the renderer,
+  because `proxyService.restore()` must configure the session during
+  `bootstrapAppEvents` before any window loads a stream. Applies without a
+  restart; open sockets are dropped so a playing stream re-dials.
+- Credentials never enter the `proxyRules` string (Chromium ignores userinfo
+  there and the URL reaches logs); they come from the app-level `login` event.
+  Loopback and private ranges are always bypassed so the agent-control bridge
+  and remote-control server keep working.
+- "Test connection" probes `ipinfo.io` through a throwaway session and reports
+  the exit IP/country without touching the live session.
+- Service: `apps/electron-backend/src/app/services/proxy.service.ts`; contract:
+  `libs/shared/interfaces/src/lib/proxy.interface.ts`; full details:
+  `docs/architecture/app-proxy.md`
 
 **Favorites and Recently Viewed**:
 
@@ -1224,6 +1348,8 @@ The Electron backend depends on the web app being built first:
 - `electron-backend:build` depends on `web:build`
 - Output goes to `dist/apps/electron-backend` (backend) and `dist/apps/web` (frontend)
 - Packaging combines both into distributable
+- Installing that distributable so the desktop launcher picks it up is a
+  separate step — see `Running A Packaged Build Locally` above
 
 ### Database Migrations
 
@@ -1244,6 +1370,11 @@ No formal migration system yet. Schema changes are applied via raw SQL in the `c
 2. Create event handler in `apps/electron-backend/src/app/events/`
 3. Add the import flow in `libs/playlist/import/feature/` (add-playlist dialog + per-source import components) and surface it on the dashboard (`libs/workspace/dashboard/`) if needed
 4. Update database schema if needed
+
+Adding a *free public playlist* to the Discover catalogue is different: add it
+to `channel-source-featured.ts` (curated) or regenerate the slices with
+`tools/channel-sources/build-catalog.mjs`. Never hand-edit
+`channel-source-catalog.data.ts` — it is generated and will be overwritten.
 
 **State Management**:
 

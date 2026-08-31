@@ -12,13 +12,13 @@ describe('portal category sort', () => {
         localStorage.removeItem(WORKSPACE_CATEGORY_SORT_STORAGE_KEY);
     });
 
-    it('defaults to server sorting and ignores invalid stored values', () => {
-        expect(DEFAULT_PORTAL_CATEGORY_SORT_MODE).toBe('server');
-        expect(restorePortalCategorySortMode()).toBe('server');
+    it('defaults to A-Z sorting and ignores invalid stored values', () => {
+        expect(DEFAULT_PORTAL_CATEGORY_SORT_MODE).toBe('name-asc');
+        expect(restorePortalCategorySortMode()).toBe('name-asc');
 
         localStorage.setItem(WORKSPACE_CATEGORY_SORT_STORAGE_KEY, 'random');
 
-        expect(restorePortalCategorySortMode()).toBe('server');
+        expect(restorePortalCategorySortMode()).toBe('name-asc');
     });
 
     it('persists and restores valid category sort modes', () => {

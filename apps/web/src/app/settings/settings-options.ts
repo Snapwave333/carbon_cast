@@ -88,10 +88,6 @@ export const SETTINGS_DEFAULT_WORKSPACE_PAGE_OPTIONS: DefaultWorkspacePageOption
             value: 'global-recent' satisfies DefaultWorkspacePage,
             labelKey: 'SETTINGS.DEFAULT_WORKSPACE_RECENT',
         },
-        {
-            value: 'downloads' satisfies DefaultWorkspacePage,
-            labelKey: 'SETTINGS.DEFAULT_WORKSPACE_DOWNLOADS',
-        },
     ];
 
 export const SETTINGS_PLAYLIST_DEFAULT_SECTION_OPTIONS: PlaylistDefaultSectionOption[] =
@@ -166,11 +162,14 @@ export function buildSettingsPlayerOptions({
 export interface SettingsSectionVisibility {
     supportsEpg: boolean;
     supportsRemoteControl: boolean;
+    /** Proxying needs Chromium's session API, so desktop only. */
+    supportsProxy: boolean;
 }
 
 export function buildSettingsSectionNavItems({
     supportsEpg,
     supportsRemoteControl,
+    supportsProxy,
 }: SettingsSectionVisibility): SettingsSection[] {
     return [
         {
@@ -178,24 +177,37 @@ export function buildSettingsSectionNavItems({
             label: 'SETTINGS.NAV_GENERAL',
             icon: 'tune',
             visible: true,
+            advanced: false,
         },
         {
             id: 'playback',
             label: 'SETTINGS.NAV_PLAYBACK',
             icon: 'play_circle',
             visible: true,
+            advanced: false,
         },
         {
             id: 'epg',
             label: 'SETTINGS.NAV_EPG',
             icon: 'calendar_month',
             visible: supportsEpg,
+            advanced: false,
+        },
+        {
+            // Not advanced: it is the fix for a geo-blocked stream, and burying
+            // it behind the advanced toggle makes that undiscoverable.
+            id: 'network',
+            label: 'SETTINGS.NAV_NETWORK',
+            icon: 'vpn_lock',
+            visible: supportsProxy,
+            advanced: false,
         },
         {
             id: 'dashboard',
             label: 'SETTINGS.NAV_DASHBOARD',
             icon: 'dashboard',
             visible: true,
+            advanced: true,
         },
         {
             // Must match the section's HTML id (`remote-control`) so the
@@ -207,30 +219,35 @@ export function buildSettingsSectionNavItems({
             label: 'SETTINGS.NAV_REMOTE',
             icon: 'smartphone',
             visible: supportsRemoteControl,
+            advanced: true,
         },
         {
             id: 'tmdb',
             label: 'SETTINGS.NAV_TMDB',
             icon: 'movie',
             visible: true,
+            advanced: true,
         },
         {
             id: 'backup',
             label: 'SETTINGS.NAV_BACKUP',
             icon: 'backup',
             visible: true,
+            advanced: true,
         },
         {
             id: 'reset',
             label: 'SETTINGS.NAV_RESET',
             icon: 'delete_sweep',
             visible: true,
+            advanced: true,
         },
         {
             id: 'about',
             label: 'SETTINGS.NAV_ABOUT',
             icon: 'info',
             visible: true,
+            advanced: true,
         },
     ];
 }

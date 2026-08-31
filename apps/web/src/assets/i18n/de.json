@@ -219,6 +219,10 @@
         "GUIDE_ARTWORK": "TV-Guide-Bilder",
         "GUIDE_ARTWORK_DESCRIPTION": "Programm- und Senderbilder im TV-Guide anzeigen. Deaktivieren für eine kompaktere, reine Textansicht.",
         "TITLE": "Einstellungen",
+        "ESSENTIALS": "Grundeinstellungen",
+        "ESSENTIALS_DESCRIPTION": "Es werden nur die Einstellungen angezeigt, die die meisten Personen benötigen.",
+        "SHOW_ADVANCED": "Erweiterte Einstellungen anzeigen",
+        "HIDE_ADVANCED": "Erweiterte Einstellungen ausblenden",
         "GENERAL": "Allgemein",
         "GENERAL_SUBTITLE": "Allgemeine App-Einstellungen ändern",
         "PLAYBACK": "Wiedergabe",
@@ -316,6 +320,11 @@
         "PLAYER_AMBIENT_MODE_DESCRIPTION": "Füllt den Bereich um den Player mit einem unscharfen, gedimmten Poster auf, anstelle von einfachen schwarzen Balken.",
         "PLAYER_UP_NEXT_RAIL": "Folgenleiste „Als Nächstes“",
         "PLAYER_UP_NEXT_RAIL_DESCRIPTION": "Dockt den Serienplayer in breiten Fenstern links an und zeigt daneben die kommenden Folgen an.",
+        "PREFERRED_QUALITY": "Bevorzugte Videoqualität",
+        "PREFERRED_QUALITY_DESCRIPTION": "Qualität, die die integrierten Player bei jedem Stream anstreben. Streams ohne diese Auflösung spielen die höchste verfügbare ab.",
+        "PREFERRED_QUALITY_2160P": "4K (2160p)",
+        "PREFERRED_QUALITY_1080P": "Full HD (1080p)",
+        "PREFERRED_QUALITY_AUTO": "Automatisch (adaptiv)",
         "STREAM_FORMAT_DESCRIPTION": "Standard-Streamformat auswählen (Xtream)",
         "LANGUAGE_DESCRIPTION": "Wählen Sie die Sprache der Anwendung aus",
         "THEME_DESCRIPTION": "Wählen Sie das visuelle Thema der Anwendung aus",
@@ -452,7 +461,31 @@
         "ATTRIBUTION": "Attribution",
         "ATTRIBUTION_DESCRIPTION": "CarbonCast IPTV is a fork of CarbonCast IPTV (github.com/4gray/iptvnator). The upstream project and its contributors are credited under the original license. CarbonCast IPTV is an independent fork and is not endorsed by the upstream maintainers.",
         "MIRROR_LAYOUT": "Mirror layout",
-        "MIRROR_LAYOUT_DESCRIPTION": "Put the player on the left and the channel/category rail on the right. Applies to the playlist player and Xtream/Stalker live views."
+        "MIRROR_LAYOUT_DESCRIPTION": "Put the player on the left and the channel/category rail on the right. Applies to the playlist player and Xtream/Stalker live views.",
+        "NAV_NETWORK": "Network",
+        "PROXY": "Proxy",
+        "PROXY_DESCRIPTION": "Route this app’s streaming through a proxy so region-locked channels resolve from another country. Only CarbonCast IPTV is affected — the rest of your system keeps its normal connection.",
+        "PROXY_ENABLED": "Route streaming through a proxy",
+        "PROXY_ENABLED_DESCRIPTION": "Applies immediately. Playlist and EPG downloads keep their direct route; only the player’s stream requests are proxied.",
+        "PROXY_SERVER": "Proxy server",
+        "PROXY_SERVER_DESCRIPTION": "Most VPN providers publish a SOCKS5 endpoint you can use here.",
+        "PROXY_PROTOCOL": "Type",
+        "PROXY_HOST": "Host",
+        "PROXY_PORT": "Port",
+        "PROXY_CREDENTIALS": "Credentials",
+        "PROXY_CREDENTIALS_DESCRIPTION": "Leave blank if the proxy needs no sign-in.",
+        "PROXY_USERNAME": "Username",
+        "PROXY_PASSWORD": "Password",
+        "PROXY_BYPASS": "Bypass list",
+        "PROXY_BYPASS_DESCRIPTION": "Hosts that skip the proxy, comma separated. Loopback and local network addresses are always bypassed.",
+        "PROXY_BYPASS_LABEL": "Bypass hosts",
+        "PROXY_TEST": "Test connection",
+        "PROXY_TEST_DESCRIPTION": "Dials the proxy and reports the exit address your streams will appear to come from. Contacts ipinfo.io.",
+        "PROXY_TEST_ACTION": "Test connection",
+        "PROXY_TEST_OK": "Connected — exit",
+        "PROXY_TEST_FAILED": "Could not reach the proxy.",
+        "PROXY_TEST_INCOMPLETE": "Enter a proxy host first.",
+        "PROXY_TEST_DESKTOP_ONLY": "Proxy support requires the desktop app."
     },
     "THEMES": {
         "DARK_THEME": "Dunkel",
@@ -497,6 +530,9 @@
             "AUDIO_TRACK_FALLBACK": "Audio {{index}}",
             "SUBTITLE_TRACK_FALLBACK": "Untertitel {{index}}",
             "PLAYBACK_SPEED": "Wiedergabegeschwindigkeit",
+            "QUALITY": "Qualität",
+            "QUALITY_TOOLTIP": "Qualität: {{quality}}",
+            "QUALITY_AUTO": "Automatisch",
             "SPEED_TOOLTIP": "Geschwindigkeit: {{speed}}",
             "ASPECT_RATIO": "Seitenverhältnis",
             "ASPECT_TOOLTIP": "Seitenverhältnis: {{aspect}}",
@@ -656,7 +692,9 @@
             "SEARCH_PLACEHOLDER": "Gruppen suchen...",
             "NO_RESULTS": "Keine passenden Gruppen gefunden",
             "SAVE": "Speichern"
-        }
+        },
+        "CHANNEL_UP": "Kanal aufwärts",
+        "CHANNEL_DOWN": "Kanal abwärts"
     },
     "TOP_MENU": {
         "OPEN_MULTI_EPG": "Open Multi-EPG view"
@@ -749,7 +787,10 @@
             "ZOOM_DETAIL": "Detailliert",
             "GROUP_SHORT": "Kurzsendungen",
             "GROUP_EXPAND": "anzeigen ›"
-        }
+        },
+        "NOT_IN_PLAYLIST": "Nicht in Playlist",
+        "CHANNEL_NOT_IN_PLAYLIST": "„{{channel}}“ ist nicht in dieser Playlist",
+        "PROGRAM_INFO": "Sendungsdetails"
     },
     "EPG_MAPPING_DIALOG": {
         "TITLE": "EPG-Kanal zuordnen",

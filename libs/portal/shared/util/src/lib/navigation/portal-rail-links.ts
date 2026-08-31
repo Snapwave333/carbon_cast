@@ -26,7 +26,6 @@ export interface PortalRailLink {
 interface BuildPortalRailLinksOptions {
     provider: PortalProvider;
     playlistId: string;
-    supportsDownloads: boolean;
     /** The TV guide needs the EPG runtime; without it the tab is hidden. */
     supportsEpg?: boolean;
     workspace: boolean;
@@ -40,8 +39,7 @@ interface PortalRailLinkGroups {
 export function buildPortalRailLinks(
     options: BuildPortalRailLinksOptions
 ): PortalRailLinkGroups {
-    const { provider, playlistId, supportsDownloads, supportsEpg, workspace } =
-        options;
+    const { provider, playlistId, supportsEpg, workspace } = options;
     const root = workspace
         ? ['/workspace', provider, playlistId]
         : [`/${provider}`, playlistId];
@@ -86,15 +84,6 @@ export function buildPortalRailLinks(
             }
         );
 
-        if (supportsDownloads) {
-            secondary.push({
-                icon: 'download',
-                tooltip: 'Downloads (this playlist)',
-                path: [...root, 'downloads'],
-                section: 'downloads',
-            });
-        }
-
         return { primary, secondary };
     }
 
@@ -135,15 +124,6 @@ export function buildPortalRailLinks(
             },
         ];
 
-        if (supportsDownloads) {
-            secondary.push({
-                icon: 'download',
-                tooltip: 'Downloads (this playlist)',
-                path: [...root, 'downloads'],
-                section: 'downloads',
-            });
-        }
-
         return { primary, secondary };
     }
 
@@ -171,16 +151,16 @@ export function buildPortalRailLinks(
             },
             {
                 icon: 'folder',
-                tooltip: 'Groups (this playlist)',
+                tooltip: 'Categories (this playlist)',
                 path: [...root, 'groups'],
                 exact: true,
                 section: 'groups',
             }
         );
 
-        // Favourites and Recent are routed sections of the M3U player
-        // (m3u-workspace.routes.ts), but without these entries the rail
-        // offered no way to reach them.
+        // Favourites stays directly reachable for the active M3U playlist.
+        // Recently viewed is intentionally omitted to keep the bottom dock
+        // focused on browsing and playback destinations.
         const secondary: PortalRailLink[] = [
             {
                 icon: 'favorite',
@@ -188,13 +168,6 @@ export function buildPortalRailLinks(
                 path: [...root, 'favorites'],
                 exact: true,
                 section: 'favorites',
-            },
-            {
-                icon: 'history',
-                tooltip: 'Recently viewed (this playlist)',
-                path: [...root, 'recent'],
-                exact: true,
-                section: 'recent',
             },
         ];
 

@@ -83,14 +83,52 @@
     line-height: 1;
     color: var(--app-muted-color, #8891a4);
     font-variant-numeric: tabular-nums;
-    padding: 2px 8px;
+    padding: 2.5px 8.5px;
     border-radius: 999px;
     background: color-mix(
         in srgb,
-        var(--app-muted-color, #8891a4) 18%,
+        var(--app-muted-color, #8891a4) 16%,
         transparent
     );
-    letter-spacing: 0;
+    border: 1px solid color-mix(
+        in srgb,
+        var(--app-muted-color, #8891a4) 22%,
+        transparent
+    );
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+    letter-spacing: 0.01em;
+    backdrop-filter: blur(8px);
+}
+
+// Reusable glassmorphic panel surface utility
+.app-glass-panel {
+    background: color-mix(in srgb, var(--mat-sys-surface, #12141a) 85%, transparent);
+    border: 1px solid color-mix(in srgb, var(--app-muted-color, #8891a4) 18%, transparent);
+    backdrop-filter: blur(16px) saturate(1.2);
+    box-shadow:
+        0 12px 36px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+// Global skeleton loading wave animation
+.skeleton-shimmer {
+    background: linear-gradient(
+        90deg,
+        color-mix(in srgb, var(--app-muted-color, #8891a4) 12%, transparent) 0%,
+        color-mix(in srgb, var(--app-muted-color, #8891a4) 24%, transparent) 50%,
+        color-mix(in srgb, var(--app-muted-color, #8891a4) 12%, transparent) 100%
+    );
+    background-size: 200% 100%;
+    animation: skeleton-shimmer-wave 1.6s ease-in-out infinite;
+}
+
+@keyframes skeleton-shimmer-wave {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
 }
 
 app-root.macos-platform .current-playlist {
@@ -171,6 +209,36 @@ textarea {
     --app-focus-ring-color: var(--mat-sys-primary, #7c8cf5);
     --app-focus-ring-width: 2px;
     --app-focus-ring-offset: 2px;
+}
+
+// ─── Shared spatial rhythm ───────────────────────────────────────────────────
+// Keep the shell, collection pages, settings, and media views on the same
+// compact eight-point scale. Component styles use these tokens instead of
+// inventing local gutters, so wide windows gain breathing room without making
+// phone and compact-player layouts feel sparse.
+:root {
+    --app-space-1: 4px;
+    --app-space-2: 8px;
+    --app-space-3: 12px;
+    --app-space-4: 16px;
+    --app-space-5: 20px;
+    --app-space-6: 24px;
+    --app-space-7: 32px;
+    --app-space-8: 40px;
+    --app-shell-gutter: clamp(10px, 1.25vw, 18px);
+    --app-content-gutter: clamp(12px, 1.6vw, 20px);
+    --app-page-gutter: clamp(16px, 2.2vw, 28px);
+    --app-section-gap: clamp(18px, 2.2vw, 28px);
+    --app-empty-state-padding: clamp(36px, 7vh, 64px);
+}
+
+@media (max-width: 640px) {
+    :root {
+        --app-shell-gutter: 8px;
+        --app-content-gutter: 12px;
+        --app-page-gutter: 14px;
+        --app-section-gap: 16px;
+    }
 }
 
 // ─── Motion ───────────────────────────────────────────────────────────────────
@@ -268,7 +336,8 @@ a,
 }
 
 .cdk-overlay-backdrop {
-    backdrop-filter: blur(4px);
+    backdrop-filter: blur(12px) saturate(1.15);
+    background-color: rgba(0, 0, 0, 0.55);
 }
 
 // Command palette dialog — the palette-shell renders its own background, border,
@@ -340,12 +409,129 @@ app-playlist-item .playlist-item {
 // Cards lift toward the pointer rather than just changing colour.
 .link-card:hover,
 app-playlist-item .playlist-item:hover {
-    transform: translateY(-2px);
+    transform: translateY(-3px) scale(1.01);
+    box-shadow: 0 10px 28px -6px rgba(0, 0, 0, 0.45);
 }
 
 .link-card:active,
 app-playlist-item .playlist-item:active {
-    transform: translateY(0);
+    transform: translateY(0) scale(0.995);
+    box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.3);
+}
+
+// Hovering an interactive target draws a gradient rule in from each end: the
+// top line sweeps left-to-right, the bottom line right-to-left, so the pair
+// closes on the label. Pure `scaleX`, so nothing reflows, both lines land
+// together, and the whole thing stays on the compositor.
+//
+// This treatment owns BOTH pseudo-elements of the element it lands on, so it
+// is applied through DELIBERATELY WEAK selectors — bare `button`, `[role=tab]`
+// — rather than a class list. A component that draws its own ::before (the EPG
+// live button's status dot, say) uses a class selector and therefore outranks
+// this, keeping its own decoration instead of silently losing it. Adding a
+// class to the target list below would invert that and break those components.
+%app-hover-rule {
+    position: relative;
+
+    // How far outside the element the rules sit. Anything inside a clipping
+    // container needs `0px` or the overflow eats the lines.
+    --app-hover-rule-offset: -5px;
+
+    &::before,
+    &::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        border-radius: 2px;
+        // The theme's red → cyan pair, so the rule reads as CarbonCast rather
+        // than as a stray primary/secondary gradient.
+        background: linear-gradient(
+            to right,
+            var(--app-live-color, #ff3b3b),
+            var(--mat-sys-tertiary, #22d3ee)
+        );
+        transform: scaleX(0);
+        transform-origin: right;
+        transition: transform var(--app-motion-slow) var(--app-ease-out);
+        // The rules overhang the element, so they would otherwise take the
+        // pointer events that belong to whatever sits under them.
+        pointer-events: none;
+    }
+
+    &::before {
+        top: var(--app-hover-rule-offset);
+        transform-origin: left;
+    }
+
+    &::after {
+        bottom: var(--app-hover-rule-offset);
+    }
+
+    &:hover::before,
+    &:hover::after,
+    &:focus-visible::before,
+    &:focus-visible::after {
+        transform: scaleX(1);
+    }
+
+    // The blanket reduced-motion rule below collapses this to 0.01ms, so the
+    // rules appear fully drawn the instant the pointer arrives — the sweep is
+    // the whole point of the effect, and a 2px line growing along an edge
+    // moves nothing the eye is reading. Kept, at roughly half speed.
+    //
+    // To honour the OS preference strictly instead, delete this block.
+    @media (prefers-reduced-motion: reduce) {
+        &::before,
+        &::after {
+            transition-duration: var(--app-motion-base) !important;
+        }
+    }
+}
+
+// Opt-in class, for markup that wants the treatment without being a button.
+.app-hover-rule {
+    @extend %app-hover-rule;
+}
+
+// Every button and tab in the app. `button` catches Material's buttons and
+// the app's own plain ones in a single low-specificity selector; `[role=tab]`
+// and `.portal-rail-link` catch the tab strips, which are anchors rather than
+// buttons. `.nav-item` covers the list-shaped navigation rows (settings
+// sections, context panel entries) that read as tabs to the user.
+//
+// These hug their own edges instead of overhanging by 5px. They sit in
+// toolbars, dense action rows, card footers and horizontal scrollers, and
+// enough of those clip on the cross axis that an overhang would show up as
+// half-drawn lines; the nav dock, which has the room for it, keeps the
+// overhang.
+button,
+[role='tab'],
+.portal-rail-link,
+.nav-item,
+.link-card {
+    @extend %app-hover-rule;
+
+    --app-hover-rule-offset: 0px;
+}
+
+// A control that cannot be pressed must not answer to the pointer. Material
+// disables buttons both natively and with `aria-disabled` (menu and toolbar
+// triggers use the latter so they stay focusable), so both need covering.
+// Scoped to the target set above rather than to `[aria-disabled]` at large,
+// which would strip decoration from unrelated disabled components.
+button:disabled::before,
+button:disabled::after,
+button[aria-disabled='true']::before,
+button[aria-disabled='true']::after,
+[role='tab'][aria-disabled='true']::before,
+[role='tab'][aria-disabled='true']::after,
+.portal-rail-link[aria-disabled='true']::before,
+.portal-rail-link[aria-disabled='true']::after,
+.nav-item[aria-disabled='true']::before,
+.nav-item[aria-disabled='true']::after {
+    content: none;
 }
 
 // A favourite toggling on is the app's most frequent "yes, that worked"

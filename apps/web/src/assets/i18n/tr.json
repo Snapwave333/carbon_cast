@@ -219,6 +219,10 @@
         "GUIDE_ARTWORK": "TV rehberi görselleri",
         "GUIDE_ARTWORK_DESCRIPTION": "TV rehberinde program ve kanal görsellerini göster. Daha yoğun, yalnızca metin görünümü için kapatın.",
         "TITLE": "Ayarlar",
+        "ESSENTIALS": "Temel ayarlar",
+        "ESSENTIALS_DESCRIPTION": "Yalnızca çoğu kişinin ihtiyaç duyduğu ayarlar gösterilir.",
+        "SHOW_ADVANCED": "Gelişmiş ayarları göster",
+        "HIDE_ADVANCED": "Gelişmiş ayarları gizle",
         "GENERAL": "Genel",
         "GENERAL_SUBTITLE": "Uygulamanın yapılandırmasını değiştirin",
         "PLAYBACK": "Oynatma",
@@ -316,6 +320,11 @@
         "PLAYER_AMBIENT_MODE_DESCRIPTION": "Oynatıcının çevresindeki boşluğu siyah çubuklar yerine bulanık ve karartılmış bir poster ile doldurur.",
         "PLAYER_UP_NEXT_RAIL": "Sıradaki bölümler paneli",
         "PLAYER_UP_NEXT_RAIL_DESCRIPTION": "Geniş pencerelerde dizi oynatıcısını sola yaslar ve sıradaki bölümleri yanında gösterir.",
+        "PREFERRED_QUALITY": "Tercih edilen video kalitesi",
+        "PREFERRED_QUALITY_DESCRIPTION": "Yerleşik oynatıcıların her yayında hedeflediği kalite. Bu çözünürlüğe sahip olmayan yayınlar mevcut en yüksek kaliteyi oynatır.",
+        "PREFERRED_QUALITY_2160P": "4K (2160p)",
+        "PREFERRED_QUALITY_1080P": "Full HD (1080p)",
+        "PREFERRED_QUALITY_AUTO": "Otomatik (uyarlanabilir)",
         "STREAM_FORMAT_DESCRIPTION": "Varsayılan yayın formatını seçin (xtream)",
         "LANGUAGE_DESCRIPTION": "Uygulamanın dilini seçin",
         "THEME_DESCRIPTION": "Uygulamanın görünüm temasını seçin",
@@ -452,7 +461,31 @@
         "ATTRIBUTION": "Attribution",
         "ATTRIBUTION_DESCRIPTION": "CarbonCast IPTV is a fork of CarbonCast IPTV (github.com/4gray/iptvnator). The upstream project and its contributors are credited under the original license. CarbonCast IPTV is an independent fork and is not endorsed by the upstream maintainers.",
         "MIRROR_LAYOUT": "Mirror layout",
-        "MIRROR_LAYOUT_DESCRIPTION": "Put the player on the left and the channel/category rail on the right. Applies to the playlist player and Xtream/Stalker live views."
+        "MIRROR_LAYOUT_DESCRIPTION": "Put the player on the left and the channel/category rail on the right. Applies to the playlist player and Xtream/Stalker live views.",
+        "NAV_NETWORK": "Network",
+        "PROXY": "Proxy",
+        "PROXY_DESCRIPTION": "Route this app’s streaming through a proxy so region-locked channels resolve from another country. Only CarbonCast IPTV is affected — the rest of your system keeps its normal connection.",
+        "PROXY_ENABLED": "Route streaming through a proxy",
+        "PROXY_ENABLED_DESCRIPTION": "Applies immediately. Playlist and EPG downloads keep their direct route; only the player’s stream requests are proxied.",
+        "PROXY_SERVER": "Proxy server",
+        "PROXY_SERVER_DESCRIPTION": "Most VPN providers publish a SOCKS5 endpoint you can use here.",
+        "PROXY_PROTOCOL": "Type",
+        "PROXY_HOST": "Host",
+        "PROXY_PORT": "Port",
+        "PROXY_CREDENTIALS": "Credentials",
+        "PROXY_CREDENTIALS_DESCRIPTION": "Leave blank if the proxy needs no sign-in.",
+        "PROXY_USERNAME": "Username",
+        "PROXY_PASSWORD": "Password",
+        "PROXY_BYPASS": "Bypass list",
+        "PROXY_BYPASS_DESCRIPTION": "Hosts that skip the proxy, comma separated. Loopback and local network addresses are always bypassed.",
+        "PROXY_BYPASS_LABEL": "Bypass hosts",
+        "PROXY_TEST": "Test connection",
+        "PROXY_TEST_DESCRIPTION": "Dials the proxy and reports the exit address your streams will appear to come from. Contacts ipinfo.io.",
+        "PROXY_TEST_ACTION": "Test connection",
+        "PROXY_TEST_OK": "Connected — exit",
+        "PROXY_TEST_FAILED": "Could not reach the proxy.",
+        "PROXY_TEST_INCOMPLETE": "Enter a proxy host first.",
+        "PROXY_TEST_DESKTOP_ONLY": "Proxy support requires the desktop app."
     },
     "THEMES": {
         "DARK_THEME": "Koyu",
@@ -497,6 +530,9 @@
             "AUDIO_TRACK_FALLBACK": "Ses {{index}}",
             "SUBTITLE_TRACK_FALLBACK": "Altyazı {{index}}",
             "PLAYBACK_SPEED": "Oynatma hızı",
+            "QUALITY": "Kalite",
+            "QUALITY_TOOLTIP": "Kalite: {{quality}}",
+            "QUALITY_AUTO": "Otomatik",
             "SPEED_TOOLTIP": "Hız: {{speed}}",
             "ASPECT_RATIO": "En boy oranı",
             "ASPECT_TOOLTIP": "En boy oranı: {{aspect}}",
@@ -656,7 +692,9 @@
             "SEARCH_PLACEHOLDER": "Grupları ara...",
             "NO_RESULTS": "Eşleşen grup bulunamadı",
             "SAVE": "Kaydet"
-        }
+        },
+        "CHANNEL_UP": "Sonraki kanal",
+        "CHANNEL_DOWN": "Önceki kanal"
     },
     "TOP_MENU": {
         "OPEN_MULTI_EPG": "Çoklu EPG görünümünü aç"
@@ -749,7 +787,10 @@
             "ZOOM_DETAIL": "Detaylı",
             "GROUP_SHORT": "kısa program",
             "GROUP_EXPAND": "göster ›"
-        }
+        },
+        "NOT_IN_PLAYLIST": "Listede yok",
+        "CHANNEL_NOT_IN_PLAYLIST": "\"{{channel}}\" bu oynatma listesinde yok",
+        "PROGRAM_INFO": "Program ayrıntıları"
     },
     "EPG_MAPPING_DIALOG": {
         "TITLE": "EPG Kanalı Eşle",

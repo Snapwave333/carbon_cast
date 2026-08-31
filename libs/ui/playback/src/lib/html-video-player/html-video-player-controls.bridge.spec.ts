@@ -111,6 +111,7 @@ describe('HtmlVideoPlayerControlsBridge lifecycle', () => {
             adapter,
             isLive: () => false,
             showCaptions: () => true,
+            preferredQuality: () => 'auto',
         });
 
         bridge.attach();
@@ -138,6 +139,7 @@ describe('HtmlVideoPlayerControlsBridge lifecycle', () => {
             adapter,
             isLive: () => false,
             showCaptions: () => true,
+            preferredQuality: () => 'auto',
         });
 
         bridge.attach();
@@ -158,6 +160,7 @@ describe('HtmlVideoPlayerControlsBridge lifecycle', () => {
             adapter,
             isLive: () => isLive,
             showCaptions: () => true,
+            preferredQuality: () => 'auto',
         });
 
         bridge.attach();
@@ -185,6 +188,7 @@ describe('HtmlVideoPlayerControlsBridge lifecycle', () => {
             adapter,
             isLive: () => false,
             showCaptions: () => true,
+            preferredQuality: () => 'auto',
         });
         bridge.attach();
         detachSpy.mockClear();

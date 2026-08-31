@@ -219,6 +219,10 @@
         "GUIDE_ARTWORK": "番組表のアートワーク",
         "GUIDE_ARTWORK_DESCRIPTION": "番組表に番組やチャンネルの画像を表示します。オフにするとテキストのみの高密度表示になります。",
         "TITLE": "設定",
+        "ESSENTIALS": "基本設定",
+        "ESSENTIALS_DESCRIPTION": "ほとんどのユーザーに必要な設定だけを表示します。",
+        "SHOW_ADVANCED": "詳細設定を表示",
+        "HIDE_ADVANCED": "詳細設定を非表示",
         "GENERAL": "一般",
         "GENERAL_SUBTITLE": "アプリケーションの設定を変更",
         "PLAYBACK": "再生",
@@ -316,6 +320,11 @@
         "PLAYER_AMBIENT_MODE_DESCRIPTION": "プレーヤーの周囲をぼかしたポスター画像で埋め、通常の黒い枠の代わりに表示します。",
         "PLAYER_UP_NEXT_RAIL": "「次に再生」エピソードレール",
         "PLAYER_UP_NEXT_RAIL_DESCRIPTION": "ウィンドウ幅が広い場合、シリーズのプレーヤーを左側に配置し、その横に次のエピソードの一覧を表示します。",
+        "PREFERRED_QUALITY": "優先する画質",
+        "PREFERRED_QUALITY_DESCRIPTION": "内蔵プレーヤーがすべてのストリームで目指す画質です。その解像度がないストリームは利用可能な最高画質で再生されます。",
+        "PREFERRED_QUALITY_2160P": "4K (2160p)",
+        "PREFERRED_QUALITY_1080P": "Full HD (1080p)",
+        "PREFERRED_QUALITY_AUTO": "自動 (アダプティブ)",
         "STREAM_FORMAT_DESCRIPTION": "デフォルトのストリーム形式を選択（Xtream）",
         "LANGUAGE_DESCRIPTION": "アプリケーションの言語を選択",
         "THEME_DESCRIPTION": "アプリケーションの視覚テーマを選択",
@@ -452,7 +461,31 @@
         "ATTRIBUTION": "Attribution",
         "ATTRIBUTION_DESCRIPTION": "CarbonCast IPTV is a fork of CarbonCast IPTV (github.com/4gray/iptvnator). The upstream project and its contributors are credited under the original license. CarbonCast IPTV is an independent fork and is not endorsed by the upstream maintainers.",
         "MIRROR_LAYOUT": "Mirror layout",
-        "MIRROR_LAYOUT_DESCRIPTION": "Put the player on the left and the channel/category rail on the right. Applies to the playlist player and Xtream/Stalker live views."
+        "MIRROR_LAYOUT_DESCRIPTION": "Put the player on the left and the channel/category rail on the right. Applies to the playlist player and Xtream/Stalker live views.",
+        "NAV_NETWORK": "Network",
+        "PROXY": "Proxy",
+        "PROXY_DESCRIPTION": "Route this app’s streaming through a proxy so region-locked channels resolve from another country. Only CarbonCast IPTV is affected — the rest of your system keeps its normal connection.",
+        "PROXY_ENABLED": "Route streaming through a proxy",
+        "PROXY_ENABLED_DESCRIPTION": "Applies immediately. Playlist and EPG downloads keep their direct route; only the player’s stream requests are proxied.",
+        "PROXY_SERVER": "Proxy server",
+        "PROXY_SERVER_DESCRIPTION": "Most VPN providers publish a SOCKS5 endpoint you can use here.",
+        "PROXY_PROTOCOL": "Type",
+        "PROXY_HOST": "Host",
+        "PROXY_PORT": "Port",
+        "PROXY_CREDENTIALS": "Credentials",
+        "PROXY_CREDENTIALS_DESCRIPTION": "Leave blank if the proxy needs no sign-in.",
+        "PROXY_USERNAME": "Username",
+        "PROXY_PASSWORD": "Password",
+        "PROXY_BYPASS": "Bypass list",
+        "PROXY_BYPASS_DESCRIPTION": "Hosts that skip the proxy, comma separated. Loopback and local network addresses are always bypassed.",
+        "PROXY_BYPASS_LABEL": "Bypass hosts",
+        "PROXY_TEST": "Test connection",
+        "PROXY_TEST_DESCRIPTION": "Dials the proxy and reports the exit address your streams will appear to come from. Contacts ipinfo.io.",
+        "PROXY_TEST_ACTION": "Test connection",
+        "PROXY_TEST_OK": "Connected — exit",
+        "PROXY_TEST_FAILED": "Could not reach the proxy.",
+        "PROXY_TEST_INCOMPLETE": "Enter a proxy host first.",
+        "PROXY_TEST_DESKTOP_ONLY": "Proxy support requires the desktop app."
     },
     "THEMES": {
         "DARK_THEME": "ダーク",
@@ -497,6 +530,9 @@
             "AUDIO_TRACK_FALLBACK": "音声 {{index}}",
             "SUBTITLE_TRACK_FALLBACK": "字幕 {{index}}",
             "PLAYBACK_SPEED": "再生速度",
+            "QUALITY": "画質",
+            "QUALITY_TOOLTIP": "画質: {{quality}}",
+            "QUALITY_AUTO": "自動",
             "SPEED_TOOLTIP": "速度：{{speed}}",
             "ASPECT_RATIO": "アスペクト比",
             "ASPECT_TOOLTIP": "アスペクト比：{{aspect}}",
@@ -656,7 +692,9 @@
             "SEARCH_PLACEHOLDER": "グループを検索...",
             "NO_RESULTS": "一致するグループが見つかりません",
             "SAVE": "保存"
-        }
+        },
+        "CHANNEL_UP": "次のチャンネル",
+        "CHANNEL_DOWN": "前のチャンネル"
     },
     "TOP_MENU": {
         "OPEN_MULTI_EPG": "マルチEPGビューを開く"
@@ -749,7 +787,10 @@
             "ZOOM_DETAIL": "詳細",
             "GROUP_SHORT": "短い番組",
             "GROUP_EXPAND": "表示 ›"
-        }
+        },
+        "NOT_IN_PLAYLIST": "リストになし",
+        "CHANNEL_NOT_IN_PLAYLIST": "「{{channel}}」はこのプレイリストにありません",
+        "PROGRAM_INFO": "番組の詳細"
     },
     "EPG_MAPPING_DIALOG": {
         "TITLE": "EPGチャンネルの割り当て",

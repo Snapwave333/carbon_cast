@@ -34,6 +34,17 @@ describe('settings form utils — strip country prefix', () => {
         expect(settings.stripCountryPrefix).toBe(false);
     });
 
+    it('defaults to showing U.S. channels first and preserves an explicit opt-out', () => {
+        const form = createSettingsForm(formBuilder, true);
+
+        expect(form.getRawValue().hideNonUsChannels).toBe(true);
+
+        form.patchValue({ hideNonUsChannels: false });
+        expect(
+            createSettingsFromFormValue(form, {} as Settings).hideNonUsChannels
+        ).toBe(false);
+    });
+
     it('uses the left-player layout for a fresh form but preserves an explicit choice', () => {
         const form = createSettingsForm(formBuilder, true);
 

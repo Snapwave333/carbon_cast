@@ -62,16 +62,20 @@ export function getProgramArtworkUrl(
     return url && /^https?:\/\//i.test(url) ? url : null;
 }
 
-// Category accent palette — theme-friendly hues that read on the dark grid.
+// Category accent palette — restrained hues that read on the dark grid without
+// turning the schedule into a rainbow. Every colour is used as a 3px edge and
+// low-opacity wash, never as a full card fill.
 const CATEGORY_PALETTE = [
-    '#60a5fa', // blue — series / drama / entertainment
-    '#f472b6', // pink — movies
-    '#f87171', // red — news
-    '#4ade80', // green — sports
-    '#fbbf24', // amber — kids
-    '#a78bfa', // violet — music
-    '#2dd4bf', // teal — documentary / factual
-    '#fb923c', // orange — lifestyle / misc
+    '#8cb4df', // blue — series / drama / entertainment
+    '#d990b0', // rose — movies
+    '#d78484', // red — news
+    '#78b991', // green — sports
+    '#d8b66b', // amber — kids
+    '#aa9bdd', // violet — music
+    '#76bdb5', // teal — documentary / factual
+    '#d6a07a', // orange — lifestyle / misc
+    '#d0a666', // gold — comedy
+    '#82c6a7', // mint — animation
 ] as const;
 
 // Keyword buckets cover the common XMLTV category vocabularies (several
@@ -91,10 +95,16 @@ const CATEGORY_RULES: readonly [RegExp, string][] = [
     [MOVIE_CATEGORY_PATTERN, CATEGORY_PALETTE[1]],
     [/news|report|nachricht|noticia|actualit/i, CATEGORY_PALETTE[2]],
     [/sport|fu[sß]ball|f[uú]tbol|soccer|racing/i, CATEGORY_PALETTE[3]],
-    [/kids|child|anima|cartoon|kinder|infantil|jeunesse/i, CATEGORY_PALETTE[4]],
+    [/comedy|sitcom|humou?r|stand.?up|kabarett/i, CATEGORY_PALETTE[8]],
+    [
+        /animation|animaci[oó]n|anime|cartoon|zeichentrick|animated/i,
+        CATEGORY_PALETTE[9],
+    ],
+    [/kids|child|kinder|infantil|jeunesse/i, CATEGORY_PALETTE[4]],
     [/music|musik|m[uú]sica|concert/i, CATEGORY_PALETTE[5]],
     [/doc|nature|science|history|wissen|natur/i, CATEGORY_PALETTE[6]],
-    [/series|serie|drama|show|comedy|entertain|talk/i, CATEGORY_PALETTE[0]],
+    [/reality|lifestyle|food|travel|home|garden/i, CATEGORY_PALETTE[7]],
+    [/series|serie|drama|show|entertain|talk/i, CATEGORY_PALETTE[0]],
 ];
 
 /**
@@ -192,10 +202,7 @@ export function deduplicateProgramsByTimeSlot(
     return Array.from(programsByTimeSlot.values());
 }
 
-export function areProgramsSame(
-    left: EpgProgram,
-    right: EpgProgram
-): boolean {
+export function areProgramsSame(left: EpgProgram, right: EpgProgram): boolean {
     return (
         (left.channel ?? '') === (right.channel ?? '') &&
         getProgramTimeMs(left.start, left.startTimestamp) ===

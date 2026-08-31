@@ -65,6 +65,50 @@ import {
 
 const GROUP_CHANNEL_SORT_STORAGE_KEY = 'm3u-groups-channel-sort-mode';
 
+interface GroupNavigationSection {
+    readonly key: string;
+    readonly label: string | null;
+    readonly groups: ReadonlyArray<FilteredGroupView>;
+}
+
+function getGroupNavigationSectionKey(label: string): string {
+    const normalizedLabel = label.replace(/^\d+\s*[|:.-]\s*/, '').trim();
+    const firstCharacter = Array.from(normalizedLabel)[0];
+
+    if (
+        !firstCharacter ||
+        firstCharacter.toLocaleUpperCase() ===
+            firstCharacter.toLocaleLowerCase()
+    ) {
+        return '#';
+    }
+
+    return firstCharacter.toLocaleUpperCase();
+}
+
+function createGroupNavigationSections(
+    groups: readonly FilteredGroupView[]
+): ReadonlyArray<GroupNavigationSection> {
+    const sections = new Map<string, FilteredGroupView[]>();
+
+    for (const group of groups) {
+        const key = getGroupNavigationSectionKey(group.label);
+        const sectionGroups = sections.get(key) ?? [];
+        sectionGroups.push(group);
+        sections.set(key, sectionGroups);
+    }
+
+    const showSectionLabels = sections.size > 1 && groups.length > 7;
+
+    return Array.from(sections.entries())
+        .sort(([left], [right]) => left.localeCompare(right))
+        .map(([key, sectionGroups]) => ({
+            key,
+            label: showSectionLabels ? key : null,
+            groups: sectionGroups,
+        }));
+}
+
 @Component({
     selector: 'app-groups-view',
     templateUrl: './groups-view.component.html',
@@ -240,6 +284,10 @@ export class GroupsViewComponent {
             this.workspaceFilteredGroups(),
             this.localGroupSearchTerm()
         )
+    );
+
+    readonly groupNavigationSections = computed(() =>
+        createGroupNavigationSections(this.filteredGroups())
     );
 
     readonly hasAnyGroups = computed(() => this.allGroups().length > 0);

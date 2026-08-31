@@ -51,6 +51,24 @@ export type VideoJsTrackList<TTrack> = {
 export type VideoJsAudioTrackList = VideoJsTrackList<VideoJsAudioTrack>;
 export type VideoJsTextTrackList = VideoJsTrackList<VideoJsTextTrack>;
 
+/** One entry of the `videojs-contrib-quality-levels` list. */
+export type VideoJsQualityLevel = {
+    id?: string;
+    width?: number;
+    height?: number;
+    bitrate?: number;
+    enabled: boolean;
+};
+
+export type VideoJsQualityLevelList = {
+    length: number;
+    [index: number]: VideoJsQualityLevel;
+    /** Index of the rendition currently being played, or -1. */
+    selectedIndex: number;
+    on?: (type: string, listener: () => void) => void;
+    off?: (type: string, listener: () => void) => void;
+};
+
 export type VideoJsTech = {
     el?: () => Element | null;
     vhs?: {
@@ -79,6 +97,7 @@ export type VideoJsPlayer = Omit<
         displayCurrentQuality?: boolean;
     }) => void;
     aspectRatioPanel?: () => void;
+    qualityLevels?: () => VideoJsQualityLevelList | null;
     audioTracks: () => VideoJsAudioTrackList | null;
     textTracks: () => VideoJsTextTrackList | null;
     tech: (options?: unknown) => VideoJsTech | null;

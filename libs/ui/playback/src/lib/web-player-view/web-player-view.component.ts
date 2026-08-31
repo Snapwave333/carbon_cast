@@ -20,6 +20,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 import {
     Channel,
     normalizePlayerControlsSettings,
+    normalizePreferredQuality,
     ResolvedPortalPlayback,
     Settings,
     STORE_KEY,
@@ -51,6 +52,7 @@ import {
     getDiagnosticCodecHint,
     getDiagnosticDescriptionKey,
     getDiagnosticDetails,
+    getDiagnosticHeadlineKey,
     getDiagnosticMeta,
     getDiagnosticTitleKey,
 } from './web-player-view-diagnostics.utils';
@@ -122,6 +124,10 @@ export class WebPlayerViewComponent {
     readonly playbackEnded = output<void>();
     readonly previousEpisodeRequested = output<void>();
     readonly nextEpisodeRequested = output<void>();
+    // Host-owned channel flipping; see PlayerControlsComponent for rationale.
+    readonly channelNavigation = input(false);
+    readonly channelUpRequested = output<void>();
+    readonly channelDownRequested = output<void>();
 
     settings = toSignal(this.storage.get(STORE_KEY.Settings)) as Signal<
         Settings | undefined
@@ -135,6 +141,15 @@ export class WebPlayerViewComponent {
      */
     readonly showCaptions = computed(
         () => this.settingsStore.showCaptions?.() ?? false
+    );
+
+    /**
+     * Target rendition for the built-in web players. Read from the settings
+     * store for the same reason as {@link showCaptions}: every host inherits
+     * it without wiring a binding through each call site.
+     */
+    readonly preferredQuality = computed(() =>
+        normalizePreferredQuality(this.settingsStore.preferredQuality?.())
     );
 
     channel!: Channel;
@@ -159,9 +174,7 @@ export class WebPlayerViewComponent {
             !!this.visiblePlaybackDiagnostic()?.externalFallbackRecommended
     );
     readonly diagnosticHeadlineKey = computed(() =>
-        this.canShowExternalFallbackActions()
-            ? 'PLAYBACK_DIAGNOSTICS.NATIVE_FALLBACK_TITLE'
-            : 'PLAYBACK_DIAGNOSTICS.INLINE_FAILURE_TITLE'
+        getDiagnosticHeadlineKey(this.canShowExternalFallbackActions())
     );
 
     readonly resolvedPlayback = computed<ResolvedPortalPlayback>(() => {

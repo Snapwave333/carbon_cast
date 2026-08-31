@@ -1,0 +1,191 @@
+<section
+    class="settings-group"
+    [class.settings-group--active]="activeSection() === 'network'"
+    id="network"
+    [formGroup]="form()"
+>
+    <header class="settings-group__header">
+        <div class="settings-group__header-icon">
+            <mat-icon svgIcon="vpn_lock"></mat-icon>
+        </div>
+        <div class="settings-group__header-text">
+            <h3>{{ 'SETTINGS.PROXY' | translate }}</h3>
+            <p>{{ 'SETTINGS.PROXY_DESCRIPTION' | translate }}</p>
+        </div>
+    </header>
+
+    <div formGroupName="proxy">
+        <div class="setting-item">
+            <div class="setting-item__meta">
+                <h4>{{ 'SETTINGS.PROXY_ENABLED' | translate }}</h4>
+                <p>{{ 'SETTINGS.PROXY_ENABLED_DESCRIPTION' | translate }}</p>
+            </div>
+            <div class="setting-item__control setting-item__toggle">
+                <mat-checkbox
+                    formControlName="enabled"
+                    data-test-id="proxy-enabled"
+                ></mat-checkbox>
+            </div>
+        </div>
+
+        @if (enabled) {
+            <div class="setting-item">
+                <div class="setting-item__meta">
+                    <h4>{{ 'SETTINGS.PROXY_SERVER' | translate }}</h4>
+                    <p>{{ 'SETTINGS.PROXY_SERVER_DESCRIPTION' | translate }}</p>
+                </div>
+                <div class="setting-item__control">
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                        <mat-label>{{
+                            'SETTINGS.PROXY_PROTOCOL' | translate
+                        }}</mat-label>
+                        <mat-select
+                            formControlName="protocol"
+                            data-test-id="proxy-protocol"
+                        >
+                            @for (protocol of protocols; track protocol) {
+                                <mat-option [value]="protocol">{{
+                                    protocol
+                                }}</mat-option>
+                            }
+                        </mat-select>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                        <mat-label>{{
+                            'SETTINGS.PROXY_HOST' | translate
+                        }}</mat-label>
+                        <input
+                            matInput
+                            type="text"
+                            autocomplete="off"
+                            spellcheck="false"
+                            formControlName="host"
+                            data-test-id="proxy-host"
+                            placeholder="10.64.0.1"
+                        />
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                        <mat-label>{{
+                            'SETTINGS.PROXY_PORT' | translate
+                        }}</mat-label>
+                        <input
+                            matInput
+                            type="number"
+                            min="1"
+                            max="65535"
+                            step="1"
+                            formControlName="port"
+                            data-test-id="proxy-port"
+                        />
+                    </mat-form-field>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item__meta">
+                    <h4>{{ 'SETTINGS.PROXY_CREDENTIALS' | translate }}</h4>
+                    <p>
+                        {{ 'SETTINGS.PROXY_CREDENTIALS_DESCRIPTION' | translate }}
+                    </p>
+                </div>
+                <div class="setting-item__control">
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                        <mat-label>{{
+                            'SETTINGS.PROXY_USERNAME' | translate
+                        }}</mat-label>
+                        <input
+                            matInput
+                            type="text"
+                            autocomplete="off"
+                            formControlName="username"
+                            data-test-id="proxy-username"
+                        />
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                        <mat-label>{{
+                            'SETTINGS.PROXY_PASSWORD' | translate
+                        }}</mat-label>
+                        <input
+                            matInput
+                            type="password"
+                            autocomplete="off"
+                            formControlName="password"
+                            data-test-id="proxy-password"
+                        />
+                    </mat-form-field>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item__meta">
+                    <h4>{{ 'SETTINGS.PROXY_BYPASS' | translate }}</h4>
+                    <p>{{ 'SETTINGS.PROXY_BYPASS_DESCRIPTION' | translate }}</p>
+                </div>
+                <div class="setting-item__control">
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                        <mat-label>{{
+                            'SETTINGS.PROXY_BYPASS_LABEL' | translate
+                        }}</mat-label>
+                        <input
+                            matInput
+                            type="text"
+                            autocomplete="off"
+                            spellcheck="false"
+                            formControlName="bypassList"
+                            data-test-id="proxy-bypass"
+                            placeholder="example.com,*.local"
+                        />
+                    </mat-form-field>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-item__meta">
+                    <h4>{{ 'SETTINGS.PROXY_TEST' | translate }}</h4>
+                    <p>{{ 'SETTINGS.PROXY_TEST_DESCRIPTION' | translate }}</p>
+                </div>
+                <div class="setting-item__control">
+                    <button
+                        mat-stroked-button
+                        type="button"
+                        data-test-id="proxy-test"
+                        [disabled]="isTesting()"
+                        (click)="testProxy.emit()"
+                    >
+                        @if (isTesting()) {
+                            <mat-progress-spinner
+                                diameter="18"
+                                mode="indeterminate"
+                            ></mat-progress-spinner>
+                        } @else {
+                            <mat-icon svgIcon="wifi_tethering"></mat-icon>
+                        }
+                        {{ 'SETTINGS.PROXY_TEST_ACTION' | translate }}
+                    </button>
+
+                    @if (resultKey(); as key) {
+                        <p
+                            class="proxy-test-result"
+                            role="status"
+                            data-test-id="proxy-test-result"
+                            [class.proxy-test-result--ok]="testResult()?.ok"
+                        >
+                            {{ key | translate }}
+                            @if (exitSummary()) {
+                                <strong>{{ exitSummary() }}</strong>
+                            }
+                            @if (!testResult()?.ok && testResult()?.error) {
+                                <span class="proxy-test-result__detail">{{
+                                    testResult()?.error
+                                }}</span>
+                            }
+                        </p>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</section>

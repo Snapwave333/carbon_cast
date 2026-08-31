@@ -9,12 +9,12 @@
 }
 
 .search-panel {
-    margin-top: 10px;
+    margin-top: var(--app-space-2);
     display: flex;
     justify-content: center;
-    margin-bottom: -10px;
+    margin-bottom: calc(var(--app-space-2) * -1);
     flex-shrink: 0;
-    padding: 0 16px;
+    padding-inline: var(--app-content-gutter);
 }
 
 .search-bar {
@@ -42,7 +42,7 @@
         minmax(var(--cover-grid-min-width, 148px), 1fr)
     );
     gap: var(--cover-gap, 16px);
-    padding: 16px;
+    padding: var(--app-content-gutter);
     align-content: start;
 }
 
@@ -51,7 +51,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 64px 24px;
+    padding: var(--app-empty-state-padding) var(--app-content-gutter);
     flex: 1;
     text-align: center;
     color: var(--mat-sys-on-surface-variant);
@@ -60,7 +60,7 @@
         font-size: 48px;
         height: 48px;
         width: 48px;
-        margin-bottom: 16px;
+        margin-bottom: var(--app-space-4);
         opacity: 0.5;
     }
 

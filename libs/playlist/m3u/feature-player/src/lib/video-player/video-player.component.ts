@@ -20,7 +20,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { StorageMap } from '@ngx-pwa/local-storage';
-import { TranslatePipe } from '@ngx-translate/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ResizableDirective } from '@iptvnator/ui/components';
 import {
     applyChannelNameStrip,
@@ -37,6 +38,8 @@ import {
     EpgListViewComponent,
     EpgProgramActivationEvent,
     EpgTimelineComponent,
+    getEpgCategoryAccent,
+    getProgramTimeMs,
     getTodayEpgDateKey,
     MultiEpgContainerComponent,
     MultiEpgPlayRequest,
@@ -123,6 +126,26 @@ const M3U_SIDEBAR_MIN_WIDTH = 200;
 const M3U_SIDEBAR_MAX_WIDTH = 600;
 const M3U_SIDEBAR_DEFAULT_WIDTH = 460;
 
+/**
+ * Playlist labels often include stream-quality decorations that XMLTV display
+ * names do not. Only strip presentation-only parts here: content, region, and
+ * language names stay part of the key so we never turn a loose title match
+ * into a wrong channel selection.
+ */
+function getGuideChannelNameKey(
+    name: string | null | undefined
+): string {
+    return (name ?? '')
+        .normalize('NFKD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(
+            /\s*(?:\((?:\d{3,4}p|hd|sd|fhd|uhd|4k|geo-blocked)\)|\b(?:\d{3,4}p|hd|sd|fhd|uhd|4k)\b)\s*/gi,
+            ' '
+        )
+        .toLocaleLowerCase()
+        .replace(/[^a-z0-9]+/g, '');
+}
+
 @Component({
     selector: 'app-video-player',
     imports: [
@@ -157,6 +180,8 @@ export class VideoPlayerComponent implements OnInit, OnDestroy {
     private readonly storage = inject(StorageMap);
     private readonly store = inject(Store);
     private readonly epgService = inject(EpgService);
+    private readonly snackBar = inject(MatSnackBar);
+    private readonly translate = inject(TranslateService);
     private readonly externalPlayback = inject(PORTAL_EXTERNAL_PLAYBACK);
     private readonly workspaceHeaderContext = inject(
         WorkspaceHeaderContextService
@@ -168,9 +193,7 @@ export class VideoPlayerComponent implements OnInit, OnDestroy {
     readonly activePlaybackUrl = this.store.selectSignal(
         selectActivePlaybackUrl
     );
-    readonly activeEpgProgram = this.store.selectSignal(
-        selectActiveEpgProgram
-    );
+    readonly activeEpgProgram = this.store.selectSignal(selectActiveEpgProgram);
     readonly activeEpgProgramOrNull = computed(
         () => this.activeEpgProgram() ?? null
     );
@@ -237,9 +260,7 @@ export class VideoPlayerComponent implements OnInit, OnDestroy {
     private readonly epgChannelLogo = toSignal(
         toObservable(this.activeChannel).pipe(
             switchMap((channel) => {
-                const key = channel
-                    ? resolveChannelEpgLookupKey(channel)
-                    : '';
+                const key = channel ? resolveChannelEpgLookupKey(channel) : '';
                 if (!key) {
                     return of('');
                 }
@@ -355,6 +376,13 @@ export class VideoPlayerComponent implements OnInit, OnDestroy {
         this.activeEpgProgramOrNull()
             ? 'EPG.ARCHIVE_PLAYBACK'
             : 'EPG.CURRENT_PROGRAM'
+    );
+    /** Programme presented beside the wide TV-guide player stage. */
+    readonly guideNowProgram = computed(() =>
+        findCurrentEpgProgram(this.epgPrograms(), this.epgNowMs())
+    );
+    readonly guideNowCategoryAccent = computed(() =>
+        getEpgCategoryAccent(this.guideNowProgram()?.category)
     );
     readonly showReturnToLive = computed(
         () => this.activeEpgProgramOrNull() !== null
@@ -645,9 +673,7 @@ export class VideoPlayerComponent implements OnInit, OnDestroy {
             }
 
             const currentEpgProgram = epgProgram as
-                | EpgProgram
-                | null
-                | undefined;
+                EpgProgram | null | undefined;
             const currentIndex = channels.findIndex(
                 (channel) => channel.url === activeChannel.url
             );
@@ -665,6 +691,11 @@ export class VideoPlayerComponent implements OnInit, OnDestroy {
                 muted: this.volume() === 0,
             });
         });
+    }
+
+    /** Channel up/down from the player UI (buttons, Page Up/Down). */
+    changeChannel(direction: 'up' | 'down'): void {
+        this.handleRemoteChannelChange(direction);
     }
 
     /**
@@ -958,6 +989,15 @@ export class VideoPlayerComponent implements OnInit, OnDestroy {
         if (event.metaKey || event.ctrlKey || event.altKey) {
             return;
         }
+        // Channel flipping, the companion to the digit entry below: Page
+        // Up/Down step through the playlist like a TV remote. Handled here
+        // rather than in a player engine so it works the same for the web
+        // players, embedded MPV, and the guide's inline strip.
+        if (event.key === 'PageUp' || event.key === 'PageDown') {
+            event.preventDefault();
+            this.changeChannel(event.key === 'PageUp' ? 'up' : 'down');
+            return;
+        }
         // Only handle digit keys (0-9)
         if (event.key >= '0' && event.key <= '9') {
             event.preventDefault();
@@ -1000,6 +1040,17 @@ export class VideoPlayerComponent implements OnInit, OnDestroy {
             request.channelName
         );
         if (!channel) {
+            // The guide lists EPG-store channels that need not be in this
+            // playlist. Returning silently here made "Watch live" look broken:
+            // the dialog closed and nothing happened, with no way to tell that
+            // apart from a failure to start playback.
+            this.snackBar.open(
+                this.translate.instant('EPG.CHANNEL_NOT_IN_PLAYLIST', {
+                    channel: request.channelName ?? request.channelId,
+                }) as string,
+                this.translate.instant('CLOSE') as string,
+                { duration: 5000 }
+            );
             return;
         }
         this.store.dispatch(createM3uChannelPlaybackRequest(channel));
@@ -1009,6 +1060,16 @@ export class VideoPlayerComponent implements OnInit, OnDestroy {
             );
         }
     }
+
+    /**
+     * Whether a guide row maps onto a channel in this playlist. Shares
+     * `resolveGuideChannel` with the play handler so the guide can never mark
+     * a row playable that `onGuidePlayRequested` would then refuse.
+     */
+    readonly guideChannelAvailabilityResolver = (
+        channelId: string,
+        channelName: string | null
+    ) => !!this.resolveGuideChannel(channelId, channelName);
 
     /** Per-channel catch-up capability for the guide's programme dialogs. */
     readonly guideCatchupResolver = (
@@ -1035,14 +1096,36 @@ export class VideoPlayerComponent implements OnInit, OnDestroy {
     ): Channel | undefined {
         const channels = this.channels();
         const wantedName = channelName?.trim().toLowerCase();
-        return (
-            channels.find((item) => item.tvg?.id === channelId) ??
-            (wantedName
-                ? channels.find(
-                      (item) => item.name?.trim().toLowerCase() === wantedName
-                  )
-                : undefined)
+        const directMatch = channels.find(
+            (item) => item.tvg?.id === channelId
         );
+        if (directMatch) {
+            return directMatch;
+        }
+
+        const exactNameMatch = wantedName
+            ? channels.find(
+                  (item) => item.name?.trim().toLowerCase() === wantedName
+              )
+            : undefined;
+        if (exactNameMatch) {
+            return exactNameMatch;
+        }
+
+        // An EPG source commonly says "Court TV" while the playlist says
+        // "Court TV (1080p)". Accept that only when it identifies exactly one
+        // playlist channel; ties stay unavailable rather than guessing.
+        const wantedNameKey = getGuideChannelNameKey(channelName);
+        if (!wantedNameKey) {
+            return undefined;
+        }
+
+        const normalizedMatches = channels.filter(
+            (item) => getGuideChannelNameKey(item.name) === wantedNameKey
+        );
+        return normalizedMatches.length === 1
+            ? normalizedMatches[0]
+            : undefined;
     }
 
     /**
@@ -1225,15 +1308,8 @@ function findCurrentEpgProgram(
     nowMs: number
 ): EpgProgram | undefined {
     return programs.find((program) => {
-        const start = epgTimeMs(program.start, program.startTimestamp);
-        const stop = epgTimeMs(program.stop, program.stopTimestamp);
+        const start = getProgramTimeMs(program.start, program.startTimestamp);
+        const stop = getProgramTimeMs(program.stop, program.stopTimestamp);
         return nowMs >= start && nowMs <= stop;
     });
-}
-
-function epgTimeMs(isoValue: string, timestamp?: number | null): number {
-    if (Number.isFinite(timestamp) && Number(timestamp) > 0) {
-        return Number(timestamp) * 1000;
-    }
-    return Date.parse(isoValue);
 }

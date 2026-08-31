@@ -20,6 +20,37 @@
         />
     }
 
+    @if (canNavigateChannels()) {
+        <div
+            class="header-actions header-actions--channel-navigation"
+            role="group"
+            [attr.aria-label]="'PLAYBACK_BAR.TITLE' | translate"
+        >
+            <button
+                type="button"
+                mat-icon-button
+                class="header-channel-button"
+                data-test-id="workspace-channel-up"
+                (click)="changeChannel('up')"
+                [matTooltip]="'CHANNELS.CHANNEL_UP' | translate"
+                [attr.aria-label]="'CHANNELS.CHANNEL_UP' | translate"
+            >
+                <mat-icon svgIcon="arrow_upward"></mat-icon>
+            </button>
+            <button
+                type="button"
+                mat-icon-button
+                class="header-channel-button"
+                data-test-id="workspace-channel-down"
+                (click)="changeChannel('down')"
+                [matTooltip]="'CHANNELS.CHANNEL_DOWN' | translate"
+                [attr.aria-label]="'CHANNELS.CHANNEL_DOWN' | translate"
+            >
+                <mat-icon svgIcon="arrow_downward"></mat-icon>
+            </button>
+        </div>
+    }
+
     @if (!hasNoPlaylists()) {
         <label class="search-field">
             <mat-icon svgIcon="search"></mat-icon>
@@ -112,32 +143,4 @@
             }
         }
     </div>
-
-    @if (isElectron()) {
-        <div class="header-actions header-actions--trailing">
-            <span class="download-btn-wrap">
-                @if (hasActiveDownloads()) {
-                    <span class="download-activity-bar" aria-hidden="true">
-                        <span class="download-activity-bar__fill"></span>
-                    </span>
-                }
-                <button
-                    type="button"
-                    class="header-shortcut"
-                    mat-icon-button
-                    [class.is-active]="isDownloadsView()"
-                    [class.has-activity]="hasActiveDownloads()"
-                    (click)="onDownloadsRequested()"
-                    [matTooltip]="
-                        'WORKSPACE.SHELL.RAIL_DOWNLOADS' | translate
-                    "
-                    [attr.aria-label]="
-                        'WORKSPACE.SHELL.OPEN_DOWNLOADS' | translate
-                    "
-                >
-                    <mat-icon svgIcon="download"></mat-icon>
-                </button>
-            </span>
-        </div>
-    }
 </header>

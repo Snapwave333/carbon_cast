@@ -15,6 +15,13 @@ async function saveSettings(page: Page) {
     await expect(saveButton).toBeDisabled();
 }
 
+async function showAdvancedSettings(page: Page) {
+    await page.locator('[data-test-id="toggle-advanced-settings"]').click();
+    await expect(
+        page.locator('[data-test-id="advanced-settings-sections"]')
+    ).toBeVisible();
+}
+
 test.describe('Settings', () => {
     test.beforeEach(async ({ page }) => {
         // Playwright creates a fresh browser context per test, so extra
@@ -32,11 +39,11 @@ test.describe('Settings', () => {
     test('@settings @web Change video player', async ({ page }) => {
         await openSettings(page);
 
-        const playerSelect = page.locator('[data-test-id="select-video-player"]');
-
-        await expect(playerSelect).toContainText(
-            /Video\.js/i
+        const playerSelect = page.locator(
+            '[data-test-id="select-video-player"]'
         );
+
+        await expect(playerSelect).toContainText(/Video\.js/i);
         await playerSelect.click();
         await page.locator('mat-option[data-test-id="html5"]').click();
 
@@ -44,15 +51,14 @@ test.describe('Settings', () => {
         await page.reload();
         await openSettings(page);
 
-        await expect(playerSelect).toContainText(
-            /HTML5/i
-        );
+        await expect(playerSelect).toContainText(/HTML5/i);
     });
 
     test('@settings @web Enable shared web player controls', async ({
         page,
     }) => {
         await openSettings(page);
+        await showAdvancedSettings(page);
 
         const setting = page.locator(
             '[data-test-id="web-player-shared-controls-setting"]'
@@ -65,6 +71,7 @@ test.describe('Settings', () => {
         await saveSettings(page);
         await page.reload();
         await openSettings(page);
+        await showAdvancedSettings(page);
 
         await expect(checkbox).toBeChecked();
     });
@@ -73,9 +80,7 @@ test.describe('Settings', () => {
         await openSettings(page);
         const languageSelect = page.locator('[data-test-id="select-language"]');
 
-        await expect(languageSelect).toContainText(
-            'English'
-        );
+        await expect(languageSelect).toContainText('English');
         await languageSelect.click();
         await page.locator('mat-option[data-test-id="de"]').click();
 
@@ -83,9 +88,7 @@ test.describe('Settings', () => {
         await page.reload();
         await openSettings(page);
 
-        await expect(languageSelect).toContainText(
-            'Deutsch'
-        );
+        await expect(languageSelect).toContainText('Deutsch');
     });
 
     test.afterEach(async ({ page }, testInfo) => {

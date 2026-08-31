@@ -18,10 +18,7 @@ describe('buildSettingsSectionNavItems', () => {
     // Anchor on the Nx workspace root (Jest runs from there); avoids
     // depending on __dirname which isn't defined under the project's
     // ESM Jest preset.
-    const settingsDir = resolve(
-        process.cwd(),
-        'apps/web/src/app/settings'
-    );
+    const settingsDir = resolve(process.cwd(), 'apps/web/src/app/settings');
 
     function collectSectionTemplateIds(): Set<string> {
         const ids = new Set<string>();
@@ -29,10 +26,7 @@ describe('buildSettingsSectionNavItems', () => {
             if (!/^settings-.+-section\.component\.html$/.test(fileName)) {
                 continue;
             }
-            const html = readFileSync(
-                resolve(settingsDir, fileName),
-                'utf-8'
-            );
+            const html = readFileSync(resolve(settingsDir, fileName), 'utf-8');
             // Match the FIRST `id="…"` on the <section> root only —
             // descendant elements (form controls, anchors) also use id=
             // attributes and would pollute the set.
@@ -61,9 +55,7 @@ describe('buildSettingsSectionNavItems', () => {
                 resolve(settingsDir, fileName),
                 'utf-8'
             );
-            const rootMatch = /<section[^>]*\sid="([^"]+)"/i.exec(
-                sectionHtml
-            );
+            const rootMatch = /<section[^>]*\sid="([^"]+)"/i.exec(sectionHtml);
             if (rootMatch) {
                 idsByComponent.set(
                     `app-settings-${componentMatch[1]}-section`,
@@ -82,14 +74,16 @@ describe('buildSettingsSectionNavItems', () => {
         const supportedItems = buildSettingsSectionNavItems({
             supportsEpg: true,
             supportsRemoteControl: true,
+            supportsProxy: true,
         });
         const unsupportedItems = buildSettingsSectionNavItems({
             supportsEpg: false,
             supportsRemoteControl: false,
+            supportsProxy: false,
         });
 
         expect(supportedItems.map((item) => item.id)).toEqual(
-            expect.arrayContaining(['dashboard', 'epg', 'remote-control'])
+            expect.arrayContaining(['dashboard', 'epg', 'remote-control', 'network'])
         );
         expect(
             unsupportedItems.find((item) => item.id === 'epg')?.visible
@@ -98,6 +92,14 @@ describe('buildSettingsSectionNavItems', () => {
             unsupportedItems.find((item) => item.id === 'remote-control')
                 ?.visible
         ).toBe(false);
+        expect(
+            supportedItems
+                .filter((item) => !item.advanced)
+                .map((item) => item.id)
+        ).toEqual(['general', 'playback', 'epg', 'network']);
+        expect(
+            supportedItems.find((item) => item.id === 'dashboard')?.advanced
+        ).toBe(true);
     });
 
     it('every nav id matches an existing section template id (regression: remote-control nav no longer maps to the Nx lib name)', () => {
@@ -105,6 +107,7 @@ describe('buildSettingsSectionNavItems', () => {
             buildSettingsSectionNavItems({
                 supportsEpg: true,
                 supportsRemoteControl: true,
+            supportsProxy: true,
             }).map((item) => item.id)
         );
         const templateIds = collectSectionTemplateIds();
@@ -125,6 +128,7 @@ describe('buildSettingsSectionNavItems', () => {
             'general',
             'playback',
             'epg',
+            'network',
             'dashboard',
             'remote-control',
             'tmdb',
@@ -137,6 +141,7 @@ describe('buildSettingsSectionNavItems', () => {
             buildSettingsSectionNavItems({
                 supportsEpg: true,
                 supportsRemoteControl: true,
+            supportsProxy: true,
             }).map((item) => item.id)
         ).toEqual(expectedOrder);
         expect(collectSettingsComponentSectionOrder()).toEqual(expectedOrder);

@@ -8,65 +8,18 @@ import {
     withState,
 } from '@ngrx/signals';
 import { StorageMap } from '@ngx-pwa/local-storage';
+import { DEFAULT_SETTINGS } from './settings-defaults';
 import { firstValueFrom } from 'rxjs';
 import {
-    DEFAULT_DASHBOARD_RAILS_SETTINGS,
-    DEFAULT_PLAYER_CONTROLS_SETTINGS,
-    DEFAULT_TMDB_SETTINGS,
     ElectronBridgeTrustOptions,
     EpgViewMode,
-    Language,
     Settings,
-    StartupBehavior,
     STORE_KEY,
-    StreamFormat,
-    Theme,
     VideoPlayer,
     normalizeDashboardRailsSettings,
     normalizePlayerControlsSettings,
+    normalizePreferredQuality,
 } from '@iptvnator/shared/interfaces';
-
-const DEFAULT_SETTINGS: Settings = {
-    player: VideoPlayer.VideoJs,
-    webPlayerSharedControls: false,
-    playerControls: DEFAULT_PLAYER_CONTROLS_SETTINGS,
-    playerAmbientMode: false,
-    playerUpNextRail: true,
-    guideArtwork: true,
-    streamFormat: StreamFormat.AutoStreamFormat,
-    openStreamOnDoubleClick: false,
-    language: Language.ENGLISH,
-    showCaptions: false,
-    showDashboard: true,
-    startupBehavior: StartupBehavior.FirstView,
-    defaultWorkspacePage: 'tv-guide' as const,
-    playlistDefaultSection: 'guide' as const,
-    resumeLastChannel: true,
-    showExternalPlaybackBar: true,
-    stripCountryPrefix: false,
-    hideSpanishChannels: true,
-    theme: Theme.SystemTheme,
-    mirrorLayout: true,
-    mpvPlayerPath: '',
-    mpvPlayerArguments: '',
-    mpvReuseInstance: false,
-    vlcPlayerPath: '',
-    vlcPlayerArguments: '',
-    vlcReuseInstance: false,
-    remoteControl: false,
-    remoteControlPort: 8765,
-    epgUrl: [],
-    downloadFolder: '',
-    recordingFolder: '',
-    embeddedMpvFrameCopy: false,
-    coverSize: 'medium',
-    epgViewMode: 'timeline',
-    dashboardRails: DEFAULT_DASHBOARD_RAILS_SETTINGS,
-    preferUploadedEpgOverXtream: false,
-    trustedPrivateNetworkEpgUrls: [],
-    trustedInsecureTlsHosts: [],
-    tmdb: DEFAULT_TMDB_SETTINGS,
-};
 
 /**
  * Which half of the settings persistence round-trip failed, if any.
@@ -244,9 +197,11 @@ export const SettingsStore = signalStore(
                     playerUpNextRail:
                         store.playerUpNextRail?.() ??
                         DEFAULT_SETTINGS.playerUpNextRail,
+                    preferredQuality: normalizePreferredQuality(
+                        store.preferredQuality?.()
+                    ),
                     guideArtwork:
-                        store.guideArtwork?.() ??
-                        DEFAULT_SETTINGS.guideArtwork,
+                        store.guideArtwork?.() ?? DEFAULT_SETTINGS.guideArtwork,
                     streamFormat: store.streamFormat(),
                     openStreamOnDoubleClick: store.openStreamOnDoubleClick(),
                     language: store.language(),
@@ -271,6 +226,18 @@ export const SettingsStore = signalStore(
                     hideSpanishChannels:
                         store.hideSpanishChannels?.() ??
                         DEFAULT_SETTINGS.hideSpanishChannels,
+                    hideNonUsChannels:
+                        store.hideNonUsChannels?.() ??
+                        DEFAULT_SETTINGS.hideNonUsChannels,
+                    hideReligiousChannels:
+                        store.hideReligiousChannels?.() ??
+                        DEFAULT_SETTINGS.hideReligiousChannels,
+                    localNewsOnly:
+                        store.localNewsOnly?.() ??
+                        DEFAULT_SETTINGS.localNewsOnly,
+                    homeCountryCode:
+                        store.homeCountryCode?.() ??
+                        DEFAULT_SETTINGS.homeCountryCode,
                     theme: store.theme(),
                     mirrorLayout:
                         store.mirrorLayout?.() ?? DEFAULT_SETTINGS.mirrorLayout,

@@ -47,7 +47,11 @@ const ASSETS = {
 
 jest.setTimeout(15_000);
 
-function request(port: number, path: string): Promise<TestResponse> {
+function request(
+    port: number,
+    path: string,
+    headers?: http.OutgoingHttpHeaders
+): Promise<TestResponse> {
     return new Promise((resolve, reject) => {
         const clientRequest = http.request(
             {
@@ -55,6 +59,7 @@ function request(port: number, path: string): Promise<TestResponse> {
                 method: 'GET',
                 path,
                 port,
+                ...(headers ? { headers } : {}),
             },
             (response) => {
                 const chunks: Buffer[] = [];
@@ -294,10 +299,11 @@ describe('HttpServer', () => {
             '/api/remote-control/missing'
         );
 
-        expect(response).toEqual({
-            body: Buffer.from('{"error":"Endpoint not found"}'),
-            contentType: 'application/json',
-            statusCode: 404,
+        expect(response.statusCode).toBe(404);
+        expect(response.contentType).toBe('application/json');
+        expect(JSON.parse(response.body.toString('utf8'))).toEqual({
+            success: false,
+            error: { code: 'not-found', message: 'Endpoint not found.' },
         });
     });
 

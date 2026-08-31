@@ -1,10 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import {
-    PlaylistsService,
-    RuntimeCapabilitiesService,
-    SettingsStore,
-} from '@iptvnator/services';
+import { PlaylistsService, SettingsStore } from '@iptvnator/services';
 import {
     DefaultWorkspacePage,
     Playlist,
@@ -18,7 +14,6 @@ const LAST_RESTORABLE_ROUTE_STORAGE_KEY = 'workspace-last-restorable-route-v1';
 export class WorkspaceStartupPreferencesService {
     private readonly settingsStore = inject(SettingsStore);
     private readonly playlistsService = inject(PlaylistsService);
-    private readonly runtime = inject(RuntimeCapabilitiesService);
 
     async resolveInitialWorkspacePath(): Promise<string> {
         await this.settingsStore.loadSettings();
@@ -88,9 +83,7 @@ export class WorkspaceStartupPreferencesService {
             case 'global-recent':
                 return '/workspace/global-recent';
             case 'downloads':
-                return this.runtime.supportsDownloads
-                    ? '/workspace/downloads'
-                    : fallback;
+                return fallback;
             default:
                 return fallback;
         }
@@ -124,7 +117,9 @@ export class WorkspaceStartupPreferencesService {
             case 'dashboard':
                 return '/workspace/dashboard';
             case 'downloads':
-                return '/workspace/downloads';
+                return this.getFirstAvailableWorkspacePath(
+                    this.showDashboard()
+                );
             case 'followed-series':
                 return '/workspace/followed-series';
             case 'global-favorites':

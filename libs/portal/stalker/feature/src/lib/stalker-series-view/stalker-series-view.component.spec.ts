@@ -17,7 +17,7 @@ import {
 } from '@iptvnator/portal/stalker/data-access';
 import { PlaybackPositionData } from '@iptvnator/shared/interfaces';
 import { PortalInlinePlayerComponent } from '@iptvnator/ui/playback';
-import { DownloadsService, TmdbEnrichmentService } from '@iptvnator/services';
+import { TmdbEnrichmentService } from '@iptvnator/services';
 import { EMPTY, of } from 'rxjs';
 import { FavoritesButtonComponent } from '../stalker-favorites-button/stalker-favorites-button.component';
 import { StalkerSeriesViewComponent } from './stalker-series-view.component';
@@ -40,7 +40,6 @@ class StubSeasonContainerComponent {
     readonly isLoading = input(false);
     readonly seasonSelected = output<string>();
     readonly episodeClicked = output<unknown>();
-    readonly episodeDownloadRequested = output<unknown>();
     readonly playbackToggleRequested = output<unknown>();
     readonly selectedSeason = signal<string | undefined>(undefined);
 }
@@ -122,7 +121,7 @@ describe('StalkerSeriesViewComponent', () => {
                 episodeId?: number,
                 startTime?: number
             ) => ({
-            streamUrl: 'http://stalker.example/episode.mpg',
+                streamUrl: 'http://stalker.example/episode.mpg',
                 title: title ?? 'Regular Series',
                 thumbnail: thumbnail ?? 'poster.jpg',
                 startTime,
@@ -193,12 +192,6 @@ describe('StalkerSeriesViewComponent', () => {
                     provide: Router,
                     useValue: {
                         navigateByUrl: jest.fn(),
-                    },
-                },
-                {
-                    provide: DownloadsService,
-                    useValue: {
-                        startDownload: jest.fn(),
                     },
                 },
                 {
@@ -614,10 +607,12 @@ describe('StalkerSeriesViewComponent', () => {
         ]);
         fetchVodSeriesEpisodes.mockClear();
 
-        const seasonOneEpisodes = fixture.componentInstance.mappedSeasons()['1'];
+        const seasonOneEpisodes =
+            fixture.componentInstance.mappedSeasons()['1'];
         const firstEpisode = seasonOneEpisodes[0];
         const secondEpisode = seasonOneEpisodes[1];
-        const seasonTwoEpisode = fixture.componentInstance.mappedSeasons()['2'][0];
+        const seasonTwoEpisode =
+            fixture.componentInstance.mappedSeasons()['2'][0];
 
         fixture.componentInstance.onEpisodeClicked(firstEpisode);
         await fixture.whenStable();

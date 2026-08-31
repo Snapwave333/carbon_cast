@@ -16,8 +16,20 @@
 
     <div class="setting-item">
         <div class="setting-item__meta">
-            <h4>{{ 'SETTINGS.LANGUAGE' | translate }}</h4>
-            <p>{{ 'SETTINGS.LANGUAGE_DESCRIPTION' | translate }}</p>
+            <div class="setting-item__title">
+                <h4>{{ 'SETTINGS.LANGUAGE' | translate }}</h4>
+                <button
+                    type="button"
+                    class="settings-help-button"
+                    [matTooltip]="'SETTINGS.LANGUAGE_DESCRIPTION' | translate"
+                    [attr.aria-label]="
+                        'SETTINGS.LANGUAGE_DESCRIPTION' | translate
+                    "
+                    data-test-id="tooltip-language"
+                >
+                    <mat-icon svgIcon="info_outline"></mat-icon>
+                </button>
+            </div>
         </div>
         <div class="setting-item__control">
             <mat-form-field appearance="outline" subscriptSizing="dynamic">
@@ -47,8 +59,20 @@
 
     <div class="setting-item setting-item--full-control">
         <div class="setting-item__meta">
-            <h4>{{ 'SETTINGS.COVER_SIZE' | translate }}</h4>
-            <p>{{ 'SETTINGS.COVER_SIZE_DESCRIPTION' | translate }}</p>
+            <div class="setting-item__title">
+                <h4>{{ 'SETTINGS.COVER_SIZE' | translate }}</h4>
+                <button
+                    type="button"
+                    class="settings-help-button"
+                    [matTooltip]="'SETTINGS.COVER_SIZE_DESCRIPTION' | translate"
+                    [attr.aria-label]="
+                        'SETTINGS.COVER_SIZE_DESCRIPTION' | translate
+                    "
+                    data-test-id="tooltip-cover-size"
+                >
+                    <mat-icon svgIcon="info_outline"></mat-icon>
+                </button>
+            </div>
         </div>
         <div class="setting-item__control">
             <div
@@ -79,7 +103,11 @@
         </div>
     </div>
 
-    <div class="setting-item" data-test-id="mirror-layout-setting">
+    <div
+        class="setting-item"
+        [hidden]="!showAdvanced()"
+        data-test-id="mirror-layout-setting"
+    >
         <div class="setting-item__meta">
             <h4>{{ 'SETTINGS.MIRROR_LAYOUT' | translate }}</h4>
             <p>{{ 'SETTINGS.MIRROR_LAYOUT_DESCRIPTION' | translate }}</p>
@@ -95,10 +123,22 @@
 
     <div class="setting-item">
         <div class="setting-item__meta">
-            <h4>{{ 'SETTINGS.STARTUP_BEHAVIOR' | translate }}</h4>
-            <p>
-                {{ 'SETTINGS.STARTUP_BEHAVIOR_DESCRIPTION' | translate }}
-            </p>
+            <div class="setting-item__title">
+                <h4>{{ 'SETTINGS.STARTUP_BEHAVIOR' | translate }}</h4>
+                <button
+                    type="button"
+                    class="settings-help-button"
+                    [matTooltip]="
+                        'SETTINGS.STARTUP_BEHAVIOR_DESCRIPTION' | translate
+                    "
+                    [attr.aria-label]="
+                        'SETTINGS.STARTUP_BEHAVIOR_DESCRIPTION' | translate
+                    "
+                    data-test-id="tooltip-startup-behavior"
+                >
+                    <mat-icon svgIcon="info_outline"></mat-icon>
+                </button>
+            </div>
         </div>
         <div class="setting-item__control">
             <mat-form-field appearance="outline" subscriptSizing="dynamic">
@@ -125,7 +165,7 @@
         </div>
     </div>
 
-    <div class="setting-item">
+    <div class="setting-item" [hidden]="!showAdvanced()">
         <div class="setting-item__meta">
             <h4>{{ 'SETTINGS.DEFAULT_WORKSPACE_PAGE' | translate }}</h4>
             <p>
@@ -157,7 +197,7 @@
         </div>
     </div>
 
-    <div class="setting-item">
+    <div class="setting-item" [hidden]="!showAdvanced()">
         <div class="setting-item__meta">
             <h4>{{ 'SETTINGS.PLAYLIST_DEFAULT_SECTION' | translate }}</h4>
             <p>
@@ -193,10 +233,22 @@
 
     <div class="setting-item">
         <div class="setting-item__meta">
-            <h4>{{ 'SETTINGS.RESUME_LAST_CHANNEL' | translate }}</h4>
-            <p>
-                {{ 'SETTINGS.RESUME_LAST_CHANNEL_DESCRIPTION' | translate }}
-            </p>
+            <div class="setting-item__title">
+                <h4>{{ 'SETTINGS.RESUME_LAST_CHANNEL' | translate }}</h4>
+                <button
+                    type="button"
+                    class="settings-help-button"
+                    [matTooltip]="
+                        'SETTINGS.RESUME_LAST_CHANNEL_DESCRIPTION' | translate
+                    "
+                    [attr.aria-label]="
+                        'SETTINGS.RESUME_LAST_CHANNEL_DESCRIPTION' | translate
+                    "
+                    data-test-id="tooltip-resume-last-channel"
+                >
+                    <mat-icon svgIcon="info_outline"></mat-icon>
+                </button>
+            </div>
         </div>
         <div class="setting-item__control">
             <mat-checkbox
@@ -208,17 +260,29 @@
 
     <div class="setting-item">
         <div class="setting-item__meta">
-            <h4>{{ 'SETTINGS.SHOW_CAPTIONS' | translate }}</h4>
-            <p>
-                {{ 'SETTINGS.SHOW_CAPTIONS_DESCRIPTION' | translate }}
-            </p>
+            <div class="setting-item__title">
+                <h4>{{ 'SETTINGS.SHOW_CAPTIONS' | translate }}</h4>
+                <button
+                    type="button"
+                    class="settings-help-button"
+                    [matTooltip]="
+                        'SETTINGS.SHOW_CAPTIONS_DESCRIPTION' | translate
+                    "
+                    [attr.aria-label]="
+                        'SETTINGS.SHOW_CAPTIONS_DESCRIPTION' | translate
+                    "
+                    data-test-id="tooltip-show-captions"
+                >
+                    <mat-icon svgIcon="info_outline"></mat-icon>
+                </button>
+            </div>
         </div>
         <div class="setting-item__control setting-item__toggle">
             <mat-checkbox formControlName="showCaptions"></mat-checkbox>
         </div>
     </div>
 
-    <div class="setting-item">
+    <div class="setting-item" [hidden]="!showAdvanced()">
         <div class="setting-item__meta">
             <h4>{{ 'SETTINGS.STRIP_COUNTRY_PREFIX' | translate }}</h4>
             <p>
@@ -230,7 +294,7 @@
         </div>
     </div>
 
-    <div class="setting-item">
+    <div class="setting-item" [hidden]="!showAdvanced()">
         <div class="setting-item__meta">
             <h4>{{ 'SETTINGS.HIDE_SPANISH_CHANNELS' | translate }}</h4>
             <p>
@@ -239,6 +303,65 @@
         </div>
         <div class="setting-item__control setting-item__toggle">
             <mat-checkbox formControlName="hideSpanishChannels"></mat-checkbox>
+        </div>
+    </div>
+
+    <div class="setting-item" [hidden]="!showAdvanced()">
+        <div class="setting-item__meta">
+            <h4>{{ 'SETTINGS.HIDE_NON_US_CHANNELS' | translate }}</h4>
+            <p>
+                {{ 'SETTINGS.HIDE_NON_US_CHANNELS_DESCRIPTION' | translate }}
+            </p>
+        </div>
+        <div class="setting-item__control setting-item__toggle">
+            <mat-checkbox formControlName="hideNonUsChannels"></mat-checkbox>
+        </div>
+    </div>
+
+    <div class="setting-item" [hidden]="!showAdvanced()">
+        <div class="setting-item__meta">
+            <h4>{{ 'SETTINGS.HIDE_RELIGIOUS_CHANNELS' | translate }}</h4>
+            <p>
+                {{ 'SETTINGS.HIDE_RELIGIOUS_CHANNELS_DESCRIPTION' | translate }}
+            </p>
+        </div>
+        <div class="setting-item__control setting-item__toggle">
+            <mat-checkbox formControlName="hideReligiousChannels"></mat-checkbox>
+        </div>
+    </div>
+
+    <div class="setting-item" [hidden]="!showAdvanced()">
+        <div class="setting-item__meta">
+            <h4>{{ 'SETTINGS.LOCAL_NEWS_ONLY' | translate }}</h4>
+            <p>
+                {{ 'SETTINGS.LOCAL_NEWS_ONLY_DESCRIPTION' | translate }}
+            </p>
+        </div>
+        <div class="setting-item__control setting-item__toggle">
+            <mat-checkbox formControlName="localNewsOnly"></mat-checkbox>
+        </div>
+    </div>
+
+    <div class="setting-item" [hidden]="!showAdvanced()">
+        <div class="setting-item__meta">
+            <h4>{{ 'SETTINGS.HOME_COUNTRY' | translate }}</h4>
+            <p>
+                {{ 'SETTINGS.HOME_COUNTRY_DESCRIPTION' | translate }}
+            </p>
+        </div>
+        <div class="setting-item__control">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                <mat-label>
+                    {{ 'SETTINGS.HOME_COUNTRY' | translate }}
+                </mat-label>
+                <input
+                    matInput
+                    formControlName="homeCountryCode"
+                    maxlength="2"
+                    autocomplete="country"
+                    placeholder="us"
+                />
+            </mat-form-field>
         </div>
     </div>
 </section>

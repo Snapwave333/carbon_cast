@@ -87,6 +87,13 @@ export function getDiagnosticDetails(
     ].filter(({ value }) => value.trim().length > 0);
 }
 
+/** Headline above a playback diagnostic: native-fallback vs inline failure. */
+export function getDiagnosticHeadlineKey(showExternalActions: boolean): string {
+    return showExternalActions
+        ? 'PLAYBACK_DIAGNOSTICS.NATIVE_FALLBACK_TITLE'
+        : 'PLAYBACK_DIAGNOSTICS.INLINE_FAILURE_TITLE';
+}
+
 function getDiagnosticTranslationBase(issue: PlaybackDiagnostic): string {
     switch (issue.code) {
         case PlaybackDiagnosticCode.MissingStreamUrl:

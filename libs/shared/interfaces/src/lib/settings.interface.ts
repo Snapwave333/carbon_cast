@@ -1,4 +1,5 @@
 import { Language } from './language.enum';
+import { ProxySettingsInput } from './proxy.interface';
 import { StreamFormat } from './stream-format.enum';
 import { Theme } from './theme.enum';
 import { TmdbSettings } from './tmdb.interface';
@@ -38,6 +39,43 @@ export type CoverSize = 'small' | 'medium' | 'large';
 
 /** Rendering of the live EPG panel under the player. */
 export type EpgViewMode = 'timeline' | 'list';
+
+/**
+ * Video quality the built-in web players aim for on every new stream.
+ * `auto` hands the ladder back to the engine's adaptive-bitrate logic.
+ */
+export type PreferredQuality = 'auto' | '1080p' | '2160p';
+
+export const PREFERRED_QUALITY_VALUES: readonly PreferredQuality[] = [
+    'auto',
+    '1080p',
+    '2160p',
+];
+
+/** Fresh profiles and unset values aim for 4K. */
+export const DEFAULT_PREFERRED_QUALITY: PreferredQuality = '2160p';
+
+export function normalizePreferredQuality(
+    value?: PreferredQuality | string | null
+): PreferredQuality {
+    return PREFERRED_QUALITY_VALUES.includes(value as PreferredQuality)
+        ? (value as PreferredQuality)
+        : DEFAULT_PREFERRED_QUALITY;
+}
+
+/** Maximum variant height a preference targets; `null` for `auto`. */
+export function getPreferredQualityHeight(
+    preference: PreferredQuality
+): number | null {
+    switch (preference) {
+        case '1080p':
+            return 1080;
+        case '2160p':
+            return 2160;
+        default:
+            return null;
+    }
+}
 
 export type PlayerControlsDensity = 'compact' | 'expanded';
 export type PlayerControlsOpacity = 'solid' | 'translucent';
@@ -171,6 +209,12 @@ export interface Settings {
      */
     playerUpNextRail?: boolean;
     /**
+     * Video quality the built-in web players aim for on every new stream.
+     * Missing values mean 4K: the players pick the best variant at or below
+     * the target, so a stream without a 4K rendition simply plays its highest.
+     */
+    preferredQuality?: PreferredQuality;
+    /**
      * Programme/channel artwork in the TV-guide grid. On by default;
      * turning it off gives a denser, text-only guide and also stops the
      * guide's TMDB artwork lookups. Missing values mean enabled.
@@ -202,6 +246,26 @@ export interface Settings {
     stripCountryPrefix?: boolean;
     /** Hide Spanish-language channels from playlist channel lists */
     hideSpanishChannels?: boolean;
+    /** Hide channels explicitly marked as non-U.S. in M3U metadata. */
+    hideNonUsChannels?: boolean;
+    /**
+     * Hide channels the provider files under a religious category. On by
+     * default: the free catalogues carry a large religious block that most
+     * viewers scroll past, and it is one checkbox to get back.
+     */
+    hideReligiousChannels?: boolean;
+    /**
+     * Restrict the news category to channels broadcast from
+     * {@link homeCountryCode}. On by default. News channels whose metadata
+     * names no country are always kept.
+     */
+    localNewsOnly?: boolean;
+    /**
+     * ISO 3166-1 alpha-2 code of the viewer's country, lower-cased. Seeded
+     * from the browser locale on first run; empty when the locale names no
+     * region, which leaves {@link localNewsOnly} inert rather than guessing.
+     */
+    homeCountryCode?: string;
     theme: Theme;
     /**
      * Mirror the live layout so the player sits on the left and the
@@ -266,4 +330,10 @@ export interface Settings {
      * Disabled by default because enrichment sends content titles to TMDB.
      */
     tmdb?: TmdbSettings;
+    /**
+     * Route the built-in players' network stack through a proxy so a
+     * geo-restricted stream resolves from the proxy's exit country. Electron
+     * only, off by default, and scoped to this app rather than the system.
+     */
+    proxy?: ProxySettingsInput;
 }

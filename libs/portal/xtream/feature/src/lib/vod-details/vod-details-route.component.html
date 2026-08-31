@@ -37,7 +37,12 @@
                     <span class="label">{{ 'XTREAM.ACTORS' | translate }}</span>
                     @if (info.tmdb_cast?.length) {
                         <div class="details__cast-strip">
-                            @for (member of info.tmdb_cast; track member.tmdbPersonId ? 'p' + member.tmdbPersonId : 'i' + $index) {
+                            @for (
+                                member of info.tmdb_cast;
+                                track member.tmdbPersonId
+                                    ? 'p' + member.tmdbPersonId
+                                    : 'i' + $index
+                            ) {
                                 <span
                                     class="details__cast-chip"
                                     [class.details__cast-chip--clickable]="
@@ -81,10 +86,17 @@
             }
             @if (info.director || info.tmdb_directors?.length) {
                 <div class="details__meta-item">
-                    <span class="label">{{ 'XTREAM.DIRECTOR' | translate }}</span>
+                    <span class="label">{{
+                        'XTREAM.DIRECTOR' | translate
+                    }}</span>
                     @if (info.tmdb_directors?.length) {
                         <div class="details__cast-strip">
-                            @for (member of info.tmdb_directors; track member.tmdbPersonId ? 'p' + member.tmdbPersonId : 'i' + $index) {
+                            @for (
+                                member of info.tmdb_directors;
+                                track member.tmdbPersonId
+                                    ? 'p' + member.tmdbPersonId
+                                    : 'i' + $index
+                            ) {
                                 <span
                                     class="details__cast-chip"
                                     [class.details__cast-chip--clickable]="
@@ -142,7 +154,10 @@
                     "
                 >
                     <span class="play-btn__icon-shell" aria-hidden="true">
-                        <mat-icon class="play-btn__icon" [svgIcon]="externalPrimaryIcon()"></mat-icon>
+                        <mat-icon
+                            class="play-btn__icon"
+                            [svgIcon]="externalPrimaryIcon()"
+                        ></mat-icon>
                     </span>
                     <span class="play-btn__label">
                         @if (externalPrimaryLabel(); as label) {
@@ -175,7 +190,10 @@
                     "
                 >
                     <span class="play-btn__icon-shell" aria-hidden="true">
-                        <mat-icon class="play-btn__icon" [svgIcon]="externalPrimaryIcon()"></mat-icon>
+                        <mat-icon
+                            class="play-btn__icon"
+                            [svgIcon]="externalPrimaryIcon()"
+                        ></mat-icon>
                     </span>
                     <span class="play-btn__label">
                         @if (externalPrimaryLabel(); as label) {
@@ -199,38 +217,6 @@
                     <mat-icon svgIcon="check"></mat-icon>
                     {{ 'PORTALS.REMOVE_FROM_FAVORITES' | translate }}
                 </button>
-            }
-            @if (isElectron()) {
-                @if (isDownloaded()) {
-                    <button
-                        class="download-btn download-btn--completed"
-                        (click)="playFromLocal()"
-                    >
-                        <mat-icon svgIcon="play_circle"></mat-icon>
-                        {{ 'DOWNLOADS.PLAY_LOCAL' | translate }}
-                    </button>
-                } @else if (isPausedDownload()) {
-                    <button
-                        class="download-btn download-btn--paused"
-                        (click)="resumePausedDownload()"
-                    >
-                        <mat-icon svgIcon="play_arrow"></mat-icon>
-                        {{ 'DOWNLOADS.RESUME' | translate }}
-                    </button>
-                } @else if (isDownloading()) {
-                    <button
-                        class="download-btn download-btn--downloading"
-                        disabled
-                    >
-                        <mat-icon svgIcon="downloading"></mat-icon>
-                        {{ 'DOWNLOADS.STATUS.DOWNLOADING' | translate }}
-                    </button>
-                } @else {
-                    <button class="download-btn" (click)="downloadVod(item)">
-                        <mat-icon svgIcon="download"></mat-icon>
-                        {{ 'DOWNLOADS.DOWNLOAD' | translate }}
-                    </button>
-                }
             }
         </ng-template>
 
@@ -304,15 +290,16 @@
                         }
                         @for (
                             item of similarInPortals();
-                            track 'x' + item.match.playlistId + '-' + item.match.xtreamId
+                            track 'x' +
+                                item.match.playlistId +
+                                '-' +
+                                item.match.xtreamId
                         ) {
                             <button
                                 type="button"
                                 class="details__similar-card"
                                 [title]="
-                                    item.title +
-                                    ' — ' +
-                                    item.match.playlistName
+                                    item.title + ' — ' + item.match.playlistName
                                 "
                                 (click)="openSimilarInPortals(item)"
                             >

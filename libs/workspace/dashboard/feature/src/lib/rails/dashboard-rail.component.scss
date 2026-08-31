@@ -161,16 +161,17 @@
     color: inherit;
     border-radius: var(--rail-radius);
     transition:
-        transform 0.2s ease,
-        filter 0.2s ease;
+        transform 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+        filter 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 
     &:hover {
-        transform: translateY(-2px);
+        transform: translateY(-4px) scale(1.02);
 
         .rail__art {
             box-shadow:
-                0 12px 22px -12px rgba(0, 0, 0, 0.45),
-                0 0 0 1px var(--app-selection-border, rgba(47, 123, 255, 0.4));
+                0 16px 32px -8px rgba(0, 0, 0, 0.55),
+                0 0 0 1px var(--app-selection-border, rgba(47, 123, 255, 0.4)),
+                inset 0 1px 0 rgba(255, 255, 255, 0.12);
         }
 
         .rail__card-title {

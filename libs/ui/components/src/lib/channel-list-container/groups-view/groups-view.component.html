@@ -1,6 +1,9 @@
 @if (!hasAnyGroups()) {
     <div class="groups-view-empty-state">
-        <mat-icon class="empty-state-icon" [svgIcon]="searchTerm() ? 'search_off' : 'folder_off'"></mat-icon>
+        <mat-icon
+            class="empty-state-icon"
+            [svgIcon]="searchTerm() ? 'search_off' : 'folder_off'"
+        ></mat-icon>
         <div class="empty-state-title">
             {{
                 (searchTerm()
@@ -74,7 +77,10 @@
 
                     @if (isGroupSearchOpen()) {
                         <label class="groups-nav-search">
-                            <mat-icon class="groups-nav-search__icon" svgIcon="search"></mat-icon>
+                            <mat-icon
+                                class="groups-nav-search__icon"
+                                svgIcon="search"
+                            ></mat-icon>
                             <input
                                 #groupSearchInput
                                 type="search"
@@ -104,46 +110,70 @@
                 </header>
 
                 <div class="groups-nav-list nav-list">
-                    @if (filteredGroups().length > 0) {
+                    @if (groupNavigationSections().length > 0) {
                         @for (
-                            group of filteredGroups();
-                            track trackByGroupKey($index, group)
+                            section of groupNavigationSections();
+                            track section.key
                         ) {
-                            <button
-                                type="button"
-                                class="nav-item group-nav-item"
-                                [attr.data-group-key]="group.key"
-                                [class.selected]="
-                                    selectedGroupKey() === group.key
-                                "
-                                [attr.aria-current]="
-                                    selectedGroupKey() === group.key
-                                        ? 'true'
-                                        : null
-                                "
-                                (click)="selectGroup(group.key)"
-                            >
-                                <mat-icon
-                                    class="group-tile-icon"
-                                    [svgIcon]="categoryIcon(group.key)"
-                                ></mat-icon>
-                                <span class="nav-item-label">
-                                    @if (group.key) {
-                                        {{ group.label }}
-                                    } @else {
-                                        {{ 'CHANNELS.UNGROUPED' | translate }}
+                            <section class="groups-nav-section">
+                                @if (section.label) {
+                                    <h3 class="groups-nav-section__heading">
+                                        {{ section.label }}
+                                    </h3>
+                                }
+                                <div class="groups-nav-section__items">
+                                    @for (
+                                        group of section.groups;
+                                        track trackByGroupKey($index, group)
+                                    ) {
+                                        <button
+                                            type="button"
+                                            class="nav-item group-nav-item"
+                                            [attr.data-group-key]="group.key"
+                                            [class.selected]="
+                                                selectedGroupKey() === group.key
+                                            "
+                                            [attr.aria-current]="
+                                                selectedGroupKey() === group.key
+                                                    ? 'true'
+                                                    : null
+                                            "
+                                            (click)="selectGroup(group.key)"
+                                        >
+                                            <mat-icon
+                                                class="group-tile-icon"
+                                                [svgIcon]="
+                                                    categoryIcon(group.key)
+                                                "
+                                            ></mat-icon>
+                                            <span class="nav-item-label">
+                                                @if (group.key) {
+                                                    {{ group.label }}
+                                                } @else {
+                                                    {{
+                                                        'CHANNELS.UNGROUPED'
+                                                            | translate
+                                                    }}
+                                                }
+                                            </span>
+                                            <span class="nav-item-meta">
+                                                {{ group.count }}
+                                            </span>
+                                        </button>
                                     }
-                                </span>
-                                <span class="nav-item-meta">
-                                    {{ group.count }}
-                                </span>
-                            </button>
+                                </div>
+                            </section>
                         }
                     } @else {
                         <div class="groups-nav-empty">
-                            <mat-icon class="groups-nav-empty__icon" [svgIcon]="hasSearchQuery()
+                            <mat-icon
+                                class="groups-nav-empty__icon"
+                                [svgIcon]="
+                                    hasSearchQuery()
                                         ? 'search_off'
-                                        : 'folder_off'"></mat-icon>
+                                        : 'folder_off'
+                                "
+                            ></mat-icon>
                             <div class="groups-nav-empty__title">
                                 {{
                                     (hasSearchQuery()
@@ -192,7 +222,11 @@
                         [matTooltip]="
                             'CHANNELS.SORT_TOOLTIP'
                                 | translate
-                                    : { mode: groupChannelSortLabel() | translate }
+                                    : {
+                                          mode:
+                                              groupChannelSortLabel()
+                                              | translate,
+                                      }
                         "
                         [attr.aria-label]="'CHANNELS.SORT_CHANNELS' | translate"
                     >
@@ -218,7 +252,9 @@
                             (click)="setGroupChannelSortMode('server')"
                         >
                             <mat-icon svgIcon="drag_indicator"></mat-icon>
-                            <span>{{ 'CHANNELS.SORT_PLAYLIST_ORDER' | translate }}</span>
+                            <span>{{
+                                'CHANNELS.SORT_PLAYLIST_ORDER' | translate
+                            }}</span>
                             @if (groupChannelSortMode() === 'server') {
                                 <mat-icon svgIcon="check"></mat-icon>
                             }
@@ -228,7 +264,9 @@
                             (click)="setGroupChannelSortMode('name-asc')"
                         >
                             <mat-icon svgIcon="sort_by_alpha"></mat-icon>
-                            <span>{{ 'CHANNELS.SORT_NAME_ASC' | translate }}</span>
+                            <span>{{
+                                'CHANNELS.SORT_NAME_ASC' | translate
+                            }}</span>
                             @if (groupChannelSortMode() === 'name-asc') {
                                 <mat-icon svgIcon="check"></mat-icon>
                             }
@@ -238,7 +276,9 @@
                             (click)="setGroupChannelSortMode('name-desc')"
                         >
                             <mat-icon svgIcon="sort_by_alpha"></mat-icon>
-                            <span>{{ 'CHANNELS.SORT_NAME_DESC' | translate }}</span>
+                            <span>{{
+                                'CHANNELS.SORT_NAME_DESC' | translate
+                            }}</span>
                             @if (groupChannelSortMode() === 'name-desc') {
                                 <mat-icon svgIcon="check"></mat-icon>
                             }
@@ -291,7 +331,9 @@
                         [keyboardFocused]="focusedIndex() === i"
                         (clicked)="onChannelClick(channel, i)"
                         (activated)="onChannelActivate(channel)"
-                        (contextMenuRequested)="channelContextMenu.open(channel, $event)"
+                        (contextMenuRequested)="
+                            channelContextMenu.open(channel, $event)
+                        "
                         (favoriteToggled)="onFavoriteToggle(channel, $event)"
                     />
                 </cdk-virtual-scroll-viewport>
@@ -305,7 +347,12 @@
                 </header>
 
                 <div class="groups-content-empty-state">
-                    <mat-icon class="empty-state-icon" [svgIcon]="hasSearchQuery() ? 'search_off' : 'visibility_off'"></mat-icon>
+                    <mat-icon
+                        class="empty-state-icon"
+                        [svgIcon]="
+                            hasSearchQuery() ? 'search_off' : 'visibility_off'
+                        "
+                    ></mat-icon>
                     <div class="empty-state-title">
                         {{
                             (hasSearchQuery()

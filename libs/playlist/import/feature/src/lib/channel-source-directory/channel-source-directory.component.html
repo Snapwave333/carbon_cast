@@ -1,0 +1,152 @@
+<div class="csd">
+    <p class="csd__intro">
+        {{ 'HOME.DISCOVER.INTRO' | translate }}
+    </p>
+
+    <mat-form-field
+        appearance="outline"
+        subscriptSizing="dynamic"
+        class="csd__search"
+    >
+        <mat-label>{{ 'HOME.DISCOVER.SEARCH' | translate }}</mat-label>
+        <input
+            matInput
+            type="search"
+            [ngModel]="query()"
+            (ngModelChange)="setQuery($event)"
+            [attr.aria-label]="'HOME.DISCOVER.SEARCH' | translate"
+        />
+    </mat-form-field>
+
+    <div
+        class="csd__kinds"
+        role="tablist"
+        [attr.aria-label]="'HOME.DISCOVER.KINDS' | translate"
+    >
+        @for (tab of kindTabs; track tab.kind) {
+            <button
+                type="button"
+                role="tab"
+                class="csd__kind"
+                [class.active]="!query().trim() && activeKind() === tab.kind"
+                [attr.aria-selected]="
+                    !query().trim() && activeKind() === tab.kind
+                "
+                [disabled]="!!query().trim()"
+                (click)="setKind(tab.kind)"
+            >
+                {{ tab.labelKey | translate }}
+            </button>
+        }
+    </div>
+
+    @if (matchingSources().length === 0) {
+        <p class="csd__empty">{{ 'HOME.DISCOVER.NO_RESULTS' | translate }}</p>
+    } @else {
+        <ul
+            class="csd__list"
+            role="list"
+            [attr.aria-label]="'HOME.DISCOVER.RESULTS' | translate"
+        >
+            @for (source of visibleSources(); track source.id) {
+                <li class="csd__row">
+                    <mat-checkbox
+                        [checked]="isSelected(source)"
+                        (change)="toggle(source)"
+                    >
+                        <span class="csd__name">
+                            @if (source.flag) {
+                                <span aria-hidden="true">{{
+                                    source.flag
+                                }}</span>
+                            }
+                            {{ source.name }}
+                        </span>
+                    </mat-checkbox>
+                    <span class="csd__meta">
+                        <span class="csd__count">
+                            {{
+                                'HOME.DISCOVER.STREAM_COUNT'
+                                    | translate: { count: source.streamCount }
+                            }}
+                        </span>
+                        <a
+                            class="csd__provider"
+                            [href]="source.provider.homepage"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            {{ source.provider.name }}
+                            <mat-icon
+                                svgIcon="open_in_new"
+                                aria-hidden="true"
+                            ></mat-icon>
+                        </a>
+                    </span>
+                </li>
+            }
+        </ul>
+
+        @if (hasMore()) {
+            <button
+                mat-button
+                type="button"
+                class="csd__more"
+                (click)="showMore()"
+            >
+                {{ 'HOME.DISCOVER.SHOW_MORE' | translate }}
+            </button>
+        }
+    }
+
+    <div class="csd__footer">
+        <mat-checkbox
+            [ngModel]="mergeIntoOne()"
+            (ngModelChange)="mergeIntoOne.set($event)"
+            [disabled]="selectedSources().length < 2"
+        >
+            {{ 'HOME.DISCOVER.MERGE_INTO_ONE' | translate }}
+        </mat-checkbox>
+
+        @if (selectedSources().length > 0) {
+            <p class="csd__summary">
+                {{
+                    'HOME.DISCOVER.SELECTED_SUMMARY'
+                        | translate
+                            : {
+                                  sources: selectedSources().length,
+                                  channels: selectedStreamCount(),
+                              }
+                }}
+                <button mat-button type="button" (click)="clearSelection()">
+                    {{ 'CLEAR' | translate }}
+                </button>
+            </p>
+        }
+
+        @if (isLargeSelection()) {
+            <p class="csd__warning" role="status">
+                {{ 'HOME.DISCOVER.LARGE_SELECTION_WARNING' | translate }}
+            </p>
+        }
+
+        @if (isImporting()) {
+            <div class="csd__progress" role="status">
+                <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+                <span>{{
+                    progressLabel() || ('HOME.DISCOVER.IMPORTING' | translate)
+                }}</span>
+            </div>
+        }
+
+        <button
+            mat-flat-button
+            color="primary"
+            type="button"
+            [disabled]="selectedSources().length === 0 || isImporting()"
+            (click)="importSelected()"
+        >
+            {{ 'HOME.DISCOVER.IMPORT' | translate }}
+        </button>
+    </div>
+</div>

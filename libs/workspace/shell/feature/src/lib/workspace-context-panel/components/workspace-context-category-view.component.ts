@@ -1,6 +1,7 @@
 import {
     ChangeDetectionStrategy,
     Component,
+    computed,
     effect,
     ElementRef,
     inject,
@@ -8,7 +9,6 @@ import {
     output,
 } from '@angular/core';
 import { MatListModule } from '@angular/material/list';
-import { TranslatePipe } from '@ngx-translate/core';
 import { WorkspaceContextErrorViewComponent } from './workspace-context-error-view.component';
 
 interface WorkspaceCategoryViewItem {
@@ -19,9 +19,15 @@ interface WorkspaceCategoryViewItem {
     readonly name?: string;
 }
 
+interface WorkspaceCategorySection {
+    readonly key: string;
+    readonly label: string | null;
+    readonly items: ReadonlyArray<WorkspaceCategoryViewItem>;
+}
+
 @Component({
     selector: 'app-workspace-context-category-view',
-    imports: [MatListModule, TranslatePipe, WorkspaceContextErrorViewComponent],
+    imports: [MatListModule, WorkspaceContextErrorViewComponent],
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './workspace-context-category-view.component.html',
     styleUrl: './workspace-context-category-view.component.scss',
@@ -40,6 +46,47 @@ export class WorkspaceContextCategoryViewComponent {
     readonly omitMissingCounts = input(false);
     readonly interactionEnabled = input(true);
     readonly statusText = input('');
+
+    /**
+     * Providers can hand us hundreds of category names in an arbitrary order.
+     * Keep an "All" entry distinct, then give long lists an honest A-Z
+     * structure without inventing a taxonomy the provider did not supply.
+     */
+    readonly categorySections = computed<
+        ReadonlyArray<WorkspaceCategorySection>
+    >(() => {
+        const allItems: WorkspaceCategoryViewItem[] = [];
+        const sections = new Map<string, WorkspaceCategoryViewItem[]>();
+
+        for (const item of this.items()) {
+            if (this.isAllCategory(item)) {
+                allItems.push(item);
+                continue;
+            }
+
+            const key = this.getSectionKey(item);
+            const sectionItems = sections.get(key) ?? [];
+            sectionItems.push(item);
+            sections.set(key, sectionItems);
+        }
+
+        const showSectionLabels = sections.size > 1 && this.items().length > 7;
+        const result: WorkspaceCategorySection[] = [];
+
+        if (allItems.length > 0) {
+            result.push({ key: 'all', label: null, items: allItems });
+        }
+
+        for (const [key, items] of sections) {
+            result.push({
+                key,
+                label: showSectionLabels ? key : null,
+                items,
+            });
+        }
+
+        return result;
+    });
 
     private readonly hostEl = inject(ElementRef<HTMLElement>);
 
@@ -114,5 +161,37 @@ export class WorkspaceContextCategoryViewComponent {
         }
 
         this.categoryClicked.emit(item);
+    }
+
+    private isAllCategory(item: WorkspaceCategoryViewItem): boolean {
+        const id = String(item.category_id ?? item.id ?? '')
+            .trim()
+            .toLocaleLowerCase();
+        if (id === '*' || id === 'all') {
+            return true;
+        }
+
+        return /^all(?:\s+(?:items?|channels?|categories|movies|shows|series|radio))?$/i.test(
+            this.getLabel(item)
+        );
+    }
+
+    private getSectionKey(item: WorkspaceCategoryViewItem): string {
+        const label = this.getLabel(item).replace(/^\d+\s*[|:.-]\s*/, '');
+        const firstCharacter = Array.from(label.trim())[0];
+
+        if (
+            !firstCharacter ||
+            firstCharacter.toLocaleUpperCase() ===
+                firstCharacter.toLocaleLowerCase()
+        ) {
+            return '#';
+        }
+
+        return firstCharacter.toLocaleUpperCase();
+    }
+
+    private getLabel(item: WorkspaceCategoryViewItem): string {
+        return String(item.category_name ?? item.name ?? '').trim();
     }
 }

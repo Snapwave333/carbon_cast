@@ -9,6 +9,7 @@ import {
     OnDestroy,
     OnInit,
     Output,
+    output,
     SimpleChanges,
     viewChild,
     ViewChild,
@@ -16,7 +17,12 @@ import {
 } from '@angular/core';
 import Hls, { type ErrorData, type ManifestParsedData } from 'hls.js';
 import mpegts from 'mpegts.js';
-import { Channel, createDevLogger } from '@iptvnator/shared/interfaces';
+import {
+    Channel,
+    createDevLogger,
+    DEFAULT_PREFERRED_QUALITY,
+    type PreferredQuality,
+} from '@iptvnator/shared/interfaces';
 import {
     InlinePlaybackPlayer,
     PlaybackDiagnostic,
@@ -74,6 +80,9 @@ export class HtmlVideoPlayerComponent implements OnInit, OnChanges, OnDestroy {
     readonly isLive = input(true);
     readonly interactionEnabled = input(true);
     readonly showCaptions = input(false);
+    readonly preferredQuality = input<PreferredQuality>(
+        DEFAULT_PREFERRED_QUALITY
+    );
     readonly mediaTitle = input<PlayerMediaTitle | null>(null);
     @Output() timeUpdate = new EventEmitter<{
         currentTime: number;
@@ -83,6 +92,9 @@ export class HtmlVideoPlayerComponent implements OnInit, OnChanges, OnDestroy {
     @Output() playbackEnded = new EventEmitter<void>();
     @Output() previousEpisodeRequested = new EventEmitter<void>();
     @Output() nextEpisodeRequested = new EventEmitter<void>();
+    readonly channelNavigation = input(false);
+    readonly channelUpRequested = output<void>();
+    readonly channelDownRequested = output<void>();
 
     readonly sharedControls = inject(WEB_PLAYER_SHARED_CONTROLS);
     readonly controlsAdapter = inject(WebVideoControlsAdapter);
@@ -124,12 +136,14 @@ export class HtmlVideoPlayerComponent implements OnInit, OnChanges, OnDestroy {
                 adapter: this.controlsAdapter,
                 isLive: () => this.isLive(),
                 showCaptions: () => this.showCaptions(),
+                preferredQuality: () => this.preferredQuality(),
             });
             this.controlsBridge.attach();
         } else {
             this.captionTracks = new WebVideoSourceTracks({
                 video: this.videoPlayer.nativeElement,
                 showCaptions: () => this.showCaptions(),
+                preferredQuality: () => this.preferredQuality(),
                 vendorCaptionControls: true,
             });
         }
@@ -150,7 +164,11 @@ export class HtmlVideoPlayerComponent implements OnInit, OnChanges, OnDestroy {
         if (changes['channel'] && changes['channel'].currentValue) {
             void this.playChannel(changes['channel'].currentValue);
         }
-        if (changes['isLive'] || changes['showCaptions']) {
+        if (
+            changes['isLive'] ||
+            changes['showCaptions'] ||
+            changes['preferredQuality']
+        ) {
             this.controlsBridge?.refreshInputs();
             this.captionTracks?.refreshInputs();
         }

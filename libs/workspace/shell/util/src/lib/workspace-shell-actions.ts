@@ -2,6 +2,7 @@ import { InjectionToken } from '@angular/core';
 import type { XtreamAccountInfoDialogData } from '@iptvnator/shared/interfaces';
 
 export type WorkspacePlaylistType =
+    | 'discover'
     | 'xtream'
     | 'url'
     | 'text'
@@ -14,6 +15,8 @@ export type WorkspaceAccountInfoData = XtreamAccountInfoDialogData;
 
 export interface WorkspaceShellActions {
     openAddPlaylistDialog(type?: WorkspacePlaylistType): void;
+    /** Combines several imported M3U playlists into a new one. */
+    openMergePlaylistsDialog(): void;
     openGlobalSearch(initialQuery?: string): void;
     openGlobalRecent(): void;
     openAccountInfo(data: WorkspaceAccountInfoData): void;

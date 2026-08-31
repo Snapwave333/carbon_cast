@@ -26,9 +26,11 @@ import { createControlsViewModel } from './controls-view-model';
 import { ControlsVolume } from './controls-volume';
 import { PLAYER_CONTROLS_SETTINGS } from './web-player-controls.flag';
 import { formatTime, speedLabel } from './controls-format.utils';
+import { AUTO_QUALITY_ID } from './player-quality.util';
 import type {
     PlayerController,
     PlayerMediaTitle,
+    PlayerTrack,
 } from './player-controls.model';
 
 @Component({
@@ -59,6 +61,11 @@ export class PlayerControlsComponent implements OnDestroy {
     readonly mediaTitle = input<PlayerMediaTitle | null>(null);
     readonly previousEpisodeRequested = output<void>();
     readonly nextEpisodeRequested = output<void>();
+    /** Host-driven, like the episode actions above: channel flipping is a
+     * playlist concern that no engine could implement. */
+    readonly channelNavigation = input(false);
+    readonly channelUpRequested = output<void>();
+    readonly channelDownRequested = output<void>();
     readonly barHovered = signal(false);
     private readonly barFocused = signal(false);
     readonly menus = new ControlsMenuState();
@@ -141,6 +148,17 @@ export class PlayerControlsComponent implements OnDestroy {
     readonly canTogglePlay = this.vm.canTogglePlay;
     readonly hasAudioTracks = this.vm.hasAudioTracks;
     readonly hasSubtitleTracks = this.vm.hasSubtitleTracks;
+    readonly hasQualityLevels = this.vm.hasQualityLevels;
+    /**
+     * The adaptive entry carries only the rendition it settled on; the word
+     * "Auto" is added here so the engine layer stays free of translation.
+     */
+    readonly selectedQualityLabel = computed(() => {
+        const selected = this.state().qualityLevels.find(
+            (level) => level.selected
+        );
+        return selected ? this.qualityLabel(selected) : '';
+    });
     readonly canRecord = this.vm.canRecord;
     readonly isRecording = this.vm.isRecording;
     readonly recordingStatusText = this.vm.recordingStatusText;
@@ -200,6 +218,13 @@ export class PlayerControlsComponent implements OnDestroy {
     }
     formatTime = formatTime;
     speedLabel = speedLabel;
+    qualityLabel(level: PlayerTrack): string {
+        if (level.id !== AUTO_QUALITY_ID) {
+            return level.label;
+        }
+        const auto = this.translate.instant('EMBEDDED_MPV.PLAYER.QUALITY_AUTO');
+        return level.label ? `${auto} (${level.label})` : auto;
+    }
     togglePlay(): void {
         this.reveal();
         if (!this.canTogglePlay()) {
@@ -266,6 +291,14 @@ export class PlayerControlsComponent implements OnDestroy {
         }
         this.nextEpisodeRequested.emit();
     }
+    requestChannel(direction: 'up' | 'down'): void {
+        this.reveal();
+        const out =
+            direction === 'up'
+                ? this.channelUpRequested
+                : this.channelDownRequested;
+        out.emit();
+    }
     onVolumeInput(event: Event): void {
         this.volume.set(Number((event.target as HTMLInputElement).value));
         this.reveal({ scheduleHide: false });
@@ -289,7 +322,9 @@ export class PlayerControlsComponent implements OnDestroy {
         this.reveal();
     }
 
-    toggleMenu(menu: 'audio' | 'subtitle' | 'speed' | 'aspect'): void {
+    toggleMenu(
+        menu: 'audio' | 'subtitle' | 'quality' | 'speed' | 'aspect'
+    ): void {
         this.menus.toggle(menu);
         this.reveal();
     }

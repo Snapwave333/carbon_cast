@@ -15,6 +15,12 @@ export const DEVICE_ICONS: Record<string, string> = {
         '<rect x="2.5" y="6" width="19" height="12" rx="2"/><path d="M6 10h.01M9 10h.01M12 10h.01M15 10h.01M18 10h.01M6 13h.01M9 13h.01M15 13h.01M18 13h.01M8 15.5h8"/>',
     terminal:
         '<rect x="3" y="4.5" width="18" height="15" rx="2"/><path d="m7 9 3 3-3 3"/><path d="M12.5 15H17"/>',
+    /** Proxy/VPN settings: a globe wearing a padlock. */
+    vpn_lock:
+        '<circle cx="11" cy="11" r="8.5"/><path d="M2.6 11h16.8"/><path d="M11 2.5c2.2 2.4 3.4 5.4 3.4 8.5s-1.2 6.1-3.4 8.5c-2.2-2.4-3.4-5.4-3.4-8.5s1.2-6.1 3.4-8.5Z"/><rect x="15" y="14.5" width="7" height="6" rx="1.2" fill="var(--mat-sys-surface, #fff)"/><path d="M17 14.5v-1.4a2 2 0 0 1 4 0v1.4"/>',
+    /** Connection test: a transmitting node. */
+    wifi_tethering:
+        '<circle cx="12" cy="15" r="2" fill="currentColor" stroke="none"/><path d="M8.2 11.2a5.4 5.4 0 0 1 7.6 0"/><path d="M5.4 8.4a9.4 9.4 0 0 1 13.2 0"/>',
     router: '<rect x="3" y="13" width="18" height="7" rx="2"/><circle cx="7" cy="16.5" r=".9" fill="currentColor" stroke="none"/><circle cx="10.5" cy="16.5" r=".9" fill="currentColor" stroke="none"/><path d="M17 13V6.5"/><path d="M14.2 4.6a4.3 4.3 0 0 1 5.6 0"/>',
     dns: '<rect x="4" y="4" width="16" height="7" rx="2"/><rect x="4" y="13" width="16" height="7" rx="2"/><circle cx="8" cy="7.5" r="1" fill="currentColor" stroke="none"/><circle cx="8" cy="16.5" r="1" fill="currentColor" stroke="none"/>',
     cable: '<rect x="3" y="3" width="5" height="7" rx="1.2"/><rect x="16" y="14" width="5" height="7" rx="1.2"/><path d="M5.5 10v4.5a3.5 3.5 0 0 0 3.5 3.5h3"/><path d="M18.5 14V9.5A3.5 3.5 0 0 0 15 6h-3"/>',

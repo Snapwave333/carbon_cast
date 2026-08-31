@@ -6,42 +6,87 @@
 @include mat.app-background();
 
 // ─── Typography ─────────────────────────────────────────────────────────────
-$app-font-stack:
-    "'DM Sans', 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif";
+$app-font-stack: "'DM Sans', 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif";
 
 $my-typography: mat.m2-define-typography-config(
     $font-family: $app-font-stack,
 );
 @include mat.typography-hierarchy($my-typography);
 
-// ─── Carbon-fibre weave ──────────────────────────────────────────────────────
-// Tight 14px twill: crossed 27°/207° tows in two tones over a vertical seam
-// and a 4-band base cell. Applied as separate longhands (not the `background`
-// shorthand) so the per-layer positions survive.
-@mixin carbon-weave {
-    background-color: #111;
-    background-image: linear-gradient(27deg, #151515 3.5px, transparent 3.5px),
-        linear-gradient(207deg, #151515 3.5px, transparent 3.5px),
-        linear-gradient(27deg, #242424 3.5px, transparent 3.5px),
-        linear-gradient(207deg, #242424 3.5px, transparent 3.5px),
-        linear-gradient(90deg, #1b1b1b 7px, transparent 7px),
+// ─── Aurora backdrop ─────────────────────────────────────────────────────────
+// A slow four-stop diagonal gradient (magenta → blue → cyan → red) drifting
+// across a 400% canvas, with a soft top sheen over it.
+//
+// Exactly ONE element paints this — the workspace shell. Every surface stacked
+// on it is a translucent frost pane (`frost-pane` below) that simply lets the
+// shell show through. Painting the animated gradient on each surface instead
+// would drift out of phase: a surface created later (a route's
+// `.groups-view-layout`, say) starts its own animation at mount time, and the
+// seam between two phases of the same gradient is very visible.
+//
+// `background-attachment: fixed` anchors it to the viewport, so scrolling the
+// content does not drag the backdrop with it.
+@mixin aurora-backdrop {
+    background-color: #0b0d14;
+    background-image:
+        radial-gradient(
+            140% 100% at 50% -12%,
+            rgba(255, 255, 255, 0.09),
+            rgba(255, 255, 255, 0) 58%
+        ),
         linear-gradient(
-            #1d1d1d 25%,
-            #111 25%,
-            #111 50%,
-            transparent 50%,
-            transparent 75%,
-            #242424 75%
+            315deg,
+            rgba(101, 0, 94, 1) 3%,
+            rgba(60, 132, 206, 1) 38%,
+            rgba(48, 238, 226, 1) 68%,
+            rgba(255, 25, 25, 1) 98%
         );
-    background-position:
-        0 3.5px,
-        7px 0,
-        0 7px,
-        7px 3.5px,
-        0 0,
-        0 0;
-    background-size: 14px 14px;
-    background-repeat: repeat;
+    background-repeat: no-repeat;
+    background-attachment: fixed, fixed;
+    background-size:
+        100% 100%,
+        400% 400%;
+    background-position: 0% 0%;
+    animation: app-aurora-drift 75s ease infinite;
+
+    // The app-wide reduced-motion rule in styles.scss cuts every animation to
+    // 0.01ms with one iteration, which froze this on its flat top-left corner
+    // and made the backdrop look like a plain gradient. That rule is aimed at
+    // UI feedback — things that move under the pointer and can be startling.
+    // The ambient backdrop is neither: nothing shifts position, it is a slow
+    // hue drift behind a frosted pane. It stays alive under reduced motion,
+    // at half speed. Both longhands need `!important` because the blanket rule
+    // pins duration AND iteration-count.
+    //
+    // To honour the OS preference strictly instead, delete this block — the
+    // blanket rule then takes over again and the backdrop holds still.
+    @media (prefers-reduced-motion: reduce) {
+        animation-duration: 150s !important;
+        animation-iteration-count: infinite !important;
+    }
+}
+
+// The thin frosted layer over the aurora: a translucent veil, no filter.
+// `backdrop-filter` would make the element a containing block for its
+// fixed-position descendants, and these surfaces are full of them (channel
+// context-menu anchors, the channel-number overlay, the guide search popovers,
+// application modal layer) — a filter here clips or misplaces every one. It
+// would also be invisible work: blurring a smooth gradient returns the same
+// gradient. The frost reads entirely from the veil.
+@mixin frost-pane($tint: rgba(11, 13, 20, 0.5)) {
+    background: $tint;
+}
+
+@keyframes app-aurora-drift {
+    0% {
+        background-position: 0% 0%;
+    }
+    50% {
+        background-position: 100% 100%;
+    }
+    100% {
+        background-position: 0% 0%;
+    }
 }
 
 // ─── M3 Themes ───────────────────────────────────────────────────────────────
@@ -126,7 +171,8 @@ html {
     --app-widget-bg: #ffffff;
     --app-widget-header-bg: #fafbfc;
     --app-widget-border: transparent;
-    --app-widget-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 4px 12px rgba(0, 0, 0, 0.04);
+    --app-widget-shadow:
+        0 1px 3px rgba(0, 0, 0, 0.06), 0 4px 12px rgba(0, 0, 0, 0.04);
     --app-widget-header-border: rgba(0, 0, 0, 0.06);
     --app-card-hover-bg: #f0f2f5;
     --app-separator: rgba(0, 0, 0, 0.14);
@@ -153,21 +199,17 @@ html {
     .dark-theme {
         @include mat.all-component-colors($dark-theme);
 
-        // ── Carbon fiber theme ─────────────────────────────────────────────
-        // The app ships a single dark theme: a near-black carbon-fiber weave
-        // with a red primary accent and orange + cyan as the secondary
-        // accents. There is no light mode; `.dark-theme` is always applied.
-
-        // Fine twill weave: a bright diagonal hatch (sheen) crossed with a
-        // dark one (shadow), tiled over the near-black surfaces below. Kept in
-        // one variable and layered ahead of a solid base color via the
-        // `background` shorthand consumers (rail/header/content).
-        // App shell & navigation. All background vars are plain colors now:
-        // the carbon-fibre weave is painted by the surface rules at the bottom
-        // of this block (separate background-image/position/size longhands),
-        // and the side rails are translucent glass panels that frost it.
-        // `--app-shell-bg` stays a solid color because some components feed it
-        // to color-mix().
+        // ── Aurora glass theme ─────────────────────────────────────────────
+        // The app ships a single dark theme: a slow-drifting aurora gradient
+        // under a thin frosted-glass veil, with a red primary accent and
+        // orange + cyan as the secondary accents. There is no light mode;
+        // `.dark-theme` is always applied.
+        //
+        // App shell & navigation. All background vars stay plain colors: the
+        // aurora + frost stack is painted by the surface rules at the bottom
+        // of this block, and the side rails are translucent glass panels that
+        // blur it. `--app-shell-bg` stays a solid color because some
+        // components feed it to color-mix().
         --app-shell-bg: #08090c;
         --app-rail-bg: rgba(15, 17, 22, 0.55);
         --app-header-bg: #111;
@@ -237,7 +279,7 @@ html {
         --app-content-shadow: -4px 8px 20px rgba(0, 0, 0, 0.18);
 
         // Widget surfaces — NO border, surface contrast does the work.
-        // Widgets sit on the carbon content surface, so widget-bg is a
+        // Widgets sit on the frosted content surface, so widget-bg is a
         // slightly raised graphite.
         --app-widget-bg: #14171e;
         --app-widget-header-bg: #191d26;
@@ -248,10 +290,10 @@ html {
         --app-separator: rgba(255, 255, 255, 0.1);
 
         // Typography — NOT pure white. Warm graphite-tinted whites
-        --app-heading-color: #d8dce8;       // soft off-white, not #fff
-        --app-body-color: #8b93a8;          // muted blue-grey
-        --app-muted-color: #5c6478;         // dimmed
-        --app-eyebrow-color: #6b7494;       // eyebrow labels
+        --app-heading-color: #d8dce8; // soft off-white, not #fff
+        --app-body-color: #8b93a8; // muted blue-grey
+        --app-muted-color: #5c6478; // dimmed
+        --app-eyebrow-color: #6b7494; // eyebrow labels
 
         // Provider accents — spread across the secondary cyan/orange and the
         // primary red so the three source types stay distinguishable.
@@ -259,7 +301,7 @@ html {
         --app-provider-stalker: #ff8c1a;
         --app-provider-m3u: #ff5252;
 
-        // Hero section — red bleeding into orange over the carbon surface.
+        // Hero section — red bleeding into orange over the frosted surface.
         --app-accent-gradient: linear-gradient(
             135deg,
             rgba(255, 59, 59, 0.18) 0%,
@@ -267,23 +309,54 @@ html {
         );
         --app-hero-surface: rgba(16, 18, 24, 0.92);
 
-        // ── Carbon surfaces ────────────────────────────────────────────────
-        // The weave lives on the structural surfaces (shell body, header,
-        // content). Selectors are doubled to outrank the component-scoped
-        // `background: var(...)` shorthands (same trick as .app-scrollbar).
-        .workspace-shell.workspace-shell,
+        // ── Aurora surfaces ────────────────────────────────────────────────
+        // The shell alone paints the moving gradient; every surface stacked on
+        // top of it is a frosted pane that blurs it. Selectors are doubled to
+        // outrank the component-scoped `background: var(...)` shorthands (same
+        // trick as .app-scrollbar).
+        .workspace-shell.workspace-shell {
+            @include aurora-backdrop;
+        }
+
         .workspace-body.workspace-body,
         .workspace-header.workspace-header,
-        .workspace-content.workspace-content,
         .workspace-now-playing.workspace-now-playing,
         .groups-view-layout.groups-view-layout {
-            @include carbon-weave;
+            @include frost-pane(rgba(11, 13, 20, 0.42));
+        }
+
+        // The content pane is the reading surface, so its frost is denser.
+        // It sits inside `.workspace-body`, whose veil it stacks on top of.
+        .workspace-content.workspace-content {
+            @include frost-pane(rgba(10, 12, 19, 0.5));
+        }
+
+        // A saturated gradient under a half-transparent pane is exactly what
+        // "increase contrast" is asking the app to stop doing: every piece of
+        // text ends up over a different backdrop colour. Drop to the flat
+        // surfaces instead — the aurora is decoration, the text is not.
+        @media (prefers-contrast: more) {
+            .workspace-shell.workspace-shell {
+                background-image: none;
+                animation: none;
+            }
+
+            .workspace-body.workspace-body,
+            .workspace-header.workspace-header,
+            .workspace-now-playing.workspace-now-playing,
+            .groups-view-layout.groups-view-layout {
+                background: var(--app-shell-bg);
+            }
+
+            .workspace-content.workspace-content {
+                background: var(--mat-sys-surface);
+            }
         }
 
         // ── Glass side panels ──────────────────────────────────────────────
         // The icon rail owns its full glass styling in its component; the
         // sidebar panels keep their translucent `--app-rail-bg` tint and get
-        // backdrop blur here to frost the weave behind them.
+        // backdrop blur here to frost the aurora behind them.
         .context-panel,
         .groups-nav-panel {
             backdrop-filter: blur(14px) saturate(1.2);
@@ -296,17 +369,25 @@ html {
 // Applied app-wide AFTER mat.all-component-themes so these overrides win the
 // cascade. Pairs with MAT_FORM_FIELD_DEFAULT_OPTIONS (outline + dynamic) set
 // in app.config.ts.
-$app-refined-input-density: mat.define-theme((
-    density: (scale: -2),
-));
+$app-refined-input-density: mat.define-theme(
+    (
+        density: (
+            scale: -2,
+        ),
+    )
+);
 
 html {
     @include mat.form-field-density($app-refined-input-density);
 
     .mat-mdc-form-field {
-        --mdc-outlined-text-field-outline-color: var(--app-widget-header-border);
+        --mdc-outlined-text-field-outline-color: var(
+            --app-widget-header-border
+        );
         --mdc-outlined-text-field-hover-outline-color: var(--app-muted-color);
-        --mdc-outlined-text-field-focus-outline-color: var(--app-selection-color);
+        --mdc-outlined-text-field-focus-outline-color: var(
+            --app-selection-color
+        );
         --mdc-outlined-text-field-container-shape: 10px;
         --mdc-outlined-text-field-label-text-color: var(--app-muted-color);
         --mdc-outlined-text-field-input-text-color: var(--app-heading-color);

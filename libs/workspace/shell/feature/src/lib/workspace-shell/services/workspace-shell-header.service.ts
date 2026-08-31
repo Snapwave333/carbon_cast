@@ -78,9 +78,7 @@ export class WorkspaceShellHeaderService {
         Boolean(this.routeState.activePlaylist()?.serverUrl)
     );
     readonly canRefreshPlaylist = computed(() =>
-        this.playlistRefreshAction.canRefresh(
-            this.routeState.activePlaylist()
-        )
+        this.playlistRefreshAction.canRefresh(this.routeState.activePlaylist())
     );
     readonly isRefreshingPlaylist = this.playlistRefreshAction.isRefreshing;
     readonly headerBulkAction = computed<WorkspaceHeaderBulkAction | null>(
@@ -182,18 +180,13 @@ export class WorkspaceShellHeaderService {
                     } as PlaylistMeta,
                 })
             );
-            bumpRefreshQueryParam(
-                this.router,
-                this.routeState.currentUrl()
-            );
+            bumpRefreshQueryParam(this.router, this.routeState.currentUrl());
             return;
         }
 
         if (context.provider === 'playlists') {
             const updatedPlaylist = await firstValueFrom(
-                this.playlistsService.clearM3uRecentlyViewed(
-                    context.playlistId
-                )
+                this.playlistsService.clearM3uRecentlyViewed(context.playlistId)
             );
             this.store.dispatch(
                 PlaylistActions.updatePlaylistMeta({
@@ -203,19 +196,12 @@ export class WorkspaceShellHeaderService {
                     } as PlaylistMeta,
                 })
             );
-            bumpRefreshQueryParam(
-                this.router,
-                this.routeState.currentUrl()
-            );
+            bumpRefreshQueryParam(this.router, this.routeState.currentUrl());
         }
     }
 
     navigateToGlobalFavorites(): void {
         void this.router.navigate(['/workspace/global-favorites']);
-    }
-
-    openDownloadsShortcut(): void {
-        void this.router.navigate(['/workspace/downloads']);
     }
 
     runHeaderShortcut(): void {
@@ -265,8 +251,9 @@ export class WorkspaceShellHeaderService {
 
         if (provider === 'playlists') {
             return (
-                this.routeState.activePlaylist()?.recentlyViewed?.length ?? 0
-            ) === 0;
+                (this.routeState.activePlaylist()?.recentlyViewed?.length ??
+                    0) === 0
+            );
         }
 
         return false;

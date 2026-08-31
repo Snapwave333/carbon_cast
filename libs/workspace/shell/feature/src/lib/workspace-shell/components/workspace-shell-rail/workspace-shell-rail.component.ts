@@ -5,21 +5,28 @@ import {
     inject,
     input,
 } from '@angular/core';
+import { MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
+import { Store } from '@ngrx/store';
 import { MatTooltip, TooltipPosition } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import {
+    ChannelActions,
+    selectActive,
+    selectChannels,
+} from '@iptvnator/m3u-state';
+import {
+    getAdjacentChannelItem,
     PortalRailLink,
     PortalRailSection,
 } from '@iptvnator/portal/shared/util';
-import { RailExpansionService } from '@iptvnator/workspace/shell/util';
-import { SettingsStore } from '@iptvnator/services';
 import { WorkspaceShellRailLinksComponent } from '../workspace-shell-rail-links/workspace-shell-rail-links.component';
 
 @Component({
     selector: 'app-workspace-shell-rail',
     imports: [
+        MatIconButton,
         MatIcon,
         MatTooltip,
         RouterLink,
@@ -31,10 +38,10 @@ import { WorkspaceShellRailLinksComponent } from '../workspace-shell-rail-links/
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WorkspaceShellRailComponent {
-    private readonly railExpansion = inject(RailExpansionService);
-    private readonly settings = inject(SettingsStore);
+    private readonly store = inject(Store);
+    private readonly channels = this.store.selectSignal(selectChannels);
+    private readonly activeChannel = this.store.selectSignal(selectActive);
 
-    readonly isMacOS = input(false);
     readonly brandLink = input('/workspace/dashboard');
     readonly brandTooltipKey = input('WORKSPACE.SHELL.RAIL_DASHBOARD');
     readonly brandAriaLabelKey = input('WORKSPACE.SHELL.OPEN_DASHBOARD');
@@ -46,26 +53,45 @@ export class WorkspaceShellRailComponent {
     >(null);
     readonly railProviderClass = input('rail-context-region');
     readonly isSettingsRoute = input(false);
+    readonly isM3uPlaylistRoute = input(false);
 
-    readonly expanded = this.railExpansion.expanded;
+    /** Channel flipping belongs in the persistent M3U bottom dock. */
+    readonly canNavigateChannels = computed(() => {
+        const activeChannel = this.activeChannel();
+        const channels = this.channels();
 
-    /** The rail sits on the right when mirrored, so hints point left there. */
-    private readonly mirrored = computed(
-        () => this.settings.mirrorLayout?.() ?? true
-    );
-    readonly tooltipPosition = computed<TooltipPosition>(() =>
-        this.mirrored() ? 'left' : 'right'
-    );
-    /** Chevron points the way the rail will grow / shrink. */
-    readonly expandIcon = computed(() => {
-        const towardEdge = this.mirrored() ? 'chevron_right' : 'chevron_left';
-        const towardContent = this.mirrored()
-            ? 'chevron_left'
-            : 'chevron_right';
-        return this.expanded() ? towardEdge : towardContent;
+        return (
+            this.isM3uPlaylistRoute() &&
+            !!activeChannel &&
+            channels.length > 1 &&
+            channels.some((channel) => channel.id === activeChannel.id)
+        );
     });
 
-    toggleExpanded(): void {
-        this.railExpansion.toggle();
+    /** The dock sits below the workspace, so hints open toward the content. */
+    readonly tooltipPosition: TooltipPosition = 'above';
+
+    changeChannel(direction: 'up' | 'down'): void {
+        const activeChannel = this.activeChannel();
+        if (!activeChannel || !this.canNavigateChannels()) {
+            return;
+        }
+
+        const channel = getAdjacentChannelItem(
+            this.channels(),
+            activeChannel.id,
+            direction,
+            (item) => item.id
+        );
+        if (!channel) {
+            return;
+        }
+
+        this.store.dispatch(
+            ChannelActions.setActiveChannel({
+                channel,
+                startPlayback: true,
+            })
+        );
     }
 }

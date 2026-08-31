@@ -13,6 +13,8 @@ interface MultiEpgProgramFocusDeps {
     readonly host: () => HTMLElement;
     /** Enter/Space on a cell. */
     readonly activate: (program: MultiEpgLayoutProgram) => void;
+    /** Optional: keyboard route to the details card ("i"). */
+    readonly openDetails?: (program: MultiEpgLayoutProgram) => void;
 }
 
 /**
@@ -56,6 +58,15 @@ export class MultiEpgProgramFocus {
         if (event.key === 'Enter' || event.key === ' ') {
             event.preventDefault();
             this.deps.activate(program);
+            return;
+        }
+
+        // The cell's info button is tabindex="-1" so it cannot break the
+        // roving-tabindex grid, which leaves keyboard users without a way to
+        // reach the details card. "i" is that way.
+        if ((event.key === 'i' || event.key === 'I') && this.deps.openDetails) {
+            event.preventDefault();
+            this.deps.openDetails(program);
             return;
         }
 

@@ -1,6 +1,6 @@
 :host {
     display: block;
-    padding: 24px 28px 40px;
+    padding: var(--app-space-5) var(--app-page-gutter) var(--app-space-8);
     box-sizing: border-box;
     min-height: 100%;
 }
@@ -18,7 +18,7 @@
     margin: 0 auto;
     display: flex;
     flex-direction: column;
-    gap: 32px;
+    gap: var(--app-section-gap);
     min-width: 0;
 }
 
@@ -40,8 +40,8 @@
     position: relative;
     display: grid;
     grid-template-columns: minmax(0, var(--hero-poster-width)) minmax(0, 1fr);
-    gap: 20px;
-    padding: 16px;
+    gap: var(--app-space-5);
+    padding: var(--app-space-4);
     text-decoration: none;
     color: inherit;
     border-radius: 18px;

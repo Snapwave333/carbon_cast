@@ -88,6 +88,9 @@ export class EmbeddedMpvPlayerComponent implements OnDestroy {
     readonly playbackEnded = output<void>();
     readonly previousEpisodeRequested = output<void>();
     readonly nextEpisodeRequested = output<void>();
+    readonly channelNavigation = input(false);
+    readonly channelUpRequested = output<void>();
+    readonly channelDownRequested = output<void>();
 
     private readonly overlayVisibility = inject(
         EmbeddedMpvOverlayVisibilityService
@@ -573,6 +576,14 @@ export class EmbeddedMpvPlayerComponent implements OnDestroy {
             return;
         }
         this.previousEpisodeRequested.emit();
+    }
+
+    requestChannelUp(): void {
+        this.channelUpRequested.emit();
+    }
+
+    requestChannelDown(): void {
+        this.channelDownRequested.emit();
     }
 
     requestNextEpisode(): void {

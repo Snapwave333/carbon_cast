@@ -211,6 +211,8 @@
         height: 100%;
         padding: 5px 10px;
         pointer-events: none;
+        // Positioning context for the info button pinned to its corner.
+        position: relative;
         // Faint top light so cells read as surfaces, not flat outlines.
         background: linear-gradient(
             180deg,
@@ -370,6 +372,43 @@ rect {
     stroke: $border-subtle;
 }
 
+// Opt-in details affordance. The cell tunes to the channel on click, so the
+// description card needs its own target; kept subtle until hover/focus so it
+// does not compete with the programme title in a dense grid.
+.program-info {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.55);
+    color: inherit;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 120ms ease;
+    // The cell sets `pointer-events: none` so clicks fall through to the SVG
+    // group that tunes the channel; this button has to opt back in.
+    pointer-events: auto;
+
+    .mat-icon {
+        width: 14px;
+        height: 14px;
+        font-size: 14px;
+    }
+
+    .program-cell:hover &,
+    &:focus-visible {
+        opacity: 1;
+    }
+}
+
 .channel-name {
     -webkit-line-clamp: 2;
     height: 32px;
@@ -378,6 +417,28 @@ rect {
     display: -webkit-box;
     -webkit-box-orient: vertical;
     padding: 6px 8px;
+
+    // Rows whose EPG channel has no counterpart in the open playlist: their
+    // programmes are readable, but nothing can be tuned to.
+    &--unavailable {
+        opacity: 0.55;
+    }
+
+    // Glyph, not a word: the channel column is 180px wide and a translated
+    // "not in playlist" label pushed the channel name into an ellipsis.
+    &__badge {
+        display: inline-block;
+        width: 14px;
+        height: 14px;
+        margin-left: 5px;
+        border: 1px solid currentColor;
+        border-radius: 50%;
+        font-size: 10px;
+        line-height: 12px;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: middle;
+    }
 }
 
 #current-time-line {
@@ -431,6 +492,20 @@ rect {
 // overlay): fill the flex cell the player page provides rather than sizing
 // against the viewport.
 :host(.inline-guide) {
+    // The routed guide is intentionally a black broadcast surface, while the
+    // reusable overlay keeps the host app's normal theme tokens. Black values
+    // are layered by a few steps so channels, time rails, and programme boxes
+    // remain distinguishable without reintroducing a coloured page background.
+    --app-content-bg: #030303;
+    --app-widget-bg: #080808;
+    --app-widget-header-bg: #101010;
+    --app-card-hover-bg: #181818;
+    --app-widget-header-border: rgba(255, 255, 255, 0.11);
+    --app-separator: rgba(255, 255, 255, 0.16);
+    --app-heading-color: #f5f5f3;
+    --app-body-color: rgba(255, 255, 255, 0.76);
+    --app-muted-color: rgba(255, 255, 255, 0.48);
+
     display: flex;
     flex-direction: column;
     flex: 1 1 0;

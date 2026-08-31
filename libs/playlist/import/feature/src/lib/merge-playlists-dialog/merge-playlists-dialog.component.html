@@ -1,0 +1,72 @@
+<h2 mat-dialog-title>{{ 'HOME.MERGE.TITLE' | translate }}</h2>
+
+<mat-dialog-content class="mpd">
+    <p class="mpd__intro">{{ 'HOME.MERGE.INTRO' | translate }}</p>
+
+    @if (mergeablePlaylists().length < 2) {
+        <p class="mpd__empty">{{ 'HOME.MERGE.NEED_TWO' | translate }}</p>
+    } @else {
+        <ul
+            class="mpd__list"
+            role="list"
+            [attr.aria-label]="'HOME.MERGE.SOURCES' | translate"
+        >
+            @for (playlist of mergeablePlaylists(); track playlist._id) {
+                <li class="mpd__row">
+                    <mat-checkbox
+                        [checked]="isSelected(playlist)"
+                        (change)="toggle(playlist)"
+                    >
+                        {{ playlist.title || playlist.filename }}
+                    </mat-checkbox>
+                    <span class="mpd__count">
+                        {{
+                            'HOME.MERGE.CHANNEL_COUNT'
+                                | translate: { count: playlist.count ?? 0 }
+                        }}
+                    </span>
+                </li>
+            }
+        </ul>
+
+        <mat-form-field
+            appearance="outline"
+            subscriptSizing="dynamic"
+            class="mpd__title"
+        >
+            <mat-label>{{ 'HOME.MERGE.NAME_LABEL' | translate }}</mat-label>
+            <input
+                matInput
+                [ngModel]="title()"
+                (ngModelChange)="title.set($event)"
+                [placeholder]="'HOME.MERGE.DEFAULT_TITLE' | translate"
+            />
+        </mat-form-field>
+
+        <mat-checkbox
+            [ngModel]="prefixGroups()"
+            (ngModelChange)="prefixGroups.set($event)"
+        >
+            {{ 'HOME.MERGE.PREFIX_GROUPS' | translate }}
+        </mat-checkbox>
+
+        @if (isMerging()) {
+            <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+        }
+    }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+    <button mat-button type="button" (click)="close()">
+        {{ 'CANCEL' | translate }}
+    </button>
+    <button
+        mat-flat-button
+        color="primary"
+        type="button"
+        [disabled]="!canMerge()"
+        (click)="merge()"
+    >
+        {{ 'HOME.MERGE.CONFIRM' | translate }}
+    </button>
+</mat-dialog-actions>

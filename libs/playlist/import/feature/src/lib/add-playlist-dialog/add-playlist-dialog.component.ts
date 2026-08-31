@@ -20,6 +20,7 @@ import { PlaylistType } from '@iptvnator/playlist/shared/ui';
 import { PlaylistActions } from '@iptvnator/m3u-state';
 import { DataService } from '@iptvnator/services';
 import { PLAYLIST_PARSE_BY_URL } from '@iptvnator/shared/interfaces';
+import { ChannelSourceDirectoryComponent } from '../channel-source-directory/channel-source-directory.component';
 import { FileUploadComponent } from '../file-upload/file-upload.component';
 import { StalkerPortalImportComponent } from '../stalker-portal-import/stalker-portal-import.component';
 import { TextImportComponent } from '../text-import/text-import.component';
@@ -40,6 +41,7 @@ export interface PlaylistMethodOption {
 
 @Component({
     imports: [
+        ChannelSourceDirectoryComponent,
         FileUploadComponent,
         MatButtonModule,
         MatDialogModule,
@@ -70,6 +72,7 @@ export class AddPlaylistDialogComponent {
     readonly textImport = viewChild(TextImportComponent);
     readonly xtreamImport = viewChild(XtreamCodeImportComponent);
     readonly stalkerImport = viewChild(StalkerPortalImportComponent);
+    readonly discover = viewChild(ChannelSourceDirectoryComponent);
 
     readonly method = signal<PlaylistType>('url');
 
@@ -80,6 +83,14 @@ export class AddPlaylistDialogComponent {
     // old tab labels is redundant inside a dialog already titled "Add
     // playlist".
     readonly methodOptions: PlaylistMethodOption[] = [
+        {
+            // First, because it is the only method that needs nothing from the
+            // user: a fresh install has no playlist URL to paste.
+            value: 'discover',
+            icon: 'explore',
+            labelKey: 'HOME.ADD_PLAYLIST.METHOD_DISCOVER_LABEL',
+            subKey: 'HOME.ADD_PLAYLIST.METHOD_DISCOVER_SUB',
+        },
         {
             value: 'url',
             icon: 'public',
@@ -181,6 +192,9 @@ export class AddPlaylistDialogComponent {
 
     clearCurrentForm(): void {
         switch (this.playlistType()) {
+            case 'discover':
+                this.discover()?.clearSelection();
+                break;
             case 'url':
                 this.urlUpload()?.clearForm();
                 break;
@@ -201,6 +215,11 @@ export class AddPlaylistDialogComponent {
 
     isClearDisabled(): boolean {
         switch (this.playlistType()) {
+            case 'discover':
+                return (
+                    this.discover()?.selectedSources().length === 0 ||
+                    !!this.discover()?.isImporting()
+                );
             case 'file':
                 return (
                     !this.fileUpload()?.selectedFile() ||

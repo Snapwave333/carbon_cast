@@ -13,8 +13,11 @@
             [mediaTitle]="mediaTitle()"
             [showControls]="interactionEnabled()"
             [shortcutsEnabled]="interactionEnabled()"
+            [channelNavigation]="channelNavigation()"
             (previousEpisodeRequested)="previousEpisodeRequested.emit()"
             (nextEpisodeRequested)="nextEpisodeRequested.emit()"
+            (channelUpRequested)="channelUpRequested.emit()"
+            (channelDownRequested)="channelDownRequested.emit()"
         />
     } @else {
         <app-series-playback-navigation-controls

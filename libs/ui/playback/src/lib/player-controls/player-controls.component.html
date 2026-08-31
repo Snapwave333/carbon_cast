@@ -80,6 +80,34 @@
                 ></mat-icon>
             </button>
 
+            @if (channelNavigation()) {
+                <button
+                    mat-icon-button
+                    type="button"
+                    class="player-controls__button"
+                    data-test-id="player-controls-channel-up"
+                    (click)="requestChannel('up')"
+                    [attr.aria-label]="'CHANNELS.CHANNEL_UP' | translate"
+                    [matTooltip]="'CHANNELS.CHANNEL_UP' | translate"
+                    matTooltipPosition="above"
+                >
+                    <mat-icon svgIcon="arrow_upward"></mat-icon>
+                </button>
+
+                <button
+                    mat-icon-button
+                    type="button"
+                    class="player-controls__button"
+                    data-test-id="player-controls-channel-down"
+                    (click)="requestChannel('down')"
+                    [attr.aria-label]="'CHANNELS.CHANNEL_DOWN' | translate"
+                    [matTooltip]="'CHANNELS.CHANNEL_DOWN' | translate"
+                    matTooltipPosition="above"
+                >
+                    <mat-icon svgIcon="arrow_downward"></mat-icon>
+                </button>
+            }
+
             @if (capabilities().seriesNavigation) {
                 <button
                     mat-icon-button
@@ -428,6 +456,68 @@
                                     >
                                         <span>{{ track.label }}</span>
                                         @if (track.selected) {
+                                            <mat-icon
+                                                svgIcon="check"
+                                            ></mat-icon>
+                                        }
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+
+            @if (hasQualityLevels()) {
+                <div class="player-controls__popover-anchor">
+                    <button
+                        mat-icon-button
+                        type="button"
+                        class="player-controls__button"
+                        data-test-id="player-controls-quality"
+                        (click)="toggleMenu('quality')"
+                        [attr.aria-expanded]="menus.qualityOpen()"
+                        [attr.aria-label]="
+                            'EMBEDDED_MPV.PLAYER.QUALITY' | translate
+                        "
+                        [matTooltip]="
+                            'EMBEDDED_MPV.PLAYER.QUALITY_TOOLTIP'
+                                | translate: { quality: selectedQualityLabel() }
+                        "
+                        matTooltipPosition="above"
+                    >
+                        <mat-icon svgIcon="high_quality"></mat-icon>
+                    </button>
+                    @if (menus.qualityOpen()) {
+                        <div
+                            class="player-controls__panel player-controls__track-popover"
+                            role="menu"
+                            [attr.aria-label]="
+                                'EMBEDDED_MPV.PLAYER.QUALITY' | translate
+                            "
+                        >
+                            <div class="player-controls__menu-title">
+                                {{ 'EMBEDDED_MPV.PLAYER.QUALITY' | translate }}
+                            </div>
+                            <div class="player-controls__track-list">
+                                @for (
+                                    level of state().qualityLevels;
+                                    track level.id
+                                ) {
+                                    <button
+                                        type="button"
+                                        role="menuitemradio"
+                                        [attr.aria-checked]="level.selected"
+                                        class="player-controls__track"
+                                        [class.player-controls__track--selected]="
+                                            level.selected
+                                        "
+                                        (click)="
+                                            menuSelection.qualityLevel(level.id)
+                                        "
+                                    >
+                                        <span>{{ qualityLabel(level) }}</span>
+                                        @if (level.selected) {
                                             <mat-icon
                                                 svgIcon="check"
                                             ></mat-icon>

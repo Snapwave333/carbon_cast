@@ -46,6 +46,8 @@ export const mpegTsInstances: MockMpegTsPlayer[] = [];
 export class MockHls {
     static readonly Events = {
         MANIFEST_PARSED: 'manifestParsed',
+        LEVELS_UPDATED: 'levelsUpdated',
+        LEVEL_SWITCHED: 'levelSwitched',
         ERROR: 'error',
         AUDIO_TRACKS_UPDATED: 'audioTracksUpdated',
         AUDIO_TRACK_SWITCHING: 'audioTrackSwitching',

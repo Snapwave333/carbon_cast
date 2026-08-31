@@ -5,9 +5,38 @@
     height: 100%;
     min-height: 0;
     overflow-y: auto;
-    flex-wrap: wrap;
-    gap: 10px;
-    justify-content: center;
+}
+
+.category-browser {
+    display: grid;
+    gap: 14px;
+    padding: 0 8px 14px;
+}
+
+.category-section {
+    display: grid;
+    gap: 4px;
+
+    &--all {
+        padding-bottom: 8px;
+        border-bottom: 1px solid
+            color-mix(in srgb, var(--mat-sys-outline-variant) 64%, transparent);
+    }
+}
+
+.category-section__items {
+    display: grid;
+    gap: 3px;
+}
+
+.category-section__heading {
+    margin: 4px 0 1px;
+    padding: 0 9px;
+    color: var(--mat-sys-primary);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    line-height: 1.3;
 }
 
 .context-inline-status {
@@ -34,7 +63,26 @@
     appearance: none;
     font: inherit;
     cursor: pointer;
-    width: auto;
+    width: 100%;
+    min-height: 40px;
+    padding: 8px 10px;
+    border-radius: 9px;
+    gap: 8px;
+
+    .nav-item-label {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        line-height: 1.2;
+    }
+
+    .item-count {
+        min-width: 2.25ch;
+        padding-inline: 6px;
+        font-size: 0.72rem;
+        font-variant-numeric: tabular-nums;
+        text-align: center;
+    }
 }
 
 .category-item--disabled,
@@ -79,11 +127,7 @@
 // Selected row: tint badge surface with selection accent. Text colour comes
 // from the parent `.nav-item.selected *` rule in nav-list.scss.
 .category-item--selected .item-count.app-count-badge {
-    background: color-mix(
-        in srgb,
-        var(--app-selection-color) 18%,
-        transparent
-    );
+    background: color-mix(in srgb, var(--app-selection-color) 18%, transparent);
 }
 
 mat-card-content {
@@ -118,11 +162,6 @@ mat-card-content {
 }
 
 @media (max-width: 800px) {
-    .category-item {
-        width: 100%;
-        margin: 4px;
-    }
-
     .category-empty-state {
         app-workspace-context-error-view {
             --error-empty-illustration-size: 142px;

@@ -22,6 +22,14 @@ export interface ShakaTextTrackLike {
     kind: string | null;
 }
 
+export interface ShakaVariantTrackLike {
+    id: number;
+    active: boolean;
+    height: number | null;
+    width: number | null;
+    bandwidth: number | null;
+}
+
 export interface ShakaErrorLike {
     severity: number;
     category: number;
@@ -45,6 +53,16 @@ export interface ShakaPlayerLike {
      * the active track (subtitles off). There is no separate visibility API.
      */
     selectTextTrack(track: ShakaTextTrackLike | null): void;
+    getVariantTracks(): ShakaVariantTrackLike[];
+    /**
+     * Only honoured while ABR is disabled (`configure({abr:{enabled:false}})`);
+     * `clearBuffer` makes the new rendition visible without waiting out the
+     * already-buffered one.
+     */
+    selectVariantTrack(
+        track: ShakaVariantTrackLike,
+        clearBuffer?: boolean
+    ): void;
     isLive(): boolean;
 }
 

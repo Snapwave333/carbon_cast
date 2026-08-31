@@ -219,6 +219,10 @@
         "GUIDE_ARTWORK": "电视指南图片",
         "GUIDE_ARTWORK_DESCRIPTION": "在电视指南中显示节目和频道图片。关闭后为更紧凑的纯文字指南。",
         "TITLE": "设置",
+        "ESSENTIALS": "基本设置",
+        "ESSENTIALS_DESCRIPTION": "仅显示大多数用户需要的设置。",
+        "SHOW_ADVANCED": "显示高级设置",
+        "HIDE_ADVANCED": "隐藏高级设置",
         "GENERAL": "通用",
         "GENERAL_SUBTITLE": "更改应用程序的配置",
         "PLAYBACK": "播放",
@@ -316,6 +320,11 @@
         "PLAYER_AMBIENT_MODE_DESCRIPTION": "用模糊、暗淡的海报填充播放器周围的空白，而不是黑条纹。",
         "PLAYER_UP_NEXT_RAIL": "「接下来播放」剧集栏",
         "PLAYER_UP_NEXT_RAIL_DESCRIPTION": "在宽窗口下，将剧集播放器停靠在左侧，并在旁边显示后续剧集。",
+        "PREFERRED_QUALITY": "首选视频画质",
+        "PREFERRED_QUALITY_DESCRIPTION": "内置播放器在每个流上尝试使用的画质。没有该分辨率的流将播放可用的最高画质。",
+        "PREFERRED_QUALITY_2160P": "4K (2160p)",
+        "PREFERRED_QUALITY_1080P": "Full HD (1080p)",
+        "PREFERRED_QUALITY_AUTO": "自动（自适应）",
         "STREAM_FORMAT_DESCRIPTION": "选择默认的流格式（xtream）",
         "LANGUAGE_DESCRIPTION": "选择应用程序的语言",
         "THEME_DESCRIPTION": "选择应用程序的视觉主题",
@@ -452,7 +461,31 @@
         "ATTRIBUTION": "Attribution",
         "ATTRIBUTION_DESCRIPTION": "CarbonCast IPTV is a fork of CarbonCast IPTV (github.com/4gray/iptvnator). The upstream project and its contributors are credited under the original license. CarbonCast IPTV is an independent fork and is not endorsed by the upstream maintainers.",
         "MIRROR_LAYOUT": "Mirror layout",
-        "MIRROR_LAYOUT_DESCRIPTION": "Put the player on the left and the channel/category rail on the right. Applies to the playlist player and Xtream/Stalker live views."
+        "MIRROR_LAYOUT_DESCRIPTION": "Put the player on the left and the channel/category rail on the right. Applies to the playlist player and Xtream/Stalker live views.",
+        "NAV_NETWORK": "Network",
+        "PROXY": "Proxy",
+        "PROXY_DESCRIPTION": "Route this app’s streaming through a proxy so region-locked channels resolve from another country. Only CarbonCast IPTV is affected — the rest of your system keeps its normal connection.",
+        "PROXY_ENABLED": "Route streaming through a proxy",
+        "PROXY_ENABLED_DESCRIPTION": "Applies immediately. Playlist and EPG downloads keep their direct route; only the player’s stream requests are proxied.",
+        "PROXY_SERVER": "Proxy server",
+        "PROXY_SERVER_DESCRIPTION": "Most VPN providers publish a SOCKS5 endpoint you can use here.",
+        "PROXY_PROTOCOL": "Type",
+        "PROXY_HOST": "Host",
+        "PROXY_PORT": "Port",
+        "PROXY_CREDENTIALS": "Credentials",
+        "PROXY_CREDENTIALS_DESCRIPTION": "Leave blank if the proxy needs no sign-in.",
+        "PROXY_USERNAME": "Username",
+        "PROXY_PASSWORD": "Password",
+        "PROXY_BYPASS": "Bypass list",
+        "PROXY_BYPASS_DESCRIPTION": "Hosts that skip the proxy, comma separated. Loopback and local network addresses are always bypassed.",
+        "PROXY_BYPASS_LABEL": "Bypass hosts",
+        "PROXY_TEST": "Test connection",
+        "PROXY_TEST_DESCRIPTION": "Dials the proxy and reports the exit address your streams will appear to come from. Contacts ipinfo.io.",
+        "PROXY_TEST_ACTION": "Test connection",
+        "PROXY_TEST_OK": "Connected — exit",
+        "PROXY_TEST_FAILED": "Could not reach the proxy.",
+        "PROXY_TEST_INCOMPLETE": "Enter a proxy host first.",
+        "PROXY_TEST_DESKTOP_ONLY": "Proxy support requires the desktop app."
     },
     "THEMES": {
         "DARK_THEME": "深色",
@@ -497,6 +530,9 @@
             "AUDIO_TRACK_FALLBACK": "音轨 {{index}}",
             "SUBTITLE_TRACK_FALLBACK": "字幕 {{index}}",
             "PLAYBACK_SPEED": "播放速度",
+            "QUALITY": "画质",
+            "QUALITY_TOOLTIP": "画质：{{quality}}",
+            "QUALITY_AUTO": "自动",
             "SPEED_TOOLTIP": "速度：{{speed}}",
             "ASPECT_RATIO": "宽高比",
             "ASPECT_TOOLTIP": "宽高比：{{aspect}}",
@@ -656,7 +692,9 @@
             "SEARCH_PLACEHOLDER": "搜索分组…",
             "NO_RESULTS": "未找到匹配的分组",
             "SAVE": "保存"
-        }
+        },
+        "CHANNEL_UP": "上一频道",
+        "CHANNEL_DOWN": "下一频道"
     },
     "TOP_MENU": {
         "OPEN_MULTI_EPG": "打开多EPG显示"
@@ -749,7 +787,10 @@
             "ZOOM_DETAIL": "详细",
             "GROUP_SHORT": "个短节目",
             "GROUP_EXPAND": "展开 ›"
-        }
+        },
+        "NOT_IN_PLAYLIST": "不在列表中",
+        "CHANNEL_NOT_IN_PLAYLIST": "“{{channel}}”不在此播放列表中",
+        "PROGRAM_INFO": "节目详情"
     },
     "EPG_MAPPING_DIALOG": {
         "TITLE": "映射 EPG 频道",

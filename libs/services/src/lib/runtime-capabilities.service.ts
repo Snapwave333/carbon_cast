@@ -184,22 +184,10 @@ export class RuntimeCapabilitiesService {
     }
 
     get supportsDownloads(): boolean {
-        return [
-            'downloadsStart',
-            'downloadsCancel',
-            'downloadsPause',
-            'downloadsResume',
-            'downloadsRetry',
-            'downloadsRemove',
-            'downloadsGetList',
-            'downloadsGet',
-            'downloadsGetDefaultFolder',
-            'downloadsSelectFolder',
-            'downloadsRevealFile',
-            'downloadsPlayFile',
-            'downloadsClearCompleted',
-            'onDownloadsUpdate',
-        ].every((methodName) => this.hasElectronMethod(methodName));
+        // Offline media downloads are deliberately unavailable in CarbonCast.
+        // Keep the capability disabled even for older preloads that still
+        // expose the legacy bridge, so no renderer can revive the feature.
+        return false;
     }
 
     get supportsPortalActivityStorage(): boolean {
@@ -262,6 +250,15 @@ export class RuntimeCapabilitiesService {
             this.hasElectronMethod('saveFileDialog') &&
             this.hasElectronMethod('writeFile')
         );
+    }
+
+    /**
+     * A per-app proxy is configured on Chromium's session from the main
+     * process, so it exists on the desktop build only. The PWA has no
+     * equivalent — a browser page cannot choose its own egress.
+     */
+    get supportsProxy(): boolean {
+        return this.hasElectronMethod('testProxy');
     }
 
     get supportsRemoteControl(): boolean {

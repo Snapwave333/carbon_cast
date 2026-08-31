@@ -5,10 +5,6 @@ import fixPath from 'fix-path';
 import App from './app/app';
 import { initDatabase } from './app/database/connection';
 import DatabaseEvents from './app/events/database.events';
-import {
-    resetStaleDownloads,
-    setMainWindow as setDownloadsMainWindow,
-} from './app/events/database/downloads.events';
 import ElectronEvents from './app/events/electron.events';
 import EmbeddedMpvEvents, {
     shutdownEmbeddedMpv,
@@ -29,6 +25,7 @@ import SquirrelEvents from './app/events/squirrel.events';
 import StalkerEvents from './app/events/stalker.events';
 import { isStartupTraceEnabled, trace } from './app/services/debug-trace';
 import { registerStaticHeaderShims } from './app/services/request-header-overrides.service';
+import { proxyService } from './app/services/proxy.service';
 import { AppUpdateService } from './app/services/app-update.service';
 import { databaseWorkerClient } from './app/services/database-worker-client';
 import WindowEvents from './app/events/window.events';
@@ -144,6 +141,9 @@ export default class Main {
         AppUpdateEvents.bootstrapAppUpdateEvents(appUpdateService);
 
         registerStaticHeaderShims();
+        // Before the renderer loads: a window that starts playing on the
+        // direct route would keep that route until the next settings save.
+        await proxyService.restore();
         ElectronEvents.bootstrapElectronEvents();
         WindowEvents.bootstrapWindowEvents();
         EmbeddedMpvEvents.bootstrapEmbeddedMpvEvents();
@@ -160,11 +160,6 @@ export default class Main {
         RemoteControlEvents.bootstrapRemoteControlEvents();
         AgentControlEvents.bootstrapAgentControlEvents();
 
-        // Keep the downloads broadcaster bound to the live window. macOS can
-        // rebuild the window while the process runs, and a stale reference
-        // silently swallows every DOWNLOADS_UPDATE_EVENT.
-        App.onMainWindowCreated(setDownloadsMainWindow);
-
         // Load the renderer only after IPC handlers are registered. On slower
         // Linux CI hosts the renderer can otherwise invoke Electron bridge IPC
         // before the main process has installed handlers.
@@ -173,18 +168,12 @@ export default class Main {
 
         // Initialize the database after the first renderer load is underway so
         // Linux Electron E2E can observe a BrowserWindow even when SQLite
-        // startup or download recovery is slow. IPC handlers call getDatabase()
-        // lazily and share the same initialization promise.
+        // startup is slow. IPC handlers call getDatabase() lazily and share
+        // the same initialization promise.
         await initDatabase();
 
         if (isStartupTraceEnabled()) {
             trace('startup', 'init-database:done');
-        }
-
-        await resetStaleDownloads();
-
-        if (isStartupTraceEnabled()) {
-            trace('startup', 'reset-stale-downloads:done');
         }
 
         if (isStartupTraceEnabled()) {

@@ -130,9 +130,18 @@ describe('HtmlVideoPlayerControlsBridge HLS listener lifecycle', () => {
         Hls.Events.SUBTITLE_TRACKS_CLEARED,
         Hls.Events.SUBTITLE_TRACK_SWITCH,
         Hls.Events.MANIFEST_LOADING,
+        // Quality ladder: the rendition list only exists after the manifest
+        // parses, and a level switch has to re-render the menu selection.
+        Hls.Events.MANIFEST_PARSED,
+        Hls.Events.LEVELS_UPDATED,
+        Hls.Events.LEVEL_SWITCHED,
     ];
 
-    it('refreshes from every relevant HLS event with one callback reference', () => {
+    /** Events owned by the caption/track controller rather than the ladder. */
+    const captionEvents = refreshEvents.slice(0, 7);
+    const qualityEvents = refreshEvents.slice(7);
+
+    it('refreshes from every relevant HLS event with one callback per owner', () => {
         const hls = new FakeHls();
         const adapter = new WebVideoControlsAdapter();
         const refreshSpy = jest.spyOn(adapter, 'refresh');
@@ -141,15 +150,23 @@ describe('HtmlVideoPlayerControlsBridge HLS listener lifecycle', () => {
             adapter,
             isLive: () => false,
             showCaptions: () => true,
+            preferredQuality: () => 'auto',
         });
         bridge.attach();
         bridge.setSource({ kind: 'hls', hls: hls.asHls() });
 
         const registrations = hls.on.mock.calls;
         expect(registrations.map(([event]) => event)).toEqual(refreshEvents);
-        expect(
-            new Set(registrations.map(([, listener]) => listener)).size
-        ).toBe(1);
+        const listenerFor = (events: string[]) =>
+            new Set(
+                registrations
+                    .filter(([event]) => events.includes(event as string))
+                    .map(([, listener]) => listener)
+            );
+        // Tracks and the quality ladder are separate owners, but each
+        // registers exactly one reference across all of its own events.
+        expect(listenerFor(captionEvents as string[]).size).toBe(1);
+        expect(listenerFor(qualityEvents as string[]).size).toBe(1);
 
         refreshSpy.mockClear();
         for (const event of refreshEvents) {

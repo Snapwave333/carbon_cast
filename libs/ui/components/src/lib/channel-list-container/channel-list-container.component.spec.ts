@@ -1,8 +1,6 @@
 import { ChannelActions, PlaylistActions } from '@iptvnator/m3u-state';
 import { PlaylistMeta } from '@iptvnator/shared/interfaces';
-import {
-    createGroupedChannel,
-} from './channel-list-container.test-channels';
+import { createGroupedChannel } from './channel-list-container.test-channels';
 import {
     ChannelListContainerHarness,
     createChannelListContainerHarness,
@@ -66,5 +64,39 @@ describe('ChannelListContainerComponent', () => {
             'e',
         ]);
         expect(kids?.channels.map((channel) => channel.id)).toEqual(['e']);
+    });
+
+    it('hides explicitly non-U.S. channels by default while keeping U.S. and unknown metadata visible', () => {
+        harness.fixture.detectChanges();
+        const us = createGroupedChannel('us', 'us-url', 'News');
+        const international = createGroupedChannel(
+            'international',
+            'international-url',
+            'News'
+        );
+        const unknown = createGroupedChannel('unknown', 'unknown-url', 'News');
+        us.tvg.id = 'Example.us@SD';
+        international.tvg.id = 'Example.ca@SD';
+        unknown.tvg.id = 'ExampleChannel';
+
+        harness.fixture.componentInstance.channelList = [
+            us,
+            international,
+            unknown,
+        ];
+
+        expect(
+            harness.fixture.componentInstance
+                .displayedChannels()
+                .map((channel) => channel.id)
+        ).toEqual(['us', 'unknown']);
+
+        harness.settings.hideNonUsChannels.set(false);
+
+        expect(
+            harness.fixture.componentInstance
+                .displayedChannels()
+                .map((channel) => channel.id)
+        ).toEqual(['us', 'international', 'unknown']);
     });
 });

@@ -176,6 +176,8 @@ export class EmbeddedMpvControlsAdapter implements PlayerController {
                 })
             ),
             subtitlesEnabled: (session?.selectedSubtitleTrackId ?? -1) >= 0,
+            // mpv decodes one stream; there is no rendition ladder to expose.
+            qualityLevels: [],
             playbackSpeed: session?.playbackSpeed ?? 1,
             speedPresets: DEFAULT_SPEED_PRESETS,
             aspectRatio: session?.aspectOverride ?? 'no',
@@ -207,6 +209,7 @@ export class EmbeddedMpvControlsAdapter implements PlayerController {
         setVolume: (value) => void this.controller.applyVolume(value),
         setAudioTrack: (id) => void this.controller.setAudioTrack(id),
         setSubtitleTrack: (id) => void this.controller.setSubtitleTrack(id),
+        setQualityLevel: () => undefined,
         setPlaybackSpeed: (speed) => void this.controller.setSpeed(speed),
         setAspectRatio: (value) => void this.controller.setAspect(value),
         toggleRecording: () => void this.toggleRecording(),

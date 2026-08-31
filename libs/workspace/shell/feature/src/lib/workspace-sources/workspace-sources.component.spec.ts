@@ -71,6 +71,7 @@ describe('WorkspaceSourcesComponent', () => {
                     provide: WORKSPACE_SHELL_ACTIONS,
                     useValue: {
                         openAddPlaylistDialog: jest.fn(),
+                        openMergePlaylistsDialog: jest.fn(),
                     },
                 },
                 {

@@ -24,6 +24,7 @@ describe('VjsPlayerControlsBridge', () => {
             adapter: adapter.value,
             isLive: () => false,
             showCaptions: () => true,
+            preferredQuality: () => 'auto',
         });
         const video = document.createElement('video');
 
@@ -66,6 +67,7 @@ describe('VjsPlayerControlsBridge', () => {
             adapter: adapter.value,
             isLive: () => true,
             showCaptions: () => false,
+            preferredQuality: () => 'auto',
         });
         const firstVideo = document.createElement('video');
         const secondVideo = document.createElement('video');
@@ -98,6 +100,7 @@ describe('VjsPlayerControlsBridge', () => {
             adapter: adapter.value,
             isLive: () => false,
             showCaptions: () => showCaptions,
+            preferredQuality: () => 'auto',
         });
 
         bridge.attach(document.createElement('video'));
@@ -122,6 +125,7 @@ describe('VjsPlayerControlsBridge', () => {
             adapter: adapter.value,
             isLive: () => true,
             showCaptions: () => false,
+            preferredQuality: () => 'auto',
         });
 
         bridge.attach(document.createElement('video'));

@@ -18,7 +18,6 @@ export interface CommandBuilderActions {
     openGlobalSearch: (query: string) => void;
     navigateToGlobalFavorites: () => void;
     openGlobalRecent: () => void;
-    openDownloadsShortcut: () => void;
     openAddPlaylistDialog: (kind?: 'url' | 'xtream' | 'stalker') => void;
 }
 
@@ -29,7 +28,6 @@ export interface CommandBuilderContext {
     hasActivePlaylist: boolean;
     hasSearchablePlaylists: boolean;
     canRefreshPlaylist: boolean;
-    supportsDownloads: boolean;
     showDashboard: boolean;
     translate: TranslateFn;
     router: Router;
@@ -142,7 +140,6 @@ export function getGlobalCommandDefinitions(
     const {
         route,
         hasSearchablePlaylists,
-        supportsDownloads,
         showDashboard,
         actions,
     } = ctx;
@@ -181,17 +178,6 @@ export function getGlobalCommandDefinitions(
             priority: 30,
             visible: route.kind !== 'global-recent',
             run: () => actions.openGlobalRecent(),
-        },
-        {
-            id: 'open-downloads',
-            group: 'global',
-            icon: 'download',
-            labelKey: 'WORKSPACE.SHELL.COMMANDS.OPEN_DOWNLOADS_LABEL',
-            descriptionKey:
-                'WORKSPACE.SHELL.COMMANDS.OPEN_DOWNLOADS_DESCRIPTION',
-            priority: 40,
-            visible: supportsDownloads && route.kind !== 'downloads',
-            run: () => actions.openDownloadsShortcut(),
         },
         {
             id: 'open-settings',

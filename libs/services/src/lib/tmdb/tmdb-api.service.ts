@@ -1,5 +1,9 @@
 import { Injectable } from '@angular/core';
-import { TMDB_API_BASE_URL } from './tmdb-config';
+import {
+    isTmdbBearerToken,
+    normalizeTmdbApiKey,
+    TMDB_API_BASE_URL,
+} from './tmdb-config';
 import {
     TmdbMovieDetails,
     TmdbPersonDetails,
@@ -157,8 +161,9 @@ export class TmdbApiService {
     private async request<T>(
         path: string,
         params: Record<string, string>,
-        apiKey: string
+        rawApiKey: string
     ): Promise<T> {
+        const apiKey = normalizeTmdbApiKey(rawApiKey);
         const url = new URL(`${TMDB_API_BASE_URL}${path}`);
         for (const [key, value] of Object.entries(params)) {
             url.searchParams.set(key, value);
@@ -166,7 +171,7 @@ export class TmdbApiService {
 
         // v4 read access tokens are JWTs sent as a Bearer header; v3 keys
         // travel as the api_key query param
-        const isBearerToken = apiKey.startsWith('eyJ');
+        const isBearerToken = isTmdbBearerToken(apiKey);
         if (!isBearerToken) {
             url.searchParams.set('api_key', apiKey);
         }

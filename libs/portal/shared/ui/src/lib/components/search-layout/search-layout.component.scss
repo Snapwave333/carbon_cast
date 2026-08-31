@@ -22,33 +22,33 @@
     flex: 1;
     min-height: 0;
     overflow: hidden;
-    padding: 0 20px 0 20px;
+    padding-inline: var(--app-content-gutter);
 }
 
 .header {
     position: sticky;
     top: 0;
     z-index: 100;
-    padding: 20px 0 10px 0;
+    padding: var(--app-space-5) 0 var(--app-space-2);
     margin-bottom: 2px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
 
     display: flex;
     flex-direction: column;
     align-items: stretch;
-    gap: 16px;
+    gap: var(--app-space-3);
 
     .header-top {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        gap: 20px;
+        gap: var(--app-space-4);
     }
 
     .header-left {
         display: flex;
         align-items: center;
-        gap: 32px;
+        gap: var(--app-section-gap);
         flex: 1;
         flex-wrap: wrap;
 
@@ -74,7 +74,7 @@
 
         .type-filters {
             display: flex;
-            gap: 20px;
+            gap: var(--app-space-4);
             align-items: center;
 
             ::ng-deep mat-checkbox {
@@ -112,7 +112,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 4rem 2rem;
+    padding: var(--app-empty-state-padding) var(--app-content-gutter);
 }
 
 .no-items {
@@ -120,7 +120,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 4rem 2rem;
+    padding: var(--app-empty-state-padding) var(--app-content-gutter);
     text-align: center;
 
     mat-icon {

@@ -2,7 +2,7 @@ import type Artplayer from 'artplayer';
 import type { Option } from 'artplayer';
 import Hls, { type ErrorData, type ManifestParsedData } from 'hls.js';
 import mpegts from 'mpegts.js';
-import type { ChannelDrm } from '@iptvnator/shared/interfaces';
+import type { ChannelDrm, PreferredQuality } from '@iptvnator/shared/interfaces';
 import {
     InlinePlaybackPlayer,
     type PlaybackDiagnostic,
@@ -26,6 +26,7 @@ export interface ArtPlayerSourceSessionConfig {
     controlsAdapter: WebVideoControlsAdapter;
     isLive: () => boolean;
     showCaptions: () => boolean;
+    preferredQuality: () => PreferredQuality;
     emitPlaybackIssue: (issue: PlaybackDiagnostic) => void;
     /** DRM config of the active channel, used by the DASH (`mpd`) engine. */
     getDrm?: () => ChannelDrm | undefined;
@@ -79,6 +80,7 @@ export class ArtPlayerSourceSession {
             this.captionTracks = new WebVideoSourceTracks({
                 video: player.video,
                 showCaptions: this.config.showCaptions,
+                preferredQuality: this.config.preferredQuality,
                 vendorCaptionControls: true,
             });
             this.captionTracks.setSource(this.pendingControlsSource);
@@ -90,6 +92,7 @@ export class ArtPlayerSourceSession {
             adapter: this.config.controlsAdapter,
             isLive: this.config.isLive,
             showCaptions: this.config.showCaptions,
+            preferredQuality: this.config.preferredQuality,
         });
         this.controlsBridge = bridge;
         bridge.attach();

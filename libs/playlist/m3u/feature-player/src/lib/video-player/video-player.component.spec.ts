@@ -12,7 +12,7 @@ import { By } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { StorageMap } from '@ngx-pwa/local-storage';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { MockPipe } from 'ng-mocks';
 import { BehaviorSubject, of } from 'rxjs';
 import {
@@ -47,6 +47,7 @@ import {
 } from '@iptvnator/shared/interfaces';
 import { LiveEpgPanelSummary } from '@iptvnator/ui/shared-portals';
 import { Overlay } from '@angular/cdk/overlay';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import type { PlaybackFallbackRequest } from '@iptvnator/ui/playback';
 import type { VideoPlayerComponent as VideoPlayerComponentInstance } from './video-player.component';
 
@@ -118,6 +119,9 @@ class StubWebPlayerViewComponent {
     readonly playback = input<unknown>(null);
     readonly playerOverride = input<VideoPlayer | null>(null);
     readonly volume = input(1);
+    readonly channelNavigation = input(false);
+    readonly channelUpRequested = output<void>();
+    readonly channelDownRequested = output<void>();
     readonly externalFallbackRequested = output<PlaybackFallbackRequest>();
 }
 
@@ -135,6 +139,7 @@ class StubMultiEpgContainerComponent {
         mode: 'live' | 'timeshift';
     }>();
     readonly catchupResolver = input<unknown>(null);
+    readonly channelAvailabilityResolver = input<unknown>(null);
 }
 
 // Matches both live-panel selectors so the host's timeline ↔ list swap can be
@@ -208,6 +213,9 @@ describe('VideoPlayerComponent', () => {
     const activeChannel$ = new BehaviorSubject<Channel | null>(null);
     const currentEpgProgram$ = new BehaviorSubject<EpgProgram | null>(null);
     const epgPrograms$ = new BehaviorSubject<EpgProgram[]>([]);
+    const snackBarMock = { open: jest.fn() };
+    // Returns the key so assertions can match on it directly.
+    const translateMock = { instant: (key: string) => key };
     const epgServiceMock = {
         currentEpgPrograms$: epgPrograms$.asObservable(),
         getChannelMetadataForChannels: () => of(new Map()),
@@ -407,6 +415,16 @@ describe('VideoPlayerComponent', () => {
                     useValue: epgServiceMock,
                 },
                 {
+                    // Guide play requests for channels outside the playlist
+                    // surface through the snackbar instead of failing silently.
+                    provide: MatSnackBar,
+                    useValue: snackBarMock,
+                },
+                {
+                    provide: TranslateService,
+                    useValue: translateMock,
+                },
+                {
                     provide: PlaylistContextFacade,
                     useValue: {
                         resolvedPlaylistId: playlistId,
@@ -508,6 +526,12 @@ describe('VideoPlayerComponent', () => {
         ).not.toBeNull();
         expect(
             fixture.nativeElement.querySelector('app-web-player-view')
+        ).not.toBeNull();
+        expect(
+            fixture.nativeElement.querySelector('.player-stage--guide')
+        ).not.toBeNull();
+        expect(
+            fixture.nativeElement.querySelector('.guide-player-details')
         ).not.toBeNull();
         expect(
             fixture.nativeElement.querySelector('app-epg-timeline')
@@ -1278,14 +1302,110 @@ describe('VideoPlayerComponent', () => {
             })
         );
 
-        // no match → no dispatch
+        // no match → no dispatch, but the user is told why. Returning here
+        // silently made "Watch live" look broken: the dialog closed and
+        // nothing happened.
         storeMock.dispatch.mockClear();
+        snackBarMock.open.mockClear();
         component.onGuidePlayRequested({
             channelId: 'unknown-epg-id',
             channelName: 'Not In Playlist',
             mode: 'live',
         });
         expect(storeMock.dispatch).not.toHaveBeenCalled();
+        expect(snackBarMock.open).toHaveBeenCalledWith(
+            'EPG.CHANNEL_NOT_IN_PLAYLIST',
+            'CLOSE',
+            expect.objectContaining({ duration: 5000 })
+        );
+    });
+
+    it('tells the guide which channels this playlist can actually play', () => {
+        const guideChannel = {
+            ...sampleChannel,
+            id: 'channel-3',
+            url: 'http://localhost/guide.m3u8',
+            name: 'Guide TV',
+            tvg: { ...sampleChannel.tvg, id: 'epg-guide-1' },
+        } as Channel;
+        channels.set([sampleChannel, guideChannel]);
+        channels$.next([sampleChannel, guideChannel]);
+        fixture.detectChanges();
+
+        // The guide lists EPG-store channels, which are not scoped to this
+        // playlist. Sharing resolveGuideChannel with the play handler keeps
+        // the two from disagreeing about what is playable.
+        expect(
+            component.guideChannelAvailabilityResolver('epg-guide-1', null)
+        ).toBe(true);
+        expect(
+            component.guideChannelAvailabilityResolver(
+                'unknown-epg-id',
+                '  guide tv '
+            )
+        ).toBe(true);
+        expect(
+            component.guideChannelAvailabilityResolver(
+                'unknown-epg-id',
+                'Not In Playlist'
+            )
+        ).toBe(false);
+    });
+
+    it('matches a guide row whose playlist name only adds a quality label', () => {
+        const qualityLabeledChannel = {
+            ...sampleChannel,
+            id: 'channel-quality-label',
+            url: 'http://localhost/court-tv.m3u8',
+            name: 'Court TV (1080p)',
+            tvg: { ...sampleChannel.tvg, id: 'CourtTV.us@SD' },
+        } as Channel;
+        channels.set([sampleChannel, qualityLabeledChannel]);
+        channels$.next([sampleChannel, qualityLabeledChannel]);
+        fixture.detectChanges();
+
+        expect(
+            component.guideChannelAvailabilityResolver(
+                'unknown-epg-id',
+                'Court TV'
+            )
+        ).toBe(true);
+
+        storeMock.dispatch.mockClear();
+        component.onGuidePlayRequested({
+            channelId: 'unknown-epg-id',
+            channelName: 'Court TV',
+            mode: 'live',
+        });
+        expect(storeMock.dispatch).toHaveBeenCalledWith(
+            ChannelActions.setActiveChannel({
+                channel: qualityLabeledChannel,
+                startPlayback: true,
+            })
+        );
+    });
+
+    it('keeps ambiguous normalized guide names unavailable', () => {
+        const firstVariant = {
+            ...sampleChannel,
+            id: 'court-tv-hd',
+            name: 'Court TV (1080p)',
+        } as Channel;
+        const secondVariant = {
+            ...sampleChannel,
+            id: 'court-tv-sd',
+            name: 'Court TV (720p)',
+        } as Channel;
+        channels.set([firstVariant, secondVariant]);
+        channels$.next([firstVariant, secondVariant]);
+        fixture.detectChanges();
+
+        expect(
+            component.guideChannelAvailabilityResolver(
+                'unknown-epg-id',
+                'Court TV'
+            )
+        ).toBe(false);
     });
 
     it('switches channel then time-shifts when the guide requests catch-up', () => {
@@ -1330,9 +1450,10 @@ describe('VideoPlayerComponent', () => {
         );
 
         // catch-up capability resolves through the same channel matching
-        expect(
-            component.guideCatchupResolver('epg-catchup-1', null)
-        ).toEqual({ available: expect.any(Boolean), archiveDays: 3 });
+        expect(component.guideCatchupResolver('epg-catchup-1', null)).toEqual({
+            available: expect.any(Boolean),
+            archiveDays: 3,
+        });
         expect(
             component.guideCatchupResolver('unknown', 'Not In Playlist')
         ).toBeNull();

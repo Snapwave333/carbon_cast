@@ -6,6 +6,7 @@ import {
     Input,
     OnDestroy,
     OnInit,
+    signal,
     ViewEncapsulation,
 } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -16,6 +17,7 @@ import {
     MatDialogModule,
 } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
 import { SettingsContextService } from '@iptvnator/workspace/shell/util';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -29,6 +31,8 @@ import { SettingsDashboardSectionComponent } from './settings-dashboard-section.
 import { SettingsEmbeddedMpvFacade } from './settings-embedded-mpv.facade';
 import { SettingsEpgFacade } from './settings-epg.facade';
 import { SettingsEpgSectionComponent } from './settings-epg-section.component';
+import { SettingsNetworkSectionComponent } from './settings-network-section.component';
+import { SettingsProxyFacade } from './settings-proxy.facade';
 import { SettingsFormFacade } from './settings-form.facade';
 import { SettingsGeneralSectionComponent } from './settings-general-section.component';
 import { SettingsSection } from './settings.models';
@@ -72,6 +76,7 @@ import { SettingsSnackbarService } from './settings-snackbar.service';
         CommonModule,
         MatButtonModule,
         MatIconModule,
+        MatTooltipModule,
         ReactiveFormsModule,
         TranslateModule,
         MatDialogModule,
@@ -79,6 +84,7 @@ import { SettingsSnackbarService } from './settings-snackbar.service';
         SettingsBackupSectionComponent,
         SettingsDashboardSectionComponent,
         SettingsEpgSectionComponent,
+        SettingsNetworkSectionComponent,
         SettingsGeneralSectionComponent,
         SettingsPlaybackSectionComponent,
         SettingsRemoteControlSectionComponent,
@@ -104,6 +110,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     readonly epg = inject(SettingsEpgFacade);
     readonly form = inject(SettingsFormFacade);
     readonly playlistReset = inject(SettingsPlaylistResetFacade);
+    readonly proxy = inject(SettingsProxyFacade);
     readonly remoteControl = inject(SettingsRemoteControlFacade);
 
     private readonly settingsCtx = inject(SettingsContextService);
@@ -135,8 +142,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
     readonly supportsExternalPlayerPathSettings =
         this.runtime.supportsExternalPlayerPathSettings;
     readonly supportsRemoteControl = this.runtime.supportsRemoteControl;
+    readonly supportsProxy = this.runtime.supportsProxy;
 
     readonly activeSection = this.settingsCtx.activeSection;
+    readonly advancedSettingsVisible = signal(false);
 
     /** Settings form object */
     readonly settingsForm = this.form.form;
@@ -163,10 +172,28 @@ export class SettingsComponent implements OnInit, OnDestroy {
     readonly sectionNavItems: SettingsSection[] = buildSettingsSectionNavItems({
         supportsEpg: this.supportsEpg,
         supportsRemoteControl: this.supportsRemoteControl,
+        supportsProxy: this.supportsProxy,
     });
 
     get sectionNav(): SettingsSection[] {
-        return this.sectionNavItems.filter((section) => section.visible);
+        return this.sectionNavItems.filter(
+            (section) =>
+                section.visible &&
+                (this.advancedSettingsVisible() || !section.advanced)
+        );
+    }
+
+    toggleAdvancedSettings(): void {
+        const showAdvanced = !this.advancedSettingsVisible();
+        this.advancedSettingsVisible.set(showAdvanced);
+
+        if (!showAdvanced) {
+            this.settingsCtx.setActiveSection('general');
+        }
+
+        if (!this.isDialog) {
+            this.settingsCtx.setSections(this.sectionNav);
+        }
     }
 
     /**
@@ -206,6 +233,14 @@ export class SettingsComponent implements OnInit, OnDestroy {
      * Triggers on form submit and saves the config object to
      * the indexed db store
      */
+    /**
+     * Dial the proxy currently typed into the form, not the saved one, so the
+     * button verifies what the user is about to save.
+     */
+    testProxyConnection(): void {
+        void this.proxy.test(this.settingsForm.get('proxy')?.getRawValue());
+    }
+
     onSubmit(): void {
         this.form
             .save(() => this.applyChangedSettings())

@@ -272,7 +272,7 @@ describe('WorkspaceContextPanelComponent', () => {
         ]);
     });
 
-    it('keeps xtream categories in server order by default and sorts them from the menu modes', () => {
+    it('organizes xtream categories A-Z by default and keeps source order available', () => {
         fixture.componentRef.setInput('section', 'vod');
         xtreamSelectedTypeContentState.set('ready');
         xtreamCategories.set([
@@ -283,18 +283,18 @@ describe('WorkspaceContextPanelComponent', () => {
         fixture.detectChanges();
 
         expect(getCategoryLabels(fixture)).toEqual([
-            'Sports',
             'Movies',
             'News',
+            'Sports',
         ]);
 
-        fixture.componentInstance.setCategorySortMode('name-asc');
+        fixture.componentInstance.setCategorySortMode('server');
         fixture.detectChanges();
 
         expect(getCategoryLabels(fixture)).toEqual([
+            'Sports',
             'Movies',
             'News',
-            'Sports',
         ]);
 
         fixture.componentInstance.setCategorySortMode('name-desc');
@@ -310,6 +310,40 @@ describe('WorkspaceContextPanelComponent', () => {
         );
     });
 
+    it('separates long portal category lists into readable alphabetical sections', () => {
+        fixture.componentRef.setInput('section', 'vod');
+        xtreamSelectedTypeContentState.set('ready');
+        xtreamCategories.set([
+            { id: 0, name: 'All movies' },
+            { id: 1, name: 'Action' },
+            { id: 2, name: 'Animation' },
+            { id: 3, name: 'Comedy' },
+            { id: 4, name: 'Documentary' },
+            { id: 5, name: 'Drama' },
+            { id: 6, name: 'Music' },
+            { id: 7, name: 'News' },
+            { id: 8, name: 'Sports' },
+        ]);
+        fixture.detectChanges();
+
+        const sectionHeadings = Array.from(
+            fixture.nativeElement.querySelectorAll('.category-section__heading')
+        ).map((element: Element) => element.textContent?.trim());
+
+        expect(getCategoryLabels(fixture)).toEqual([
+            'All movies',
+            'Action',
+            'Animation',
+            'Comedy',
+            'Documentary',
+            'Drama',
+            'Music',
+            'News',
+            'Sports',
+        ]);
+        expect(sectionHeadings).toEqual(['A', 'C', 'D', 'M', 'N', 'S']);
+    });
+
     it('uses translated category sort labels and distinct mode icons', () => {
         fixture.componentRef.setInput('section', 'vod');
         xtreamSelectedTypeContentState.set('ready');
@@ -321,9 +355,11 @@ describe('WorkspaceContextPanelComponent', () => {
 
         expect(sortButton?.getAttribute('aria-label')).toBe('Sort categories');
         expect(fixture.componentInstance.categorySortLabelKey()).toBe(
-            'WORKSPACE.SORT_SERVER'
+            'WORKSPACE.SORT_NAME_ASC'
         );
-        expect(fixture.componentInstance.categorySortIcon()).toBe('dns');
+        expect(fixture.componentInstance.categorySortIcon()).toBe(
+            'sort_by_alpha'
+        );
         expect(
             fixture.componentInstance.categorySortOptions.map((option) => ({
                 mode: option.mode,
@@ -375,19 +411,19 @@ describe('WorkspaceContextPanelComponent', () => {
 
         expect(getCategoryLabels(fixture)).toEqual([
             'All Categories',
-            'Zulu',
             'Alpha',
             'Movies',
+            'Zulu',
         ]);
 
-        fixture.componentInstance.setCategorySortMode('name-asc');
+        fixture.componentInstance.setCategorySortMode('server');
         fixture.detectChanges();
 
         expect(getCategoryLabels(fixture)).toEqual([
             'All Categories',
+            'Zulu',
             'Alpha',
             'Movies',
-            'Zulu',
         ]);
 
         fixture.componentInstance.setCategorySortMode('name-desc');
@@ -460,9 +496,9 @@ describe('WorkspaceContextPanelComponent', () => {
             el.textContent?.includes('For adults')
         );
 
-        expect(documentary?.querySelector('.item-count')?.textContent).toContain(
-            '190'
-        );
+        expect(
+            documentary?.querySelector('.item-count')?.textContent
+        ).toContain('190');
         expect(adults?.querySelector('.item-count')).toBeNull();
     });
 

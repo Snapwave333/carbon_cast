@@ -8,11 +8,7 @@ import {
     WorkspaceHeaderContextService,
     WorkspaceResolvedCommandItem,
 } from '@iptvnator/portal/shared/util';
-import {
-    DownloadsService,
-    RuntimeCapabilitiesService,
-    SettingsStore,
-} from '@iptvnator/services';
+import { RuntimeCapabilitiesService, SettingsStore } from '@iptvnator/services';
 import {
     CommandBuilderActions,
     CommandBuilderContext,
@@ -37,7 +33,6 @@ export class WorkspaceShellFacade {
         WorkspaceShellCommandPaletteService
     );
     private readonly runtime = inject(RuntimeCapabilitiesService);
-    private readonly downloadsService = inject(DownloadsService);
     private readonly routeState = inject(WorkspaceShellRouteStateService);
     private readonly search = inject(WorkspaceShellSearchService);
     private readonly header = inject(WorkspaceShellHeaderService);
@@ -85,7 +80,7 @@ export class WorkspaceShellFacade {
     readonly isDashboardRoute = this.routeState.isDashboardRoute;
     readonly isSourcesRoute = this.routeState.isSourcesRoute;
     readonly isSettingsRoute = this.routeState.isSettingsRoute;
-    readonly isGlobalDownloadsRoute = this.routeState.isGlobalDownloadsRoute;
+    readonly isM3uPlaylistRoute = this.routeState.isM3uPlaylistRoute;
     readonly railContext = this.routeState.railContext;
     readonly externalPlaybackSession = this.externalPlayback.visibleSession;
     readonly showExternalPlaybackBar = computed(
@@ -104,7 +99,6 @@ export class WorkspaceShellFacade {
     readonly railProviderClass = this.routeState.railProviderClass;
     readonly primaryContextLinks = this.routeState.primaryContextLinks;
     readonly secondaryContextLinks = this.routeState.secondaryContextLinks;
-    readonly isDownloadsView = this.routeState.isDownloadsView;
     readonly headerShortcut = this.header.headerShortcut;
     readonly canOpenPlaylistInfo = this.header.canOpenPlaylistInfo;
     readonly canOpenAccountInfo = this.header.canOpenAccountInfo;
@@ -112,9 +106,6 @@ export class WorkspaceShellFacade {
     readonly isRefreshingPlaylist = this.header.isRefreshingPlaylist;
     readonly headerBulkAction = this.header.headerBulkAction;
     readonly playlistSubtitle = this.header.playlistSubtitle;
-    readonly hasActiveDownloads = computed(
-        () => this.supportsDownloads && this.downloadsService.activeCount() > 0
-    );
 
     constructor() {
         this.destroyRef.onDestroy(() => {
@@ -130,10 +121,6 @@ export class WorkspaceShellFacade {
 
     get isMacOS(): boolean {
         return this.runtime.isMacOS;
-    }
-
-    get supportsDownloads(): boolean {
-        return this.runtime.supportsDownloads;
     }
 
     closeActiveExternalSession(): void {
@@ -186,10 +173,6 @@ export class WorkspaceShellFacade {
         this.header.navigateToGlobalFavorites();
     }
 
-    openDownloadsShortcut(): void {
-        this.header.openDownloadsShortcut();
-    }
-
     runHeaderShortcut(): void {
         this.header.runHeaderShortcut();
     }
@@ -224,7 +207,6 @@ export class WorkspaceShellFacade {
                 this.isElectron &&
                 this.playlists().some(isWorkspaceGlobalSearchablePlaylist),
             canRefreshPlaylist: this.canRefreshPlaylist(),
-            supportsDownloads: this.supportsDownloads,
             showDashboard: this.showDashboard(),
             translate: (key, params) => this.translateText(key, params),
             router: this.router,
@@ -241,7 +223,6 @@ export class WorkspaceShellFacade {
         openGlobalSearch: (query) => this.openGlobalSearch(query),
         navigateToGlobalFavorites: () => this.navigateToGlobalFavorites(),
         openGlobalRecent: () => this.openGlobalRecent(),
-        openDownloadsShortcut: () => this.openDownloadsShortcut(),
         openAddPlaylistDialog: (kind) =>
             this.header.openAddPlaylistDialog(kind),
     };

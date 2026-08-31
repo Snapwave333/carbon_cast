@@ -35,15 +35,17 @@ import {
     PlaylistsService,
 } from '@iptvnator/services';
 import {
+    DEFAULT_PREFERRED_QUALITY,
     ELECTRON_BRIDGE_APP_UPDATE_STATUSES,
     ElectronBridgeAppUpdateStatus,
-    Language,
     PlaylistMeta,
-    StartupBehavior,
     StreamFormat,
-    Theme,
     VideoPlayer,
 } from '@iptvnator/shared/interfaces';
+import {
+    DEFAULT_DASHBOARD_RAILS,
+    DEFAULT_SETTINGS,
+} from './settings-defaults.stub';
 import { DialogService } from '@iptvnator/ui/components';
 import { provideMockStore } from '@ngrx/store/testing';
 import { TranslateModule } from '@ngx-translate/core';
@@ -66,17 +68,7 @@ import { SettingsComponent } from '../settings.component';
  * exclude that path, so this harness never lands in the coverage ratchet as
  * production source.
  */
-
-export const DEFAULT_DASHBOARD_RAILS = {
-    hero: true,
-    continueWatching: true,
-    liveFavorites: true,
-    recentlyWatchedLive: true,
-    favoriteMoviesAndSeries: true,
-    recentSources: true,
-    xtreamRecentlyAdded: true,
-    tmdbTrending: true,
-};
+export { DEFAULT_DASHBOARD_RAILS, DEFAULT_SETTINGS };
 
 /** Playback-section form fixture shared by the settings specs. */
 export function createPlaybackSettingsForm(
@@ -94,6 +86,7 @@ export function createPlaybackSettingsForm(
         }),
         playerAmbientMode: new FormControl(false),
         playerUpNextRail: new FormControl(true),
+        preferredQuality: new FormControl(DEFAULT_PREFERRED_QUALITY),
         guideArtwork: new FormControl(true),
         streamFormat: new FormControl(StreamFormat.AutoStreamFormat),
         openStreamOnDoubleClick: new FormControl(false),
@@ -108,51 +101,6 @@ export function createPlaybackSettingsForm(
         recordingFolder: new FormControl(''),
     });
 }
-
-export const DEFAULT_SETTINGS = {
-    player: VideoPlayer.VideoJs,
-    webPlayerSharedControls: false,
-    playerControls: {
-        visible: true,
-        autoHideDelayMs: 2500,
-        density: 'expanded',
-        opacity: 'translucent',
-        size: 'medium',
-    },
-    playerAmbientMode: false,
-    playerUpNextRail: true,
-    guideArtwork: true,
-    streamFormat: StreamFormat.AutoStreamFormat,
-    openStreamOnDoubleClick: false,
-    language: Language.ENGLISH,
-    showCaptions: false,
-    showDashboard: true,
-    startupBehavior: StartupBehavior.FirstView,
-    defaultWorkspacePage: 'tv-guide',
-    showExternalPlaybackBar: true,
-    stripCountryPrefix: false,
-    hideSpanishChannels: true,
-    theme: Theme.SystemTheme,
-    mirrorLayout: true,
-    playlistDefaultSection: 'guide',
-    resumeLastChannel: true,
-    mpvPlayerPath: '',
-    mpvPlayerArguments: '',
-    mpvReuseInstance: false,
-    vlcPlayerPath: '',
-    vlcPlayerArguments: '',
-    vlcReuseInstance: false,
-    remoteControl: false,
-    remoteControlPort: 8765,
-    epgUrl: [],
-    recordingFolder: '',
-    embeddedMpvFrameCopy: false,
-    coverSize: 'medium',
-    dashboardRails: DEFAULT_DASHBOARD_RAILS,
-    preferUploadedEpgOverXtream: false,
-    epgViewMode: 'timeline',
-    tmdb: { enabled: false, apiKey: '' },
-};
 
 export const DEFAULT_APP_UPDATE_STATUS: ElectronBridgeAppUpdateStatus = {
     currentVersion: '0.22.0',

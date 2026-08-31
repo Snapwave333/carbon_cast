@@ -1,8 +1,5 @@
 export type KeyboardShortcutGroupId =
-    | 'global'
-    | 'navigation'
-    | 'playback'
-    | 'dialogs';
+    'global' | 'navigation' | 'playback' | 'dialogs';
 
 export interface PlatformShortcutChord {
     mac: readonly string[];
@@ -10,9 +7,7 @@ export interface PlatformShortcutChord {
 }
 
 export type KeyboardShortcutChord =
-    | string
-    | readonly string[]
-    | PlatformShortcutChord;
+    string | readonly string[] | PlatformShortcutChord;
 
 export interface KeyboardShortcutDefinition {
     id: string;
@@ -190,13 +185,5 @@ export const APP_KEYBOARD_SHORTCUTS: readonly KeyboardShortcutDefinition[] = [
         icon: 'close',
         keys: ['Escape'],
         order: 30,
-    },
-    {
-        id: 'downloads-open-item',
-        group: 'dialogs',
-        labelKey: 'WORKSPACE.SHORTCUTS.ITEMS.DOWNLOADS_OPEN_ITEM',
-        icon: 'download',
-        keys: ['Enter', 'Space'],
-        order: 40,
     },
 ];

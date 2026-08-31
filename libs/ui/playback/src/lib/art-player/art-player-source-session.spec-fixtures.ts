@@ -1,5 +1,8 @@
 import type Artplayer from 'artplayer';
-import type { ChannelDrm } from '@iptvnator/shared/interfaces';
+import type {
+    ChannelDrm,
+    PreferredQuality,
+} from '@iptvnator/shared/interfaces';
 import type { PlaybackDiagnostic } from '../playback-diagnostics/playback-diagnostics.util';
 import { WebVideoControlsAdapter } from '../player-controls';
 import type { ShakaModuleLoader } from '../shaka-engine/shaka-module.types';
@@ -18,6 +21,8 @@ export const mpegTsInstances: MockMpegTsPlayer[] = [];
 export class MockHls {
     static Events = {
         MANIFEST_PARSED: 'manifestParsed',
+        LEVELS_UPDATED: 'levelsUpdated',
+        LEVEL_SWITCHED: 'levelSwitched',
         ERROR: 'error',
         AUDIO_TRACKS_UPDATED: 'audioTracksUpdated',
         AUDIO_TRACK_SWITCHING: 'audioTrackSwitching',
@@ -55,6 +60,10 @@ export class MockHls {
     subtitleTracks: Array<{ name?: string; lang?: string }> = [];
     subtitleTrack = -1;
     subtitleDisplay = false;
+    levels: Array<{ height?: number; bitrate?: number }> = [];
+    currentLevel = -1;
+    loadLevel = -1;
+    autoLevelEnabled = true;
 
     constructor() {
         hlsInstances.push(this);
@@ -131,6 +140,7 @@ export function createSession({
     sharedControls,
     isLive = true,
     showCaptions = () => false,
+    preferredQuality = () => 'auto' as PreferredQuality,
     emitPlaybackIssue = () => undefined,
     getDrm,
     loadShaka,
@@ -138,6 +148,7 @@ export function createSession({
     sharedControls: boolean;
     isLive?: boolean;
     showCaptions?: () => boolean;
+    preferredQuality?: () => PreferredQuality;
     emitPlaybackIssue?: (issue: PlaybackDiagnostic) => void;
     getDrm?: () => ChannelDrm | undefined;
     loadShaka?: ShakaModuleLoader;
@@ -163,6 +174,7 @@ export function createSession({
             controlsAdapter: adapter,
             isLive: () => isLive,
             showCaptions,
+            preferredQuality,
             emitPlaybackIssue,
             getDrm,
             loadShaka,

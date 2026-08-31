@@ -111,6 +111,40 @@ describe('SettingsComponent', () => {
         expect(nativeElement.querySelector('.settings-intro')).toBeNull();
     });
 
+    it('shows essentials by default and reveals advanced settings on demand', () => {
+        const nativeElement = fixture.nativeElement as HTMLElement;
+        const toggle = nativeElement.querySelector(
+            '[data-test-id="toggle-advanced-settings"]'
+        ) as HTMLButtonElement;
+        const advancedSections = nativeElement.querySelector(
+            '[data-test-id="advanced-settings-sections"]'
+        ) as HTMLElement;
+        const streamFormat = nativeElement
+            .querySelector('[data-test-id="select-stream-format"]')
+            ?.closest('.setting-item') as HTMLElement;
+
+        expect(component.sectionNav.map((section) => section.id)).toEqual([
+            'general',
+            'playback',
+            'epg',
+        ]);
+        expect(advancedSections.hidden).toBe(true);
+        expect(streamFormat.hidden).toBe(true);
+        expect(
+            nativeElement.querySelectorAll('[data-test-id^="tooltip-"]').length
+        ).toBeGreaterThanOrEqual(7);
+
+        toggle.click();
+        fixture.detectChanges();
+
+        expect(toggle.getAttribute('aria-expanded')).toBe('true');
+        expect(advancedSections.hidden).toBe(false);
+        expect(streamFormat.hidden).toBe(false);
+        expect(component.sectionNav.map((section) => section.id)).toContain(
+            'dashboard'
+        );
+    });
+
     it('should not render the page header in dialog mode', () => {
         fixture.destroy();
 

@@ -16,8 +16,22 @@
 
     <div class="setting-item setting-item--full-control">
         <div class="setting-item__meta">
-            <h4>{{ 'SETTINGS.EPG_VIEW_MODE' | translate }}</h4>
-            <p>{{ 'SETTINGS.EPG_VIEW_MODE_DESCRIPTION' | translate }}</p>
+            <div class="setting-item__title">
+                <h4>{{ 'SETTINGS.EPG_VIEW_MODE' | translate }}</h4>
+                <button
+                    type="button"
+                    class="settings-help-button"
+                    [matTooltip]="
+                        'SETTINGS.EPG_VIEW_MODE_DESCRIPTION' | translate
+                    "
+                    [attr.aria-label]="
+                        'SETTINGS.EPG_VIEW_MODE_DESCRIPTION' | translate
+                    "
+                    data-test-id="tooltip-epg-view-mode"
+                >
+                    <mat-icon svgIcon="info_outline"></mat-icon>
+                </button>
+            </div>
         </div>
         <div class="setting-item__control">
             <div
@@ -56,8 +70,10 @@
                         class="epg-sources-empty"
                         data-test-id="epg-sources-empty"
                     >
-                        <mat-icon class="epg-sources-empty__icon"
-                             svgIcon="event_busy"></mat-icon>
+                        <mat-icon
+                            class="epg-sources-empty__icon"
+                            svgIcon="event_busy"
+                        ></mat-icon>
                         <h4 class="epg-sources-empty__title">
                             {{ 'SETTINGS.EPG_EMPTY_TITLE' | translate }}
                         </h4>
@@ -122,7 +138,7 @@
         </div>
     </div>
 
-    <div class="setting-item">
+    <div class="setting-item" [hidden]="!showAdvanced()">
         <div class="setting-item__meta">
             <h4>{{ 'SETTINGS.PREFER_UPLOADED_EPG_TITLE' | translate }}</h4>
             <p>{{ 'SETTINGS.PREFER_UPLOADED_EPG_HINT' | translate }}</p>
@@ -154,6 +170,7 @@
                 mat-button
                 color="warn"
                 type="button"
+                [hidden]="!showAdvanced()"
                 [disabled]="isClearingEpgData()"
                 (click)="clearEpgData.emit()"
             >

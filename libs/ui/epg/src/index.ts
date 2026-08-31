@@ -8,6 +8,7 @@ export * from './lib/epg-list-view/epg-list-view.component';
 export * from './lib/epg-list-view/epg-list-view-row/epg-list-view-row.component';
 export * from './lib/epg-list-view/epg-list-view.utils';
 export * from './lib/epg-date';
+export * from './lib/epg-program.utils';
 export * from './lib/epg-timeline/epg-timeline.component';
 export * from './lib/epg-timeline/epg-timeline-empty-state.component';
 export * from './lib/epg-timeline/epg-timeline-track.component';

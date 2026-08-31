@@ -1,8 +1,10 @@
 import type Hls from 'hls.js';
+import type { PreferredQuality } from '@iptvnator/shared/interfaces';
 import type { PlayerTrack } from '../player-controls/player-controls.model';
 import type { ShakaVideoSession } from '../shaka-engine/shaka-video-session';
 import { WebVideoHlsControls } from './web-video-hls-controls';
 import { WebVideoNativeTextTracks } from './web-video-native-text-tracks';
+import { WebVideoQualityControls } from './web-video-quality-controls';
 import { WebVideoShakaControls } from './web-video-shaka-controls';
 
 export type WebVideoControlsSource =
@@ -14,6 +16,11 @@ export type WebVideoControlsSource =
 export interface WebVideoSourceTracksConfig {
     video: HTMLVideoElement;
     showCaptions: () => boolean;
+    /**
+     * Target rendition for every new source. Applied in both control modes —
+     * the setting is about what plays, not about which chrome renders it.
+     */
+    preferredQuality: () => PreferredQuality;
     /**
      * Notifies the owning controls UI that track state changed. Legacy players
      * have no shared controls to refresh and leave it unset — they use this
@@ -41,6 +48,7 @@ export class WebVideoSourceTracks {
     private readonly hlsControls: WebVideoHlsControls;
     private readonly shakaControls: WebVideoShakaControls;
     private readonly nativeTextTracks: WebVideoNativeTextTracks;
+    private readonly qualityControls: WebVideoQualityControls;
     private source: WebVideoControlsSource | null = null;
     private playbackStarted = false;
     private playingListener: (() => void) | null = null;
@@ -61,6 +69,10 @@ export class WebVideoSourceTracks {
             showCaptions: config.showCaptions,
             refresh,
             playbackStarted,
+        });
+        this.qualityControls = new WebVideoQualityControls({
+            preferredQuality: config.preferredQuality,
+            refresh,
         });
         this.nativeTextTracks = new WebVideoNativeTextTracks({
             video: config.video,
@@ -92,8 +104,10 @@ export class WebVideoSourceTracks {
         this.playbackStarted = false;
         if (source.kind === 'hls') {
             this.hlsControls.bind(source.hls);
+            this.qualityControls.bindHls(source.hls);
         } else if (source.kind === 'shaka') {
             this.shakaControls.bind(source.session);
+            this.qualityControls.bindShaka(source.session);
         } else {
             this.nativeTextTracks.bind();
         }
@@ -111,6 +125,7 @@ export class WebVideoSourceTracks {
         } else if (this.source) {
             this.nativeTextTracks.refreshInputs();
         }
+        this.qualityControls.refreshInputs();
     }
 
     clearSource(): void {
@@ -176,7 +191,16 @@ export class WebVideoSourceTracks {
         }
     }
 
+    getQualityLevels(): PlayerTrack[] {
+        return this.qualityControls.getQualityLevels();
+    }
+
+    setQualityLevel(id: number): void {
+        this.qualityControls.setQualityLevel(id);
+    }
+
     private clearActiveSource(): void {
+        this.qualityControls.clear();
         if (this.source?.kind === 'hls') {
             this.hlsControls.clear();
         } else if (this.source?.kind === 'shaka') {

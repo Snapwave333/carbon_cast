@@ -4,6 +4,7 @@ import type {
     ShakaModuleLoader,
     ShakaPlayerLike,
     ShakaTextTrackLike,
+    ShakaVariantTrackLike,
 } from './shaka-module.types';
 
 /**
@@ -25,12 +26,14 @@ export class FakeShakaPlayer implements ShakaPlayerLike {
     readonly configureCalls: Record<string, unknown>[] = [];
     readonly selectTextTrackCalls: unknown[] = [];
     readonly selectedAudioTracks: ShakaAudioTrackLike[] = [];
+    readonly selectedVariantTracks: ShakaVariantTrackLike[] = [];
     readonly listeners = new Map<string, Set<Listener>>();
     attachedTo: HTMLMediaElement | null = null;
     loadedUrls: string[] = [];
     destroyCount = 0;
     audioTracks: ShakaAudioTrackLike[] = [];
     textTracks: ShakaTextTrackLike[] = [];
+    variantTracks: ShakaVariantTrackLike[] = [];
     /** When true, the next `load()` stays pending until `destroy()`. */
     stallNextLoad = false;
     loadResult: Promise<unknown> = Promise.resolve();
@@ -95,6 +98,17 @@ export class FakeShakaPlayer implements ShakaPlayerLike {
     selectTextTrack(track: ShakaTextTrackLike | null): void {
         this.selectTextTrackCalls.push(track);
         for (const candidate of this.textTracks) {
+            candidate.active = candidate === track;
+        }
+    }
+
+    getVariantTracks(): ShakaVariantTrackLike[] {
+        return this.variantTracks;
+    }
+
+    selectVariantTrack(track: ShakaVariantTrackLike): void {
+        this.selectedVariantTracks.push(track);
+        for (const candidate of this.variantTracks) {
             candidate.active = candidate === track;
         }
     }

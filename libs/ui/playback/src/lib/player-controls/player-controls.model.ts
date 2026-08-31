@@ -9,6 +9,8 @@ export interface PlayerControlsCapabilities {
     volume: boolean;
     audioTracks: boolean;
     subtitles: boolean;
+    /** Stream exposes selectable video renditions (HLS levels, DASH variants). */
+    quality: boolean;
     playbackSpeed: boolean;
     aspectRatio: boolean;
     recording: boolean;
@@ -64,6 +66,8 @@ export interface PlayerControlsState {
     subtitleTracks: PlayerTrack[];
     /** True when a subtitle track is active (selected id !== null/off). */
     subtitlesEnabled: boolean;
+    /** Video renditions, "Auto" first; adapter pre-computes the labels. */
+    qualityLevels: PlayerTrack[];
     playbackSpeed: number;
     speedPresets: ReadonlyArray<PlayerPreset<number>>;
     aspectRatio: string;
@@ -83,6 +87,7 @@ export interface PlayerControlsCommands {
     setVolume(value: number): void; // 0..1
     setAudioTrack(id: number): void;
     setSubtitleTrack(id: number): void; // -1 = off
+    setQualityLevel(id: number): void; // -1 = auto (adaptive bitrate)
     setPlaybackSpeed(speed: number): void;
     setAspectRatio(value: string): void;
     toggleRecording(): void;

@@ -18,7 +18,7 @@ import { PlaylistContextFacade } from '@iptvnator/playlist/shared/util';
 import { PlaylistsService } from '@iptvnator/services';
 import { Channel } from '@iptvnator/shared/interfaces';
 
-type M3uLoadedSection = 'all' | 'groups';
+type M3uLoadedSection = 'all' | 'groups' | 'guide';
 
 @Injectable()
 export class M3uWorkspaceRouteSession {
@@ -146,10 +146,22 @@ export class M3uWorkspaceRouteSession {
         }
     }
 
+    /**
+     * Sections that need the playlist's channels in the store.
+     *
+     * `guide` belongs here even though it renders EPG-store channels rather
+     * than playlist ones: it resolves a programme back to a playlist channel
+     * in order to tune to it. Without the channels loaded, every guide row
+     * looks absent from the playlist and "Watch live" does nothing — and
+     * because `playlistDefaultSection` defaults to `guide`, that was the
+     * state a freshly opened playlist started in.
+     */
     private isLoadedSection(
         section: string | null
     ): section is M3uLoadedSection {
-        return section === 'all' || section === 'groups';
+        return (
+            section === 'all' || section === 'groups' || section === 'guide'
+        );
     }
 
     private isCurrentLoadRequest(

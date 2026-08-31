@@ -9,11 +9,15 @@ import {
     DefaultWorkspacePage,
     DEFAULT_DASHBOARD_RAILS_SETTINGS,
     DEFAULT_PLAYER_CONTROLS_SETTINGS,
+    DEFAULT_PREFERRED_QUALITY,
+    DEFAULT_PROXY_SETTINGS,
     DEFAULT_TMDB_SETTINGS,
     EpgViewMode,
     Language,
     normalizeDashboardRailsSettings,
     normalizePlayerControlsSettings,
+    normalizePreferredQuality,
+    normalizeProxySettings,
     normalizeExternalPlayerArguments,
     Settings,
     StartupBehavior,
@@ -45,6 +49,7 @@ export function createSettingsForm(
         }),
         playerAmbientMode: false,
         playerUpNextRail: true,
+        preferredQuality: DEFAULT_PREFERRED_QUALITY,
         guideArtwork: true,
         ...(supportsEpg
             ? { epgUrl: new FormArray<FormControl<string | null>>([]) }
@@ -74,6 +79,10 @@ export function createSettingsForm(
         showExternalPlaybackBar: true,
         stripCountryPrefix: false,
         hideSpanishChannels: true,
+        hideNonUsChannels: true,
+        hideReligiousChannels: true,
+        localNewsOnly: true,
+        homeCountryCode: '',
         theme: Theme.SystemTheme,
         mirrorLayout: true,
         mpvPlayerPath: '',
@@ -104,6 +113,18 @@ export function createSettingsForm(
         tmdb: formBuilder.group({
             enabled: DEFAULT_TMDB_SETTINGS.enabled,
             apiKey: DEFAULT_TMDB_SETTINGS.apiKey ?? '',
+        }),
+        proxy: formBuilder.group({
+            enabled: DEFAULT_PROXY_SETTINGS.enabled,
+            protocol: DEFAULT_PROXY_SETTINGS.protocol,
+            host: DEFAULT_PROXY_SETTINGS.host,
+            port: [
+                DEFAULT_PROXY_SETTINGS.port,
+                [Validators.min(1), Validators.max(65535)],
+            ],
+            username: DEFAULT_PROXY_SETTINGS.username,
+            password: DEFAULT_PROXY_SETTINGS.password,
+            bypassList: DEFAULT_PROXY_SETTINGS.bypassList,
         }),
     });
 }
@@ -139,6 +160,7 @@ export function createSettingsFromFormValue(
         playerControls: normalizePlayerControlsSettings(value.playerControls),
         playerAmbientMode: value.playerAmbientMode ?? false,
         playerUpNextRail: value.playerUpNextRail ?? true,
+        preferredQuality: normalizePreferredQuality(value.preferredQuality),
         guideArtwork: value.guideArtwork ?? true,
         streamFormat: value.streamFormat ?? StreamFormat.AutoStreamFormat,
         openStreamOnDoubleClick: value.openStreamOnDoubleClick ?? false,
@@ -155,6 +177,10 @@ export function createSettingsFromFormValue(
         showExternalPlaybackBar: value.showExternalPlaybackBar ?? true,
         stripCountryPrefix: value.stripCountryPrefix ?? false,
         hideSpanishChannels: value.hideSpanishChannels ?? true,
+        hideNonUsChannels: value.hideNonUsChannels ?? true,
+        hideReligiousChannels: value.hideReligiousChannels ?? true,
+        localNewsOnly: value.localNewsOnly ?? true,
+        homeCountryCode: normalizeHomeCountryCode(value.homeCountryCode),
         theme: value.theme ?? Theme.SystemTheme,
         mirrorLayout: value.mirrorLayout ?? true,
         mpvPlayerPath: normalizeExternalPlayerPath(value.mpvPlayerPath),
@@ -186,6 +212,7 @@ export function createSettingsFromFormValue(
             enabled: value.tmdb?.enabled ?? DEFAULT_TMDB_SETTINGS.enabled,
             apiKey: value.tmdb?.apiKey?.trim() ?? '',
         },
+        proxy: normalizeProxySettings(value.proxy),
     };
 }
 
@@ -193,4 +220,13 @@ function normalizeExternalPlayerPath(
     playerPath: string | null | undefined
 ): string {
     return playerPath?.trim() ?? '';
+}
+
+/**
+ * Accepts only a two-letter country code. Anything else becomes empty, which
+ * disables the local-news filter rather than matching no channel at all.
+ */
+function normalizeHomeCountryCode(code: string | null | undefined): string {
+    const normalized = code?.trim().toLowerCase() ?? '';
+    return /^[a-z]{2}$/.test(normalized) ? normalized : '';
 }

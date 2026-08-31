@@ -13,7 +13,11 @@ import {
     viewChild,
 } from '@angular/core';
 import '@yangkghjh/videojs-aspect-ratio-panel';
-import { createDevLogger } from '@iptvnator/shared/interfaces';
+import {
+    createDevLogger,
+    DEFAULT_PREFERRED_QUALITY,
+    type PreferredQuality,
+} from '@iptvnator/shared/interfaces';
 import videoJs from 'video.js';
 import 'videojs-contrib-quality-levels';
 import 'videojs-quality-selector-hls';
@@ -43,6 +47,7 @@ import {
     shouldChangeVjsSource,
 } from './vjs-player-setup';
 import { VjsPlayerResetCoordinator } from './vjs-player-reset-coordinator';
+import { VjsQualityLevels } from './vjs-quality-levels';
 import {
     type VideoJsPlayer,
     type VideoPlayerOptions,
@@ -75,6 +80,9 @@ export class VjsPlayerComponent implements OnInit, OnChanges, OnDestroy {
     readonly seriesNavigation = input<SeriesPlaybackNavigation | null>(null);
     readonly interactionEnabled = input(true);
     readonly showCaptions = input(false);
+    readonly preferredQuality = input<PreferredQuality>(
+        DEFAULT_PREFERRED_QUALITY
+    );
     readonly mediaTitle = input<PlayerMediaTitle | null>(null);
 
     readonly timeUpdate = output<{
@@ -85,6 +93,9 @@ export class VjsPlayerComponent implements OnInit, OnChanges, OnDestroy {
     readonly playbackEnded = output<void>();
     readonly previousEpisodeRequested = output<void>();
     readonly nextEpisodeRequested = output<void>();
+    readonly channelNavigation = input(false);
+    readonly channelUpRequested = output<void>();
+    readonly channelDownRequested = output<void>();
 
     readonly sharedControls = inject(WEB_PLAYER_SHARED_CONTROLS);
     readonly controlsAdapter = inject(WebVideoControlsAdapter);
@@ -111,6 +122,12 @@ export class VjsPlayerComponent implements OnInit, OnChanges, OnDestroy {
     private controlsBridge: VjsPlayerControlsBridge | null = null;
     /** Track ownership for the legacy chrome; null with shared controls. */
     private legacyTracks: VjsLegacyTracks | null = null;
+    /**
+     * Quality-preference owner for the legacy chrome. The shared-controls
+     * path owns its own instance inside {@link VjsPlayerControlsBridge}, but
+     * the preference itself applies in both modes.
+     */
+    private legacyQuality: VjsQualityLevels | null = null;
     private desiredSource: VideoPlayerSource | null = null;
     private readyHandled = false;
     private destroyed = false;
@@ -157,9 +174,10 @@ export class VjsPlayerComponent implements OnInit, OnChanges, OnDestroy {
                 this.controlsBridge?.refreshInputs();
             }
         }
-        if (changes['showCaptions']) {
+        if (changes['showCaptions'] || changes['preferredQuality']) {
             this.controlsBridge?.refreshInputs();
             this.legacyTracks?.refreshInputs();
+            this.legacyQuality?.refreshInputs();
         }
         if (changes['interactionEnabled']?.currentValue === false) {
             exitOwnedVjsFullscreen(
@@ -188,6 +206,8 @@ export class VjsPlayerComponent implements OnInit, OnChanges, OnDestroy {
         this.controlsBridge = null;
         this.legacyTracks?.destroy();
         this.legacyTracks = null;
+        this.legacyQuality?.destroy();
+        this.legacyQuality = null;
         this.mpegTsSession.destroy();
         this.videoSession.destroy();
         if (this.player) {
@@ -224,6 +244,7 @@ export class VjsPlayerComponent implements OnInit, OnChanges, OnDestroy {
         }
         this.playbackIssue.emit(null);
         this.legacyTracks?.bind();
+        this.legacyQuality?.bind();
         logVjsAudioTracks(this.player);
         setupVjsAudioTrackMenu(this.player);
         this.controlsBridge?.refreshInputs();
@@ -271,6 +292,7 @@ export class VjsPlayerComponent implements OnInit, OnChanges, OnDestroy {
         this.player.volume(this.resetCoordinator.handlePlayerReset());
         this.controlsBridge?.clearSource();
         this.legacyTracks?.clear();
+        this.legacyQuality?.clear();
         this.mpegTsSession.destroy();
         this.restoreDesiredSourceAfterReset(true);
     };
@@ -283,6 +305,7 @@ export class VjsPlayerComponent implements OnInit, OnChanges, OnDestroy {
         this.playbackIssue.emit(null);
         this.controlsBridge?.clearSource();
         this.legacyTracks?.clear();
+        this.legacyQuality?.clear();
         this.mpegTsSession.destroy();
         this.desiredSource = source;
         this.resetCoordinator.clearSourceApplied();
@@ -325,6 +348,7 @@ export class VjsPlayerComponent implements OnInit, OnChanges, OnDestroy {
         this.player.src(source);
         this.controlsBridge?.setSource();
         this.legacyTracks?.bind();
+        this.legacyQuality?.resetSource();
         this.resetCoordinator.markSourceApplied();
     }
 
@@ -338,6 +362,7 @@ export class VjsPlayerComponent implements OnInit, OnChanges, OnDestroy {
         }
         this.controlsBridge?.setSource();
         this.legacyTracks?.bind();
+        this.legacyQuality?.resetSource();
         if (this.mpegTsSession.isSupportedSource(source.src)) {
             debugVjsPlayer('Using mpegts.js for TS stream:', source.src);
             this.mpegTsSession.start(source.src, video);
@@ -358,6 +383,7 @@ export class VjsPlayerComponent implements OnInit, OnChanges, OnDestroy {
                     adapter: this.controlsAdapter,
                     isLive: () => this.options().isLive !== false,
                     showCaptions: () => this.showCaptions(),
+                    preferredQuality: () => this.preferredQuality(),
                 });
                 this.controlsBridge.attach(video);
             } else {
@@ -376,6 +402,12 @@ export class VjsPlayerComponent implements OnInit, OnChanges, OnDestroy {
             showCaptions: () => this.showCaptions(),
         });
         this.legacyTracks.bind();
+        this.legacyQuality = new VjsQualityLevels({
+            player: this.player,
+            preferredQuality: () => this.preferredQuality(),
+            refresh: () => undefined,
+        });
+        this.legacyQuality.bind();
     }
 
     private bindPlayerEvents(): void {

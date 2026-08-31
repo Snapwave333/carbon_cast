@@ -1,6 +1,10 @@
 import { Injectable, inject } from '@angular/core';
 import { SettingsStore } from '../settings-store.service';
-import { DEFAULT_TMDB_API_KEY, toTmdbLanguage } from './tmdb-config';
+import {
+    DEFAULT_TMDB_API_KEY,
+    normalizeTmdbApiKey,
+    toTmdbLanguage,
+} from './tmdb-config';
 
 /**
  * Shared TMDB runtime context: opt-in gate, effective API key and language
@@ -18,7 +22,8 @@ export class TmdbRuntimeService {
     /** User-provided key from settings, else the embedded default */
     apiKey(): string {
         return (
-            this.settingsStore.tmdb?.()?.apiKey?.trim() || DEFAULT_TMDB_API_KEY
+            normalizeTmdbApiKey(this.settingsStore.tmdb?.()?.apiKey) ||
+            DEFAULT_TMDB_API_KEY
         );
     }
 

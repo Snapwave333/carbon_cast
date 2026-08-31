@@ -1,5 +1,6 @@
 import { Conf } from 'electron-conf/main';
 import { getElectronConfigDirectory } from '@iptvnator/shared/database';
+import type { ProxySettings } from '@iptvnator/shared/interfaces';
 
 export const WINDOW_BOUNDS = 'WINDOW_BOUNDS';
 export const MPV_PLAYER_PATH = 'MPV_PLAYER_PATH';
@@ -16,6 +17,11 @@ export const VLC_REUSE_INSTANCE = 'VLC_REUSE_INSTANCE';
  */
 export const EMBEDDED_MPV_FRAME_COPY = 'EMBEDDED_MPV_FRAME_COPY';
 export const AGENT_CONTROL_TOKENS = 'AGENT_CONTROL_TOKENS';
+/**
+ * Per-app proxy. Lives in the main-process config because the Chromium session
+ * must be configured during startup, before any window loads a stream.
+ */
+export const PROXY_SETTINGS = 'PROXY_SETTINGS';
 
 export interface AgentControlTokenRecord {
     id: string;
@@ -37,6 +43,7 @@ export type StoreType = {
     [VLC_REUSE_INSTANCE]: boolean;
     [EMBEDDED_MPV_FRAME_COPY]: boolean;
     [AGENT_CONTROL_TOKENS]: AgentControlTokenRecord[];
+    [PROXY_SETTINGS]: ProxySettings;
 };
 
 // Export singleton store instance

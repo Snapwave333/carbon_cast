@@ -199,6 +199,7 @@ describe('EmbeddedMpvControlsAdapter', () => {
             aspectRatio: true,
             recording: true,
             pictureInPicture: false,
+            quality: false,
             fullscreen: true,
             seriesNavigation: true,
         });
@@ -224,6 +225,7 @@ describe('EmbeddedMpvControlsAdapter', () => {
             aspectRatio: false,
             recording: false,
             pictureInPicture: false,
+            quality: false,
             fullscreen: true,
             seriesNavigation: true,
         });

@@ -32,6 +32,10 @@ export interface ChannelListContainerHarness {
     fixture: ComponentFixture<ChannelListContainerComponent>;
     runtimeCapabilities: { supportsEpg: boolean };
     storageGet: jest.Mock;
+    settings: {
+        hideNonUsChannels: WritableSignal<boolean>;
+        hideSpanishChannels: WritableSignal<boolean>;
+    };
 }
 
 /**
@@ -47,6 +51,10 @@ export async function createChannelListContainerHarness(): Promise<ChannelListCo
     const favoriteChannelIds = signal<string[]>([]);
     const runtimeCapabilities = { supportsEpg: true };
     const storageGet = jest.fn().mockReturnValue(of({}));
+    const settings = {
+        hideNonUsChannels: signal(true),
+        hideSpanishChannels: signal(false),
+    };
     const epgService = {
         epgAvailable$: new BehaviorSubject<boolean>(false),
         getChannelMetadataForChannels: jest.fn().mockReturnValue(of(new Map())),
@@ -97,6 +105,7 @@ export async function createChannelListContainerHarness(): Promise<ChannelListCo
                 provide: SettingsStore,
                 useValue: {
                     openStreamOnDoubleClick: signal(false),
+                    ...settings,
                 },
             },
             {
@@ -156,6 +165,7 @@ export async function createChannelListContainerHarness(): Promise<ChannelListCo
         favoriteChannelIds,
         fixture: TestBed.createComponent(ChannelListContainerComponent),
         runtimeCapabilities,
+        settings,
         storageGet,
     };
 }

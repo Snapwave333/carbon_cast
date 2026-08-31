@@ -12,7 +12,11 @@ import { By } from '@angular/platform-browser';
 import { StorageMap } from '@ngx-pwa/local-storage';
 import { TranslateModule } from '@ngx-translate/core';
 import { of, Subject } from 'rxjs';
-import { VideoPlayer } from '@iptvnator/shared/interfaces';
+import {
+    DEFAULT_PREFERRED_QUALITY,
+    type PreferredQuality,
+    VideoPlayer,
+} from '@iptvnator/shared/interfaces';
 import { RuntimeCapabilitiesService } from '@iptvnator/services';
 import type { WebPlayerViewComponent as WebPlayerViewComponentInstance } from './web-player-view.component';
 import {
@@ -38,6 +42,9 @@ class StubVjsPlayerComponent {
     readonly mediaTitle = input<unknown>(null);
     readonly volume = input(1);
     readonly showCaptions = input(false);
+    readonly preferredQuality = input<PreferredQuality>(
+        DEFAULT_PREFERRED_QUALITY
+    );
     readonly interactionEnabled = input(true);
     readonly startTime = input(0);
     readonly seriesNavigation = input<unknown>(null);
@@ -57,6 +64,9 @@ class StubHtmlVideoPlayerComponent {
     readonly mediaTitle = input<unknown>(null);
     readonly volume = input(1);
     readonly showCaptions = input(false);
+    readonly preferredQuality = input<PreferredQuality>(
+        DEFAULT_PREFERRED_QUALITY
+    );
     readonly isLive = input(true);
     readonly interactionEnabled = input(true);
     readonly startTime = input(0);
@@ -77,6 +87,9 @@ class StubArtPlayerComponent {
     readonly mediaTitle = input<unknown>(null);
     readonly volume = input(1);
     readonly showCaptions = input(false);
+    readonly preferredQuality = input<PreferredQuality>(
+        DEFAULT_PREFERRED_QUALITY
+    );
     readonly isLive = input(true);
     readonly interactionEnabled = input(true);
     readonly startTime = input(0);

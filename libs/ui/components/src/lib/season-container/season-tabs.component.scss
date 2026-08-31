@@ -14,7 +14,7 @@
         align-items: center;
         gap: 6px;
         padding: 8px 16px;
-        border: none;
+        border: 1px solid transparent;
         border-radius: 999px;
         background: transparent;
         color: var(--text-secondary, rgba(255, 255, 255, 0.7));
@@ -22,18 +22,23 @@
         font-family: inherit;
         cursor: pointer;
         transition:
-            background 150ms ease,
-            color 150ms ease;
+            background 160ms ease,
+            border-color 160ms ease,
+            transform 160ms ease,
+            color 160ms ease;
 
         &:hover {
             background: var(--tag-bg, rgba(255, 255, 255, 0.08));
+            border-color: rgba(255, 255, 255, 0.1);
+            transform: translateY(-1px);
         }
 
         &--active {
-            background: var(--tag-bg, rgba(255, 255, 255, 0.1));
+            background: color-mix(in srgb, var(--app-selection-surface, var(--mat-sys-primary)) 25%, transparent);
             color: var(--text-primary, #fff);
             font-weight: 600;
-            outline: 1px solid var(--tag-border, rgba(255, 255, 255, 0.2));
+            border-color: var(--app-selection-border, rgba(47, 123, 255, 0.4));
+            box-shadow: 0 4px 14px -4px var(--app-selection-glow, rgba(47, 123, 255, 0.3));
         }
     }
 

@@ -16,8 +16,22 @@
 
     <div class="setting-item">
         <div class="setting-item__meta">
-            <h4>{{ 'SETTINGS.VIDEO_PLAYER_LABEL' | translate }}</h4>
-            <p>{{ 'SETTINGS.VIDEO_PLAYER_DESCRIPTION' | translate }}</p>
+            <div class="setting-item__title">
+                <h4>{{ 'SETTINGS.VIDEO_PLAYER_LABEL' | translate }}</h4>
+                <button
+                    type="button"
+                    class="settings-help-button"
+                    [matTooltip]="
+                        'SETTINGS.VIDEO_PLAYER_DESCRIPTION' | translate
+                    "
+                    [attr.aria-label]="
+                        'SETTINGS.VIDEO_PLAYER_DESCRIPTION' | translate
+                    "
+                    data-test-id="tooltip-video-player"
+                >
+                    <mat-icon svgIcon="info_outline"></mat-icon>
+                </button>
+            </div>
         </div>
         <div class="setting-item__control">
             <mat-form-field appearance="outline" subscriptSizing="dynamic">
@@ -40,7 +54,7 @@
         </div>
     </div>
 
-    <div class="setting-item">
+    <div class="setting-item" [hidden]="!showAdvanced()">
         <div class="setting-item__meta">
             <h4>{{ 'SETTINGS.STREAM_FORMAT' | translate }}</h4>
             <p>{{ 'SETTINGS.STREAM_FORMAT_DESCRIPTION' | translate }}</p>
@@ -72,6 +86,7 @@
     @if (isWebPlayerSelected()) {
         <div
             class="setting-item"
+            [hidden]="!showAdvanced()"
             data-test-id="web-player-shared-controls-setting"
         >
             <div class="setting-item__meta">
@@ -96,7 +111,53 @@
             </div>
         </div>
 
-        <div class="setting-item" data-test-id="player-ambient-mode-setting">
+        <div class="setting-item" data-test-id="preferred-quality-setting">
+            <div class="setting-item__meta">
+                <div class="setting-item__title">
+                    <h4>{{ 'SETTINGS.PREFERRED_QUALITY' | translate }}</h4>
+                    <button
+                        type="button"
+                        class="settings-help-button"
+                        [matTooltip]="
+                            'SETTINGS.PREFERRED_QUALITY_DESCRIPTION' | translate
+                        "
+                        [attr.aria-label]="
+                            'SETTINGS.PREFERRED_QUALITY_DESCRIPTION' | translate
+                        "
+                        data-test-id="tooltip-preferred-quality"
+                    >
+                        <mat-icon svgIcon="info_outline"></mat-icon>
+                    </button>
+                </div>
+            </div>
+            <div class="setting-item__control">
+                <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                    <mat-label>{{
+                        'SETTINGS.PREFERRED_QUALITY' | translate
+                    }}</mat-label>
+                    <mat-select
+                        formControlName="preferredQuality"
+                        data-test-id="select-preferred-quality"
+                    >
+                        @for (option of qualityOptions; track option.value) {
+                            <mat-option
+                                [value]="option.value"
+                                [attr.data-test-id]="
+                                    'preferred-quality-' + option.value
+                                "
+                                >{{ option.labelKey | translate }}
+                            </mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
+            </div>
+        </div>
+
+        <div
+            class="setting-item"
+            [hidden]="!showAdvanced()"
+            data-test-id="player-ambient-mode-setting"
+        >
             <div class="setting-item__meta">
                 <h4>
                     {{ 'SETTINGS.PLAYER_AMBIENT_MODE' | translate }}
@@ -114,7 +175,11 @@
             </div>
         </div>
 
-        <div class="setting-item" data-test-id="player-up-next-rail-setting">
+        <div
+            class="setting-item"
+            [hidden]="!showAdvanced()"
+            data-test-id="player-up-next-rail-setting"
+        >
             <div class="setting-item__meta">
                 <h4>
                     {{ 'SETTINGS.PLAYER_UP_NEXT_RAIL' | translate }}
@@ -132,7 +197,7 @@
             </div>
         </div>
 
-        <div class="setting-item">
+        <div class="setting-item" [hidden]="!showAdvanced()">
             <div class="setting-item__meta">
                 <h4>
                     {{ 'SETTINGS.GUIDE_ARTWORK' | translate }}
@@ -152,6 +217,7 @@
 
         <div
             class="setting-item setting-item--player-controls"
+            [hidden]="!showAdvanced()"
             formGroupName="playerControls"
             data-test-id="player-controls-preferences"
         >
@@ -204,7 +270,11 @@
         </div>
     }
 
-    @if (supportsManagedExternalPlayers() && isExternalPlayerSelected()) {
+    @if (
+        showAdvanced() &&
+        supportsManagedExternalPlayers() &&
+        isExternalPlayerSelected()
+    ) {
         <div
             class="setting-item"
             data-test-id="external-player-double-click-setting"
@@ -231,7 +301,7 @@
         </div>
     }
 
-    @if (isDesktop()) {
+    @if (showAdvanced() && isDesktop()) {
         <div class="setting-item">
             <div class="setting-item__meta">
                 <h4>{{ 'SETTINGS.SHOW_EXTERNAL_PLAYBACK_BAR' | translate }}</h4>
@@ -320,7 +390,9 @@
     }
 
     @if (
-        supportsExternalPlayerPathSettings() && form().value.player === 'mpv'
+        showAdvanced() &&
+        supportsExternalPlayerPathSettings() &&
+        form().value.player === 'mpv'
     ) {
         <div class="setting-item">
             <div class="setting-item__meta">
@@ -394,7 +466,9 @@
     }
 
     @if (
-        supportsExternalPlayerPathSettings() && form().value.player === 'vlc'
+        showAdvanced() &&
+        supportsExternalPlayerPathSettings() &&
+        form().value.player === 'vlc'
     ) {
         <div class="setting-item">
             <div class="setting-item__meta">

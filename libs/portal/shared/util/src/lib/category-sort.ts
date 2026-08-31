@@ -6,7 +6,7 @@ const CATEGORY_SORT_COLLATOR = new Intl.Collator(undefined, {
 export type PortalCategorySortMode = 'server' | 'name-asc' | 'name-desc';
 
 export const DEFAULT_PORTAL_CATEGORY_SORT_MODE: PortalCategorySortMode =
-    'server';
+    'name-asc';
 
 export const WORKSPACE_CATEGORY_SORT_STORAGE_KEY =
     'workspace-category-sort-mode';

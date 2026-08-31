@@ -1,23 +1,11 @@
-import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { TranslateModule } from '@ngx-translate/core';
 import { XtreamSerieEpisode } from '@iptvnator/shared/interfaces';
-import { DownloadsService } from '@iptvnator/services';
 import { of } from 'rxjs';
 import { EPISODE_INFO_PLAY } from './episode-info-dialog.component';
 import { SeasonContainerComponent } from './season-container.component';
-
-const downloadsServiceStub = {
-    isAvailable: signal(false),
-    downloads: () => [],
-    startDownload: async () => undefined,
-    isDownloaded: () => false,
-    isDownloading: () => false,
-    getDownloadedFilePath: () => '',
-    playDownload: async () => undefined,
-};
 
 function createEpisode(
     overrides: Partial<XtreamSerieEpisode> = {}
@@ -65,10 +53,6 @@ describe('SeasonContainerComponent', () => {
                 TranslateModule.forRoot(),
             ],
             providers: [
-                {
-                    provide: DownloadsService,
-                    useValue: downloadsServiceStub,
-                },
                 {
                     provide: MatDialog,
                     useValue: { open: dialogOpen },
@@ -149,9 +133,8 @@ describe('SeasonContainerComponent', () => {
         });
         fixture.detectChanges();
 
-        const pills = fixture.nativeElement.querySelectorAll(
-            '.season-tabs__pill'
-        );
+        const pills =
+            fixture.nativeElement.querySelectorAll('.season-tabs__pill');
         (pills[1] as HTMLButtonElement).click();
         fixture.detectChanges();
 
@@ -220,9 +203,8 @@ describe('SeasonContainerComponent', () => {
         });
         fixture.detectChanges();
 
-        const pills = fixture.nativeElement.querySelectorAll(
-            '.season-tabs__pill'
-        );
+        const pills =
+            fixture.nativeElement.querySelectorAll('.season-tabs__pill');
         (pills[1] as HTMLButtonElement).click();
         fixture.detectChanges();
         expect(component.selectedSeason()).toBe('2');
@@ -272,9 +254,8 @@ describe('SeasonContainerComponent', () => {
             )
         ).toBeNull();
 
-        const pills = fixture.nativeElement.querySelectorAll(
-            '.season-tabs__pill'
-        );
+        const pills =
+            fixture.nativeElement.querySelectorAll('.season-tabs__pill');
         (pills[1] as HTMLButtonElement).click();
         fixture.detectChanges();
 

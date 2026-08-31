@@ -48,6 +48,8 @@ export const MEDIA_ICONS: Record<string, string> = {
         '<rect x="8" y="8" width="8" height="13" rx="2"/><circle cx="12" cy="12.5" r="1.4"/><path d="M8.5 5.5a5 5 0 0 1 7 0"/><path d="M6 3a8.5 8.5 0 0 1 12 0"/>',
     aspect_ratio:
         '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M6.5 11.5v-3h3"/><path d="M17.5 12.5v3h-3"/>',
+    high_quality:
+        '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7.5 15V9M7.5 12h3.5M11 9v6"/><path d="M14.5 9.5h1.5A1.5 1.5 0 0 1 17.5 11v2a1.5 1.5 0 0 1-1.5 1.5h-1.5Z"/>',
     fullscreen_exit: '<path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/>',
     picture_in_picture:
         '<rect x="3" y="4.5" width="18" height="15" rx="2"/><rect x="12.5" y="7.5" width="5.5" height="4" rx="1" fill="currentColor" stroke="none"/>',
