@@ -27,6 +27,35 @@
 
 ---
 
+## 📑 Table of Contents
+
+- [📸 In-App Screenshots](#-in-app-screenshots)
+- [✨ Features](#-features)
+  - [📋 Playlists & Sources](#-playlists--sources)
+  - [📺 Playback](#-playback)
+  - [📡 Live TV & EPG](#-live-tv--epg)
+  - [🎬 Movies & Series (VOD)](#-movies--series-vod)
+  - [🔍 Discovery & Organization](#-discovery--organization)
+  - [🤖 AI Agent Control](#-ai-agent-control--automation)
+  - [🌐 Platform Matrix](#-platform)
+- [🤖 AI Agents & CLI Pipeline (MCP)](#-ai-agents--cli-pipeline-mcp)
+  - [📐 Dual-Surface Architecture](#-dual-surface-architecture)
+  - [⚡ One-Command Global Install](#-one-command-global-install)
+  - [🛠️ Agent Tool Capabilities](#️-agent-tool-capabilities)
+  - [💻 CLI Usage (`iptvctl`)](#-cli-usage-iptvctl)
+- [🏗️ Architecture Overview](#️-architecture-overview)
+- [⚡ Quick Start](#-quick-start)
+  - [Desktop App](#desktop-app)
+  - [Self-Hosted PWA (Docker)](#self-hosted-pwa-docker)
+  - [Development & Debug Flags](#development)
+- [⌨️ Keyboard Shortcuts](#️-keyboard-shortcuts)
+- [🔧 Troubleshooting](#-troubleshooting)
+- [🧭 Repository Navigation](#-repository-navigation)
+- [🙏 Attribution](#-attribution)
+- [⚖️ License & Trademark](#️-license--trademark)
+
+---
+
 ## 📸 In-App Screenshots
 
 <table>
