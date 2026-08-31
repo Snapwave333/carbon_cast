@@ -27,9 +27,36 @@
 
 ---
 
-## 📸 Screenshots
+## 📸 In-App Screenshots
 
-> **Screenshots coming soon** — CarbonCast IPTV is actively being built. Check back after the next release, or [download the app](https://github.com/Snapwave333/carbon_cast/releases/latest) to try it yourself.
+<table>
+  <tr>
+    <td align="center">
+      <img src="./apps/website/public/screenshots/tv-guide.png" alt="Live TV Guide with EPG Timeline" />
+      <br /><sub><b>Live TV Guide &amp; EPG Timeline</b></sub>
+    </td>
+    <td align="center">
+      <img src="./apps/website/public/screenshots/category-selection.png" alt="Category &amp; Channel Selection" />
+      <br /><sub><b>Category &amp; Channel Browser</b></sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="./apps/website/public/screenshots/followed-series.png" alt="Followed Series &amp; Season Tracker" />
+      <br /><sub><b>Followed Series &amp; Season Tracker</b></sub>
+    </td>
+    <td align="center">
+      <img src="./apps/website/public/screenshots/radio.png" alt="Radio Streaming Player" />
+      <br /><sub><b>Live Radio &amp; Station Streaming</b></sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" colspan="2">
+      <img src="./apps/website/public/screenshots/podcast.png" alt="Podcasts &amp; Audio Player" />
+      <br /><sub><b>Podcasts &amp; On-Demand Audio Hub</b></sub>
+    </td>
+  </tr>
+</table>
 
 ---
 
